@@ -149,15 +149,33 @@ namespace SoowGoodWeb.Services
                     var result = await _userManager.CreateAsync(user, password);
                     if (result.Succeeded)
                     {
+
                         var roleRes = await _userManager.AddToRoleAsync(user, role);
                         if (roleRes.Succeeded)
                         {
+
                             return "User Created Successfully";
+
                         }
+                        else
+                        {
+                            var errl = "";
+                            foreach (var e in roleRes.Errors)
+                            {
+                                errl += e.Description;
+                            }
+                            return "User Registration failed - : reason - " + errl;
+                        }
+
                     }
                     else
                     {
-                        return "User Registration failed";
+                        var err = "";
+                        foreach (var e in result.Errors)
+                        {
+                            err += e.Description;
+                        }
+                        return "User Registration failed - : reason - " + err;
                     }
                 }
                 else
@@ -169,8 +187,9 @@ namespace SoowGoodWeb.Services
             catch (Exception)
             {
                 throw new UserFriendlyException("User Create not successfull.");
+                //return ex.Message;
             }
-            return "User Registration failed"; ;
+            return "Erro: User Create not successfull. !!!";
         }
 
         //private async Task<TokenResponse> GetToken()
