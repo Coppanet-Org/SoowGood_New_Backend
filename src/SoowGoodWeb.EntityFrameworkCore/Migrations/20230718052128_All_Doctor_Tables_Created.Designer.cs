@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230718052128_All_Doctor_Tables_Created")]
+    partial class All_Doctor_Tables_Created
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -71,7 +74,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgDegrees");
+                    b.ToTable("Degrees");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorDegree", b =>
@@ -142,7 +145,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("DoctorProfileId");
 
-                    b.ToTable("SgDoctorDegrees");
+                    b.ToTable("DoctorDegrees");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorProfile", b =>
@@ -263,7 +266,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("SpecialityId");
 
-                    b.ToTable("SgDoctorProfiles");
+                    b.ToTable("DoctorProfiles");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorSpecialization", b =>
@@ -324,7 +327,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("SpecializationId");
 
-                    b.ToTable("SgDoctorSpecializations");
+                    b.ToTable("DoctorSpecializations");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DocumentsAttachment", b =>
@@ -388,7 +391,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgDocumentsAttachments");
+                    b.ToTable("DocumentsAttachments");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Otp", b =>
@@ -447,7 +450,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgOtps");
+                    b.ToTable("Otps");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Speciality", b =>
@@ -497,7 +500,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgSpecialities");
+                    b.ToTable("Specialities");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Specialization", b =>
@@ -552,7 +555,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("SpecialityId");
 
-                    b.ToTable("SgSpecializations");
+                    b.ToTable("Specializations");
                 });
 
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLog", b =>

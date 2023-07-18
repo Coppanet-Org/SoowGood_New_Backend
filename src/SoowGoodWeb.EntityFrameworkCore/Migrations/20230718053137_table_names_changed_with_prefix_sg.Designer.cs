@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230718053137_table_names_changed_with_prefix_sg")]
+    partial class table_names_changed_with_prefix_sg
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,7 +27,66 @@ namespace SoowGoodWeb.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("SoowGoodWeb.Models.Degree", b =>
+            modelBuilder.Entity("SoowGoodWeb.Models.Otp", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<DateTime>("ExpireDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<int?>("MaxAttempt")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MobileNo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("OtpNo")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OtpStatus")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Otps");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.SgDegree", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -74,7 +136,7 @@ namespace SoowGoodWeb.Migrations
                     b.ToTable("SgDegrees");
                 });
 
-            modelBuilder.Entity("SoowGoodWeb.Models.DoctorDegree", b =>
+            modelBuilder.Entity("SoowGoodWeb.Models.SgDoctorDegree", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -145,7 +207,7 @@ namespace SoowGoodWeb.Migrations
                     b.ToTable("SgDoctorDegrees");
                 });
 
-            modelBuilder.Entity("SoowGoodWeb.Models.DoctorProfile", b =>
+            modelBuilder.Entity("SoowGoodWeb.Models.SgDoctorProfile", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -266,7 +328,7 @@ namespace SoowGoodWeb.Migrations
                     b.ToTable("SgDoctorProfiles");
                 });
 
-            modelBuilder.Entity("SoowGoodWeb.Models.DoctorSpecialization", b =>
+            modelBuilder.Entity("SoowGoodWeb.Models.SgDoctorSpecialization", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -327,7 +389,7 @@ namespace SoowGoodWeb.Migrations
                     b.ToTable("SgDoctorSpecializations");
                 });
 
-            modelBuilder.Entity("SoowGoodWeb.Models.DocumentsAttachment", b =>
+            modelBuilder.Entity("SoowGoodWeb.Models.SgDocumentsAttachment", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -391,66 +453,7 @@ namespace SoowGoodWeb.Migrations
                     b.ToTable("SgDocumentsAttachments");
                 });
 
-            modelBuilder.Entity("SoowGoodWeb.Models.Otp", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<DateTime>("ExpireDateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<int?>("MaxAttempt")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MobileNo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("OtpNo")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OtpStatus")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SgOtps");
-                });
-
-            modelBuilder.Entity("SoowGoodWeb.Models.Speciality", b =>
+            modelBuilder.Entity("SoowGoodWeb.Models.SgSpeciality", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -497,10 +500,10 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgSpecialities");
+                    b.ToTable("Specialities");
                 });
 
-            modelBuilder.Entity("SoowGoodWeb.Models.Specialization", b =>
+            modelBuilder.Entity("SoowGoodWeb.Models.SgSpecialization", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -2211,15 +2214,15 @@ namespace SoowGoodWeb.Migrations
                     b.ToTable("AbpTenantConnectionStrings", (string)null);
                 });
 
-            modelBuilder.Entity("SoowGoodWeb.Models.DoctorDegree", b =>
+            modelBuilder.Entity("SoowGoodWeb.Models.SgDoctorDegree", b =>
                 {
-                    b.HasOne("SoowGoodWeb.Models.Degree", "Degree")
+                    b.HasOne("SoowGoodWeb.Models.SgDegree", "Degree")
                         .WithMany()
                         .HasForeignKey("DegreeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SoowGoodWeb.Models.DoctorProfile", "DoctorProfile")
+                    b.HasOne("SoowGoodWeb.Models.SgDoctorProfile", "DoctorProfile")
                         .WithMany("Degrees")
                         .HasForeignKey("DoctorProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2230,9 +2233,9 @@ namespace SoowGoodWeb.Migrations
                     b.Navigation("DoctorProfile");
                 });
 
-            modelBuilder.Entity("SoowGoodWeb.Models.DoctorProfile", b =>
+            modelBuilder.Entity("SoowGoodWeb.Models.SgDoctorProfile", b =>
                 {
-                    b.HasOne("SoowGoodWeb.Models.Speciality", "Speciality")
+                    b.HasOne("SoowGoodWeb.Models.SgSpeciality", "Speciality")
                         .WithMany()
                         .HasForeignKey("SpecialityId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2241,19 +2244,19 @@ namespace SoowGoodWeb.Migrations
                     b.Navigation("Speciality");
                 });
 
-            modelBuilder.Entity("SoowGoodWeb.Models.DoctorSpecialization", b =>
+            modelBuilder.Entity("SoowGoodWeb.Models.SgDoctorSpecialization", b =>
                 {
-                    b.HasOne("SoowGoodWeb.Models.DoctorProfile", "DoctorProfile")
+                    b.HasOne("SoowGoodWeb.Models.SgDoctorProfile", "DoctorProfile")
                         .WithMany("DoctorSpecialization")
                         .HasForeignKey("DoctorProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SoowGoodWeb.Models.Speciality", "Speciality")
+                    b.HasOne("SoowGoodWeb.Models.SgSpeciality", "Speciality")
                         .WithMany()
                         .HasForeignKey("SpecialityId");
 
-                    b.HasOne("SoowGoodWeb.Models.Specialization", "Specialization")
+                    b.HasOne("SoowGoodWeb.Models.SgSpecialization", "Specialization")
                         .WithMany()
                         .HasForeignKey("SpecializationId");
 
@@ -2264,9 +2267,9 @@ namespace SoowGoodWeb.Migrations
                     b.Navigation("Specialization");
                 });
 
-            modelBuilder.Entity("SoowGoodWeb.Models.Specialization", b =>
+            modelBuilder.Entity("SoowGoodWeb.Models.SgSpecialization", b =>
                 {
-                    b.HasOne("SoowGoodWeb.Models.Speciality", "Speciality")
+                    b.HasOne("SoowGoodWeb.Models.SgSpeciality", "Speciality")
                         .WithMany("Specializations")
                         .HasForeignKey("SpecialityId");
 
@@ -2415,14 +2418,14 @@ namespace SoowGoodWeb.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SoowGoodWeb.Models.DoctorProfile", b =>
+            modelBuilder.Entity("SoowGoodWeb.Models.SgDoctorProfile", b =>
                 {
                     b.Navigation("Degrees");
 
                     b.Navigation("DoctorSpecialization");
                 });
 
-            modelBuilder.Entity("SoowGoodWeb.Models.Speciality", b =>
+            modelBuilder.Entity("SoowGoodWeb.Models.SgSpeciality", b =>
                 {
                     b.Navigation("Specializations");
                 });
