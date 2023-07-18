@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using SoowGoodWeb.DtoModels;
+using SoowGoodWeb.InputDto;
+using SoowGoodWeb.Models;
 using Volo.Abp.Identity;
 
 namespace SoowGoodWeb;
@@ -14,5 +16,69 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
 
         CreateMap<IdentityUser, UserInfoDto>();
         CreateMap<UserInfoDto, IdentityUser>();
+
+        //CreateMap<TestEntity, TestEntityDto>();
+        //CreateMap<TestEntityDto, TestEntity>();
+        //CreateMap<TestEntityInputDto, TestEntity>();
+        //.ForMember(d => d.Name, o => o.MapFrom(s => s.DistrictNameEng));
+
+        CreateMap<Degree, DegreeDto>();
+        CreateMap<DegreeDto, Degree>();
+        CreateMap<DegreeInputDto, Degree>();
+
+        CreateMap<DoctorDegree, DoctorDegreeDto>()
+            .ForMember(d => d.DoctorName, o => o.MapFrom(n => n.DoctorProfile.FullName))
+            .ForMember(d => d.DegreeName, o => o.MapFrom(e => e.Degree.DegreeName));
+        CreateMap<DoctorDegreeDto, DoctorDegree>()
+            .ForMember(d => d.Degree, o => o.Ignore())
+            .ForMember(d => d.DoctorProfile, o => o.Ignore());
+        CreateMap<DoctorDegreeInputDto, DoctorDegree>()
+            .ForMember(d => d.Degree, o => o.Ignore())
+            .ForMember(d => d.DoctorProfile, o => o.Ignore());
+
+        CreateMap<Speciality, SpecialityDto>();
+        CreateMap<SpecialityDto, Speciality>()
+            .ForMember(d => d.Specializations, o => o.Ignore());
+        CreateMap<SpecialityInputDto, Speciality>()
+            .ForMember(d => d.Specializations, o => o.Ignore());
+
+        CreateMap<Specialization, SpecializationDto>()
+            .ForMember(d => d.SpecialityName, o => o.MapFrom(n => n.Speciality.SpecialityName));
+        CreateMap<SpecializationDto, Specialization>()
+            .ForMember(d => d.Speciality, o => o.Ignore());
+        CreateMap<SpecializationInputDto, Specialization>()
+            .ForMember(d => d.Speciality, o => o.Ignore());
+
+        CreateMap<DoctorSpecialization, DoctorSpecializationDto>()
+            .ForMember(d => d.DoctorName, o => o.MapFrom(n => n.DoctorProfile.FullName))
+            .ForMember(d => d.SpecialityName, o => o.MapFrom(n => n.Speciality.SpecialityName))
+            .ForMember(d => d.SpecializationName, o => o.MapFrom(n => n.Specialization.SpecializationName));
+        CreateMap<DoctorSpecializationDto, DoctorSpecialization>()
+            .ForMember(d => d.DoctorProfile, o => o.Ignore())
+            .ForMember(d => d.Speciality, o => o.Ignore())
+            .ForMember(d => d.Specialization, o => o.Ignore());
+        CreateMap<DoctorSpecializationInputDto, DoctorSpecialization>()
+            .ForMember(d => d.DoctorProfile, o => o.Ignore())
+            .ForMember(d => d.Speciality, o => o.Ignore())
+            .ForMember(d => d.Specialization, o => o.Ignore());
+
+        CreateMap<DoctorProfile, DoctorProfileDto>()
+            .ForMember(d => d.DoctorTitleName, o => o.MapFrom(n => n.DoctorTitle > 0 ? Utilities.Utility.GetDisplayName(n.DoctorTitle) : ""))
+            .ForMember(d => d.GenderName, o => o.MapFrom(n => n.Gender > 0 ? n.Gender : 0))
+            .ForMember(d => d.MaritalStatusName, o => o.MapFrom(n => n.MaritalStatus > 0 ? n.MaritalStatus : 0))
+            .ForMember(d => d.SpecialityName, o => o.MapFrom(n => n.SpecialityId > 0 ? n.Speciality.SpecialityName : ""));
+        CreateMap<DoctorProfileDto, DoctorProfile>()
+            .ForMember(d => d.Speciality, o => o.Ignore())
+            .ForMember(d => d.Degrees, o => o.Ignore())
+            .ForMember(d => d.DoctorSpecialization, o => o.Ignore());
+        CreateMap<DoctorProfileInputDto, DoctorProfile>()
+            .ForMember(d => d.Speciality, o => o.Ignore())
+            .ForMember(d => d.Degrees, o => o.Ignore())
+            .ForMember(d => d.DoctorSpecialization, o => o.Ignore());
+
+        CreateMap<DocumentsAttachment, DocumentsAttachmentDto>()
+            .ForMember(d => d.EntityTypeName, o => o.MapFrom(n => n.EntityType))
+            .ForMember(d => d.AttachmentTypeName, o => o.MapFrom(n => n.AttachmentType));
+        CreateMap<DocumentsAttachmentDto, DocumentsAttachment>();
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,6 +23,15 @@ namespace SoowGoodWeb.Utilities
         {
             Random rdm = new Random();
             return rdm.Next(min, max);
+        }
+        public static string GetDisplayName(Enum enumValue)
+        {
+            var temp = enumValue.GetType().GetMember(enumValue.ToString())
+                           .First();
+            if (temp.GetCustomAttribute<DisplayAttribute>() != null)
+                return temp.GetCustomAttribute<DisplayAttribute>().Name;
+            else
+                return temp.Name;
         }
     }
 }
