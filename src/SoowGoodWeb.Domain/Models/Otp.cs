@@ -11,10 +11,10 @@ namespace SoowGoodWeb.Models
 {
     public class Otp : FullAuditedEntity<int>
     {
-        public int OtpNo { get; set; }
-        public string MobileNo { get; set; }
-        public DateTime ExpireDateTime { get; set; }
-        public OtpStatus OtpStatus { get; set; }
+        public int? OtpNo { get; set; }
+        public string? MobileNo { get; set; }
+        public DateTime? ExpireDateTime { get; set; }
+        public OtpStatus? OtpStatus { get; set; }
         public int? MaxAttempt { get; set; }
     }
 }

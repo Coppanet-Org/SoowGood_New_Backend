@@ -11,8 +11,8 @@ namespace SoowGoodWeb.Models
     public class Specialization : FullAuditedEntity<long>
     {
         public long? SpecialityId { get; set; }
-        public Speciality Speciality { get; set; }
-        public string SpecializationName { get; set; }
+        public Speciality? Speciality { get; set; }
+        public string? SpecializationName { get; set; }
         public string? Description { get; set; }
     }
 }

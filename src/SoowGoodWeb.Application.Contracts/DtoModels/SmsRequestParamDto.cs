@@ -6,8 +6,8 @@ namespace SoowGoodWeb.DtoModels
 {
     public class SmsRequestParamDto
     {
-        public string Msisdn { get; set; }
-        public string Sms { get; set; }
-        public string CsmsId { get; set; }
+        public string? Msisdn { get; set; }
+        public string? Sms { get; set; }
+        public string? CsmsId { get; set; }
     }
 }

@@ -10,8 +10,8 @@ namespace SoowGoodWeb.Models
 {
     public class Speciality : FullAuditedEntity<long>
     {
-        public string SpecialityName { get; set; }
+        public string? SpecialityName { get; set; }
         public string? Description { get; set; }
-        public List<Specialization> Specializations { get; set; }
+        public List<Specialization>? Specializations { get; set; }
     }
 }

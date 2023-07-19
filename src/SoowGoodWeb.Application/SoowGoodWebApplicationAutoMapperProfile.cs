@@ -27,8 +27,8 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<DegreeInputDto, Degree>();
 
         CreateMap<DoctorDegree, DoctorDegreeDto>()
-            .ForMember(d => d.DoctorName, o => o.MapFrom(n => n.DoctorProfile.FullName))
-            .ForMember(d => d.DegreeName, o => o.MapFrom(e => e.Degree.DegreeName));
+            .ForMember(d => d.DoctorName, o => o.MapFrom(n => (n.DoctorId > 0 && n.DoctorProfile != null) ? n.DoctorProfile.FullName:""))
+            .ForMember(d => d.DegreeName, o => o.MapFrom(e => (e.DegreeId > 0 && e.Degree != null) ? e.Degree.DegreeName:""));
         CreateMap<DoctorDegreeDto, DoctorDegree>()
             .ForMember(d => d.Degree, o => o.Ignore())
             .ForMember(d => d.DoctorProfile, o => o.Ignore());
@@ -43,16 +43,16 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
             .ForMember(d => d.Specializations, o => o.Ignore());
 
         CreateMap<Specialization, SpecializationDto>()
-            .ForMember(d => d.SpecialityName, o => o.MapFrom(n => n.Speciality.SpecialityName));
+            .ForMember(d => d.SpecialityName, o => o.MapFrom(n => n.SpecialityId > 0 && n.Speciality != null ? n.Speciality.SpecialityName : ""));
         CreateMap<SpecializationDto, Specialization>()
             .ForMember(d => d.Speciality, o => o.Ignore());
         CreateMap<SpecializationInputDto, Specialization>()
             .ForMember(d => d.Speciality, o => o.Ignore());
 
         CreateMap<DoctorSpecialization, DoctorSpecializationDto>()
-            .ForMember(d => d.DoctorName, o => o.MapFrom(n => n.DoctorProfile.FullName))
-            .ForMember(d => d.SpecialityName, o => o.MapFrom(n => n.Speciality.SpecialityName))
-            .ForMember(d => d.SpecializationName, o => o.MapFrom(n => n.Specialization.SpecializationName));
+            .ForMember(d => d.DoctorName, o => o.MapFrom(n => (n.DoctorId > 0 && n.DoctorProfile != null) ? n.DoctorProfile.FullName : ""))
+            .ForMember(d => d.SpecialityName, o => o.MapFrom(n => (n.SpecialityId > 0 && n.Speciality != null) ? n.Speciality.SpecialityName : ""))
+            .ForMember(d => d.SpecializationName, o => o.MapFrom(n => (n.SpecializationId > 0 && n.Specialization != null) ? n.Specialization.SpecializationName : ""));
         CreateMap<DoctorSpecializationDto, DoctorSpecialization>()
             .ForMember(d => d.DoctorProfile, o => o.Ignore())
             .ForMember(d => d.Speciality, o => o.Ignore())
@@ -66,7 +66,7 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
             .ForMember(d => d.DoctorTitleName, o => o.MapFrom(n => n.DoctorTitle > 0 ? Utilities.Utility.GetDisplayName(n.DoctorTitle) : ""))
             .ForMember(d => d.GenderName, o => o.MapFrom(n => n.Gender > 0 ? n.Gender : 0))
             .ForMember(d => d.MaritalStatusName, o => o.MapFrom(n => n.MaritalStatus > 0 ? n.MaritalStatus : 0))
-            .ForMember(d => d.SpecialityName, o => o.MapFrom(n => n.SpecialityId > 0 ? n.Speciality.SpecialityName : ""));
+            .ForMember(d => d.SpecialityName, o => o.MapFrom(n => n.SpecialityId > 0 && n.Speciality != null ? n.Speciality.SpecialityName : ""));
         CreateMap<DoctorProfileDto, DoctorProfile>()
             .ForMember(d => d.Speciality, o => o.Ignore())
             .ForMember(d => d.Degrees, o => o.Ignore())

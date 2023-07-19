@@ -8,8 +8,8 @@ namespace SoowGoodWeb.InputDto
 {
     public class SpecialityInputDto : FullAuditedEntityDto<long>
     {
-        public string SpecialityName { get; set; }
+        public string? SpecialityName { get; set; }
         public string? Description { get; set; }
-        public List<SpecializationInputDto> Specializations { get; set; }
+        public List<SpecializationInputDto>? Specializations { get; set; }
     }
 }

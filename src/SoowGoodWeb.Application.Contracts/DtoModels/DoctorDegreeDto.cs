@@ -8,15 +8,15 @@ namespace SoowGoodWeb.DtoModels
 {
     public class DoctorDegreeDto : FullAuditedEntityDto<long>
     {
-        public long DoctorId { get; set; }             
-        public DoctorProfileDto DoctorProfile { get; set; }
-        public string DoctorName { get; set; }
-        public long DegreeId { get; set; }
-        public DegreeDto Degree { get; set; }
-        public string DegreeName { get; set; }
-        public string InstituteName { get; set; }
-        public string InstituteCity { get; set; }
+        public long? DoctorId { get; set; }             
+        //public DoctorProfileDto? DoctorProfile { get; set; }
+        public string? DoctorName { get; set; }
+        public long? DegreeId { get; set; }
+        public DegreeDto? Degree { get; set; }
+        public string? DegreeName { get; set; }
+        public string? InstituteName { get; set; }
+        public string? InstituteCity { get; set; }
         public string? ZipCode { get; set; }
-        public string InstituteCountry { get; set; }
+        public string? InstituteCountry { get; set; }
     }
 }
