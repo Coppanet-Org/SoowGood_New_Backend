@@ -15,6 +15,12 @@ using Volo.Abp.Users;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Identity;
 using System.Transactions;
+using SoowGoodWeb.Models;
+using Volo.Abp.Domain.Repositories;
+using SoowGoodWeb.Interfaces;
+using SoowGoodWeb.InputDto;
+using Volo.Abp.Uow;
+using SoowGoodWeb.Enums;
 
 namespace SoowGoodWeb.Services
 {
@@ -26,18 +32,28 @@ namespace SoowGoodWeb.Services
 
         private readonly IdentityUserManager _userManager;
         private readonly IdentityRoleManager _roleManager;
-        //private readonly IdentityUserLogin _signInManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly IRepository<DoctorProfile> _doctorProfileRepository;
+
+        private readonly IUnitOfWorkManager _unitOfWorkManager;
+        private readonly DoctorProfileService _doctorProfileservice;
 
         private readonly IEmailSender _emailSender;
 
-        public UserAccountsService(IdentityUserManager userManager, IdentityRoleManager roleManager, SignInManager<IdentityUser> signInManager,
-        IEmailSender emailSender)
+        public UserAccountsService(IdentityUserManager userManager,
+                                   IdentityRoleManager roleManager,
+                                   SignInManager<IdentityUser> signInManager,
+                                   IRepository<DoctorProfile> doctorProfileRepository,
+                                   IUnitOfWorkManager unitOfWorkManager,
+                                   IEmailSender emailSender)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
+            _doctorProfileRepository = doctorProfileRepository;
+            _unitOfWorkManager = unitOfWorkManager;
             _emailSender = emailSender;
+            _doctorProfileservice = new DoctorProfileService(_doctorProfileRepository, _unitOfWorkManager);
         }
 
         // POST /api/account/reset-password
@@ -137,50 +153,102 @@ namespace SoowGoodWeb.Services
             return null;
         }
         [AllowAnonymous]
-        public virtual async Task<string> SignupUser(UserInfoDto userDto, string password, string role)
+        public virtual async Task<UserSignUpResultDto> SignupUser(UserInfoDto userDto, string password, string role)
         {
             try
             {
                 var user = ObjectMapper.Map<UserInfoDto, IdentityUser>(userDto);
                 var isUserExists = await _userManager.FindByNameAsync(user.UserName);
-                //var exUser = _userManager.Users.Where(u => u.UserName == userDto.UserName && u.IsActive == true).FirstOrDefault();
+                UserSignUpResultDto userInfo = new UserSignUpResultDto();
                 if (isUserExists == null)
                 {
                     var result = await _userManager.CreateAsync(user, password);
+
                     if (result.Succeeded)
                     {
-
                         var roleRes = await _userManager.AddToRoleAsync(user, role);
                         if (roleRes.Succeeded)
                         {
+                            var createdUser = await _userManager.FindByNameAsync(userDto.UserName);
 
-                            return "User Created Successfully";
 
+                            if (createdUser != null)
+                            {
+                                userInfo.UserId = createdUser.Id;
+                                userInfo.UserName = createdUser.UserName;
+                                userInfo.Name = createdUser.Name;
+                                userInfo.Email = createdUser.Email;
+                                userInfo.PhoneNumber = createdUser.PhoneNumber;
+                                userInfo.IsActive = createdUser.IsActive;
+                                userInfo.Success = true;
+                                userInfo.Message = "User Created Successfully";
+                            }
+
+                            //if (createdUser != null)
+                            //{
+                            //DoctorProfileInputDto doctorProfileDto = new DoctorProfileInputDto();
+
+                            //    doctorProfileDto.FirstName = "N/A";
+                            //    doctorProfileDto.LastName = "N/A";
+                            //    doctorProfileDto.FullName = createdUser.Name;
+                            //    doctorProfileDto.DoctorTitle = DoctorTitle.Dr;
+                            //    doctorProfileDto.DateOfBirth = DateTime.Now;
+                            //    doctorProfileDto.Gender = Gender.Male;
+                            //    doctorProfileDto.MaritalStatus = MaritalStatus.Single;
+                            //    doctorProfileDto.Address = "N/A";
+                            //    doctorProfileDto.City = "N/A";
+                            //    doctorProfileDto.ZipCode = "N/A";
+                            //    doctorProfileDto.Country = "N/A";
+                            //    doctorProfileDto.MobileNo = createdUser.PhoneNumber;
+                            //    doctorProfileDto.Email = createdUser.Email;
+                            //    doctorProfileDto.IdentityNumber = "N/A";
+                            //    doctorProfileDto.BMDCRegNo = "N/A";
+                            //    doctorProfileDto.BMDCRegExpiryDate = DateTime.Now;
+                            //    doctorProfileDto.Degrees =null;
+                            //    doctorProfileDto.SpecialityId = 2;
+                            //    doctorProfileDto.DoctorSpecialization = null;
+                            //    doctorProfileDto.IsIdFileUploaded = false;
+                            //    doctorProfileDto.IsSpecialityFileUploaded = false;                                
+                            //    doctorProfileDto.IsActive = createdUser.IsActive;
+                            //    doctorProfileDto.UserId = createdUser.Id;
+                            //    doctorProfileDto.IsOnline = false;
+
+
+                            //    var resss = await _doctorProfileservice.CreateAsync(doctorProfileDto);
+                            //    if(resss.Id>0)
+                            //    {
+                            return userInfo;// "User Created Successfully";
+                                            //}
+                                            //}
                         }
                         else
                         {
                             var errl = "";
+                            userInfo.Success=false;
                             foreach (var e in roleRes.Errors)
                             {
-                                errl += e.Description;
+                                userInfo.Message += e.Description;
                             }
-                            return "User Registration failed - : reason - " + errl;
+                            return userInfo;// "User Registration failed - : reason - " + errl;
                         }
 
                     }
                     else
                     {
                         var err = "";
+                        userInfo.Success = false;
                         foreach (var e in result.Errors)
                         {
-                            err += e.Description;
+                            userInfo.Message += e.Description;
                         }
-                        return "User Registration failed - : reason - " + err;
+                        return userInfo;//"User Registration failed - : reason - " + err;
                     }
                 }
                 else
                 {
-                    return "User Already Exists";
+                    userInfo.Success = false;
+                    userInfo.Message= "User Already Exists";
+                    return userInfo; //; "User Already Exists";
                 }
 
             }
@@ -189,7 +257,7 @@ namespace SoowGoodWeb.Services
                 throw new UserFriendlyException("User Create not successfull.");
                 //return ex.Message;
             }
-            return "Erro: User Create not successfull. !!!";
+            //return null;// "Erro: User Create not successfull. !!!";
         }
 
         //private async Task<TokenResponse> GetToken()
