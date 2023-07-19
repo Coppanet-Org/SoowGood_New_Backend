@@ -51,7 +51,7 @@ namespace SoowGoodWeb.Services
                     otpInput.CsmsId = GenerateTransactionId(16);
                     try
                     {
-                        //var res = await _smsService.SendSmsGreenWeb(otpInput);
+                        var res = await _smsService.SendSmsGreenWeb(otpInput);
                         return true;
                     }
                     catch (Exception e)
@@ -74,18 +74,18 @@ namespace SoowGoodWeb.Services
         //[HttpGet]
         public async Task<bool> VarifyOtpAsync(int otp)
         {
-            //if (otp > 0)
-            //{
-            //    var item = await _repository.FirstOrDefaultAsync(x => x.OtpNo == otp && x.OtpStatus == OtpStatus.New && x.ExpireDateTime >= DateTime.Now);
-            //    if (item != null)
-            //    {
-            //        item.OtpStatus = OtpStatus.Varified;
-            //        await _repository.UpdateAsync(item);
-            //        await _unitOfWorkManager.Current.SaveChangesAsync();
+            if (otp > 0)
+            {
+                var item = await _repository.FirstOrDefaultAsync(x => x.OtpNo == otp && x.OtpStatus == OtpStatus.New && x.ExpireDateTime >= DateTime.Now);
+                if (item != null)
+                {
+                    item.OtpStatus = OtpStatus.Varified;
+                    await _repository.UpdateAsync(item);
+                    await _unitOfWorkManager.Current.SaveChangesAsync();
                     return true;
-            //    }
-            //}
-            //return false;
+                }
+            }
+            return false;
 
         }
 
