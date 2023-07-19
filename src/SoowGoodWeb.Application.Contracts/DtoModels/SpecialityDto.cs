@@ -8,8 +8,8 @@ namespace SoowGoodWeb.DtoModels
 {
     public class SpecialityDto : FullAuditedEntityDto<long>
     {
-        public string SpecialityName { get; set; }
+        public string? SpecialityName { get; set; }
         public string? Description { get; set; }
-        public List<SpecializationDto> Specializations { get; set; }
+        public List<SpecializationDto>? Specializations { get; set; }
     }
 }

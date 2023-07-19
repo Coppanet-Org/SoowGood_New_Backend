@@ -8,13 +8,13 @@ namespace SoowGoodWeb.InputDto
 {
     public class DoctorDegreeInputDto : FullAuditedEntityDto<long>
     {
-        public long DoctorId { get; set; }             
-        public DoctorProfileInputDto DoctorProfile { get; set; }
-        public long DegreeId { get; set; }
-        public DegreeInputDto Degree { get; set; }
-        public string InstituteName { get; set; }
-        public string InstituteCity { get; set; }
+        public long? DoctorId { get; set; }             
+        //public DoctorProfileInputDto? DoctorProfile { get; set; }
+        public long? DegreeId { get; set; }
+        //public DegreeInputDto Degree { get; set; }
+        public string? InstituteName { get; set; }
+        public string? InstituteCity { get; set; }
         public string? ZipCode { get; set; }
-        public string InstituteCountry { get; set; }
+        public string? InstituteCountry { get; set; }
     }
 }

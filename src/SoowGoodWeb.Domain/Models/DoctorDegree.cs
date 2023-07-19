@@ -11,13 +11,13 @@ namespace SoowGoodWeb.Models
     public class DoctorDegree : FullAuditedEntity<long>
     {
 
-        public long DoctorId { get; set; }
-        public DoctorProfile DoctorProfile { get; set; }
-        public long DegreeId { get; set; }
-        public Degree Degree { get; set; }
-        public string InstituteName { get; set; }
-        public string InstituteCity { get; set; }
+        public long? DoctorId { get; set; }
+        public DoctorProfile? DoctorProfile { get; set; }
+        public long? DegreeId { get; set; }
+        public Degree? Degree { get; set; }
+        public string? InstituteName { get; set; }
+        public string? InstituteCity { get; set; }
         public string? ZipCode { get; set; }        
-        public string InstituteCountry { get; set; }
+        public string? InstituteCountry { get; set; }
     }
 }
