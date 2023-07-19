@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230718052128_All_Doctor_Tables_Created")]
+    partial class All_Doctor_Tables_Created
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -71,7 +74,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgDegrees");
+                    b.ToTable("Degrees");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorDegree", b =>
@@ -142,7 +145,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("DoctorProfileId");
 
-                    b.ToTable("SgDoctorDegrees");
+                    b.ToTable("DoctorDegrees");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorProfile", b =>
@@ -154,18 +157,22 @@ namespace SoowGoodWeb.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Address")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("BMDCRegExpiryDate")
+                    b.Property<DateTime>("BMDCRegExpiryDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("BMDCRegNo")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("City")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Country")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreationTime")
@@ -176,7 +183,7 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("CreatorId");
 
-                    b.Property<DateTime?>("DateOfBirth")
+                    b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid?>("DeleterId")
@@ -187,25 +194,29 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("DeletionTime");
 
-                    b.Property<int?>("DoctorTitle")
+                    b.Property<int>("DoctorTitle")
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FirstName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FullName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("Gender")
+                    b.Property<int>("Gender")
                         .HasColumnType("int");
 
                     b.Property<string>("IdentityNumber")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("IsActive")
+                    b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
@@ -214,13 +225,13 @@ namespace SoowGoodWeb.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
 
-                    b.Property<bool?>("IsIdFileUploaded")
+                    b.Property<bool>("IsIdFileUploaded")
                         .HasColumnType("bit");
 
-                    b.Property<bool?>("IsOnline")
+                    b.Property<bool>("IsOnline")
                         .HasColumnType("bit");
 
-                    b.Property<bool?>("IsSpecialityFileUploaded")
+                    b.Property<bool>("IsSpecialityFileUploaded")
                         .HasColumnType("bit");
 
                     b.Property<DateTime?>("LastModificationTime")
@@ -232,18 +243,20 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnName("LastModifierId");
 
                     b.Property<string>("LastName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("MaritalStatus")
                         .HasColumnType("int");
 
                     b.Property<string>("MobileNo")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("SpecialityId")
+                    b.Property<long>("SpecialityId")
                         .HasColumnType("bigint");
 
-                    b.Property<Guid?>("UserId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ZipCode")
@@ -253,7 +266,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("SpecialityId");
 
-                    b.ToTable("SgDoctorProfiles");
+                    b.ToTable("DoctorProfiles");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorSpecialization", b =>
@@ -314,7 +327,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("SpecializationId");
 
-                    b.ToTable("SgDoctorSpecializations");
+                    b.ToTable("DoctorSpecializations");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DocumentsAttachment", b =>
@@ -378,7 +391,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgDocumentsAttachments");
+                    b.ToTable("DocumentsAttachments");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Otp", b =>
@@ -437,7 +450,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgOtps");
+                    b.ToTable("Otps");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Speciality", b =>
@@ -487,7 +500,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgSpecialities");
+                    b.ToTable("Specialities");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Specialization", b =>
@@ -542,7 +555,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("SpecialityId");
 
-                    b.ToTable("SgSpecializations");
+                    b.ToTable("Specializations");
                 });
 
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLog", b =>
@@ -2224,7 +2237,9 @@ namespace SoowGoodWeb.Migrations
                 {
                     b.HasOne("SoowGoodWeb.Models.Speciality", "Speciality")
                         .WithMany()
-                        .HasForeignKey("SpecialityId");
+                        .HasForeignKey("SpecialityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Speciality");
                 });

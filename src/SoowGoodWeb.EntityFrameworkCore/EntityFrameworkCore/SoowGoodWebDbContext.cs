@@ -57,7 +57,14 @@ public class SoowGoodWebDbContext :
     //SoowGood Database Models
     #region Entities from SoowGood Modules
 
-    public DbSet<Otp> Otps { get; set; }
+    public DbSet<Otp> SgOtps { get; set; }
+    public DbSet<Degree> SgDegrees { get; set; }
+    public DbSet<Speciality> SgSpecialities { get; set; }
+    public DbSet<Specialization> SgSpecializations { get; set; }
+    public DbSet<DoctorProfile> SgDoctorProfiles { get; set; }
+    public DbSet<DoctorDegree> SgDoctorDegrees { get; set; }    
+    public DbSet<DoctorSpecialization> SgDoctorSpecializations { get; set; }    
+    public DbSet<DocumentsAttachment> SgDocumentsAttachments { get; set; }
 
     #endregion
 
