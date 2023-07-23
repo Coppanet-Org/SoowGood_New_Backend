@@ -133,24 +133,45 @@ namespace SoowGoodWeb.Services
                 }
             }
         }
-        public async Task<IdentityUser?> Login(LoginDto userDto)
+        public async Task<LoginResponseDto> Login(LoginDto userDto)
         {
             var user = await _userManager.FindByNameAsync(userDto.UserName);
-
+            LoginResponseDto loginInfo = new LoginResponseDto();
+            loginInfo.RoleName = new List<string>();
             if (user != null)
             {
                 var userole = await _userManager.GetRolesAsync(user); //_roleManager.GetRolesAsync(user);
+                
                 var res = await _signInManager.PasswordSignInAsync(user.UserName, userDto.password, userDto.RememberMe, lockoutOnFailure: false);
                 if (res.Succeeded)
                 {
-                    //if(!string.IsNullOrEmpty(userole[0])) 
-                    //    user.UserRole = userole[0];
-                    //await RefreshAccessToken(user);
-                    //user.Message = "User Exists! Login Successful!";
-                    return user;
+                    loginInfo.UserId = user.Id;
+                    loginInfo.UserName = user.UserName;
+                    foreach (string r in userole)
+                    {
+                        loginInfo.RoleName.Add(r);
+                    }
+                    loginInfo.Success = true;
+                    loginInfo.Message = "User Exists! Login Successful!";
+                    return loginInfo;
+                }
+                else
+                {
+                    loginInfo.UserId = null;
+                    loginInfo.UserName = "";
+                    loginInfo.Success = false;
+                    loginInfo.Message = "Login Failed!";
+                    return loginInfo;
                 }
             }
-            return null;
+            else
+            {
+                loginInfo.UserId = null;
+                loginInfo.UserName = "";
+                loginInfo.Success = false;
+                loginInfo.Message = "User not exists! Please sign up as new user";
+                return loginInfo;
+            }            
         }
         [AllowAnonymous]
         public virtual async Task<UserSignUpResultDto> SignupUser(UserInfoDto userDto, string password, string role)
@@ -160,6 +181,9 @@ namespace SoowGoodWeb.Services
                 var user = ObjectMapper.Map<UserInfoDto, IdentityUser>(userDto);
                 var isUserExists = await _userManager.FindByNameAsync(user.UserName);
                 UserSignUpResultDto userInfo = new UserSignUpResultDto();
+                userInfo.Message = new List<string>();
+                UserSignUpResultDto response = new UserSignUpResultDto();
+                //ErroMessageDto errorInfo = new ErroMessageDto();
                 if (isUserExists == null)
                 {
                     var result = await _userManager.CreateAsync(user, password);
@@ -169,7 +193,7 @@ namespace SoowGoodWeb.Services
                         var roleRes = await _userManager.AddToRoleAsync(user, role);
                         if (roleRes.Succeeded)
                         {
-                            var createdUser = await _userManager.FindByNameAsync(userDto.UserName);
+                            var createdUser = await _userManager.FindByNameAsync(user.UserName);
 
 
                             if (createdUser != null)
@@ -181,83 +205,44 @@ namespace SoowGoodWeb.Services
                                 userInfo.PhoneNumber = createdUser.PhoneNumber;
                                 userInfo.IsActive = createdUser.IsActive;
                                 userInfo.Success = true;
-                                userInfo.Message = "User Created Successfully";
+                                userInfo.Message.Add("User Created Successfully");
+                                response = userInfo;
                             }
-
-                            //if (createdUser != null)
-                            //{
-                            //DoctorProfileInputDto doctorProfileDto = new DoctorProfileInputDto();
-
-                            //    doctorProfileDto.FirstName = "N/A";
-                            //    doctorProfileDto.LastName = "N/A";
-                            //    doctorProfileDto.FullName = createdUser.Name;
-                            //    doctorProfileDto.DoctorTitle = DoctorTitle.Dr;
-                            //    doctorProfileDto.DateOfBirth = DateTime.Now;
-                            //    doctorProfileDto.Gender = Gender.Male;
-                            //    doctorProfileDto.MaritalStatus = MaritalStatus.Single;
-                            //    doctorProfileDto.Address = "N/A";
-                            //    doctorProfileDto.City = "N/A";
-                            //    doctorProfileDto.ZipCode = "N/A";
-                            //    doctorProfileDto.Country = "N/A";
-                            //    doctorProfileDto.MobileNo = createdUser.PhoneNumber;
-                            //    doctorProfileDto.Email = createdUser.Email;
-                            //    doctorProfileDto.IdentityNumber = "N/A";
-                            //    doctorProfileDto.BMDCRegNo = "N/A";
-                            //    doctorProfileDto.BMDCRegExpiryDate = DateTime.Now;
-                            //    doctorProfileDto.Degrees =null;
-                            //    doctorProfileDto.SpecialityId = 2;
-                            //    doctorProfileDto.DoctorSpecialization = null;
-                            //    doctorProfileDto.IsIdFileUploaded = false;
-                            //    doctorProfileDto.IsSpecialityFileUploaded = false;                                
-                            //    doctorProfileDto.IsActive = createdUser.IsActive;
-                            //    doctorProfileDto.UserId = createdUser.Id;
-                            //    doctorProfileDto.IsOnline = false;
-
-
-                            //    var resss = await _doctorProfileservice.CreateAsync(doctorProfileDto);
-                            //    if(resss.Id>0)
                             //    {
-                            return userInfo;// "User Created Successfully";
-                                            //}
-                                            //}
+                            return userInfo;
                         }
                         else
                         {
-                            var errl = "";
                             userInfo.Success=false;
                             foreach (var e in roleRes.Errors)
                             {
-                                userInfo.Message += e.Description;
+                                userInfo.Message.Add(e.Description);
                             }
-                            return userInfo;// "User Registration failed - : reason - " + errl;
+                            return userInfo;
                         }
 
                     }
                     else
                     {
-                        var err = "";
                         userInfo.Success = false;
                         foreach (var e in result.Errors)
-                        {
-                            userInfo.Message += e.Description;
+                        {  
+                            userInfo.Message.Add(e.Description);
                         }
-                        return userInfo;//"User Registration failed - : reason - " + err;
+                        return userInfo;
                     }
                 }
                 else
                 {
                     userInfo.Success = false;
-                    userInfo.Message= "User Already Exists";
-                    return userInfo; //; "User Already Exists";
+                    userInfo.Message.Add("User Already Exists");
+                    return userInfo;
                 }
-
             }
             catch (Exception)
             {
                 throw new UserFriendlyException("User Create not successfull.");
-                //return ex.Message;
             }
-            //return null;// "Erro: User Create not successfull. !!!";
         }
 
         //private async Task<TokenResponse> GetToken()

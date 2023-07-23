@@ -41,8 +41,14 @@ namespace SoowGoodWeb.DtoModels
         public string? PhoneNumber { get; set; }
         public bool? IsActive { get; set; }
         public bool? Success { get; set; }
-        public string? Message { get; set; }
+        public List<string> Message { get; set; }
     }
+
+    //public class ErroMessageDto
+    //{
+    //    public Guid? Id { get; set;}
+    //    public string? Massage { get; set; }
+    //}
 
     //public class UserRegInfoDto
     //{
