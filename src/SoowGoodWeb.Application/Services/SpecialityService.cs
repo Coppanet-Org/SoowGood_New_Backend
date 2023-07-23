@@ -12,53 +12,38 @@ using Volo.Abp.Uow;
 
 namespace SoowGoodWeb.Services
 {
-    public class DoctorProfileService:SoowGoodWebAppService, IDoctorProfileService
+    public class SpecialityService : SoowGoodWebAppService, ISpecialityService
     {
-        private readonly IRepository<DoctorProfile> _doctorProfileRepository;
+        private readonly IRepository<Speciality> _specialityRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
-        public DoctorProfileService(IRepository<DoctorProfile> doctorProfileRepository, IUnitOfWorkManager unitOfWorkManager)
+        public SpecialityService(IRepository<Speciality> specialityRepository, IUnitOfWorkManager unitOfWorkManager)
         {
-            _doctorProfileRepository = doctorProfileRepository;
+            _specialityRepository = specialityRepository;
 
             _unitOfWorkManager = unitOfWorkManager;
         }
-        public async Task<DoctorProfileDto> CreateAsync(DoctorProfileInputDto input)
+        //public async Task<DoctorProfileDto> CreateAsync(DoctorProfileInputDto input)
+        //{
+        //    var newEntity = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(input);
+
+        //    var doctorProfile = await _doctorProfileRepository.InsertAsync(newEntity);
+
+        //    //await _unitOfWorkManager.Current.SaveChangesAsync();
+
+        //    return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(doctorProfile);
+        //}
+
+        public async Task<SpecialityDto> GetAsync(int id)
         {
-            var newEntity = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(input);
+            var item = await _specialityRepository.GetAsync(x => x.Id == id);
 
-            var doctorProfile = await _doctorProfileRepository.InsertAsync(newEntity);
-
-            //await _unitOfWorkManager.Current.SaveChangesAsync();
-
-            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(doctorProfile);
+            return ObjectMapper.Map<Speciality, SpecialityDto>(item);
         }
-
-        public async Task<DoctorProfileDto> GetAsync(int id)
+        public async Task<List<SpecialityDto>> GetListAsync()
         {
-            var item = await _doctorProfileRepository.GetAsync(x => x.Id == id);
-
-            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+            var specialities = await _specialityRepository.GetListAsync();
+            return ObjectMapper.Map<List<Speciality>, List<SpecialityDto>>(specialities);
         }
-        public async Task<List<DoctorProfileDto>> GetListAsync()
-        {
-            var profiles = await _doctorProfileRepository.GetListAsync();
-            return ObjectMapper.Map<List<DoctorProfile>, List<DoctorProfileDto>>(profiles);
-        }
-        public async Task<DoctorProfileDto> GetByUserIdAsync(Guid userId)
-        {
-            var item = await _doctorProfileRepository.GetAsync(x => x.UserId == userId);
-            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
-        }
-        
-        public async Task<DoctorProfileDto> UpdateAsync(DoctorProfileInputDto input)
-        {
-            var updateItem = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(input);
-
-            var item = await _doctorProfileRepository.UpdateAsync(updateItem);
-
-            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
-        }
-
         //public async Task<List<DoctorProfileDto>> GetListAsync()
         //{
         //    List<DoctorProfileDto> list = null;
@@ -108,7 +93,14 @@ namespace SoowGoodWeb.Services
 
         //    return list;
         //}
+        //public async Task<DoctorProfileDto> UpdateAsync(DoctorProfileInputDto input)
+        //{
+        //    var updateItem = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(input);
 
+        //    var item = await _doctorProfileRepository.UpdateAsync(updateItem);
+
+        //    return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+        //}
         //public async Task<int> GetCountAsync()
         //{
         //    return (await quarterRepository.GetListAsync()).Count;
