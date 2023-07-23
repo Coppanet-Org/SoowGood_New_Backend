@@ -1,4 +1,5 @@
 ﻿using AutoMapper.Internal.Mappers;
+using Microsoft.AspNetCore.Authorization;
 using SoowGoodWeb.DtoModels;
 using SoowGoodWeb.Enums;
 using SoowGoodWeb.Interfaces;
@@ -15,6 +16,7 @@ using Volo.Abp.Uow;
 
 namespace SoowGoodWeb.Services
 {
+    //[Authorize]
     public class OtpService : SoowGoodWebAppService, IOtpService
     {
         private readonly IRepository<Otp, int> _repository;
@@ -31,6 +33,7 @@ namespace SoowGoodWeb.Services
 
 
         //[HttpGet]
+        //[AllowAnonymous]
         public async Task<bool> ApplyOtp(string clientKey, string mobileNo)
         {
             if (mobileNo != null)
