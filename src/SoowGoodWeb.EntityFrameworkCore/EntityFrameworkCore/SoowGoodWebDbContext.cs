@@ -64,6 +64,7 @@ public class SoowGoodWebDbContext :
     public DbSet<DoctorProfile> SgDoctorProfiles { get; set; }
     public DbSet<DoctorDegree> SgDoctorDegrees { get; set; }    
     public DbSet<DoctorSpecialization> SgDoctorSpecializations { get; set; }    
+    public DbSet<DoctorChamber> SgDoctorChambers { get; set; }
     public DbSet<DocumentsAttachment> SgDocumentsAttachments { get; set; }
 
     #endregion

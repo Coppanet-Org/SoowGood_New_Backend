@@ -76,6 +76,12 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
             .ForMember(d => d.Degrees, o => o.Ignore())
             .ForMember(d => d.DoctorSpecialization, o => o.Ignore());
 
+        CreateMap<DoctorChamber, DoctorChamberDto>();
+        CreateMap<DoctorChamberDto, DoctorChamber>()
+            .ForMember(d => d.DoctorProfile, o => o.Ignore());
+        CreateMap<DoctorChamberInputDto, DoctorChamber>()
+            .ForMember(d => d.DoctorProfile, o => o.Ignore());
+
         CreateMap<DocumentsAttachment, DocumentsAttachmentDto>()
             .ForMember(d => d.EntityTypeName, o => o.MapFrom(n => n.EntityType))
             .ForMember(d => d.AttachmentTypeName, o => o.MapFrom(n => n.AttachmentType));
