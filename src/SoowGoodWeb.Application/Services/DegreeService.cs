@@ -12,53 +12,38 @@ using Volo.Abp.Uow;
 
 namespace SoowGoodWeb.Services
 {
-    public class DoctorProfileService:SoowGoodWebAppService, IDoctorProfileService
+    public class DegreeService : SoowGoodWebAppService, IDegreeService
     {
-        private readonly IRepository<DoctorProfile> _doctorProfileRepository;
+        private readonly IRepository<Degree> _degreeRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
-        public DoctorProfileService(IRepository<DoctorProfile> doctorProfileRepository, IUnitOfWorkManager unitOfWorkManager)
+        public DegreeService(IRepository<Degree> degreeRepository, IUnitOfWorkManager unitOfWorkManager)
         {
-            _doctorProfileRepository = doctorProfileRepository;
+            _degreeRepository = degreeRepository;
 
             _unitOfWorkManager = unitOfWorkManager;
         }
-        public async Task<DoctorProfileDto> CreateAsync(DoctorProfileInputDto input)
+        //public async Task<DoctorProfileDto> CreateAsync(DoctorProfileInputDto input)
+        //{
+        //    var newEntity = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(input);
+
+        //    var doctorProfile = await _doctorProfileRepository.InsertAsync(newEntity);
+
+        //    //await _unitOfWorkManager.Current.SaveChangesAsync();
+
+        //    return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(doctorProfile);
+        //}
+
+        public async Task<DegreeDto> GetAsync(int id)
         {
-            var newEntity = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(input);
+            var item = await _degreeRepository.GetAsync(x => x.Id == id);
 
-            var doctorProfile = await _doctorProfileRepository.InsertAsync(newEntity);
-
-            //await _unitOfWorkManager.Current.SaveChangesAsync();
-
-            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(doctorProfile);
+            return ObjectMapper.Map<Degree, DegreeDto>(item);
         }
-
-        public async Task<DoctorProfileDto> GetAsync(int id)
+        public async Task<List<DegreeDto>> GetListAsync()
         {
-            var item = await _doctorProfileRepository.GetAsync(x => x.Id == id);
-
-            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+            var degrees = await _degreeRepository.GetListAsync();
+            return ObjectMapper.Map<List<Degree>, List<DegreeDto>>(degrees);
         }
-        public async Task<List<DoctorProfileDto>> GetListAsync()
-        {
-            var profiles = await _doctorProfileRepository.GetListAsync();
-            return ObjectMapper.Map<List<DoctorProfile>, List<DoctorProfileDto>>(profiles);
-        }
-        public async Task<DoctorProfileDto> GetByUserIdAsync(Guid userId)
-        {
-            var item = await _doctorProfileRepository.GetAsync(x => x.UserId == userId);
-            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
-        }
-        
-        public async Task<DoctorProfileDto> UpdateAsync(DoctorProfileInputDto input)
-        {
-            var updateItem = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(input);
-
-            var item = await _doctorProfileRepository.UpdateAsync(updateItem);
-
-            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
-        }
-
         //public async Task<List<DoctorProfileDto>> GetListAsync()
         //{
         //    List<DoctorProfileDto> list = null;
@@ -108,7 +93,14 @@ namespace SoowGoodWeb.Services
 
         //    return list;
         //}
+        //public async Task<DoctorProfileDto> UpdateAsync(DoctorProfileInputDto input)
+        //{
+        //    var updateItem = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(input);
 
+        //    var item = await _doctorProfileRepository.UpdateAsync(updateItem);
+
+        //    return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+        //}
         //public async Task<int> GetCountAsync()
         //{
         //    return (await quarterRepository.GetListAsync()).Count;
