@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230725062948_Doctor_Schedules_Fees_Tables Created")]
+    partial class Doctor_Schedules_Fees_TablesCreated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -230,7 +233,7 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnName("CreatorId");
 
                     b.Property<decimal?>("CurrentFee")
-                        .HasColumnType("decimal(18, 2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid?>("DeleterId")
                         .HasColumnType("uniqueidentifier")
@@ -244,9 +247,9 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal?>("Discount")
-                        .HasColumnType("decimal(18, 2)");
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime?>("DiscountAppliedFrom")
+                    b.Property<DateTime>("DiscountAppliedFrom")
                         .HasColumnType("datetime2");
 
                     b.Property<long?>("DoctorScheduleId")
@@ -276,13 +279,13 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnName("LastModifierId");
 
                     b.Property<decimal?>("PreviousFee")
-                        .HasColumnType("decimal(18, 2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int?>("ReportShowPeriod")
                         .HasColumnType("int");
 
                     b.Property<decimal?>("TotalFee")
-                        .HasColumnType("decimal(18, 2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 

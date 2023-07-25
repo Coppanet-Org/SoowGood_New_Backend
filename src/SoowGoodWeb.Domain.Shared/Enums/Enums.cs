@@ -67,4 +67,12 @@ namespace SoowGoodWeb.Enums
         PhysicalVisit = 3,
         OnDemand = 4
     }
+
+    public enum AppointmentType
+    {
+        New = 1,
+        Followup = 2,
+        ReportShow = 3,
+        Emargency = 4
+    }
 }

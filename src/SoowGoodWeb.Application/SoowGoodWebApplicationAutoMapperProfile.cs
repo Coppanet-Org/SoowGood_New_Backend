@@ -86,5 +86,27 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
             .ForMember(d => d.EntityTypeName, o => o.MapFrom(n => n.EntityType))
             .ForMember(d => d.AttachmentTypeName, o => o.MapFrom(n => n.AttachmentType));
         CreateMap<DocumentsAttachmentDto, DocumentsAttachment>();
+
+        CreateMap<DoctorSchedule, DoctorScheduleDto>()
+            .ForMember(d => d.DoctorName, o => o.MapFrom(n => (n.DoctorId > 0 && n.DoctorProfile != null) ? n.DoctorProfile.FullName : ""))
+            .ForMember(d => d.ScheduleTypeName, o => o.MapFrom(e => (e.ScheduleType > 0 && e.ScheduleType != null) ? e.ScheduleType : 0))
+            .ForMember(d => d.ConsultancyTypeName, o => o.MapFrom(e => (e.ConsultancyType > 0 && e.ConsultancyType != null) ? e.ConsultancyType : 0));
+        CreateMap<DoctorScheduleDto, DoctorSchedule>()
+            .ForMember(d => d.DoctorProfile, o => o.Ignore());
+        CreateMap<DoctorScheduleInputDto, DoctorSchedule>()
+            .ForMember(d => d.DoctorProfile, o => o.Ignore());
+
+        CreateMap<DoctorScheduledDayOff, DoctorScheduledDayOffDto>();
+        CreateMap<DoctorScheduledDayOffDto, DoctorScheduledDayOff>()
+            .ForMember(d => d.DoctorSchedule, o => o.Ignore());
+        CreateMap<DoctorScheduledDayOffInputDto, DoctorScheduledDayOff>()
+            .ForMember(d => d.DoctorSchedule, o => o.Ignore());
+
+        CreateMap<DoctorFeesSetup, DoctorFeesSetupDto>()
+            .ForMember(d => d.AppointmentTypeName, o => o.MapFrom(e => (e.AppointmentType > 0 && e.AppointmentType != null) ? e.AppointmentType : 0));
+        CreateMap<DoctorFeesSetupDto, DoctorFeesSetup>()
+            .ForMember(d => d.DoctorSchedule, o => o.Ignore());
+        CreateMap<DoctorFeesSetupInputDto, DoctorFeesSetup>()
+            .ForMember(d => d.DoctorSchedule, o => o.Ignore());
     }
 }
