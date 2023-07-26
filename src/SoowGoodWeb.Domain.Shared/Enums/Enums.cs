@@ -52,4 +52,27 @@ namespace SoowGoodWeb.Enums
         IdentityDoc = 2,
         SpecialityDoc = 3,        
     }
+
+    public enum ScheduleType
+    {
+        //None = 0,
+        Regular = 1,
+        Occasional = 2
+    }
+    public enum ConsultancyType
+    {
+        //None = 0,
+        Chamber = 1,
+        Online = 2,
+        PhysicalVisit = 3,
+        OnDemand = 4
+    }
+
+    public enum AppointmentType
+    {
+        New = 1,
+        Followup = 2,
+        ReportShow = 3,
+        Emargency = 4
+    }
 }
