@@ -10,6 +10,13 @@ using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.Domain.Repositories;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Models;
+using Volo.Abp.Uow;
+using System.Threading.Tasks;
+using SoowGoodWeb.DtoModels;
+using System.Net.Mail;
+using Attachment = SoowGoodWeb.Models.Attachment;
+using Volo.Abp.ObjectMapping;
+using SoowGoodWeb.Interfaces;
 
 namespace SoowGoodWeb.Controllers
 {
@@ -18,19 +25,22 @@ namespace SoowGoodWeb.Controllers
     public class CommonController : AbpController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly IRepository<Attachment> _attachmentRepository;
+        private readonly IRepository<DocumentsAttachment> _attachmentRepository;
+        private readonly IUnitOfWorkManager _unitOfWorkManager;
         public CommonController(
             IWebHostEnvironment webHostEnvironment,
-            IRepository<Attachment> attachmentRepository
+            IRepository<DocumentsAttachment> attachmentRepository,
+            IUnitOfWorkManager unitOfWorkManager
            )
         {
             _webHostEnvironment = webHostEnvironment;
             _attachmentRepository = attachmentRepository;
+            _unitOfWorkManager = unitOfWorkManager;
         }
 
-        [HttpPost, ActionName("UploadDocuments")]
+        [HttpPost, ActionName("Documents")]
         [DisableRequestSizeLimit]
-        public IActionResult FileUploadComplain()
+        public async Task<IActionResult> FileUploadDocuments()
         {
             Dictionary<string, string> result = new Dictionary<string, string>();
             try
@@ -39,7 +49,7 @@ namespace SoowGoodWeb.Controllers
                 if (files.Count > 0)
                 {
                     var idStr = Request.Form["entityId"].ToString();
-                    int id = string.IsNullOrEmpty(idStr) ? 0 : Convert.ToInt32(idStr);
+                    int entityId = string.IsNullOrEmpty(idStr) ? 0 : Convert.ToInt32(idStr);
                     var entityType = Request.Form["entityType"].ToString();
 
                     var attachmentType = Request.Form["attachmentType"].ToString();
@@ -63,16 +73,43 @@ namespace SoowGoodWeb.Controllers
                             file.CopyTo(stream);
                         }
                         // save attachment
-                        var attachement = new Attachment();
-                        attachement.FileName = fileName;
-                        attachement.OriginalFileName = fileName;
-                        attachement.Path = dbPath;
-                        attachement.EntityType = (EntityType)Enum.Parse(typeof(EntityType), entityType);
-                        attachement.EntityId = id;
-                        attachement.AttachmentType = (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType);
-                        _attachmentRepository.InsertAsync(attachement);
-                        insertCount += 1;
+                        var fileExist = GetDocumentAsync(entityType, entityId, attachmentType);
+                        if (fileExist == null)
+                        {
+                            var attachement = new DocumentsAttachment();
+                            attachement.FileName = idStr + "_" + fileName;
+                            attachement.OriginalFileName = fileName;
+                            attachement.Path = dbPath;
+                            attachement.EntityType = (EntityType)Enum.Parse(typeof(EntityType), entityType);
+                            attachement.EntityId = entityId;
+                            attachement.AttachmentType = (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType);
+                            var attachmentResult = await _attachmentRepository.InsertAsync(attachement, autoSave: true);
+                            //await _unitOfWorkManager.Current.SaveChangesAsync();
+                            if (attachmentResult != null)//  == 0)
+                            {
+                                insertCount += 1;
+                            }
+
+                        }
+                        else
+                        {
+                            var attachementDto = new DocumentsAttachmentDto();
+                            attachementDto.Id = fileExist.Result.Id;
+                            attachementDto.FileName = idStr + "_" + fileName;
+                            attachementDto.OriginalFileName = fileName;
+                            attachementDto.Path = dbPath;
+                            attachementDto.EntityType = (EntityType)Enum.Parse(typeof(EntityType), entityType);
+                            attachementDto.EntityId = entityId;
+                            attachementDto.AttachmentType = (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType);
+                            var updateResult = await UpdateUploadAsync(attachementDto);
+                            if (updateResult != null)
+                            {
+
+                            }
+                        }
+
                         dbPath = dbPath.Replace(@"wwwroot\", string.Empty);
+
                     }
 
                     if (insertCount > 0)
@@ -144,8 +181,33 @@ namespace SoowGoodWeb.Controllers
                 return StatusCode(500, $"Internal server error: {ex}");
             }
         }
+        [HttpGet]
+        public async Task<DocumentsAttachmentDto>? GetDocumentAsync(string entityType, long? entityId, string attachmentType)
+        {
+            var attachment = await _attachmentRepository.GetAsync(x => x.EntityType == (EntityType)Enum.Parse(typeof(EntityType), entityType) && x.EntityId == entityId && x.AttachmentType == (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType));
+            if (attachment != null)
+            {
+                try
+                {
+                    return ObjectMapper.Map<DocumentsAttachment, DocumentsAttachmentDto>(attachment);
+                }
+                catch (Exception ex)
+                {
 
+                }
+            }
 
+            return null;
+        }
+        [HttpPut]
+        public async Task<DocumentsAttachmentDto> UpdateUploadAsync(DocumentsAttachmentDto input)
+        {
+            var updateItem = ObjectMapper.Map<DocumentsAttachmentDto, DocumentsAttachment>(input);
+
+            var item = await _attachmentRepository.UpdateAsync(updateItem);
+
+            return ObjectMapper.Map<DocumentsAttachment, DocumentsAttachmentDto>(item);
+        }
         //[HttpPost, ActionName("Allotment")]
         //[DisableRequestSizeLimit]
         //public IActionResult FileUploadAllotment()
