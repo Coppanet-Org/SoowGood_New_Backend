@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.ObjectMapping;
+using System.Linq.Dynamic.Core;
+using System.Linq;
 
 namespace SoowGoodWeb.Services
 {
@@ -20,14 +22,19 @@ namespace SoowGoodWeb.Services
 
         public async Task<DocumentsAttachmentDto?> GetDocumentInfo(string entityType, long? entityId, string attachmentType)
         {
-            var attachment = await repository.GetAsync(x => x.EntityType == (EntityType)Enum.Parse(typeof(EntityType), entityType)
-                                                                && x.EntityId == entityId
-                                                                && x.AttachmentType == (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType)
-                                                                && x.IsDeleted == false);
-            if (attachment != null)
+            try
             {
-                return ObjectMapper.Map<DocumentsAttachment, DocumentsAttachmentDto>(attachment);
+                var queryableItem = await repository.WithDetailsAsync();
+                var attachment = queryableItem.Where(x => x.EntityType == (EntityType)Enum.Parse(typeof(EntityType), entityType)
+                                                                    && x.EntityId == entityId
+                                                                    && x.AttachmentType == (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType)
+                                                                    && x.IsDeleted == false).FirstOrDefault();
+                if (attachment != null)
+                {
+                    return ObjectMapper.Map<DocumentsAttachment, DocumentsAttachmentDto>(attachment);
+                }
             }
+            catch (Exception ex) { }
 
             return null;
         }
@@ -37,7 +44,7 @@ namespace SoowGoodWeb.Services
             var attachment = await repository.GetListAsync(x => x.EntityType == (EntityType)Enum.Parse(typeof(EntityType), entityType)
                                                                 && x.EntityId == entityId
                                                                 && x.AttachmentType == (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType)
-                                                                && x.IsDeleted == false);            
+                                                                && x.IsDeleted == false);
             if (attachment != null)
             {
                 return ObjectMapper.Map<List<DocumentsAttachment>, List<DocumentsAttachmentDto>>(attachment);
