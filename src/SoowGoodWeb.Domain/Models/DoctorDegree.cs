@@ -15,6 +15,8 @@ namespace SoowGoodWeb.Models
         public DoctorProfile? DoctorProfile { get; set; }
         public long? DegreeId { get; set; }
         public Degree? Degree { get; set; }
+        public int? Duration { get; set; }
+        public string? DurationType { get; set; }
         public int? PassingYear { get; set; }
         public string? InstituteName { get; set; }
         public string? InstituteCity { get; set; }

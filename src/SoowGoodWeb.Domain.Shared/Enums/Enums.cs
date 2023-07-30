@@ -31,11 +31,11 @@ namespace SoowGoodWeb.Enums
         [Display(Name = "Dr.")]
         Dr = 1,
         [Display(Name = "Asst. Prof. Dr.")]
-        AsstProfDr =2,
+        AsstProfDr = 2,
         [Display(Name = "Assc. Prof. Dr.")]
-        AssocProfDr =3,
+        AssocProfDr = 3,
         [Display(Name = "Prof. Dr.")]
-        ProfDr=4
+        ProfDr = 4
     }
     //Document Attachment
     public enum EntityType
@@ -43,14 +43,17 @@ namespace SoowGoodWeb.Enums
         //None = 0,
         Doctor = 1,
         Agent = 2,
-        Patient = 3
+        Patient = 3,
+        Hospital = 4
     }
     public enum AttachmentType
     {
-        //None = 0,
-        DegreeDoc = 1,
-        IdentityDoc = 2,
-        SpecialityDoc = 3,        
+        ProfilePicture = 1,
+        DoctorDegreeDoc = 2,
+        DoctIdentityDoc = 3,
+        DoctorSpecialityDoc = 4,
+        Prescription = 5,
+        PatientLabreport = 6,
     }
 
     public enum ScheduleType

@@ -14,6 +14,8 @@ namespace SoowGoodWeb.DtoModels
         public long? DegreeId { get; set; }
         //public DegreeDto? Degree { get; set; }
         public string? DegreeName { get; set; }
+        public int? Duration { get; set; }
+        public string? DurationType { get; set; }
         public int? PassingYear { get; set; }
         public string? InstituteName { get; set; }
         public string? InstituteCity { get; set; }

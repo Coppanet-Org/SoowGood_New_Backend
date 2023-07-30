@@ -39,6 +39,13 @@ namespace SoowGoodWeb.Services
 
             return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
         }
+
+        public async Task<DoctorProfileDto> GetByUserNameAsync(string userName)
+        {
+            var item = await _doctorProfileRepository.GetAsync(x => x.MobileNo == userName);
+
+            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+        }
         public async Task<List<DoctorProfileDto>> GetListAsync()
         {
             var profiles = await _doctorProfileRepository.GetListAsync();
