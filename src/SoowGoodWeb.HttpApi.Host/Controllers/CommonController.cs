@@ -73,8 +73,28 @@ namespace SoowGoodWeb.Controllers
                             file.CopyTo(stream);
                         }
                         // save attachment
-                        var fileExist = GetDocumentAsync(entityType, entityId, attachmentType);
-                        if (fileExist == null)
+                        var attchmentId = GetDocumentAsync(entityType, entityId, attachmentType);
+
+                        if (attchmentId > 0)
+                        {
+                            var deletResult = await DeleteDocAsync(attchmentId); //await UpdateUploadAsync(attachementDto);
+                            if (deletResult == true)
+                            {
+                                var attachement2 = new DocumentsAttachment();
+                                attachement2.FileName = idStr + "_" + fileName;
+                                attachement2.OriginalFileName = fileName;
+                                attachement2.Path = dbPath;
+                                attachement2.EntityType = (EntityType)Enum.Parse(typeof(EntityType), entityType);
+                                attachement2.EntityId = entityId;
+                                attachement2.AttachmentType = (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType);
+                                var attachmentResult = await _attachmentRepository.InsertAsync(attachement2, autoSave: true);
+                                if (attachmentResult != null)//  == 0)
+                                {
+                                    insertCount += 1;
+                                }
+                            }
+                        }
+                        else
                         {
                             var attachement = new DocumentsAttachment();
                             attachement.FileName = idStr + "_" + fileName;
@@ -84,28 +104,11 @@ namespace SoowGoodWeb.Controllers
                             attachement.EntityId = entityId;
                             attachement.AttachmentType = (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType);
                             var attachmentResult = await _attachmentRepository.InsertAsync(attachement, autoSave: true);
-                            //await _unitOfWorkManager.Current.SaveChangesAsync();
                             if (attachmentResult != null)//  == 0)
                             {
                                 insertCount += 1;
                             }
 
-                        }
-                        else
-                        {
-                            var attachementDto = new DocumentsAttachmentDto();
-                            attachementDto.Id = fileExist.Result.Id;
-                            attachementDto.FileName = idStr + "_" + fileName;
-                            attachementDto.OriginalFileName = fileName;
-                            attachementDto.Path = dbPath;
-                            attachementDto.EntityType = (EntityType)Enum.Parse(typeof(EntityType), entityType);
-                            attachementDto.EntityId = entityId;
-                            attachementDto.AttachmentType = (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType);
-                            var updateResult = await UpdateUploadAsync(attachementDto);
-                            if (updateResult != null)
-                            {
-
-                            }
                         }
 
                         dbPath = dbPath.Replace(@"wwwroot\", string.Empty);
@@ -182,14 +185,17 @@ namespace SoowGoodWeb.Controllers
             }
         }
         [HttpGet]
-        public async Task<DocumentsAttachmentDto>? GetDocumentAsync(string entityType, long? entityId, string attachmentType)
+        public long GetDocumentAsync(string entityType, long? entityId, string attachmentType)
         {
-            var attachment = await _attachmentRepository.GetAsync(x => x.EntityType == (EntityType)Enum.Parse(typeof(EntityType), entityType) && x.EntityId == entityId && x.AttachmentType == (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType));
-            if (attachment != null)
+            var attachment = _attachmentRepository.GetAsync(x => x.EntityType == (EntityType)Enum.Parse(typeof(EntityType), entityType) 
+                                                              && x.EntityId == entityId 
+                                                              && x.AttachmentType == (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType) 
+                                                              && x.IsDeleted==false);
+            if (attachment.Result != null)
             {
                 try
                 {
-                    return ObjectMapper.Map<DocumentsAttachment, DocumentsAttachmentDto>(attachment);
+                    return attachment.Result.Id;
                 }
                 catch (Exception ex)
                 {
@@ -197,7 +203,7 @@ namespace SoowGoodWeb.Controllers
                 }
             }
 
-            return null;
+            return 0;
         }
         [HttpPut]
         public async Task<DocumentsAttachmentDto> UpdateUploadAsync(DocumentsAttachmentDto input)
@@ -207,6 +213,20 @@ namespace SoowGoodWeb.Controllers
             var item = await _attachmentRepository.UpdateAsync(updateItem);
 
             return ObjectMapper.Map<DocumentsAttachment, DocumentsAttachmentDto>(item);
+        }
+        [HttpDelete]
+        public async Task<bool> DeleteDocAsync(long id)
+        {
+            try
+            {
+                await _attachmentRepository.DeleteAsync((x => x.Id == id), autoSave: true);//.DeleteAsync(id);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
         }
         //[HttpPost, ActionName("Allotment")]
         //[DisableRequestSizeLimit]

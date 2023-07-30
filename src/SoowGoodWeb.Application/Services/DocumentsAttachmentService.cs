@@ -18,12 +18,29 @@ namespace SoowGoodWeb.Services
             this.repository = repository;
         }
 
-        public async Task<List<DocumentsAttachmentDto>?> GetAttachmentInfo(string entityType, long? entityId, string attachmentType)
+        public async Task<DocumentsAttachmentDto?> GetDocumentInfo(string entityType, long? entityId, string attachmentType)
         {
-            var attachment = await repository.GetListAsync(x => x.EntityType == (EntityType)Enum.Parse(typeof(EntityType), entityType) && x.EntityId == entityId && x.AttachmentType == (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType));            
+            var attachment = await repository.GetAsync(x => x.EntityType == (EntityType)Enum.Parse(typeof(EntityType), entityType)
+                                                                && x.EntityId == entityId
+                                                                && x.AttachmentType == (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType)
+                                                                && x.IsDeleted == false);
             if (attachment != null)
             {
-                return ObjectMapper.Map<List<DocumentsAttachment>, List<DocumentsAttachmentDto>>((List<DocumentsAttachment>)attachment);
+                return ObjectMapper.Map<DocumentsAttachment, DocumentsAttachmentDto>(attachment);
+            }
+
+            return null;
+        }
+
+        public async Task<List<DocumentsAttachmentDto>?> GetAttachmentInfo(string entityType, long? entityId, string attachmentType)
+        {
+            var attachment = await repository.GetListAsync(x => x.EntityType == (EntityType)Enum.Parse(typeof(EntityType), entityType)
+                                                                && x.EntityId == entityId
+                                                                && x.AttachmentType == (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType)
+                                                                && x.IsDeleted == false);            
+            if (attachment != null)
+            {
+                return ObjectMapper.Map<List<DocumentsAttachment>, List<DocumentsAttachmentDto>>(attachment);
             }
 
             return null;
