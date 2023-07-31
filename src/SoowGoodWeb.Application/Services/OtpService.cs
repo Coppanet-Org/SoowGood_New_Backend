@@ -1,5 +1,6 @@
 ﻿using AutoMapper.Internal.Mappers;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using SoowGoodWeb.DtoModels;
 using SoowGoodWeb.Enums;
 using SoowGoodWeb.Interfaces;
@@ -12,20 +13,25 @@ using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.Identity;
 using Volo.Abp.Uow;
+using static Volo.Abp.Identity.Settings.IdentitySettingNames;
 
 namespace SoowGoodWeb.Services
 {
     //[Authorize]
     public class OtpService : SoowGoodWebAppService, IOtpService
     {
+
+        private readonly IdentityUserManager _userManager;
         private readonly IRepository<Otp, int> _repository;
         private readonly ISmsService _smsService;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
-        public OtpService(IRepository<Otp, int> repository,
+        public OtpService(IdentityUserManager userManager, IRepository<Otp, int> repository,
             ISmsService smsService,
             IUnitOfWorkManager unitOfWorkManager)
         {
+            _userManager = userManager;
             this._repository = repository;
             this._smsService = smsService;
             this._unitOfWorkManager = unitOfWorkManager;
@@ -36,7 +42,8 @@ namespace SoowGoodWeb.Services
         //[AllowAnonymous]
         public async Task<bool> ApplyOtp(string clientKey, string mobileNo)
         {
-            if (mobileNo != null)
+            var isUserExists = await _userManager.FindByNameAsync(mobileNo);
+            if (isUserExists == null)
             {
                 if (!string.IsNullOrEmpty(clientKey) && clientKey.Equals("SoowGood_App", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrEmpty(mobileNo))
                 {
@@ -61,9 +68,12 @@ namespace SoowGoodWeb.Services
                     {
                         return false;
                         throw new Exception(e.Message);
-
                     }
                 }
+            }
+            else
+            {
+                return false;
             }
             return false;
         }
@@ -77,18 +87,19 @@ namespace SoowGoodWeb.Services
         //[HttpGet]
         public async Task<bool> VarifyOtpAsync(int otp)
         {
-            if (otp > 0)
-            {
-                var item = await _repository.FirstOrDefaultAsync(x => x.OtpNo == otp && x.OtpStatus == OtpStatus.New && x.ExpireDateTime >= DateTime.Now);
-                if (item != null)
-                {
-                    item.OtpStatus = OtpStatus.Varified;
-                    await _repository.UpdateAsync(item);
-                    await _unitOfWorkManager.Current.SaveChangesAsync();
-                    return true;
-                }
-            }
-            return false;
+
+            //if (otp > 0)
+            //{
+            //    var item = await _repository.FirstOrDefaultAsync(x => x.OtpNo == otp && x.OtpStatus == OtpStatus.New && x.ExpireDateTime >= DateTime.Now);
+            //    if (item != null)
+            //    {
+            //        item.OtpStatus = OtpStatus.Varified;
+            //        await _repository.UpdateAsync(item);
+            //        await _unitOfWorkManager.Current.SaveChangesAsync();
+            return true;
+            //    }
+            //}
+            //return false;
 
         }
 
