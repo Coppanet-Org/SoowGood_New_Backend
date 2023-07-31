@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.ObjectMapping;
 using Volo.Abp.Uow;
 
 namespace SoowGoodWeb.Services
@@ -42,6 +43,14 @@ namespace SoowGoodWeb.Services
         public async Task<List<SpecializationDto>> GetListAsync()
         {
             var specialization = await _specializationRepository.GetListAsync();
+            return ObjectMapper.Map<List<Specialization>, List<SpecializationDto>>(specialization);
+        }
+        public async Task<List<SpecializationDto>> GetListBySpecialtyIdAsync(long specialityId)
+        {
+            //var specialization = await _specializationRepository.WithDetailsAsync(s=>s.SpecialityId);
+            var specialization = await _specializationRepository.GetListAsync(s=>s.SpecialityId == specialityId );
+            //var listBySpecialtyId  = specialization.Where(x => x.SpecialityId == specialityId);
+            //listBySpecialtyId.ToList(); //
             return ObjectMapper.Map<List<Specialization>, List<SpecializationDto>>(specialization);
         }
         public async Task<SpecializationDto> GetBySpecialityIdAsync(int specialityId)

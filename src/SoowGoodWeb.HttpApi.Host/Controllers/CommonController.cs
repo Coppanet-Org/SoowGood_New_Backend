@@ -213,17 +213,16 @@ namespace SoowGoodWeb.Controllers
 
         }
 
+        //[HttpPut]
+        //public async Task<DocumentsAttachmentDto> UpdateUploadAsync(DocumentsAttachmentDto input)
+        //{
+        //    var updateItem = ObjectMapper.Map<DocumentsAttachmentDto, DocumentsAttachment>(input);
 
+        //    var item = await _attachmentRepository.UpdateAsync(updateItem);
 
-        [HttpPut]
-        public async Task<DocumentsAttachmentDto> UpdateUploadAsync(DocumentsAttachmentDto input)
-        {
-            var updateItem = ObjectMapper.Map<DocumentsAttachmentDto, DocumentsAttachment>(input);
+        //    return ObjectMapper.Map<DocumentsAttachment, DocumentsAttachmentDto>(item);
+        //}
 
-            var item = await _attachmentRepository.UpdateAsync(updateItem);
-
-            return ObjectMapper.Map<DocumentsAttachment, DocumentsAttachmentDto>(item);
-        }
         [HttpDelete]
         public async Task<bool> DeleteDocAsync(long id)
         {
