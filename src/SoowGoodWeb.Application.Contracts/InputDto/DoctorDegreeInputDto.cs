@@ -12,6 +12,9 @@ namespace SoowGoodWeb.InputDto
         //public DoctorProfileInputDto? DoctorProfile { get; set; }
         public long? DegreeId { get; set; }
         //public DegreeInputDto Degree { get; set; }
+        public int? Duration { get; set; }
+        public string? DurationType { get; set; }
+        public int? PassingYear { get; set; }
         public string? InstituteName { get; set; }
         public string? InstituteCity { get; set; }
         public string? ZipCode { get; set; }

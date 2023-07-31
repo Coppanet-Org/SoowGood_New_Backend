@@ -12,6 +12,7 @@ namespace SoowGoodWeb.Interfaces
     {
         Task<List<DoctorProfileDto>> GetListAsync();
         Task<DoctorProfileDto> GetAsync(int id);
+        Task<DoctorProfileDto> GetByUserNameAsync(string userName);
         Task<DoctorProfileDto> CreateAsync(DoctorProfileInputDto input);
         Task<DoctorProfileDto> UpdateAsync(DoctorProfileInputDto input);
         Task<DoctorProfileDto> GetByUserIdAsync(Guid userId);

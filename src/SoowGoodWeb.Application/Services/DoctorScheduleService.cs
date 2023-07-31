@@ -12,70 +12,63 @@ using Volo.Abp.Uow;
 
 namespace SoowGoodWeb.Services
 {
-    public class DoctorProfileService:SoowGoodWebAppService, IDoctorProfileService
+    public class DoctorScheduleService : SoowGoodWebAppService, IDoctorScheduleService//, IDoctorScheduleDayOffService
     {
-        private readonly IRepository<DoctorProfile> _doctorProfileRepository;
+        private readonly IRepository<DoctorSchedule> _doctorScheduleRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
-        public DoctorProfileService(IRepository<DoctorProfile> doctorProfileRepository, IUnitOfWorkManager unitOfWorkManager)
+        public DoctorScheduleService(IRepository<DoctorSchedule> doctorScheduleRepository,  IUnitOfWorkManager unitOfWorkManager)
         {
-            _doctorProfileRepository = doctorProfileRepository;
+            _doctorScheduleRepository = doctorScheduleRepository;
 
             _unitOfWorkManager = unitOfWorkManager;
         }
-        public async Task<DoctorProfileDto> CreateAsync(DoctorProfileInputDto input)
+        public async Task<DoctorScheduleDto> CreateAsync(DoctorScheduleInputDto input)
         {
-            var newEntity = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(input);
+            var newEntity = ObjectMapper.Map<DoctorScheduleInputDto, DoctorSchedule>(input);
 
-            var doctorProfile = await _doctorProfileRepository.InsertAsync(newEntity);
+            var doctorSchedule = await _doctorScheduleRepository.InsertAsync(newEntity);
 
             //await _unitOfWorkManager.Current.SaveChangesAsync();
 
-            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(doctorProfile);
+            return ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(doctorSchedule);
         }
 
-        public async Task<DoctorProfileDto> GetAsync(int id)
+        public async Task<DoctorScheduleDto> GetAsync(int id)
         {
-            var item = await _doctorProfileRepository.GetAsync(x => x.Id == id);
+            var item = await _doctorScheduleRepository.GetAsync(x => x.Id == id);
 
-            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+            return ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
         }
-
-        public async Task<DoctorProfileDto> GetByUserNameAsync(string userName)
+        public async Task<List<DoctorScheduleDto>> GetListAsync()
         {
-            var item = await _doctorProfileRepository.GetAsync(x => x.MobileNo == userName);
-
-            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+            var profiles = await _doctorScheduleRepository.GetListAsync();
+            return ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(profiles);
         }
-        public async Task<List<DoctorProfileDto>> GetListAsync()
-        {
-            var profiles = await _doctorProfileRepository.GetListAsync();
-            return ObjectMapper.Map<List<DoctorProfile>, List<DoctorProfileDto>>(profiles);
-        }
-        public async Task<DoctorProfileDto> GetByUserIdAsync(Guid userId)
-        {
-            var item = await _doctorProfileRepository.GetAsync(x => x.UserId == userId);
-            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
-        }
-        
-        public async Task<DoctorProfileDto> UpdateAsync(DoctorProfileInputDto input)
-        {
-            var updateItem = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(input);
-
-            var item = await _doctorProfileRepository.UpdateAsync(updateItem);
-
-            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
-        }
-
-        //public async Task<List<DoctorProfileDto>> GetListAsync()
+        //public async Task<DoctorScheduleDto> GetByUserIdAsync(Guid userId)
         //{
-        //    List<DoctorProfileDto> list = null;
-        //    var items = await _doctorProfileRepository.WithDetailsAsync(p => p.District);
+        //    var item = await _doctorScheduleRepository.GetAsync(x => x.UserId == userId);
+        //    return ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
+        //}
+        
+        public async Task<DoctorScheduleDto> UpdateAsync(DoctorScheduleInputDto input)
+        {
+            var updateItem = ObjectMapper.Map<DoctorScheduleInputDto, DoctorSchedule>(input);
+
+            var item = await _doctorScheduleRepository.UpdateAsync(updateItem);
+
+            return ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
+        }
+
+        //public async Task<List<DoctorScheduleDto>> GetListAsync()
+        //{
+        //    List<DoctorScheduleDto> list = null;
+        //    var items = await _doctorScheduleRepository.WithDetailsAsync(p => p.District);
         //    if (items.Any())
         //    {
-        //        list = new List<DoctorProfileDto>();
+        //        list = new List<DoctorScheduleDto>();
         //        foreach (var item in items)
         //        {
-        //            list.Add(new DoctorProfileDto()
+        //            list.Add(new DoctorScheduleDto()
         //            {
         //                Id = item.Id,
         //                Name = item.Name,

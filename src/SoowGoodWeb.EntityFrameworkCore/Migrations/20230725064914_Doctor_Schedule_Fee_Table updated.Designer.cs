@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230725064914_Doctor_Schedule_Fee_Table updated")]
+    partial class Doctor_Schedule_Fee_Tableupdated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -171,12 +174,6 @@ namespace SoowGoodWeb.Migrations
 
                     b.Property<long?>("DoctorProfileId")
                         .HasColumnType("bigint");
-
-                    b.Property<int?>("Duration")
-                        .HasColumnType("int");
-
-                    b.Property<string>("DurationType")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("InstituteCity")
                         .HasColumnType("nvarchar(max)");
@@ -627,8 +624,8 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("DeletionTime");
 
-                    b.Property<long?>("EntityId")
-                        .HasColumnType("bigint");
+                    b.Property<int?>("EntityId")
+                        .HasColumnType("int");
 
                     b.Property<int?>("EntityType")
                         .HasColumnType("int");

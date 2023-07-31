@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230724062418_doctor-chamber-table-created")]
+    partial class doctorchambertablecreated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -172,12 +175,6 @@ namespace SoowGoodWeb.Migrations
                     b.Property<long?>("DoctorProfileId")
                         .HasColumnType("bigint");
 
-                    b.Property<int?>("Duration")
-                        .HasColumnType("int");
-
-                    b.Property<string>("DurationType")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("InstituteCity")
                         .HasColumnType("nvarchar(max)");
 
@@ -201,9 +198,6 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<int?>("PassingYear")
-                        .HasColumnType("int");
-
                     b.Property<string>("ZipCode")
                         .HasColumnType("nvarchar(max)");
 
@@ -214,87 +208,6 @@ namespace SoowGoodWeb.Migrations
                     b.HasIndex("DoctorProfileId");
 
                     b.ToTable("SgDoctorDegrees");
-                });
-
-            modelBuilder.Entity("SoowGoodWeb.Models.DoctorFeesSetup", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<int?>("AppointmentType")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<decimal?>("CurrentFee")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<int?>("DescountPeriod")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("Discount")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.Property<DateTime?>("DiscountAppliedFrom")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long?>("DoctorScheduleId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("FeeAppliedFrom")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("FollowUpPeriod")
-                        .HasColumnType("int");
-
-                    b.Property<bool?>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<decimal?>("PreviousFee")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.Property<int?>("ReportShowPeriod")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("TotalFee")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DoctorScheduleId");
-
-                    b.ToTable("SgDoctorFees");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorProfile", b =>
@@ -408,137 +321,6 @@ namespace SoowGoodWeb.Migrations
                     b.ToTable("SgDoctorProfiles");
                 });
 
-            modelBuilder.Entity("SoowGoodWeb.Models.DoctorSchedule", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long?>("ChamberId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int?>("ConsultancyType")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<long?>("DoctorChamberId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("DoctorId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("DoctorProfileId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("EndTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool?>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<int?>("NoOfPatients")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ScheduleType")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("StartTime")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DoctorChamberId");
-
-                    b.HasIndex("DoctorProfileId");
-
-                    b.ToTable("SgDoctorSchedules");
-                });
-
-            modelBuilder.Entity("SoowGoodWeb.Models.DoctorScheduledDayOff", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<long?>("DoctorScheduleId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool?>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<string>("OffDay")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DoctorScheduleId");
-
-                    b.ToTable("SgDoctorScheduledDayOffs");
-                });
-
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorSpecialization", b =>
                 {
                     b.Property<long>("Id")
@@ -627,8 +409,8 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("DeletionTime");
 
-                    b.Property<long?>("EntityId")
-                        .HasColumnType("bigint");
+                    b.Property<int?>("EntityId")
+                        .HasColumnType("int");
 
                     b.Property<int?>("EntityType")
                         .HasColumnType("int");
@@ -2502,15 +2284,6 @@ namespace SoowGoodWeb.Migrations
                     b.Navigation("DoctorProfile");
                 });
 
-            modelBuilder.Entity("SoowGoodWeb.Models.DoctorFeesSetup", b =>
-                {
-                    b.HasOne("SoowGoodWeb.Models.DoctorSchedule", "DoctorSchedule")
-                        .WithMany("DoctorFeesSetup")
-                        .HasForeignKey("DoctorScheduleId");
-
-                    b.Navigation("DoctorSchedule");
-                });
-
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorProfile", b =>
                 {
                     b.HasOne("SoowGoodWeb.Models.Speciality", "Speciality")
@@ -2518,30 +2291,6 @@ namespace SoowGoodWeb.Migrations
                         .HasForeignKey("SpecialityId");
 
                     b.Navigation("Speciality");
-                });
-
-            modelBuilder.Entity("SoowGoodWeb.Models.DoctorSchedule", b =>
-                {
-                    b.HasOne("SoowGoodWeb.Models.DoctorChamber", "DoctorChamber")
-                        .WithMany()
-                        .HasForeignKey("DoctorChamberId");
-
-                    b.HasOne("SoowGoodWeb.Models.DoctorProfile", "DoctorProfile")
-                        .WithMany()
-                        .HasForeignKey("DoctorProfileId");
-
-                    b.Navigation("DoctorChamber");
-
-                    b.Navigation("DoctorProfile");
-                });
-
-            modelBuilder.Entity("SoowGoodWeb.Models.DoctorScheduledDayOff", b =>
-                {
-                    b.HasOne("SoowGoodWeb.Models.DoctorSchedule", "DoctorSchedule")
-                        .WithMany("DoctorScheduledDayOffs")
-                        .HasForeignKey("DoctorScheduleId");
-
-                    b.Navigation("DoctorSchedule");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorSpecialization", b =>
@@ -2721,13 +2470,6 @@ namespace SoowGoodWeb.Migrations
                     b.Navigation("Degrees");
 
                     b.Navigation("DoctorSpecialization");
-                });
-
-            modelBuilder.Entity("SoowGoodWeb.Models.DoctorSchedule", b =>
-                {
-                    b.Navigation("DoctorFeesSetup");
-
-                    b.Navigation("DoctorScheduledDayOffs");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Speciality", b =>
