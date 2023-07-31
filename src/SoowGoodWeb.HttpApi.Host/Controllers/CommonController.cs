@@ -17,6 +17,9 @@ using System.Net.Mail;
 using Attachment = SoowGoodWeb.Models.Attachment;
 using Volo.Abp.ObjectMapping;
 using SoowGoodWeb.Interfaces;
+using System.Linq.Dynamic.Core;
+using System.Linq;
+
 
 namespace SoowGoodWeb.Controllers
 {
@@ -49,7 +52,8 @@ namespace SoowGoodWeb.Controllers
                 if (files.Count > 0)
                 {
                     var idStr = Request.Form["entityId"].ToString();
-                    int entityId = string.IsNullOrEmpty(idStr) ? 0 : Convert.ToInt32(idStr);
+                    //var entityId = Request.Form["entityId"];
+                    long entityId = string.IsNullOrEmpty(idStr) ? 0 : Convert.ToInt64(idStr);
                     var entityType = Request.Form["entityType"].ToString();
 
                     var attachmentType = Request.Form["attachmentType"].ToString();
@@ -73,7 +77,7 @@ namespace SoowGoodWeb.Controllers
                             file.CopyTo(stream);
                         }
                         // save attachment
-                        var attchmentId = GetDocumentAsync(entityType, entityId, attachmentType);
+                        var attchmentId = await GetDocumentAsync(entityType, entityId, attachmentType);
 
                         if (attchmentId > 0)
                         {
@@ -185,35 +189,40 @@ namespace SoowGoodWeb.Controllers
             }
         }
         [HttpGet]
-        public long GetDocumentAsync(string entityType, long? entityId, string attachmentType)
+        public async Task<long> GetDocumentAsync(string entityType, long? entityId, string attachmentType)
         {
-            var attachment = _attachmentRepository.GetAsync(x => x.EntityType == (EntityType)Enum.Parse(typeof(EntityType), entityType) 
-                                                              && x.EntityId == entityId 
-                                                              && x.AttachmentType == (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType) 
-                                                              && x.IsDeleted==false);
-            if (attachment.Result != null)
+            try
             {
-                try
-                {
-                    return attachment.Result.Id;
-                }
-                catch (Exception ex)
+                var queryable = await _attachmentRepository.WithDetailsAsync();
+                var attachment = queryable.Where(x => x.EntityType == (EntityType)Enum.Parse(typeof(EntityType), entityType)
+                                                                && x.EntityId == entityId
+                                                                && x.AttachmentType == (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType)
+                                                                && x.IsDeleted == false).FirstOrDefault();
+                //var item = attachment.re;
+                if (attachment != null && attachment.Id > 0)
                 {
 
+                    return attachment.Id;
                 }
             }
+            catch (Exception ex)
+            {
 
+            }
             return 0;
-        }
-        [HttpPut]
-        public async Task<DocumentsAttachmentDto> UpdateUploadAsync(DocumentsAttachmentDto input)
-        {
-            var updateItem = ObjectMapper.Map<DocumentsAttachmentDto, DocumentsAttachment>(input);
 
-            var item = await _attachmentRepository.UpdateAsync(updateItem);
-
-            return ObjectMapper.Map<DocumentsAttachment, DocumentsAttachmentDto>(item);
         }
+
+        //[HttpPut]
+        //public async Task<DocumentsAttachmentDto> UpdateUploadAsync(DocumentsAttachmentDto input)
+        //{
+        //    var updateItem = ObjectMapper.Map<DocumentsAttachmentDto, DocumentsAttachment>(input);
+
+        //    var item = await _attachmentRepository.UpdateAsync(updateItem);
+
+        //    return ObjectMapper.Map<DocumentsAttachment, DocumentsAttachmentDto>(item);
+        //}
+
         [HttpDelete]
         public async Task<bool> DeleteDocAsync(long id)
         {
