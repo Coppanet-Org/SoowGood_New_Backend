@@ -112,13 +112,9 @@ namespace SoowGoodWeb.Controllers
                             {
                                 insertCount += 1;
                             }
-
                         }
-
                         dbPath = dbPath.Replace(@"wwwroot\", string.Empty);
-
                     }
-
                     if (insertCount > 0)
                     {
                         result.Add("Status", "Success");
@@ -129,7 +125,6 @@ namespace SoowGoodWeb.Controllers
                         result.Add("Status", "Warning");
                         result.Add("Message", "Fail to save!");
                     }
-
                     return new JsonResult(result);
                 }
                 else
@@ -146,8 +141,6 @@ namespace SoowGoodWeb.Controllers
                 return new JsonResult(result);
             }
         }
-
-
 
         [HttpPost, ActionName("DeleteFileComplain")]
         public IActionResult DeleteFileComplain(FileDeleteInputDto input)
@@ -188,6 +181,7 @@ namespace SoowGoodWeb.Controllers
                 return StatusCode(500, $"Internal server error: {ex}");
             }
         }
+        
         [HttpGet]
         public async Task<long> GetDocumentAsync(string entityType, long? entityId, string attachmentType)
         {
@@ -201,7 +195,6 @@ namespace SoowGoodWeb.Controllers
                 //var item = attachment.re;
                 if (attachment != null && attachment.Id > 0)
                 {
-
                     return attachment.Id;
                 }
             }
