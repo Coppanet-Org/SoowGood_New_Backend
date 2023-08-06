@@ -15,5 +15,6 @@ namespace SoowGoodWeb.Interfaces
         Task<DoctorDegreeDto> GetAsync(int id);
         Task<DoctorDegreeDto> CreateAsync(DoctorDegreeInputDto input);
         Task<DoctorDegreeDto> UpdateAsync(DoctorDegreeInputDto input);
+        Task DeleteAsync(long id);
     }
 }

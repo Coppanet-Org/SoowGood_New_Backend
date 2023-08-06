@@ -61,8 +61,32 @@ namespace SoowGoodWeb.Services
         }
         public async Task<List<DoctorSpecializationDto>> GetDoctorSpecializationListByDoctorIdSpecialityIdAsync(int doctorId, int specialityId)
         {
-            var specialization = await _doctorSpecializationRepository.GetListAsync(x => x.DoctorId == doctorId && x.SpecialityId==specialityId);
+            var specialization = await _doctorSpecializationRepository.GetListAsync(x => x.DoctorId == doctorId && x.SpecialityId == specialityId);
             return ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(specialization);
+        }
+        public async Task<List<DoctorSpecializationDto>> GetListByDoctorIdSpIdAsync(int doctorId, int specialityId)
+        {
+            List<DoctorSpecializationDto> list = null;
+            var items = await _doctorSpecializationRepository.WithDetailsAsync(d => d.Specialization, s=>s.Speciality);
+            items = items.Where(i => i.DoctorId == doctorId && i.SpecialityId == specialityId);
+            if (items.Any())
+            {
+                list = new List<DoctorSpecializationDto>();
+                foreach (var item in items)
+                {
+                    list.Add(new DoctorSpecializationDto()
+                    {
+                        Id = item.Id,
+                        SpecializationId = item.SpecializationId,
+                        SpecialityId = item.SpecialityId,
+                        DoctorId = item.DoctorId,
+                        SpecialityName = item.Speciality?.SpecialityName,
+                        SpecializationName = item.Specialization?.SpecializationName
+                    });
+                }
+            }
+
+            return list;
         }
         public async Task<DoctorSpecializationDto> UpdateAsync(DoctorSpecializationInputDto input)
         {
@@ -72,6 +96,12 @@ namespace SoowGoodWeb.Services
 
             return ObjectMapper.Map<DoctorSpecialization, DoctorSpecializationDto>(item);
         }
+
+        public async Task DeleteAsync(long id)
+        {
+            await _doctorSpecializationRepository.DeleteAsync(d => d.Id == id);
+        }
+
         //public async Task<List<DoctorProfileDto>> GetListAsync()
         //{
         //    List<DoctorProfileDto> list = null;

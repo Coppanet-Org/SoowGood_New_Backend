@@ -49,6 +49,31 @@ namespace SoowGoodWeb.Services
             var doctDegrees = await _doctorDegreeRepository.GetListAsync(dd => dd.DoctorId == doctorId);
             return ObjectMapper.Map<List<DoctorDegree>, List<DoctorDegreeDto>>(doctDegrees);
         }
+        public async Task<List<DoctorDegreeDto>> GetListByDoctorIdAsync(int doctorId)
+        {
+            List<DoctorDegreeDto> list = null;
+            var items = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
+            items = items.Where(i => i.DoctorId == doctorId);
+            if (items.Any())
+            {
+                list = new List<DoctorDegreeDto>();
+                foreach (var item in items)
+                {
+                    list.Add(new DoctorDegreeDto()
+                    {
+                        Id = item.Id,
+                        DegreeName = item.Degree?.DegreeName,
+                        PassingYear = item.PassingYear,
+                        Duration = item.Duration,
+                        InstituteName = item.InstituteName,
+                        InstituteCity = item.InstituteCity,
+                        InstituteCountry = item.InstituteCountry,
+                    });
+                }
+            }
+
+            return list;
+        }
         public async Task<DoctorDegreeDto> UpdateAsync(DoctorDegreeInputDto input)
         {
             var updateItem = ObjectMapper.Map<DoctorDegreeInputDto, DoctorDegree>(input);
@@ -57,6 +82,12 @@ namespace SoowGoodWeb.Services
 
             return ObjectMapper.Map<DoctorDegree, DoctorDegreeDto>(item);
         }
+
+        public async Task DeleteAsync(long id)
+        {
+            await _doctorDegreeRepository.DeleteAsync(d => d.Id == id);
+        }
+
         //public async Task<List<DoctorProfileDto>> GetListAsync()
         //{
         //    List<DoctorProfileDto> list = null;

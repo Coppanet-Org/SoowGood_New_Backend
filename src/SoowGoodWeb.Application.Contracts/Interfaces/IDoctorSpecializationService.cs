@@ -18,5 +18,7 @@ namespace SoowGoodWeb.Interfaces
         Task<List<DoctorSpecializationDto>> GetDoctorSpecializationListByDoctorIdSpecialityIdAsync(int doctorId, int specialityId);
         Task<DoctorSpecializationDto> CreateAsync(DoctorSpecializationInputDto input);
         Task<DoctorSpecializationDto> UpdateAsync(DoctorSpecializationInputDto input);
+        Task DeleteAsync(long id);
+
     }
 }
