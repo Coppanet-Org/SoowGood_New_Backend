@@ -12,29 +12,28 @@ using Volo.Abp.Uow;
 
 namespace SoowGoodWeb.Services
 {
-    public class DoctorScheduleService : SoowGoodWebAppService, IDoctorScheduleService//, IDoctorScheduleDayOffService
+    public class DoctorScheduleDaySessionService : SoowGoodWebAppService, IDoctorScheduleDaySessionService//, IDoctorScheduleDayOffService
     {
-        private readonly IRepository<DoctorSchedule> _doctorScheduleRepository;
+        
         private readonly IRepository<DoctorScheduleDaySession> _doctorScheduleSessionRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
-        public DoctorScheduleService(IRepository<DoctorSchedule> doctorScheduleRepository, IRepository<DoctorScheduleDaySession> doctorScheduleSessionRepository, IUnitOfWorkManager unitOfWorkManager)
-        {
-            _doctorScheduleRepository = doctorScheduleRepository;
+        public DoctorScheduleDaySessionService(IRepository<DoctorScheduleDaySession> doctorScheduleSessionRepository, IUnitOfWorkManager unitOfWorkManager)
+        {   
             _doctorScheduleSessionRepository = doctorScheduleSessionRepository;
             _unitOfWorkManager = unitOfWorkManager;
         }
-        public async Task<ResponseDto> CreateAsync(DoctorScheduleInputDto input)
+        public async Task<ResponseDto> CreateAsync(DoctorScheduleDaySessionInputDto input)
         {
             var response = new ResponseDto();
             try
             {
 
-                var newEntity = ObjectMapper.Map<DoctorScheduleInputDto, DoctorSchedule>(input);
+                var newEntity = ObjectMapper.Map<DoctorScheduleDaySessionInputDto, DoctorScheduleDaySession>(input);
 
-                var doctorSchedule = await _doctorScheduleRepository.InsertAsync(newEntity);
+                var doctorSchedule = await _doctorScheduleSessionRepository.InsertAsync(newEntity);
                 await _unitOfWorkManager.Current.SaveChangesAsync();
                 //DoctorScheduleDaySessionDto? sessionResult = null;
-                var result = ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(doctorSchedule);
+                var result = ObjectMapper.Map<DoctorScheduleDaySession, DoctorScheduleDaySessionDto>(doctorSchedule);
                 if (result != null && result.Id > 0)
                 {
                     //if (input.DoctorScheduleDaySessions?.Count > 0)
@@ -66,9 +65,9 @@ namespace SoowGoodWeb.Services
                     //    if (sessionResult != null && sessionResult.Id > 0)
                     //    {
                     response.Id = result?.Id;
-                    response.Value = "Schedule Created";
+                    response.Value = "Schedule and Session Created";
                     response.Success = true;
-                    response.Message?.Add("Doctor Schedule created successfully.");
+                    response.Message?.Add("Doctor Schedule created successfully with sessions.");
                     //    }
                     //    else
                     //    {
@@ -90,9 +89,9 @@ namespace SoowGoodWeb.Services
                 else
                 {
                     response.Id = result?.Id;
-                    response.Value = "Schedule creation failed";
+                    response.Value = "Schedule Session creation failed";
                     response.Success = false;
-                    response.Message?.Add("Doctor Schedule creation failed.");
+                    response.Message?.Add("Doctor Schedule Session creation failed.");
                 }
                 //return response;
                 //ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(doctorSchedule);
@@ -100,7 +99,7 @@ namespace SoowGoodWeb.Services
             catch (Exception ex)
             {
                 response.Id = null;
-                response.Value = "Schedule creation failed";
+                response.Value = "Schedule Session creation failed";
                 response.Success = false;
                 response.Message?.Add(ex.Message);
                 //return response;
@@ -109,16 +108,16 @@ namespace SoowGoodWeb.Services
         }
 
 
-        public async Task<DoctorScheduleDto> GetAsync(int id)
+        public async Task<DoctorScheduleDaySessionDto> GetAsync(int id)
         {
-            var item = await _doctorScheduleRepository.GetAsync(x => x.Id == id);
+            var item = await _doctorScheduleSessionRepository.GetAsync(x => x.Id == id);
 
-            return ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
+            return ObjectMapper.Map<DoctorScheduleDaySession, DoctorScheduleDaySessionDto>(item);
         }
-        public async Task<List<DoctorScheduleDto>> GetListAsync()
+        public async Task<List<DoctorScheduleDaySessionDto>> GetListAsync()
         {
-            var profiles = await _doctorScheduleRepository.GetListAsync();
-            return ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(profiles);
+            var profiles = await _doctorScheduleSessionRepository.GetListAsync();
+            return ObjectMapper.Map<List<DoctorScheduleDaySession>, List<DoctorScheduleDaySessionDto>>(profiles);
         }
         //public async Task<DoctorScheduleDto> GetByUserIdAsync(Guid userId)
         //{
@@ -126,16 +125,16 @@ namespace SoowGoodWeb.Services
         //    return ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
         //}
 
-        public async Task<ResponseDto> UpdateAsync(DoctorScheduleInputDto input)
+        public async Task<ResponseDto> UpdateAsync(DoctorScheduleDaySessionInputDto input)
         {
             var response = new ResponseDto();
             try
             {
-                var updateItem = ObjectMapper.Map<DoctorScheduleInputDto, DoctorSchedule>(input);
-                var item = await _doctorScheduleRepository.UpdateAsync(updateItem);
+                var updateItem = ObjectMapper.Map<DoctorScheduleDaySessionInputDto, DoctorScheduleDaySession>(input);
+                var item = await _doctorScheduleSessionRepository.UpdateAsync(updateItem);
                 await _unitOfWorkManager.Current.SaveChangesAsync();
                 //DoctorScheduleDaySessionDto? sessionResult = null;
-                var result = ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
+                var result = ObjectMapper.Map<DoctorScheduleDaySession, DoctorScheduleDaySessionDto>(item);
                 if (result != null && result.Id > 0)
                 {
                     //if (input.DoctorScheduleDaySessions?.Count > 0)
@@ -178,9 +177,9 @@ namespace SoowGoodWeb.Services
                     //if (sessionResult != null && sessionResult.Id > 0)
                     //{
                     response.Id = result?.Id;
-                    response.Value = "Schedule with Session Created";
+                    response.Value = "Schedule with Session Updated";
                     response.Success = true;
-                    response.Message?.Add("Doctor Schedule created successfully with sessions.");
+                    response.Message?.Add("Doctor Schedule updated successfully with sessions.");
                     //}
                     //else
                     //{
@@ -201,130 +200,21 @@ namespace SoowGoodWeb.Services
                 else
                 {
                     response.Id = 0;
-                    response.Value = "Schedule Can not update";
+                    response.Value = "Schedule session Can not update";
                     response.Success = false;
-                    response.Message?.Add("Doctor Schedule Update failed.");
+                    response.Message?.Add("Doctor Schedule session Update failed.");
                 }
             }
             catch (Exception ex)
             {
                 response.Id = null;
-                response.Value = "Schedule Update failed";
+                response.Value = "Schedule Schedule session Update failed";
                 response.Success = false;
                 response.Message?.Add(ex.Message);
             }
 
             return response;//ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
         }
-
-        //public async Task<List<DoctorScheduleDto>> GetListAsync()
-        //{
-        //    List<DoctorScheduleDto> list = null;
-        //    var items = await _doctorScheduleRepository.WithDetailsAsync(p => p.District);
-        //    if (items.Any())
-        //    {
-        //        list = new List<DoctorScheduleDto>();
-        //        foreach (var item in items)
-        //        {
-        //            list.Add(new DoctorScheduleDto()
-        //            {
-        //                Id = item.Id,
-        //                Name = item.Name,
-        //                Description = item.Description,
-        //                DistrictId = item.DistrictId,
-        //                DistrictName = item.District?.Name,
-        //                CivilSubDivisionId = item.CivilSubDivisionId,
-        //                EmSubDivisionId = item.EmSubDivisionId,
-        //            });
-        //        }
-        //    }
-
-        //    return list;
-        //}
-        //public async Task<List<QuarterDto>> GetListByDistrictAsync(int id)
-        //{
-        //    List<QuarterDto> list = null;
-        //    var items = await repository.WithDetailsAsync(p => p.District);
-        //    items = items.Where(i => i.DistrictId == id);
-        //    if (items.Any())
-        //    {
-        //        list = new List<QuarterDto>();
-        //        foreach (var item in items)
-        //        {
-        //            list.Add(new QuarterDto()
-        //            {
-        //                Id = item.Id,
-        //                Name = item.Name,
-        //                Description = item.Description,
-        //                DistrictId = item.DistrictId,
-        //                DistrictName = item.District?.Name,
-        //                CivilSubDivisionId = item.CivilSubDivisionId,
-        //                EmSubDivisionId = item.EmSubDivisionId,
-        //            });
-        //        }
-        //    }
-
-        //    return list;
-        //}
-
-        //public async Task<int> GetCountAsync()
-        //{
-        //    return (await quarterRepository.GetListAsync()).Count;
-        //}
-        //public async Task<List<QuarterDto>> GetSortedListAsync(FilterModel filterModel)
-        //{
-        //    var quarters = await quarterRepository.WithDetailsAsync();
-        //    quarters = quarters.Skip(filterModel.Offset)
-        //                    .Take(filterModel.Limit);
-        //    return ObjectMapper.Map<List<Quarter>, List<QuarterDto>>(quarters.ToList());
-        //}
-        ////public async Task<int> GetCountBySDIdAsync(Guid? civilSDId, Guid? emSDId)
-        //public async Task<int> GetCountBySDIdAsync(Guid? sdId)
-        //{
-        //    var quarters = await quarterRepository.WithDetailsAsync();
-        //    //if (civilSDId != null && emSDId != null)
-        //    //{
-        //    //    quarters = quarters.Where(q => q.CivilSubDivisionId == civilSDId && q.EmSubDivisionId == emSDId);
-        //    //}
-        //    if (sdId != null)
-        //    {
-        //        quarters = quarters.Where(q => q.CivilSubDivisionId == sdId || q.EmSubDivisionId == sdId);
-        //    }
-        //    //else if (emSDId != null)
-        //    //{
-        //    //    quarters = quarters.Where(q => q.EmSubDivisionId == emSDId);
-        //    //}
-        //    return quarters.Count();
-        //}
-        ////public async Task<List<QuarterDto>> GetSortedListBySDIdAsync(Guid? civilSDId, Guid? emSDId, FilterModel filterModel)
-        //public async Task<List<QuarterDto>> GetSortedListBySDIdAsync(Guid? sdId, FilterModel filterModel)
-        //{
-        //    var quarters = await quarterRepository.WithDetailsAsync();
-        //    //if (civilSDId != null && emSDId != null)
-        //    //{
-        //    //    quarters = quarters.Where(q => q.CivilSubDivisionId == civilSDId && q.EmSubDivisionId == emSDId);
-        //    //}
-        //    //else if (civilSDId != null)
-        //    //{
-        //    if (sdId != null)
-        //        quarters = quarters.Where(q => q.CivilSubDivisionId == sdId || q.EmSubDivisionId == sdId);
-        //    //}
-        //    //else if (emSDId != null)
-        //    //{
-        //    //    quarters = quarters.Where(q => q.EmSubDivisionId == emSDId);
-        //    //}
-        //    quarters = quarters.Skip(filterModel.Offset)
-        //                    .Take(filterModel.Limit);
-        //    return ObjectMapper.Map<List<Quarter>, List<QuarterDto>>(quarters.ToList());
-        //}
-        //public async Task<List<QuarterDto>> GetListBySDIdAsync(Guid? sdId)
-        //{
-        //    var quarters = await quarterRepository.WithDetailsAsync();
-        //    if (sdId != null)
-        //    {
-        //        quarters = quarters.Where(q => q.CivilSubDivisionId == sdId || q.EmSubDivisionId == sdId);
-        //    }
-        //    return ObjectMapper.Map<List<Quarter>, List<QuarterDto>>(quarters.ToList());
-        //}
+        
     }
 }
