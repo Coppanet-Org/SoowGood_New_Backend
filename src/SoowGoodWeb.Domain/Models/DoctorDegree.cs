@@ -11,7 +11,7 @@ namespace SoowGoodWeb.Models
     public class DoctorDegree : FullAuditedEntity<long>
     {
 
-        public long? DoctorId { get; set; }
+        public long? DoctorProfileId { get; set; }
         public DoctorProfile? DoctorProfile { get; set; }
         public long? DegreeId { get; set; }
         public Degree? Degree { get; set; }

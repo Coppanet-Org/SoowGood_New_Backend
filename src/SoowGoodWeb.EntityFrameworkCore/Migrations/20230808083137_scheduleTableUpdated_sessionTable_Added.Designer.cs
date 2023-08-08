@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230808083137_scheduleTableUpdated_sessionTable_Added")]
+    partial class scheduleTableUpdated_sessionTable_Added
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -109,6 +112,9 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("DeletionTime");
 
+                    b.Property<long?>("DoctorId")
+                        .HasColumnType("bigint");
+
                     b.Property<long?>("DoctorProfileId")
                         .HasColumnType("bigint");
 
@@ -162,6 +168,9 @@ namespace SoowGoodWeb.Migrations
                     b.Property<DateTime?>("DeletionTime")
                         .HasColumnType("datetime2")
                         .HasColumnName("DeletionTime");
+
+                    b.Property<long?>("DoctorId")
+                        .HasColumnType("bigint");
 
                     b.Property<long?>("DoctorProfileId")
                         .HasColumnType("bigint");
@@ -416,6 +425,9 @@ namespace SoowGoodWeb.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<long?>("ChamberId")
+                        .HasColumnType("bigint");
+
                     b.Property<int?>("ConsultancyType")
                         .HasColumnType("int");
 
@@ -436,6 +448,9 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnName("DeletionTime");
 
                     b.Property<long?>("DoctorChamberId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DoctorId")
                         .HasColumnType("bigint");
 
                     b.Property<long?>("DoctorProfileId")
@@ -530,7 +545,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("DoctorScheduleId");
 
-                    b.ToTable("SgDoctorScheduleDaySessions");
+                    b.ToTable("DoctorScheduleDaySessions");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorScheduledDayOff", b =>
@@ -610,6 +625,9 @@ namespace SoowGoodWeb.Migrations
                     b.Property<DateTime?>("DeletionTime")
                         .HasColumnType("datetime2")
                         .HasColumnName("DeletionTime");
+
+                    b.Property<long?>("DoctorId")
+                        .HasColumnType("bigint");
 
                     b.Property<long?>("DoctorProfileId")
                         .HasColumnType("bigint");

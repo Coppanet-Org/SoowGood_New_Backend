@@ -46,7 +46,7 @@ namespace SoowGoodWeb.Services
         }
         public async Task<List<DoctorChamberDto>> GetDoctorChamberListByDoctorIdAsync(int doctorId)
         {
-            var doctDegrees = await _doctorChamberRepository.GetListAsync(dd => dd.DoctorId == doctorId);
+            var doctDegrees = await _doctorChamberRepository.GetListAsync(dd => dd.DoctorProfileId == doctorId);
             return ObjectMapper.Map<List<DoctorChamber>, List<DoctorChamberDto>>(doctDegrees);
         }
         public async Task<DoctorChamberDto> UpdateAsync(DoctorChamberInputDto input)

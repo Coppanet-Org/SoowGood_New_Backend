@@ -56,19 +56,19 @@ namespace SoowGoodWeb.Services
         }
         public async Task<List<DoctorSpecializationDto>> GetDoctorSpecializationListByDoctorIdAsync(int doctorId)
         {
-            var specialization = await _doctorSpecializationRepository.GetListAsync(x => x.DoctorId == doctorId);
+            var specialization = await _doctorSpecializationRepository.GetListAsync(x => x.DoctorProfileId == doctorId);
             return ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(specialization);
         }
         public async Task<List<DoctorSpecializationDto>> GetDoctorSpecializationListByDoctorIdSpecialityIdAsync(int doctorId, int specialityId)
         {
-            var specialization = await _doctorSpecializationRepository.GetListAsync(x => x.DoctorId == doctorId && x.SpecialityId == specialityId);
+            var specialization = await _doctorSpecializationRepository.GetListAsync(x => x.DoctorProfileId == doctorId && x.SpecialityId == specialityId);
             return ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(specialization);
         }
         public async Task<List<DoctorSpecializationDto>> GetListByDoctorIdSpIdAsync(int doctorId, int specialityId)
         {
             List<DoctorSpecializationDto> list = null;
             var items = await _doctorSpecializationRepository.WithDetailsAsync(d => d.Specialization, s=>s.Speciality);
-            items = items.Where(i => i.DoctorId == doctorId && i.SpecialityId == specialityId);
+            items = items.Where(i => i.DoctorProfileId == doctorId && i.SpecialityId == specialityId);
             if (items.Any())
             {
                 list = new List<DoctorSpecializationDto>();
@@ -79,7 +79,7 @@ namespace SoowGoodWeb.Services
                         Id = item.Id,
                         SpecializationId = item.SpecializationId,
                         SpecialityId = item.SpecialityId,
-                        DoctorId = item.DoctorId,
+                        DoctorProfileId = item.DoctorProfileId,
                         SpecialityName = item.Speciality?.SpecialityName,
                         SpecializationName = item.Specialization?.SpecializationName
                     });
