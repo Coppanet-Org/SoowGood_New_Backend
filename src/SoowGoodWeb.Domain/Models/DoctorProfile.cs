@@ -35,6 +35,8 @@ namespace SoowGoodWeb.Models
         public bool? IsActive { get; set; }
         public Guid? UserId { get; set; }
         public bool? IsOnline { get; set; }
+        public int? profileStep { get; set;}
+        public string? createFrom { get; set; }
 
     }
 }

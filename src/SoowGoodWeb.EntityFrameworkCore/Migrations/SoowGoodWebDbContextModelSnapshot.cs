@@ -109,9 +109,6 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("DeletionTime");
 
-                    b.Property<long?>("DoctorId")
-                        .HasColumnType("bigint");
-
                     b.Property<long?>("DoctorProfileId")
                         .HasColumnType("bigint");
 
@@ -165,9 +162,6 @@ namespace SoowGoodWeb.Migrations
                     b.Property<DateTime?>("DeletionTime")
                         .HasColumnType("datetime2")
                         .HasColumnName("DeletionTime");
-
-                    b.Property<long?>("DoctorId")
-                        .HasColumnType("bigint");
 
                     b.Property<long?>("DoctorProfileId")
                         .HasColumnType("bigint");
@@ -401,6 +395,12 @@ namespace SoowGoodWeb.Migrations
                     b.Property<string>("ZipCode")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("createFrom")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("profileStep")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("SpecialityId");
@@ -415,9 +415,6 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long?>("ChamberId")
-                        .HasColumnType("bigint");
 
                     b.Property<int?>("ConsultancyType")
                         .HasColumnType("int");
@@ -441,10 +438,63 @@ namespace SoowGoodWeb.Migrations
                     b.Property<long?>("DoctorChamberId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("DoctorId")
+                    b.Property<long?>("DoctorProfileId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("DoctorProfileId")
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<int?>("ScheduleType")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DoctorChamberId");
+
+                    b.HasIndex("DoctorProfileId");
+
+                    b.ToTable("SgDoctorSchedules");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.DoctorScheduleDaySession", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<long?>("DoctorScheduleId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime?>("EndTime")
@@ -470,19 +520,17 @@ namespace SoowGoodWeb.Migrations
                     b.Property<int?>("NoOfPatients")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ScheduleType")
-                        .HasColumnType("int");
+                    b.Property<string>("ScheduleDayofWeek")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("StartTime")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DoctorChamberId");
+                    b.HasIndex("DoctorScheduleId");
 
-                    b.HasIndex("DoctorProfileId");
-
-                    b.ToTable("SgDoctorSchedules");
+                    b.ToTable("SgDoctorScheduleDaySessions");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorScheduledDayOff", b =>
@@ -562,9 +610,6 @@ namespace SoowGoodWeb.Migrations
                     b.Property<DateTime?>("DeletionTime")
                         .HasColumnType("datetime2")
                         .HasColumnName("DeletionTime");
-
-                    b.Property<long?>("DoctorId")
-                        .HasColumnType("bigint");
 
                     b.Property<long?>("DoctorProfileId")
                         .HasColumnType("bigint");
@@ -2535,10 +2580,19 @@ namespace SoowGoodWeb.Migrations
                     b.Navigation("DoctorProfile");
                 });
 
+            modelBuilder.Entity("SoowGoodWeb.Models.DoctorScheduleDaySession", b =>
+                {
+                    b.HasOne("SoowGoodWeb.Models.DoctorSchedule", "DoctorSchedule")
+                        .WithMany("DoctorScheduleDaySession")
+                        .HasForeignKey("DoctorScheduleId");
+
+                    b.Navigation("DoctorSchedule");
+                });
+
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorScheduledDayOff", b =>
                 {
                     b.HasOne("SoowGoodWeb.Models.DoctorSchedule", "DoctorSchedule")
-                        .WithMany("DoctorScheduledDayOffs")
+                        .WithMany()
                         .HasForeignKey("DoctorScheduleId");
 
                     b.Navigation("DoctorSchedule");
@@ -2727,7 +2781,7 @@ namespace SoowGoodWeb.Migrations
                 {
                     b.Navigation("DoctorFeesSetup");
 
-                    b.Navigation("DoctorScheduledDayOffs");
+                    b.Navigation("DoctorScheduleDaySession");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Speciality", b =>

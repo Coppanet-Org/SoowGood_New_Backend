@@ -8,7 +8,7 @@ namespace SoowGoodWeb.DtoModels
 {
     public class DoctorDegreeDto : FullAuditedEntityDto<long>
     {
-        public long? DoctorId { get; set; }             
+        public long? DoctorProfileId { get; set; }             
         //public DoctorProfileDto? DoctorProfile { get; set; }
         public string? DoctorName { get; set; }
         public long? DegreeId { get; set; }

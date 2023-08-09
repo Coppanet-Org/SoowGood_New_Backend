@@ -160,7 +160,7 @@ namespace SoowGoodWeb.Services
                     loginInfo.UserId = null;
                     loginInfo.UserName = "";
                     loginInfo.Success = false;
-                    loginInfo.Message = "Login Failed!";
+                    loginInfo.Message = "User Name Or Password is not correct !";
                     return loginInfo;
                 }
             }
