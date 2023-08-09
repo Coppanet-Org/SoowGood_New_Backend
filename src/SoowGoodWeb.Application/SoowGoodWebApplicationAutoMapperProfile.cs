@@ -27,7 +27,7 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<DegreeInputDto, Degree>();
 
         CreateMap<DoctorDegree, DoctorDegreeDto>()
-            .ForMember(d => d.DoctorName, o => o.MapFrom(n => (n.DoctorId > 0 && n.DoctorProfile != null) ? n.DoctorProfile.FullName:""))
+            .ForMember(d => d.DoctorName, o => o.MapFrom(n => (n.DoctorProfileId > 0 && n.DoctorProfile != null) ? n.DoctorProfile.FullName:""))
             .ForMember(d => d.DegreeName, o => o.MapFrom(e => (e.DegreeId > 0 && e.Degree != null) ? e.Degree.DegreeName:""));
         CreateMap<DoctorDegreeDto, DoctorDegree>()
             .ForMember(d => d.Degree, o => o.Ignore())
@@ -50,7 +50,7 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
             .ForMember(d => d.Speciality, o => o.Ignore());
 
         CreateMap<DoctorSpecialization, DoctorSpecializationDto>()
-            .ForMember(d => d.DoctorName, o => o.MapFrom(n => (n.DoctorId > 0 && n.DoctorProfile != null) ? n.DoctorProfile.FullName : ""))
+            .ForMember(d => d.DoctorName, o => o.MapFrom(n => (n.DoctorProfileId > 0 && n.DoctorProfile != null) ? n.DoctorProfile.FullName : ""))
             .ForMember(d => d.SpecialityName, o => o.MapFrom(n => (n.SpecialityId > 0 && n.Speciality != null) ? n.Speciality.SpecialityName : ""))
             .ForMember(d => d.SpecializationName, o => o.MapFrom(n => (n.SpecializationId > 0 && n.Specialization != null) ? n.Specialization.SpecializationName : ""));
         CreateMap<DoctorSpecializationDto, DoctorSpecialization>()
@@ -88,18 +88,26 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<DocumentsAttachmentDto, DocumentsAttachment>();
 
         CreateMap<DoctorSchedule, DoctorScheduleDto>()
-            .ForMember(d => d.DoctorName, o => o.MapFrom(n => (n.DoctorId > 0 && n.DoctorProfile != null) ? n.DoctorProfile.FullName : ""))
+            .ForMember(d => d.DoctorName, o => o.MapFrom(n => (n.DoctorProfileId > 0 && n.DoctorProfile != null) ? n.DoctorProfile.FullName : ""))
             .ForMember(d => d.ScheduleTypeName, o => o.MapFrom(e => (e.ScheduleType > 0 && e.ScheduleType != null) ? e.ScheduleType : 0))
-            .ForMember(d => d.ConsultancyTypeName, o => o.MapFrom(e => (e.ConsultancyType > 0 && e.ConsultancyType != null) ? e.ConsultancyType : 0));
+            .ForMember(d => d.ConsultancyTypeName, o => o.MapFrom(e => (e.ConsultancyType > 0 && e.ConsultancyType != null) ? e.ConsultancyType : 0))
+            .ForMember(d => d.Chamber, o => o.MapFrom(e => (e.DoctorChamberId > 0 && e.DoctorChamber != null) ? e.DoctorChamber.ChamberName : ""));
+            ;
         CreateMap<DoctorScheduleDto, DoctorSchedule>()
             .ForMember(d => d.DoctorProfile, o => o.Ignore());
         CreateMap<DoctorScheduleInputDto, DoctorSchedule>()
             .ForMember(d => d.DoctorProfile, o => o.Ignore());
 
-        CreateMap<DoctorScheduledDayOff, DoctorScheduledDayOffDto>();
-        CreateMap<DoctorScheduledDayOffDto, DoctorScheduledDayOff>()
+        //CreateMap<DoctorScheduledDayOff, DoctorScheduledDayOffDto>();
+        //CreateMap<DoctorScheduledDayOffDto, DoctorScheduledDayOff>()
+        //    .ForMember(d => d.DoctorSchedule, o => o.Ignore());
+        //CreateMap<DoctorScheduledDayOffInputDto, DoctorScheduledDayOff>()
+        //    .ForMember(d => d.DoctorSchedule, o => o.Ignore());
+
+        CreateMap<DoctorScheduleDaySession, DoctorScheduleDaySessionDto>();
+        CreateMap<DoctorScheduleDaySessionDto, DoctorScheduleDaySession>()
             .ForMember(d => d.DoctorSchedule, o => o.Ignore());
-        CreateMap<DoctorScheduledDayOffInputDto, DoctorScheduledDayOff>()
+        CreateMap<DoctorScheduleDaySessionInputDto, DoctorScheduleDaySession>()
             .ForMember(d => d.DoctorSchedule, o => o.Ignore());
 
         CreateMap<DoctorFeesSetup, DoctorFeesSetupDto>()

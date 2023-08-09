@@ -9,17 +9,17 @@ namespace SoowGoodWeb.DtoModels
 {
     public class DoctorScheduleInputDto : FullAuditedEntityDto<long>
     {
-        public long? DoctorId { get; set; }
+        public long? DoctorProfileId { get; set; }
         //public DoctorProfile? DoctorProfile { get; set; }        
         public ScheduleType? ScheduleType { get; set; }        
         public ConsultancyType? ConsultancyType { get; set; }        
-        public long? ChamberId { get; set; }
+        public long? DoctorChamberId { get; set; }
         //public DoctorChamber? DoctorChamber { get; set; }
-        public string? StartTime { get; set; }
-        public string? EndTime { get; set; }
-        public int? NoOfPatients { get; set; }
+        //public string? StartTime { get; set; }
+        //public string? EndTime { get; set; }
+        //public int? NoOfPatients { get; set; }
         public bool? IsActive { get; set; }
-        public List<DoctorScheduledDayOffInputDto>? DoctorScheduledDayOffs { get; set; }
+        public List<DoctorScheduleDaySessionInputDto>? DoctorScheduleDaySessions { get; set; }
         public List<DoctorFeesSetupInputDto>? DoctorFeesSetup { get; set; }
     }
 }
