@@ -1,4 +1,5 @@
 ﻿using AutoMapper.Internal.Mappers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using SoowGoodWeb.DtoModels;
 using SoowGoodWeb.Enums;
@@ -18,6 +19,7 @@ using static Volo.Abp.Identity.Settings.IdentitySettingNames;
 
 namespace SoowGoodWeb.Services
 {
+    //[Authorize]
     public class OtpService : SoowGoodWebAppService, IOtpService
     {
 
@@ -37,6 +39,7 @@ namespace SoowGoodWeb.Services
 
 
         //[HttpGet]
+        //[AllowAnonymous]
         public async Task<bool> ApplyOtp(string clientKey, string mobileNo)
         {
             var isUserExists = await _userManager.FindByNameAsync(mobileNo);
@@ -58,7 +61,7 @@ namespace SoowGoodWeb.Services
                     otpInput.CsmsId = GenerateTransactionId(16);
                     try
                     {
-                        //var res = await _smsService.SendSmsGreenWeb(otpInput);
+                        var res = await _smsService.SendSmsGreenWeb(otpInput);
                         return true;
                     }
                     catch (Exception e)
@@ -84,6 +87,7 @@ namespace SoowGoodWeb.Services
         //[HttpGet]
         public async Task<bool> VarifyOtpAsync(int otp)
         {
+
             //if (otp > 0)
             //{
             //    var item = await _repository.FirstOrDefaultAsync(x => x.OtpNo == otp && x.OtpStatus == OtpStatus.New && x.ExpireDateTime >= DateTime.Now);
