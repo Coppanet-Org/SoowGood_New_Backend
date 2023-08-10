@@ -19,6 +19,8 @@ namespace SoowGoodWeb.DtoModels
         //public string? EndTime { get; set; }
         //public int? NoOfPatients { get; set; }
         public bool? IsActive { get; set; }
+        public DateTime? OffDayFrom { get; set; }
+        public DateTime? OffDayTo { get; set; }
         public List<DoctorScheduleDaySessionInputDto>? DoctorScheduleDaySessions { get; set; }
         public List<DoctorFeesSetupInputDto>? DoctorFeesSetup { get; set; }
     }
