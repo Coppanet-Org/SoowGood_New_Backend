@@ -14,5 +14,11 @@ namespace SoowGoodWeb.Interfaces
         Task<DoctorScheduleDaySessionDto> GetAsync(int id);
         Task<ResponseDto> CreateAsync(DoctorScheduleDaySessionInputDto input);
         Task<ResponseDto> UpdateAsync(DoctorScheduleDaySessionInputDto input);
+
+        //Task<List<DoctorScheduledDayOffDto>> GetDayOffsListAsync();
+        //Task<DoctorScheduledDayOffDto> GetDayOffsAsync(int id);
+        //Task<DoctorScheduledDayOffDto> CreateDayOffAsync(DoctorScheduledDayOffInputDto input);
+        //Task<DoctorScheduledDayOffDto> UpdateDayOffAsync(DoctorScheduledDayOffInputDto input);
+        //Task<DoctorScheduleDto> GetByUserIdAsync(long doctorId);
     }
 }

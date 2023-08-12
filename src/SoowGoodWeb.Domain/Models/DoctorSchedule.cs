@@ -15,8 +15,10 @@ namespace SoowGoodWeb.Models
         public ScheduleType? ScheduleType { get; set; }
         public ConsultancyType? ConsultancyType { get; set; }
         public long? DoctorChamberId { get; set; }
-        public DoctorChamber? DoctorChamber { get; set; }        
+        public DoctorChamber? DoctorChamber { get; set; }            
         public bool? IsActive { get; set; }
+        public DateTime? OffDayFrom { get; set; }
+        public DateTime? OffDayTo { get;set; }
         public List<DoctorScheduleDaySession>? DoctorScheduleDaySession { get; set; }
         public List<DoctorFeesSetup>? DoctorFeesSetup { get; set; }
     }

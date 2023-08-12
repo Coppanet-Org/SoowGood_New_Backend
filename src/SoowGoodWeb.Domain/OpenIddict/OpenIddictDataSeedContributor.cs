@@ -153,6 +153,30 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
                 postLogoutRedirectUri: consoleAndAngularClientRootUrl
             );
         }
+        //Emulator Test / Mobile Client
+        var emulatorClientId = configurationSection["SoowGoodMobile_App:ClientId"];
+        if (!emulatorClientId.IsNullOrWhiteSpace())
+        {
+            var emulatorClientRootUrl = configurationSection["SoowGoodMobile_App:RootUrl"]?.TrimEnd('/');
+            await CreateApplicationAsync(
+                name: emulatorClientId!,
+                type: OpenIddictConstants.ClientTypes.Public,
+                consentType: OpenIddictConstants.ConsentTypes.Implicit,
+                displayName: "Mobile Application",
+                secret: null,
+                grantTypes: new List<string>
+                {
+                    OpenIddictConstants.GrantTypes.AuthorizationCode,
+                    OpenIddictConstants.GrantTypes.Password,
+                    OpenIddictConstants.GrantTypes.ClientCredentials,
+                    OpenIddictConstants.GrantTypes.RefreshToken
+                },
+                scopes: commonScopes,
+                redirectUri: emulatorClientRootUrl,
+                clientUri: emulatorClientRootUrl,
+                postLogoutRedirectUri: emulatorClientRootUrl
+            );
+        }
 
         // Blazor Client
         var blazorClientId = configurationSection["SoowGoodWeb_Blazor:ClientId"];
