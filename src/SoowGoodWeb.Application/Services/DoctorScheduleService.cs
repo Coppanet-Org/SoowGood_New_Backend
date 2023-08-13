@@ -29,47 +29,43 @@ namespace SoowGoodWeb.Services
         public async Task<ResponseDto> CreateAsync(DoctorScheduleInputDto input)
         {
             var response = new ResponseDto();
-            int br = 0;
+            var br = 0;
             try
             {
-                if (input.Id > 0)
-                {
-                    DoctorScheduleInputDto upInputDto = input;
-                }
                 if (input.Id == 0)
                 {
                     var newEntity = ObjectMapper.Map<DoctorScheduleInputDto, DoctorSchedule>(input);
 
                     var doctorSchedule = await _doctorScheduleRepository.InsertAsync(newEntity);
                     await _unitOfWorkManager.Current.SaveChangesAsync();
-                    Task<ResponseDto>? sessionResult = null;
                     var result = ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(doctorSchedule);
-                    if (result != null && result.Id > 0)
+                    if (result is { Id: > 0 })
                     {
                         if (input.DoctorScheduleDaySessions?.Count > 0)
                         {
                             foreach (var i in input.DoctorScheduleDaySessions)
                             {
-                                i.StartTime = TimeZoneInfo.ConvertTimeFromUtc((i.StartTime ?? DateTime.Now), TimeZoneInfo.FindSystemTimeZoneById(""));
-                                i.EndTime = TimeZoneInfo.ConvertTimeFromUtc((i.EndTime ?? DateTime.Now), TimeZoneInfo.FindSystemTimeZoneById(""));
+                                i.StartTime = TimeZoneInfo.ConvertTimeFromUtc((i.StartTime ?? DateTime.Now), TimeZoneInfo.FindSystemTimeZoneById("Bangladesh Standard Time"));
+                                i.EndTime = TimeZoneInfo.ConvertTimeFromUtc((i.EndTime ?? DateTime.Now), TimeZoneInfo.FindSystemTimeZoneById("Bangladesh Standard Time"));
 
-                                var session = new DoctorScheduleDaySessionInputDto();
+                                var session = new DoctorScheduleDaySessionInputDto
+                                {
+                                    DoctorScheduleId = result.Id,
+                                    ScheduleDayofWeek = i.ScheduleDayofWeek,
+                                    StartTime = i.StartTime,
+                                    EndTime = i.EndTime,
+                                    NoOfPatients = i.NoOfPatients,
+                                    IsActive = i.IsActive,
+                                    CreationTime = i.CreationTime,
+                                    CreatorId = i.CreatorId,
+                                    LastModificationTime = i.LastModificationTime,
+                                    LastModifierId = i.LastModifierId,
+                                    IsDeleted = i.IsDeleted,
+                                    DeleterId = i.DeleterId,
+                                    DeletionTime = i.DeletionTime
+                                };
 
-                                session.DoctorScheduleId = result.Id;
-                                session.ScheduleDayofWeek = i.ScheduleDayofWeek;
-                                session.StartTime = i.StartTime;
-                                session.EndTime = i.EndTime;
-                                session.NoOfPatients = i.NoOfPatients;
-                                session.IsActive = i.IsActive;
-                                session.CreationTime = i.CreationTime;
-                                session.CreatorId = i.CreatorId;
-                                session.LastModificationTime = i.LastModificationTime;
-                                session.LastModifierId = i.LastModifierId;
-                                session.IsDeleted = i.IsDeleted;
-                                session.DeleterId = i.DeleterId;
-                                session.DeletionTime = i.DeletionTime;
-
-                                sessionResult = CreateSessionAsync(session);
+                                var sessionResult = CreateSessionAsync(session);
                                 if(sessionResult.Result.Success == true)
                                 {
                                     br++;
@@ -310,11 +306,12 @@ namespace SoowGoodWeb.Services
             }
             return response;
         }
-        public async Task<DoctorScheduleDto> GetAsync(int id)
+        public async Task<DoctorScheduleDto?> GetAsync(int id)
         {
-            var item = await _doctorScheduleRepository.GetAsync(x => x.Id == id);
-
-            return ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
+            var item = await _doctorScheduleRepository.WithDetailsAsync(s => s.DoctorScheduleDaySession);
+            var schedule = item.FirstOrDefault(x => x.Id==id);
+            //var result = schedule != null ? schedule : null;
+            return schedule != null ? ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(schedule) : null;
         }
         public async Task<List<DoctorScheduleDto>> GetListAsync()
         {

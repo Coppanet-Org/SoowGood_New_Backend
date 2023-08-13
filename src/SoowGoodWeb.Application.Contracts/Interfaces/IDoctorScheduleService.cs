@@ -11,7 +11,7 @@ namespace SoowGoodWeb.Interfaces
     public interface IDoctorScheduleService : IApplicationService
     {
         Task<List<DoctorScheduleDto>> GetListAsync();
-        Task<DoctorScheduleDto> GetAsync(int id);
+        Task<DoctorScheduleDto?> GetAsync(int id);
         Task<ResponseDto> CreateAsync(DoctorScheduleInputDto input);
         Task<ResponseDto> UpdateAsync(DoctorScheduleInputDto input);
 

@@ -94,9 +94,11 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
             .ForMember(d => d.Chamber, o => o.MapFrom(e => (e.DoctorChamberId > 0 && e.DoctorChamber != null) ? e.DoctorChamber.ChamberName : ""));
             ;
         CreateMap<DoctorScheduleDto, DoctorSchedule>()
-            .ForMember(d => d.DoctorProfile, o => o.Ignore());
+            .ForMember(d => d.DoctorProfile, o => o.Ignore())
+            .ForMember(d => d.DoctorChamber, o => o.Ignore());
         CreateMap<DoctorScheduleInputDto, DoctorSchedule>()
-            .ForMember(d => d.DoctorProfile, o => o.Ignore());
+            .ForMember(d => d.DoctorProfile, o => o.Ignore())
+            .ForMember(d => d.DoctorChamber, o => o.Ignore());
 
         //CreateMap<DoctorScheduledDayOff, DoctorScheduledDayOffDto>();
         //CreateMap<DoctorScheduledDayOffDto, DoctorScheduledDayOff>()
