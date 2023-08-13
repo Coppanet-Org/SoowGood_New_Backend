@@ -45,8 +45,8 @@ namespace SoowGoodWeb.Services
                         {
                             foreach (var i in input.DoctorScheduleDaySessions)
                             {
-                                i.StartTime = TimeZoneInfo.ConvertTimeFromUtc((i.StartTime ?? DateTime.Now), TimeZoneInfo.FindSystemTimeZoneById("Bangladesh Standard Time"));
-                                i.EndTime = TimeZoneInfo.ConvertTimeFromUtc((i.EndTime ?? DateTime.Now), TimeZoneInfo.FindSystemTimeZoneById("Bangladesh Standard Time"));
+                                //i.StartTime = TimeZoneInfo.ConvertTimeFromUtc((i.StartTime ?? DateTime.Now), TimeZoneInfo.FindSystemTimeZoneById("Bangladesh Standard Time"));
+                                //i.EndTime = TimeZoneInfo.ConvertTimeFromUtc((i.EndTime ?? DateTime.Now), TimeZoneInfo.FindSystemTimeZoneById("Bangladesh Standard Time"));
 
                                 var session = new DoctorScheduleDaySessionInputDto
                                 {
@@ -154,11 +154,8 @@ namespace SoowGoodWeb.Services
         public async Task<ResponseDto> UpdateAsync(DoctorScheduleInputDto input)
         {
             var response = new ResponseDto();
-            int br = 0;
-            int upbr = 0;
-            int insertCount = 0;
-            int updateCount = 0;
-            int totalItemCount = 0;
+            var br = 0;
+            var totalItemCount = 0;
             try
             {
                 //dt = datetime ?? DateTime.Now;
@@ -166,19 +163,19 @@ namespace SoowGoodWeb.Services
                 var item = await _doctorScheduleRepository.UpdateAsync(updateItem);
                 await _unitOfWorkManager.Current.SaveChangesAsync();
                 //DoctorScheduleDaySessionDto? sessionResult = null;
-                Task<ResponseDto>? sessionResult = null;
                 var result = ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
-                if (result != null && result.Id > 0)
+                if (result is { Id: > 0 })
                 {
                     if (input.DoctorScheduleDaySessions?.Count > 0)
                     {
                         foreach (var i in input.DoctorScheduleDaySessions)
                         {
+                            Task<ResponseDto>? sessionResult = null;
                             if (i.Id > 0)
                             {
-                                totalItemCount = totalItemCount + input.DoctorScheduleDaySessions.Where(c => c.Id > 0).Count();
-                                i.StartTime = TimeZoneInfo.ConvertTimeFromUtc((i.StartTime ?? DateTime.Now), TimeZoneInfo.FindSystemTimeZoneById(""));
-                                i.EndTime = TimeZoneInfo.ConvertTimeFromUtc((i.EndTime ?? DateTime.Now), TimeZoneInfo.FindSystemTimeZoneById(""));
+                                totalItemCount = totalItemCount + input.DoctorScheduleDaySessions.Count(c => c.Id > 0);
+                                //i.StartTime = TimeZoneInfo.ConvertTimeFromUtc((i.StartTime ?? DateTime.Now), TimeZoneInfo.FindSystemTimeZoneById(""));
+                                //i.EndTime = TimeZoneInfo.ConvertTimeFromUtc((i.EndTime ?? DateTime.Now), TimeZoneInfo.FindSystemTimeZoneById(""));
                                 
                                 sessionResult = UpdateSessionAsync(i);
                                 if (sessionResult.Result.Success == true)
@@ -201,22 +198,23 @@ namespace SoowGoodWeb.Services
                             }
                             else
                             {
-                                totalItemCount = totalItemCount + input.DoctorScheduleDaySessions.Where(c => c.Id == 0).Count();
-                                var session = new DoctorScheduleDaySessionInputDto();
-
-                                session.DoctorScheduleId = result.Id;
-                                session.ScheduleDayofWeek = i.ScheduleDayofWeek;
-                                session.StartTime = i.StartTime;
-                                session.EndTime = i.EndTime;
-                                session.NoOfPatients = i.NoOfPatients;
-                                session.IsActive = i.IsActive;
-                                session.CreationTime = i.CreationTime;
-                                session.CreatorId = i.CreatorId;
-                                session.LastModificationTime = i.LastModificationTime;
-                                session.LastModifierId = i.LastModifierId;
-                                session.IsDeleted = i.IsDeleted;
-                                session.DeleterId = i.DeleterId;
-                                session.DeletionTime = i.DeletionTime;
+                                totalItemCount = totalItemCount + input.DoctorScheduleDaySessions.Count(c => c.Id == 0);
+                                var session = new DoctorScheduleDaySessionInputDto
+                                {
+                                    DoctorScheduleId = result.Id,
+                                    ScheduleDayofWeek = i.ScheduleDayofWeek,
+                                    StartTime = i.StartTime,
+                                    EndTime = i.EndTime,
+                                    NoOfPatients = i.NoOfPatients,
+                                    IsActive = i.IsActive,
+                                    CreationTime = i.CreationTime,
+                                    CreatorId = i.CreatorId,
+                                    LastModificationTime = i.LastModificationTime,
+                                    LastModifierId = i.LastModifierId,
+                                    IsDeleted = i.IsDeleted,
+                                    DeleterId = i.DeleterId,
+                                    DeletionTime = i.DeletionTime
+                                };
 
                                 sessionResult = CreateSessionAsync(session);
                                 if (sessionResult.Result.Success == true)
@@ -259,7 +257,7 @@ namespace SoowGoodWeb.Services
                     response.Id = result?.Id;
                     response.Value = "Failed to Updated Schedule.";
                     response.Success = false;
-                    response.Message = "Falied to Update Your Schedule.";
+                    response.Message = "Failed to Update Your Schedule.";
                 }
             }
             catch (Exception ex)
