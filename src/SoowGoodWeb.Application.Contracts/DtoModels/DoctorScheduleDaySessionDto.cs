@@ -12,8 +12,8 @@ namespace SoowGoodWeb.DtoModels
         public string? DoctorScheduleName { get; set; }
         //public DoctorSchedule? DoctorSchedule { get; set; }
         public string? ScheduleDayofWeek { get; set; }
-        public DateTime? StartTime { get; set; }
-        public DateTime? EndTime { get; set; }
+        public string? StartTime { get; set; }
+        public string? EndTime { get; set; }
         public int? NoOfPatients { get; set; }
         public bool? IsActive { get; set; }
     }
