@@ -10,10 +10,10 @@ namespace SoowGoodWeb.Interfaces
 {
     public interface IDoctorScheduleDaySessionService : IApplicationService
     {
-        Task<List<DoctorScheduleDaySessionDto>> GetListAsync();
-        Task<DoctorScheduleDaySessionDto> GetAsync(int id);
-        Task<ResponseDto> CreateAsync(DoctorScheduleDaySessionInputDto input);
-        Task<ResponseDto> UpdateAsync(DoctorScheduleDaySessionInputDto input);
+        Task<List<DoctorScheduleDaySessionDto>> GetSessionListAsync();
+        Task<DoctorScheduleDaySessionDto> GetSessionAsync(int id);
+        Task<ResponseDto> CreateSessionAsync(DoctorScheduleDaySessionInputDto input);
+        Task<ResponseDto> UpdateSessionAsync(DoctorScheduleDaySessionInputDto input);
 
         //Task<List<DoctorScheduledDayOffDto>> GetDayOffsListAsync();
         //Task<DoctorScheduledDayOffDto> GetDayOffsAsync(int id);

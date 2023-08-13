@@ -22,7 +22,7 @@ namespace SoowGoodWeb.Services
             _doctorScheduleSessionRepository = doctorScheduleSessionRepository;
             _unitOfWorkManager = unitOfWorkManager;
         }
-        public async Task<ResponseDto> CreateAsync(DoctorScheduleDaySessionInputDto input)
+        public async Task<ResponseDto> CreateSessionAsync(DoctorScheduleDaySessionInputDto input)
         {
             var response = new ResponseDto();
             try
@@ -37,14 +37,14 @@ namespace SoowGoodWeb.Services
                     response.Id = result?.Id;
                     response.Value = "Schedule Session created";
                     response.Success = true;
-                    response.Message?.Add("Doctor Schedule Session created successfully.");
+                    response.Message = ("Doctor Schedule Session created successfully.");
                 }
                 else
                 {
                     response.Id = 0;
                     response.Value = "Schedule Session creation failed";
                     response.Success = false;
-                    response.Message?.Add("Doctor Schedule Session creation failed.");
+                    response.Message = ("Doctor Schedule Session creation failed.");
                 }
             }
             catch (Exception ex)
@@ -52,19 +52,19 @@ namespace SoowGoodWeb.Services
                 response.Id = null;
                 response.Value = "Exception";
                 response.Success = false;
-                response.Message?.Add(ex.Message);
+                response.Message= ex.Message;
             }
             return response;
         }
 
 
-        public async Task<DoctorScheduleDaySessionDto> GetAsync(int id)
+        public async Task<DoctorScheduleDaySessionDto> GetSessionAsync(int id)
         {
             var item = await _doctorScheduleSessionRepository.GetAsync(x => x.Id == id);
 
             return ObjectMapper.Map<DoctorScheduleDaySession, DoctorScheduleDaySessionDto>(item);
         }
-        public async Task<List<DoctorScheduleDaySessionDto>> GetListAsync()
+        public async Task<List<DoctorScheduleDaySessionDto>> GetSessionListAsync()
         {
             var profiles = await _doctorScheduleSessionRepository.GetListAsync();
             return ObjectMapper.Map<List<DoctorScheduleDaySession>, List<DoctorScheduleDaySessionDto>>(profiles);
@@ -75,7 +75,7 @@ namespace SoowGoodWeb.Services
         //    return ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
         //}        
 
-        public async Task<ResponseDto> UpdateAsync(DoctorScheduleDaySessionInputDto input)
+        public async Task<ResponseDto> UpdateSessionAsync(DoctorScheduleDaySessionInputDto input)
         {
             var response = new ResponseDto();
             try
@@ -92,14 +92,14 @@ namespace SoowGoodWeb.Services
                     response.Id = result?.Id;
                     response.Value = "Schedule Session Updated";
                     response.Success = true;
-                    response.Message?.Add("Doctor Schedule Session updated.");
+                    response.Message = ("Doctor Schedule Session updated.");
                 }
                 else
                 {
                     response.Id = 0;
                     response.Value = "Schedule Session update failed";
                     response.Success = false;
-                    response.Message?.Add("Doctor Schedule Session update failed.");
+                    response.Message = ("Doctor Schedule Session update failed.");
                 }
             }
             catch (Exception ex)
@@ -107,7 +107,7 @@ namespace SoowGoodWeb.Services
                 response.Id = null;
                 response.Value = "Exception";
                 response.Success = false;
-                response.Message?.Add(ex.Message);
+                response.Message =(ex.Message);
             }
             return response;
         }
