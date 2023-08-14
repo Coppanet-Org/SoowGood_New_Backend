@@ -292,7 +292,8 @@ namespace SoowGoodWeb.Services
         public async Task<List<DoctorScheduleDto>?> GetListByDoctorIdListAsync(long doctorId)
         {
             List<DoctorScheduleDto>? result = null;
-            var item = await _doctorScheduleRepository.GetListAsync(s => s.DoctorProfileId == doctorId);
+            var allSchedule = await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile, c => c.DoctorChamber);
+            var item = allSchedule.Where(s => s.DoctorProfileId == doctorId);
             if (!item.Any())
             {
                 return result; // ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(schedules);
