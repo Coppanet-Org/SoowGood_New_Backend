@@ -2,17 +2,13 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.PermissionManagement;
 using SoowGoodWeb.Interfaces;
 using Newtonsoft.Json.Linq;
-using static System.Net.Mime.MediaTypeNames;
 using System.Net;
-using System.IO;
 using SoowGoodWeb;
 
 namespace Coppanet.SoowGood.Services

@@ -1,21 +1,14 @@
-﻿using AutoMapper.Internal.Mappers;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using SoowGoodWeb.DtoModels;
+﻿using SoowGoodWeb.DtoModels;
 using SoowGoodWeb.Enums;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
 using SoowGoodWeb.Utilities;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Identity;
 using Volo.Abp.Uow;
-using static Volo.Abp.Identity.Settings.IdentitySettingNames;
 
 namespace SoowGoodWeb.Services
 {

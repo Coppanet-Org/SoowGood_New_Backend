@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
-using Volo.Abp.ObjectMapping;
-using System.Linq.Dynamic.Core;
 using System.Linq;
 
 namespace SoowGoodWeb.Services
