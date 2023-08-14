@@ -20,8 +20,12 @@ namespace SoowGoodWeb.DtoModels
         //public DoctorChamber? DoctorChamber { get; set; }
         public string? Chamber { get; set; }
         public bool? IsActive { get; set; }
+        public string? Status { get; set; }
         public DateTime? OffDayFrom { get; set; }
+        public string? DayTextFrom { get; set; }
         public DateTime? OffDayTo { get; set; }
+        public string? DayTextTo { get; set; }
+        public string? Remarks { get; set; }
         public List<DoctorScheduleDaySessionDto>? DoctorScheduleDaySession { get; set; }
         public List<DoctorFeesSetupDto>? DoctorFeesSetup { get; set; }
     }

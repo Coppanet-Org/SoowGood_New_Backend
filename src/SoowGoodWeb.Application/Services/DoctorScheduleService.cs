@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SoowGoodWeb.Enums;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Uow;
 
@@ -161,7 +162,7 @@ namespace SoowGoodWeb.Services
                             if (i.Id > 0)
                             {
                                 totalItemCount += input.DoctorScheduleDaySession.Count(c => c.Id > 0);
-                                
+
                                 sessionResult = UpdateSessionAsync(i);
                                 if (sessionResult.Result.Success == true)
                                 {
@@ -288,11 +289,36 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(profiles);
         }
 
-        public async Task<List<DoctorScheduleDto>> GetListByDoctorIdListAsync(long doctorId)
+        public async Task<List<DoctorScheduleDto>?> GetListByDoctorIdListAsync(long doctorId)
         {
-            var item = await _doctorScheduleRepository.WithDetailsAsync(s => s.DoctorScheduleDaySession);
-            var schedules = item.Where(s => s.DoctorProfileId == doctorId).ToList();
-            return ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(schedules);
+            List<DoctorScheduleDto>? result = null;
+            var item = await _doctorScheduleRepository.GetListAsync(s => s.DoctorProfileId == doctorId);
+            if (!item.Any())
+            {
+                return result; // ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(schedules);
+            }
+            result = new List<DoctorScheduleDto>();
+            foreach (var schedule in item)
+            {
+                result.Add(new DoctorScheduleDto()
+                {
+                    Id = schedule.Id,
+                    DoctorProfileId = schedule.DoctorProfileId,
+                    DoctorName = schedule.DoctorProfileId > 0 ? schedule.DoctorProfile?.FullName : "",
+                    DoctorChamberId = schedule.DoctorChamberId,
+                    Chamber = schedule.DoctorChamberId > 0 ? schedule.DoctorChamber?.ChamberName : "N/A",
+                    ConsultancyType = schedule.ConsultancyType,
+                    ConsultancyTypeName = schedule.ConsultancyType > 0 ? ((ConsultancyType)schedule.ConsultancyType).ToString() : "N/A",
+                    ScheduleType = schedule.ScheduleType,
+                    ScheduleTypeName = schedule.ScheduleType > 0 ? ((ScheduleType)schedule.ScheduleType).ToString() : "N/A",
+                    IsActive = schedule.IsActive,
+                    Status = schedule.IsActive == true ? "Open" : "Close",
+                    OffDayFrom = schedule.IsActive == false ? schedule.OffDayFrom : null,
+                    OffDayTo = schedule.IsActive == false ? schedule.OffDayTo : null,
+                    Remarks = schedule.IsActive == false ? ("Chamber is closed from " + schedule.OffDayFrom.ToString() + " to" + schedule.OffDayFrom.ToString()) : "Chamber is Open"
+                });
+            }
+            return result; // ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(schedules);
         }
     }
 }
