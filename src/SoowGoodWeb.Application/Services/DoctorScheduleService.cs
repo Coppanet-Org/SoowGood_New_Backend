@@ -16,6 +16,7 @@ namespace SoowGoodWeb.Services
         private readonly IRepository<DoctorSchedule> _doctorScheduleRepository;
         private readonly IRepository<DoctorScheduleDaySession> _doctorScheduleSessionRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
+
         public DoctorScheduleService(IRepository<DoctorSchedule> doctorScheduleRepository,
             IRepository<DoctorScheduleDaySession> doctorScheduleSessionRepository, IUnitOfWorkManager unitOfWorkManager)
         {
@@ -23,6 +24,7 @@ namespace SoowGoodWeb.Services
             _doctorScheduleSessionRepository = doctorScheduleSessionRepository;
             _unitOfWorkManager = unitOfWorkManager;
         }
+
         public async Task<ResponseDto> CreateAsync(DoctorScheduleInputDto input)
         {
             var response = new ResponseDto();
@@ -74,6 +76,7 @@ namespace SoowGoodWeb.Services
                                     //break;                                    
                                 }
                             }
+
                             if (br == input.DoctorScheduleDaySession?.Count)
                             {
                                 response.Id = result.Id;
@@ -106,8 +109,10 @@ namespace SoowGoodWeb.Services
                 response.Success = false;
                 response.Message = ex.Message;
             }
+
             return response;
         }
+
         public async Task<ResponseDto> CreateSessionAsync(DoctorScheduleDaySessionInputDto inputDto)
         {
             var response = new ResponseDto();
@@ -139,8 +144,10 @@ namespace SoowGoodWeb.Services
                 response.Success = false;
                 response.Message = ex.Message;
             }
+
             return response;
         }
+
         public async Task<ResponseDto> UpdateAsync(DoctorScheduleInputDto input)
         {
             var response = new ResponseDto();
@@ -207,6 +214,7 @@ namespace SoowGoodWeb.Services
                                 }
                             }
                         }
+
                         if (br == totalItemCount)
                         {
                             response.Id = result.Id;
@@ -239,8 +247,9 @@ namespace SoowGoodWeb.Services
                 response.Message = ex.Message;
             }
 
-            return response;//ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
+            return response; //ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
         }
+
         public async Task<ResponseDto> UpdateSessionAsync(DoctorScheduleDaySessionInputDto inputDto)
         {
             var response = new ResponseDto();
@@ -273,8 +282,10 @@ namespace SoowGoodWeb.Services
                 response.Success = false;
                 response.Message = ex.Message;
             }
+
             return response;
         }
+
         public async Task<DoctorScheduleDto?> GetAsync(int id)
         {
             var item = await _doctorScheduleRepository.WithDetailsAsync(s => s.DoctorScheduleDaySession);
@@ -283,6 +294,7 @@ namespace SoowGoodWeb.Services
 
             return result;
         }
+
         public async Task<List<DoctorScheduleDto>> GetListAsync()
         {
             var profiles = await _doctorScheduleRepository.GetListAsync();
@@ -292,11 +304,14 @@ namespace SoowGoodWeb.Services
         public async Task<List<DoctorScheduleDto>?> GetListByDoctorIdListAsync(long doctorId)
         {
             List<DoctorScheduleDto>? result = null;
-            var item = await _doctorScheduleRepository.GetListAsync(s => s.DoctorProfileId == doctorId);
+            var allSchedule =
+                await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile, c => c.DoctorChamber);
+            var item = allSchedule.Where(s => s.DoctorProfileId == doctorId);
             if (!item.Any())
             {
                 return result; // ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(schedules);
             }
+
             result = new List<DoctorScheduleDto>();
             foreach (var schedule in item)
             {
@@ -308,17 +323,38 @@ namespace SoowGoodWeb.Services
                     DoctorChamberId = schedule.DoctorChamberId,
                     Chamber = schedule.DoctorChamberId > 0 ? schedule.DoctorChamber?.ChamberName : "N/A",
                     ConsultancyType = schedule.ConsultancyType,
-                    ConsultancyTypeName = schedule.ConsultancyType > 0 ? ((ConsultancyType)schedule.ConsultancyType).ToString() : "N/A",
+                    ConsultancyTypeName = schedule.ConsultancyType > 0
+                        ? ((ConsultancyType)schedule.ConsultancyType).ToString()
+                        : "N/A",
                     ScheduleType = schedule.ScheduleType,
-                    ScheduleTypeName = schedule.ScheduleType > 0 ? ((ScheduleType)schedule.ScheduleType).ToString() : "N/A",
+                    ScheduleTypeName = schedule.ScheduleType > 0
+                        ? ((ScheduleType)schedule.ScheduleType).ToString()
+                        : "N/A",
                     IsActive = schedule.IsActive,
                     Status = schedule.IsActive == true ? "Open" : "Close",
                     OffDayFrom = schedule.IsActive == false ? schedule.OffDayFrom : null,
                     OffDayTo = schedule.IsActive == false ? schedule.OffDayTo : null,
-                    Remarks = schedule.IsActive == false ? ("Chamber is closed from " + schedule.OffDayFrom.ToString() + " to" + schedule.OffDayFrom.ToString()) : "Chamber is Open"
+                    Remarks = schedule.IsActive == false
+                        ? ("Chamber is closed from " + schedule.OffDayFrom.ToString() + " to" +
+                           schedule.OffDayFrom.ToString())
+                        : "Chamber is Open"
                 });
             }
+
             return result; // ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(schedules);
         }
+
+        public async Task<ResponseDto> DeleteSessionAsync(long id)
+        {
+            var response = new ResponseDto();
+            await _doctorScheduleSessionRepository.DeleteAsync(s => s.Id == id);
+            response.Id = id;
+            response.Value = "Session Deleted";
+            response.Success = true;
+            response.Message = "Session Deleted Permanently";
+
+            return response;
+        }
+
     }
 }
