@@ -288,7 +288,9 @@ namespace SoowGoodWeb.Services
 
         public async Task<DoctorScheduleDto?> GetAsync(int id)
         {
-            var item = await _doctorScheduleRepository.WithDetailsAsync(s => s.DoctorScheduleDaySession);
+            DoctorScheduleDto response = null;
+
+            var item = await _doctorScheduleRepository.WithDetailsAsync(s => s.DoctorScheduleDaySession, d => d.DoctorProfile, c => c.DoctorChamber);
             var schedule = item.FirstOrDefault(x => x.Id == id);
             var result = schedule != null ? ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(schedule) : null;
 
