@@ -24,7 +24,7 @@ namespace SoowGoodWeb.Models
         [Column(TypeName = "decimal(18, 2)")]
         public decimal? Discount { get; set; }
         public DateTime? DiscountAppliedFrom { get; set; }
-        public int? DescountPeriod { get; set; }
+        public int? DiscountPeriod { get; set; }
         [Column(TypeName = "decimal(18, 2)")]
         public decimal? TotalFee { get; set; }
         public bool? IsActive { get; set; }
