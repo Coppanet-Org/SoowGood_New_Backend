@@ -28,27 +28,24 @@ namespace SoowGoodWeb.Services
             var response = new ResponseDto();
             try
             {
-                if (input.Id == 0)
-                {
-                    var newEntity = ObjectMapper.Map<DoctorFeesSetupInputDto, DoctorFeesSetup>(input);
+                var newEntity = ObjectMapper.Map<DoctorFeesSetupInputDto, DoctorFeesSetup>(input);
 
-                    var doctorSchedule = await _doctorFeeRepository.InsertAsync(newEntity);
-                    await _unitOfWorkManager.Current.SaveChangesAsync();
-                    var result = ObjectMapper.Map<DoctorFeesSetup, DoctorFeesSetupDto>(doctorSchedule);
-                    if (result is { Id: > 0 })
-                    {
-                        response.Id = result.Id;
-                        response.Value = "Fee Created";
-                        response.Success = true;
-                        response.Message = "Your Visiting Fee Created Successfully";
-                    }
-                    else
-                    {
-                        response.Id = 0;
-                        response.Value = "Failed to Create Fee.";
-                        response.Success = false;
-                        response.Message = "Failed to Create Your Visiting Fee.";
-                    }
+                var doctorSchedule = await _doctorFeeRepository.InsertAsync(newEntity);
+                await _unitOfWorkManager.Current.SaveChangesAsync();
+                var result = ObjectMapper.Map<DoctorFeesSetup, DoctorFeesSetupDto>(doctorSchedule);
+                if (result is { Id: > 0 })
+                {
+                    response.Id = result.Id;
+                    response.Value = "Fee Created";
+                    response.Success = true;
+                    response.Message = "Your Visiting Fee Created Successfully";
+                }
+                else
+                {
+                    response.Id = 0;
+                    response.Value = "Failed to Create Fee.";
+                    response.Success = false;
+                    response.Message = "Failed to Create Your Visiting Fee.";
                 }
             }
             catch (Exception ex)

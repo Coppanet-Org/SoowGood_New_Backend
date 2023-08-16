@@ -116,8 +116,6 @@ namespace SoowGoodWeb.Services
         public async Task<ResponseDto> UpdateAsync(DoctorScheduleInputDto input)
         {
             var response = new ResponseDto();
-            var br = 0;
-            var totalItemCount = 0;
             try
             {
                 var updateItem = ObjectMapper.Map<DoctorScheduleInputDto, DoctorSchedule>(input);
@@ -214,7 +212,7 @@ namespace SoowGoodWeb.Services
 
             return response; //ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
         }
-        
+
         public async Task<DoctorScheduleDto?> GetAsync(int id)
         {
             var item = await _doctorScheduleRepository.WithDetailsAsync(s => s.DoctorScheduleDaySession, d => d.DoctorProfile, c => c.DoctorChamber);
@@ -309,6 +307,7 @@ namespace SoowGoodWeb.Services
 
             return result; // ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(schedules);
         }
+
         //public async Task<ResponseDto> CreateSessionAsync(DoctorScheduleDaySessionInputDto inputDto)
         //{
         //    var response = new ResponseDto();
