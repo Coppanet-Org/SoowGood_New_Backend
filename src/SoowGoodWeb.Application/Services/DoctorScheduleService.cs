@@ -285,6 +285,30 @@ namespace SoowGoodWeb.Services
             return response;
         }
 
+        public async Task<List<DoctorScheduleDto>?> GetScheduleListByDoctorIdAsync(long doctorId)
+        {
+            List<DoctorScheduleDto>? result = null;
+            var allSchedule =
+                await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile, c => c.DoctorChamber);
+            var item = allSchedule.Where(s => s.DoctorProfileId == doctorId);
+            if (!item.Any())
+            {
+                return result; // ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(schedules);
+            }
+
+            result = new List<DoctorScheduleDto>();
+            foreach (var schedule in item)
+            {
+                result.Add(new DoctorScheduleDto()
+                {
+                    Id = schedule.Id,
+                    ScheduleName = ((ConsultancyType)schedule?.ConsultancyType!).ToString()
+                                     + "_" + (schedule?.DoctorChamberId > 0 ? schedule.DoctorChamber?.ChamberName : "")
+                });
+            }
+
+            return result; // ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(schedules);
+        }
         //public async Task<ResponseDto> CreateSessionAsync(DoctorScheduleDaySessionInputDto inputDto)
         //{
         //    var response = new ResponseDto();
