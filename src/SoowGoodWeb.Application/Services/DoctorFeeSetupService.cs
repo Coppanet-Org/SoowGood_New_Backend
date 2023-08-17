@@ -113,7 +113,7 @@ namespace SoowGoodWeb.Services
         public async Task<List<DoctorFeesSetupDto>?> GetListByDoctorIdListAsync(long doctorId)
         {
             List<DoctorFeesSetupDto>? result = null;
-            var allFees = await _doctorFeeRepository.WithDetailsAsync(s => s.DoctorSchedule);
+            var allFees = await _doctorFeeRepository.WithDetailsAsync(s => s.DoctorSchedule, d=>d.DoctorSchedule.DoctorChamber);
             var item = allFees.Where(s => s.DoctorSchedule != null && s.DoctorSchedule.DoctorProfileId == doctorId);
             if (!item.Any())
             {
@@ -129,11 +129,17 @@ namespace SoowGoodWeb.Services
                     DoctorScheduleId = fee.DoctorScheduleId,
                     DoctorSchedule = ((ConsultancyType)fee?.DoctorSchedule?.ConsultancyType!).ToString()
                                      + "_" + (fee.DoctorSchedule?.DoctorChamberId > 0 ? fee?.DoctorSchedule.DoctorChamber?.ChamberName : ""),
+                    AppointmentType = fee.AppointmentType,
+                    AppointmentTypeName=((AppointmentType)fee.AppointmentType).ToString(),
                     CurrentFee = fee.CurrentFee,
-                    //FeeAppliedFrom = fee.FeeAppliedFrom,
+                    FeeAppliedFrom = fee.FeeAppliedFrom, 
+                    PreviousFee=fee.PreviousFee,
+
                     Discount = fee.Discount,
-                    //DiscountAppliedFrom = fee.DiscountAppliedFrom,
-                    //DiscountPeriod = fee.DiscountPeriod,
+                    DiscountAppliedFrom = fee.DiscountAppliedFrom,
+                    DiscountPeriod = fee.DiscountPeriod,
+                    FollowUpPeriod = fee.FollowUpPeriod,
+                    ReportShowPeriod = fee.ReportShowPeriod,
                     TotalFee = fee.TotalFee,
                     //ScheduleTypeName = schedule.ScheduleType > 0
                     //    ? ((ScheduleType)schedule.ScheduleType).ToString()
