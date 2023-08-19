@@ -5,12 +5,14 @@ using SoowGoodWeb.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Volo.Abp.Account;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.ObjectMapping;
 using Volo.Abp.Uow;
 
 namespace SoowGoodWeb.Services
 {
-    public class DoctorProfileService:SoowGoodWebAppService, IDoctorProfileService
+    public class DoctorProfileService : SoowGoodWebAppService, IDoctorProfileService
     {
         private readonly IRepository<DoctorProfile> _doctorProfileRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
@@ -54,13 +56,28 @@ namespace SoowGoodWeb.Services
             var item = await _doctorProfileRepository.GetAsync(x => x.UserId == userId);
             return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
         }
-        
+
         public async Task<DoctorProfileDto> UpdateAsync(DoctorProfileInputDto input)
         {
             var updateItem = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(input);
 
             var item = await _doctorProfileRepository.UpdateAsync(updateItem);
 
+            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+        }
+
+        public async Task<DoctorProfileDto> UpdateProfileStep(long doctorId, int step)
+        {
+            var profile = await _doctorProfileRepository.GetAsync(d => d.Id == doctorId);
+            var profileDto = new DoctorProfileInputDto();//ObjectMapper.Map<DoctorProfile, DoctorProfileInputDto>(profile);
+            profileDto.Id= profile.Id;
+            profileDto.FirstName = profile.FirstName;
+            profileDto.LastName = profile.LastName;
+            profileDto.FullName = profile.FullName;
+            profileDto.Email = profile.Email;
+            profileDto.profileStep = step;
+            var updateItem = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(profileDto);
+            var item = await _doctorProfileRepository.UpdateAsync(updateItem);
             return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
         }
 
