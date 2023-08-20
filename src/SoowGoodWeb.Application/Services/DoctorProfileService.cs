@@ -126,43 +126,6 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
         }
 
-        public async Task<DoctorProfileDto> UpdateProfileStep(long doctorId, int step)
-        {
-            var profile = await _doctorProfileRepository.GetAsync(d => d.Id == doctorId);
-            var profileDto = new DoctorProfileInputDto();//ObjectMapper.Map<DoctorProfile, DoctorProfileInputDto>(profile);
-            profileDto.Id = profile.Id;
-            profileDto.FirstName = profile.FirstName;
-            profileDto.LastName = profile.LastName;
-            profileDto.FullName = profile.FullName;
-            profileDto.Email = profile.Email;
-            profileDto.MobileNo = profile.MobileNo;
-            profileDto.IdentityNumber = profile.IdentityNumber;
-            profileDto.BMDCRegNo = profile.BMDCRegNo;
-            profileDto.BMDCRegExpiryDate = profile.BMDCRegExpiryDate;
-            profileDto.DateOfBirth = profile.DateOfBirth;
-            profileDto.Address = profile.Address;
-            profileDto.City = profile.City;
-            profileDto.Country = profile.Country;
-            profileDto.DoctorTitle = profile.DoctorTitle;
-            profileDto.Gender = profile.Gender;
-            profileDto.MaritalStatus = profile.MaritalStatus;
-            profileDto.IsOnline = profile.IsOnline;
-            profileDto.profileStep = step;
-            profileDto.createFrom = profile.createFrom;
-            var updateItem = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(profileDto);
-            try
-            {
-                var item = await _doctorProfileRepository.UpdateAsync(updateItem);
-                return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-
-
-        }
-
         //public async Task<List<DoctorProfileDto>> GetListAsync()
         //{
         //    List<DoctorProfileDto> list = null;
