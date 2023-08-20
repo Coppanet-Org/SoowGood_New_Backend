@@ -26,7 +26,7 @@ namespace SoowGoodWeb.Services
         private readonly IRepository<DoctorProfile> _doctorProfileRepository;
 
         private readonly IUnitOfWorkManager _unitOfWorkManager;
-        private readonly DoctorProfileService _doctorProfileservice;
+        //private readonly DoctorProfileService _doctorProfileservice;
 
         private readonly IEmailSender _emailSender;
 
@@ -43,7 +43,7 @@ namespace SoowGoodWeb.Services
             _doctorProfileRepository = doctorProfileRepository;
             _unitOfWorkManager = unitOfWorkManager;
             _emailSender = emailSender;
-            _doctorProfileservice = new DoctorProfileService(_doctorProfileRepository, _unitOfWorkManager);
+            //_doctorProfileservice = new DoctorProfileService(_doctorProfileRepository, _unitOfWorkManager);
         }
 
         // POST /api/account/reset-password
