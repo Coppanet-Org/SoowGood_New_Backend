@@ -52,12 +52,11 @@ namespace SoowGoodWeb.Controllers
                 if (files.Count > 0)
                 {
                     var idStr = Request.Form["entityId"].ToString();
-                    //var entityId = Request.Form["entityId"];
+                    var relatedIdStr = Request.Form["relatedEntityid"].ToString();
                     long entityId = string.IsNullOrEmpty(idStr) ? 0 : Convert.ToInt64(idStr);
+                    long relatedEntityid = string.IsNullOrEmpty(relatedIdStr) ? 0 : Convert.ToInt64(relatedIdStr);
                     var entityType = Request.Form["entityType"].ToString();
-
                     var attachmentType = Request.Form["attachmentType"].ToString();
-
                     var directoryName = Request.Form["directoryName"][0];
                     var folderName = Path.Combine("wwwroot", "uploads", !string.IsNullOrEmpty(directoryName) ? directoryName : "Misc");
                     int insertCount = 0;
@@ -91,6 +90,7 @@ namespace SoowGoodWeb.Controllers
                                 attachement2.EntityType = (EntityType)Enum.Parse(typeof(EntityType), entityType);
                                 attachement2.EntityId = entityId;
                                 attachement2.AttachmentType = (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType);
+                                attachement2.RelatedEntityid = relatedEntityid > 0 ? relatedEntityid : null;
                                 var attachmentResult = await _attachmentRepository.InsertAsync(attachement2, autoSave: true);
                                 if (attachmentResult != null)//  == 0)
                                 {
@@ -107,6 +107,7 @@ namespace SoowGoodWeb.Controllers
                             attachement.EntityType = (EntityType)Enum.Parse(typeof(EntityType), entityType);
                             attachement.EntityId = entityId;
                             attachement.AttachmentType = (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType);
+                            attachement.RelatedEntityid = relatedEntityid > 0 ? relatedEntityid : null;
                             var attachmentResult = await _attachmentRepository.InsertAsync(attachement, autoSave: true);
                             if (attachmentResult != null)//  == 0)
                             {
@@ -181,7 +182,7 @@ namespace SoowGoodWeb.Controllers
                 return StatusCode(500, $"Internal server error: {ex}");
             }
         }
-        
+
         [HttpGet]
         public async Task<long> GetDocumentAsync(string entityType, long? entityId, string attachmentType)
         {

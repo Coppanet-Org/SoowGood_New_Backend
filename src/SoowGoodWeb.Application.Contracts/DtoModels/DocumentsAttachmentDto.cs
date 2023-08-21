@@ -14,5 +14,6 @@ namespace SoowGoodWeb.DtoModels
         public long? EntityId { get; set; }
         public AttachmentType? AttachmentType { get; set; }
         public string? AttachmentTypeName { get; set; }
+        public long? RelatedEntityid { get; set; }
     }
 }

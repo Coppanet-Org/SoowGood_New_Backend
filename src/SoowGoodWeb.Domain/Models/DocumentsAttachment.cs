@@ -16,5 +16,6 @@ namespace SoowGoodWeb.Models
         public EntityType? EntityType { get; set; }
         public long? EntityId { get; set; }
         public AttachmentType? AttachmentType { get; set; }
+        public long? RelatedEntityid { get; set; }
     }
 }
