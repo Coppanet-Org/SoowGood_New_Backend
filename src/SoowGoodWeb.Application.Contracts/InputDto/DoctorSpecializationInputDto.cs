@@ -13,6 +13,7 @@ namespace SoowGoodWeb.InputDto
         public long? SpecialityId { get; set; }
         //public SpecialityInputDto Speciality { get; set; }
         public long? SpecializationId { get; set; }
+        public string? DocumentName { get; set; }
         //public SpecializationInputDto Specialization { get; set; }
 
     }

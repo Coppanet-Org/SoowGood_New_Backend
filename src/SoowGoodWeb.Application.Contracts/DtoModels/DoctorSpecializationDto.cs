@@ -17,6 +17,7 @@ namespace SoowGoodWeb.DtoModels
         public long? SpecializationId { get; set; }
         //public SpecializationDto? Specialization { get; set; }
         public string? SpecializationName { get; set; }
+        public string? DocumentName { get; set; }
 
     }
 }
