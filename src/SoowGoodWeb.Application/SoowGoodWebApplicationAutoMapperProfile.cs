@@ -17,11 +17,6 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<IdentityUser, UserInfoDto>();
         CreateMap<UserInfoDto, IdentityUser>();
 
-        //CreateMap<TestEntity, TestEntityDto>();
-        //CreateMap<TestEntityDto, TestEntity>();
-        //CreateMap<TestEntityInputDto, TestEntity>();
-        //.ForMember(d => d.Name, o => o.MapFrom(s => s.DistrictNameEng));
-
         CreateMap<Degree, DegreeDto>();
         CreateMap<DegreeDto, Degree>();
         CreateMap<DegreeInputDto, Degree>();
@@ -76,6 +71,11 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
             .ForMember(d => d.Degrees, o => o.Ignore())
             .ForMember(d => d.DoctorSpecialization, o => o.Ignore());
 
+        CreateMap<AgentProfile, AgentProfileDto>();
+        CreateMap<AgentProfileDto, AgentProfile>();
+        CreateMap<AgentProfileInputDto, AgentProfile>();
+
+
         CreateMap<DoctorChamber, DoctorChamberDto>();
         CreateMap<DoctorChamberDto, DoctorChamber>()
             .ForMember(d => d.DoctorProfile, o => o.Ignore());
@@ -83,8 +83,6 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
             .ForMember(d => d.DoctorProfile, o => o.Ignore());
 
         CreateMap<DocumentsAttachment, DocumentsAttachmentDto>();
-            //.ForMember(d => d.EntityTypeName, o => o.MapFrom(n => n.EntityType))
-            //.ForMember(d => d.AttachmentTypeName, o => o.MapFrom(n => n.AttachmentType));
         CreateMap<DocumentsAttachmentDto, DocumentsAttachment>();
 
         CreateMap<DoctorSchedule, DoctorScheduleDto>()
@@ -101,12 +99,6 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<DoctorScheduleInputDto, DoctorSchedule>()
             .ForMember(d => d.DoctorProfile, o => o.Ignore())
             .ForMember(d => d.DoctorChamber, o => o.Ignore());
-
-        //CreateMap<DoctorScheduledDayOff, DoctorScheduledDayOffDto>();
-        //CreateMap<DoctorScheduledDayOffDto, DoctorScheduledDayOff>()
-        //    .ForMember(d => d.DoctorSchedule, o => o.Ignore());
-        //CreateMap<DoctorScheduledDayOffInputDto, DoctorScheduledDayOff>()
-        //    .ForMember(d => d.DoctorSchedule, o => o.Ignore());
 
         CreateMap<DoctorScheduleDaySession, DoctorScheduleDaySessionDto>();
         CreateMap<DoctorScheduleDaySessionDto, DoctorScheduleDaySession>()
