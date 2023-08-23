@@ -76,7 +76,7 @@ namespace SoowGoodWeb.Controllers
                             file.CopyTo(stream);
                         }
                         // save attachment
-                        var attchmentId = await GetDocumentAsync(entityType, entityId, attachmentType);
+                        var attchmentId = await GetDocumentAsync(entityType, entityId, attachmentType,fileName);
 
                         if (attchmentId > 0)
                         {
@@ -184,7 +184,7 @@ namespace SoowGoodWeb.Controllers
         }
 
         [HttpGet]
-        public async Task<long> GetDocumentAsync(string entityType, long? entityId, string attachmentType)
+        public async Task<long> GetDocumentAsync(string entityType, long? entityId, string attachmentType, string fileName)
         {
             try
             {
@@ -192,6 +192,7 @@ namespace SoowGoodWeb.Controllers
                 var attachment = queryable.Where(x => x.EntityType == (EntityType)Enum.Parse(typeof(EntityType), entityType)
                                                                 && x.EntityId == entityId
                                                                 && x.AttachmentType == (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType)
+                                                                && x.OriginalFileName == fileName
                                                                 && x.IsDeleted == false).FirstOrDefault();
                 //var item = attachment.re;
                 if (attachment != null && attachment.Id > 0)
