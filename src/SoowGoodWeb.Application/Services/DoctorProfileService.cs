@@ -111,7 +111,8 @@ namespace SoowGoodWeb.Services
                         {
                             DoctorProfileId = result.Id,
                             SpecialityId = s.SpecialityId,
-                            SpecializationId = s.SpecializationId
+                            SpecializationId = s.SpecializationId,
+                            DocumentName = s.DocumentName,
                         };
                         var newDegree = ObjectMapper.Map<DoctorSpecializationInputDto, DoctorSpecialization>(specialization);
 
