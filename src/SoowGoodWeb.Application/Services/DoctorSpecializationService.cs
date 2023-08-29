@@ -61,7 +61,7 @@ namespace SoowGoodWeb.Services
             var specialization = await _doctorSpecializationRepository.GetListAsync(x => x.DoctorProfileId == doctorId && x.SpecialityId == specialityId);
             return ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(specialization);
         }
-        public async Task<List<DoctorSpecializationDto>> GetListByDoctorIdSpIdAsync(int doctorId, int specialityId)
+        public async Task<List<DoctorSpecializationDto>?> GetListByDoctorIdSpIdAsync(int doctorId, int specialityId)
         {
             List<DoctorSpecializationDto> list = null;
             var items = await _doctorSpecializationRepository.WithDetailsAsync(d => d.Specialization, s => s.Speciality);
@@ -84,7 +84,7 @@ namespace SoowGoodWeb.Services
                 }
             }
 
-            return list;
+            return list != null ? list : null;
         }
         public async Task<DoctorSpecializationDto> UpdateAsync(DoctorSpecializationInputDto input)
         {
