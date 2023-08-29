@@ -64,7 +64,7 @@ namespace SoowGoodWeb.Services
         public async Task<List<DoctorSpecializationDto>> GetListByDoctorIdSpIdAsync(int doctorId, int specialityId)
         {
             List<DoctorSpecializationDto> list = null;
-            var items = await _doctorSpecializationRepository.WithDetailsAsync(d => d.Specialization, s=>s.Speciality);
+            var items = await _doctorSpecializationRepository.WithDetailsAsync(d => d.Specialization, s => s.Speciality);
             items = items.Where(i => i.DoctorProfileId == doctorId && i.SpecialityId == specialityId);
             if (items.Any())
             {
@@ -78,7 +78,8 @@ namespace SoowGoodWeb.Services
                         SpecialityId = item.SpecialityId,
                         DoctorProfileId = item.DoctorProfileId,
                         SpecialityName = item.Speciality?.SpecialityName,
-                        SpecializationName = item.Specialization?.SpecializationName
+                        SpecializationName = item.Specialization?.SpecializationName,
+                        DocumentName=item.DocumentName,
                     });
                 }
             }
