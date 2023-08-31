@@ -11,6 +11,9 @@ using System.Transactions;
 using SoowGoodWeb.Models;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Uow;
+using System.Net.Http;
+using IdentityModel.Client;
+using System.Net.Http.Headers;
 
 namespace SoowGoodWeb.Services
 {
@@ -125,13 +128,21 @@ namespace SoowGoodWeb.Services
         }
         public async Task<LoginResponseDto> Login(LoginDto userDto)
         {
+            //using (var client = new HttpClient())
+            //{
+            //    var tokenResponse = await GetToken();
+            //    client.BaseAddress = new Uri(authUrl);
+            //    client.SetBearerToken(tokenResponse.AccessToken);
+            //    client.DefaultRequestHeaders.Accept.Clear();
+            //    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
             var user = await _userManager.FindByNameAsync(userDto.UserName);
             LoginResponseDto loginInfo = new LoginResponseDto();
             loginInfo.RoleName = new List<string>();
             if (user != null)
             {
                 var userole = await _userManager.GetRolesAsync(user); //_roleManager.GetRolesAsync(user);
-                
+
                 var res = await _signInManager.PasswordSignInAsync(user.UserName, userDto.password, userDto.RememberMe, lockoutOnFailure: false);
                 if (res.Succeeded)
                 {
@@ -161,8 +172,11 @@ namespace SoowGoodWeb.Services
                 loginInfo.Success = false;
                 loginInfo.Message = "User not exists! Please sign up as new user";
                 return loginInfo;
-            }            
+            }
+            //}            
         }
+
+
         [AllowAnonymous]
         public virtual async Task<UserSignUpResultDto> SignupUser(UserInfoDto userDto, string password, string role)
         {
@@ -203,7 +217,7 @@ namespace SoowGoodWeb.Services
                         }
                         else
                         {
-                            userInfo.Success=false;
+                            userInfo.Success = false;
                             foreach (var e in roleRes.Errors)
                             {
                                 userInfo.Message.Add(e.Description);
@@ -216,7 +230,7 @@ namespace SoowGoodWeb.Services
                     {
                         userInfo.Success = false;
                         foreach (var e in result.Errors)
-                        {  
+                        {
                             userInfo.Message.Add(e.Description);
                         }
                         return userInfo;
@@ -235,32 +249,33 @@ namespace SoowGoodWeb.Services
             }
         }
 
-        //private async Task<TokenResponse> GetToken()
-        //{
-        //    var authorityUrl = $"{authUrl}";
+        private async Task<TokenResponse> GetToken()
+        {
+            var authorityUrl = $"{authUrl}";
 
-        //    var authority = new HttpClient();
-        //    var discoveryDocument = await authority.GetDiscoveryDocumentAsync(authorityUrl);
-        //    if (discoveryDocument.IsError)
-        //    {
-        //        //return null;
-        //    }
+            var authority = new HttpClient();
+            var discoveryDocument = await authority.GetDiscoveryDocumentAsync(authorityUrl);
+            if (discoveryDocument.IsError)
+            {
+                //return null;
+            }
 
-        //    // Request Token
-        //    var tokenResponse = await authority.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
-        //    {
-        //        Address = discoveryDocument.TokenEndpoint,
-        //        ClientId = PermissionHelper._clientId,
-        //        ClientSecret = PermissionHelper._clientSecret,
-        //        Scope = PermissionHelper._scope
-        //    });
+            // Request Token
+            var tokenResponse = await authority.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            {
+                Address = discoveryDocument.TokenEndpoint,
+                ClientId = PermissionHelper._clientId,
+                //ClientSecret = PermissionHelper._clientSecret,
+                Scope = PermissionHelper._scope
+            });
 
-        //    if (tokenResponse.IsError)
-        //    {
-        //        //return null;
-        //    }
-        //    return tokenResponse; 
-        //} , string passWord, string role
+            if (tokenResponse.IsError)
+            {
+                //return null;
+            }
+            return tokenResponse;
+        }
+        //, string passWord, string role
         //[AllowAnonymous]
         //public async Task<string> Register(UserRegInfoDto user)
         //{
