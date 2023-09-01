@@ -261,6 +261,8 @@ namespace SoowGoodWeb.Services
         //    }
         //    return tokenResponse; 
         //} , string passWord, string role
+
+
         //[AllowAnonymous]
         //public async Task<string> Register(UserRegInfoDto user)
         //{
