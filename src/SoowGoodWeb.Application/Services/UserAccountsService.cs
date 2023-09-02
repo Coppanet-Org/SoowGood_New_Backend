@@ -14,6 +14,9 @@ using Volo.Abp.Uow;
 using System.Net.Http;
 using IdentityModel.Client;
 using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
+using static Volo.Abp.Identity.Settings.IdentitySettingNames;
 
 namespace SoowGoodWeb.Services
 {
@@ -180,78 +183,100 @@ namespace SoowGoodWeb.Services
         [AllowAnonymous]
         public virtual async Task<UserSignUpResultDto> SignupUser(UserInfoDto userDto, string password, string role)
         {
-            try
+            UserSignUpResultDto userInfo = new UserSignUpResultDto();
+            using (var client = new HttpClient())
             {
-                var user = ObjectMapper.Map<UserInfoDto, IdentityUser>(userDto);
-                var isUserExists = await _userManager.FindByNameAsync(user.UserName);
-                UserSignUpResultDto userInfo = new UserSignUpResultDto();
-                userInfo.Message = new List<string>();
-                UserSignUpResultDto response = new UserSignUpResultDto();
-                //ErroMessageDto errorInfo = new ErroMessageDto();
-                if (isUserExists == null)
+                var tokenResponse = await GetToken();
+                client.BaseAddress = new Uri(authClientUrl);
+                client.SetBearerToken(tokenResponse.AccessToken);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                //GET Method
+
+                var update = JsonSerializer.Serialize(userDto);
+                var requestContent = new StringContent(update, Encoding.UTF8, "application/json");
+                HttpResponseMessage response =
+                    await client.PostAsync(($"api/app/account/sign-up?password={password}&role={role}"), requestContent);
+                if (response.IsSuccessStatusCode)
                 {
-                    var result = await _userManager.CreateAsync(user, password);
+                    
+                    userInfo.Message.Add("User Created Successfully");
 
-                    if (result.Succeeded)
-                    {
-                        var roleRes = await _userManager.AddToRoleAsync(user, role);
-                        if (roleRes.Succeeded)
-                        {
-                            var createdUser = await _userManager.FindByNameAsync(user.UserName);
-
-
-                            if (createdUser != null)
-                            {
-                                userInfo.UserId = createdUser.Id;
-                                userInfo.UserName = createdUser.UserName;
-                                userInfo.Name = createdUser.Name;
-                                userInfo.Email = createdUser.Email;
-                                userInfo.PhoneNumber = createdUser.PhoneNumber;
-                                userInfo.IsActive = createdUser.IsActive;
-                                userInfo.Success = true;
-                                userInfo.Message.Add("User Created Successfully");
-                                response = userInfo;
-                            }
-                            //    {
-                            return userInfo;
-                        }
-                        else
-                        {
-                            userInfo.Success = false;
-                            foreach (var e in roleRes.Errors)
-                            {
-                                userInfo.Message.Add(e.Description);
-                            }
-                            return userInfo;
-                        }
-
-                    }
-                    else
-                    {
-                        userInfo.Success = false;
-                        foreach (var e in result.Errors)
-                        {
-                            userInfo.Message.Add(e.Description);
-                        }
-                        return userInfo;
-                    }
-                }
-                else
-                {
-                    userInfo.Success = false;
-                    userInfo.Message.Add("User Already Exists");
-                    return userInfo;
                 }
             }
-            catch (Exception)
-            {
-                throw new UserFriendlyException("User Create not successfull.");
-            }
+            return userInfo;
+            //try
+            //{
+            //    var user = ObjectMapper.Map<UserInfoDto, IdentityUser>(userDto);
+            //    var isUserExists = await _userManager.FindByNameAsync(user.UserName);
+            //    UserSignUpResultDto userInfo = new UserSignUpResultDto();
+            //    userInfo.Message = new List<string>();
+            //    UserSignUpResultDto response = new UserSignUpResultDto();
+            //    //ErroMessageDto errorInfo = new ErroMessageDto();
+            //    if (isUserExists == null)
+            //    {
+            //        var result = await _userManager.CreateAsync(user, password);
+
+            //        if (result.Succeeded)
+            //        {
+            //            var roleRes = await _userManager.AddToRoleAsync(user, role);
+            //            if (roleRes.Succeeded)
+            //            {
+            //                var createdUser = await _userManager.FindByNameAsync(user.UserName);
+
+
+            //                if (createdUser != null)
+            //                {
+            //                    userInfo.UserId = createdUser.Id;
+            //                    userInfo.UserName = createdUser.UserName;
+            //                    userInfo.Name = createdUser.Name;
+            //                    userInfo.Email = createdUser.Email;
+            //                    userInfo.PhoneNumber = createdUser.PhoneNumber;
+            //                    userInfo.IsActive = createdUser.IsActive;
+            //                    userInfo.Success = true;
+            //                    userInfo.Message.Add("User Created Successfully");
+            //                    response = userInfo;
+            //                }
+            //                //    {
+            //                return userInfo;
+            //            }
+            //            else
+            //            {
+            //                userInfo.Success = false;
+            //                foreach (var e in roleRes.Errors)
+            //                {
+            //                    userInfo.Message.Add(e.Description);
+            //                }
+            //                return userInfo;
+            //            }
+
+            //        }
+            //        else
+            //        {
+            //            userInfo.Success = false;
+            //            foreach (var e in result.Errors)
+            //            {
+            //                userInfo.Message.Add(e.Description);
+            //            }
+            //            return userInfo;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        userInfo.Success = false;
+            //        userInfo.Message.Add("User Already Exists");
+            //        return userInfo;
+            //    }
+            //}
+            //catch (Exception)
+            //{
+            //    throw new UserFriendlyException("User Create not successfull.");
+            //}
         }
 
         private async Task<TokenResponse> GetToken()
         {
-            var authorityUrl = $"{authUrl}";
+            var authorityUrl = $"{PermissionHelper._authority}";
 
             var authority = new HttpClient();
             var discoveryDocument = await authority.GetDiscoveryDocumentAsync(authorityUrl);
@@ -265,7 +290,7 @@ namespace SoowGoodWeb.Services
             {
                 Address = discoveryDocument.TokenEndpoint,
                 ClientId = PermissionHelper._clientId,
-                //ClientSecret = PermissionHelper._clientSecret,
+                ClientSecret = PermissionHelper._clientSecret,
                 Scope = PermissionHelper._scope
             });
 

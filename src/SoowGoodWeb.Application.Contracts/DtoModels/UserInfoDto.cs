@@ -52,14 +52,14 @@ namespace SoowGoodWeb.DtoModels
 
     //public class UserRegInfoDto
     //{
-    //    public string UserName { get; set; }
-    //    public string Name { get; set; }
-    //    public string Surname { get; set; }
-    //    public string Email { get; set; }
-    //    public string PhoneNumber { get; set; }
-    //    public bool IsActive { get; set; }
-    //    public bool lockoutEnabled { get; set; }
-    //    public IList<string> RoleNames { get; set; }
-    //    public string Password { get; set; }
+    //    public string? UserName { get; set; }
+    //    public string? Name { get; set; }
+    //    public string? Surname { get; set; }
+    //    public string? Email { get; set; }
+    //    public string? PhoneNumber { get; set; }
+    //    public bool? IsActive { get; set; }
+    //    public bool? lockoutEnabled { get; set; }
+    //    public IList<string>? RoleNames { get; set; }
+    //    public string? Password { get; set; }
     //}
 }
