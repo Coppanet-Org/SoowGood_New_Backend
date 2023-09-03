@@ -1,15 +1,13 @@
 ﻿using SoowGoodWeb.Enums;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Volo.Abp.Domain.Entities.Auditing;
+using Volo.Abp.Application.Dtos;
 
-namespace SoowGoodWeb.Models
+namespace SoowGoodWeb.InputDto
 {
-    public class PatientProfile : FullAuditedEntity<long>
-    {        
+    public class PatientProfileInputDto : FullAuditedEntityDto<long>
+    {
         public string? FullName { get; set; }
         public bool? IsSelf { get; set; }
         public string? PatientName { get; set; }

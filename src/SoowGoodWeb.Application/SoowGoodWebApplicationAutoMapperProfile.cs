@@ -75,6 +75,9 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<AgentProfileDto, AgentProfile>();
         CreateMap<AgentProfileInputDto, AgentProfile>();
 
+        CreateMap<PatientProfile, PatientProfileDto>().ForMember(p => p.GenderName, o => o.MapFrom(n => n.Gender > 0 ? n.Gender : 0));
+        CreateMap<PatientProfileDto, PatientProfile>();
+        CreateMap<PatientProfileInputDto, PatientProfile>();
 
         CreateMap<DoctorChamber, DoctorChamberDto>();
         CreateMap<DoctorChamberDto, DoctorChamber>()
