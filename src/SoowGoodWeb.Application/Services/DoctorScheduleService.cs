@@ -34,6 +34,10 @@ namespace SoowGoodWeb.Services
             {
                 if (input.Id == 0)
                 {
+                    if(input.DoctorChamberId == 0)
+                    {
+                        input.DoctorChamberId = null;
+                    }
                     var newEntity = ObjectMapper.Map<DoctorScheduleInputDto, DoctorSchedule>(input);
 
                     var doctorSchedule = await _doctorScheduleRepository.InsertAsync(newEntity);
