@@ -78,4 +78,18 @@ namespace SoowGoodWeb.Enums
         ReportShow = 3,
         Emargency = 4
     }
+
+    public enum AppointmentStatus
+    {
+        Pending = 1,
+        Confirmed = 2,
+        InProgress = 3,
+        Completed = 4,
+        Cancelled = 5
+    }
+    public enum AppointmentPaymentStatus
+    {
+        Paid = 1,
+        Due = 2
+    }
 }

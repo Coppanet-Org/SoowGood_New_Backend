@@ -71,9 +71,14 @@ namespace SoowGoodWeb.Services
             var updateItem = ObjectMapper.Map<PatientProfileInputDto, PatientProfile>(input);
 
             var item = await _patientProfileRepository.UpdateAsync(updateItem);
-            await _unitOfWorkManager.Current.SaveChangesAsync();                        
+            await _unitOfWorkManager.Current.SaveChangesAsync();
             return ObjectMapper.Map<PatientProfile, PatientProfileDto>(item);
         }
-        
+
+        public async Task<List<PatientProfileDto>> GetPatientListByUserProfileIdAsync(long profileId)
+        {
+            var profiles = await _patientProfileRepository.GetListAsync(p => p.CreatorEntityId == profileId);
+            return ObjectMapper.Map<List<PatientProfile>, List<PatientProfileDto>>(profiles);
+        }
     }
 }
