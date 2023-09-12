@@ -66,6 +66,7 @@ namespace SoowGoodWeb.Services
             var profiles = await _doctorScheduleSessionRepository.GetListAsync();
             return ObjectMapper.Map<List<DoctorScheduleDaySession>, List<DoctorScheduleDaySessionDto>>(profiles);
         }
+
         //public async Task<DoctorScheduleDto> GetByUserIdAsync(Guid userId)
         //{
         //    var item = await _doctorScheduleRepository.GetAsync(x => x.UserId == userId);
