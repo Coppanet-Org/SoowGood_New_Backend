@@ -22,5 +22,6 @@ namespace SoowGoodWeb.Models
         public DateTime? OffDayTo { get;set; }
         public List<DoctorScheduleDaySession>? DoctorScheduleDaySession { get; set; }
         public List<DoctorFeesSetup>? DoctorFeesSetup { get; set; }
+        public List<Appointment>? Appointments { get; set; }
     }
 }
