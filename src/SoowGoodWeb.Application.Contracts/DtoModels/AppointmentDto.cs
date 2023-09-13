@@ -11,8 +11,8 @@ namespace SoowGoodWeb.DtoModels
     {
         public string? AppointmentSerial { get; set; }
         public long? DoctorScheduleId { get; set; }
-        public DoctorScheduleDto? DoctorSchedule { get; set; }
-        public string? ScheduleName { get; set; }
+        //public DoctorScheduleDto? DoctorSchedule { get; set; }
+        public string? DoctorScheduleName { get; set; }
         public long? DoctorProfileId { get; set; }
         //public DoctorProfileDto? DoctorProfile { get; set; }
         public string? DoctorName { get; set; }

@@ -17,14 +17,19 @@ namespace SoowGoodWeb.Services
         private readonly IRepository<DoctorSchedule> _doctorScheduleRepository;
         private readonly IRepository<DoctorChamber> _doctorChamberRepository;
         private readonly IRepository<DoctorScheduleDaySession> _doctorScheduleSessionRepository;
+        private readonly IRepository<Appointment> _appointmentRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
 
-        public DoctorScheduleService(IRepository<DoctorSchedule> doctorScheduleRepository, IRepository<DoctorChamber> doctorChamberRepository,
-            IRepository<DoctorScheduleDaySession> doctorScheduleSessionRepository, IUnitOfWorkManager unitOfWorkManager)
+        public DoctorScheduleService(IRepository<DoctorSchedule> doctorScheduleRepository, 
+            IRepository<DoctorChamber> doctorChamberRepository,
+            IRepository<DoctorScheduleDaySession> doctorScheduleSessionRepository, 
+            IRepository<Appointment> appointmentRepository,
+            IUnitOfWorkManager unitOfWorkManager)
         {
             _doctorScheduleRepository = doctorScheduleRepository;
             _doctorChamberRepository = doctorChamberRepository;
             _doctorScheduleSessionRepository = doctorScheduleSessionRepository;
+            _appointmentRepository = appointmentRepository;
             _unitOfWorkManager = unitOfWorkManager;
         }
 
@@ -335,13 +340,22 @@ namespace SoowGoodWeb.Services
         {
             List<DoctorScheduleDto>? result = null;
             var allSchedule =
-                await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile, s => s.DoctorScheduleDaySession, c => c.DoctorChamber, f => f.DoctorFeesSetup);
+                await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile, s => s.DoctorScheduleDaySession, c => c.DoctorChamber, f => f.DoctorFeesSetup, a=>a.Appointments);
             var item = allSchedule.Where(s => s.DoctorProfileId == doctorId).ToList();
             if (!item.Any())
             {
                 return result; // ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(schedules);
-            }            
-            return ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(item);
+            }
+            try
+            {
+                result = ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(item);
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return result;
+            //return ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(item);
             //result = new List<DoctorScheduleDto>();
             //foreach (var schedule in item)
             //{
@@ -373,7 +387,7 @@ namespace SoowGoodWeb.Services
 
             //return result; // ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(schedules);
         }
-
+        
         //public async Task<ResponseDto> CreateSessionAsync(DoctorScheduleDaySessionInputDto inputDto)
         //{
         //    var response = new ResponseDto();

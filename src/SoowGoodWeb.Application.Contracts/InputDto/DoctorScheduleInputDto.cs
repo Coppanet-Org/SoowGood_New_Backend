@@ -22,7 +22,7 @@ namespace SoowGoodWeb.DtoModels
         public DateTime? OffDayFrom { get; set; }
         public DateTime? OffDayTo { get; set; }
         public List<DoctorScheduleDaySessionInputDto>? DoctorScheduleDaySession { get; set; }
-        public List<DoctorFeesSetupInputDto>? DoctorFeesSetup { get; set; }
+        public List<DoctorFeesSetupInputDto>? DoctorFeesSetup { get; set; }        
         public string? ScheduleName { get; set; }
     }
 }

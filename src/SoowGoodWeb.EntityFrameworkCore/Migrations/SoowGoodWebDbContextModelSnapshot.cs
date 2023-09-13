@@ -103,7 +103,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgAgentProfiles");
+                    b.ToTable("SgAgentProfiles", (string)null);
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Appointment", b =>
@@ -214,7 +214,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("DoctorScheduleId");
 
-                    b.ToTable("SgAppointments");
+                    b.ToTable("SgAppointments", (string)null);
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Degree", b =>
@@ -263,7 +263,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgDegrees");
+                    b.ToTable("SgDegrees", (string)null);
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorChamber", b =>
@@ -326,7 +326,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("DoctorProfileId");
 
-                    b.ToTable("SgDoctorChambers");
+                    b.ToTable("SgDoctorChambers", (string)null);
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorDegree", b =>
@@ -400,7 +400,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("DoctorProfileId");
 
-                    b.ToTable("SgDoctorDegrees");
+                    b.ToTable("SgDoctorDegrees", (string)null);
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorFeesSetup", b =>
@@ -481,7 +481,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("DoctorScheduleId");
 
-                    b.ToTable("SgDoctorFees");
+                    b.ToTable("SgDoctorFees", (string)null);
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorProfile", b =>
@@ -601,7 +601,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("SpecialityId");
 
-                    b.ToTable("SgDoctorProfiles");
+                    b.ToTable("SgDoctorProfiles", (string)null);
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorSchedule", b =>
@@ -672,7 +672,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("DoctorProfileId");
 
-                    b.ToTable("SgDoctorSchedules");
+                    b.ToTable("SgDoctorSchedules", (string)null);
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorScheduleDaySession", b =>
@@ -735,7 +735,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("DoctorScheduleId");
 
-                    b.ToTable("SgDoctorScheduleDaySessions");
+                    b.ToTable("SgDoctorScheduleDaySessions", (string)null);
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorScheduledDayOff", b =>
@@ -789,7 +789,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("DoctorScheduleId");
 
-                    b.ToTable("SgDoctorScheduledDayOffs");
+                    b.ToTable("SgDoctorScheduledDayOffs", (string)null);
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorSpecialization", b =>
@@ -850,7 +850,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("SpecializationId");
 
-                    b.ToTable("SgDoctorSpecializations");
+                    b.ToTable("SgDoctorSpecializations", (string)null);
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DocumentsAttachment", b =>
@@ -914,7 +914,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgDocumentsAttachments");
+                    b.ToTable("SgDocumentsAttachments", (string)null);
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Otp", b =>
@@ -972,7 +972,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgOtps");
+                    b.ToTable("SgOtps", (string)null);
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.PatientProfile", b =>
@@ -1072,7 +1072,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgPatientProfiles");
+                    b.ToTable("SgPatientProfiles", (string)null);
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Speciality", b =>
@@ -1121,7 +1121,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgSpecialities");
+                    b.ToTable("SgSpecialities", (string)null);
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Specialization", b =>
@@ -1175,7 +1175,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("SpecialityId");
 
-                    b.ToTable("SgSpecializations");
+                    b.ToTable("SgSpecializations", (string)null);
                 });
 
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLog", b =>
