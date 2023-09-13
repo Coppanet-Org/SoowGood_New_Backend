@@ -266,7 +266,7 @@ namespace SoowGoodWeb.Services
         {
             int resultNp = 0;
             var numberOfPatintforScheduleSession = await _doctorScheduleSessionRepository.GetAsync(s => s.Id == sessionId && s.DoctorScheduleId == scheduleId);
-            int? noOfPatients = numberOfPatintforScheduleSession.NoOfPatients;
+            int noOfPatients = (int)numberOfPatintforScheduleSession.NoOfPatients;
 
             int appCounts = await GetAppCountByScheduleIdSessionIdAsync(scheduleId, sessionId);
             if (noOfPatients == appCounts)
@@ -275,11 +275,11 @@ namespace SoowGoodWeb.Services
             }
             else if(noOfPatients > appCounts)
             {
-                resultNp = (int)(noOfPatients - appCounts);
+                resultNp = (noOfPatients - appCounts);
             }
             else
             {
-                resultNp = 0;
+                resultNp = noOfPatients;
             }
 
             return resultNp;//noOfPatients == appCounts? 0: (int)resultNp;
