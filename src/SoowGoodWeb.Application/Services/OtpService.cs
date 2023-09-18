@@ -81,18 +81,18 @@ namespace SoowGoodWeb.Services
         public async Task<bool> VarifyOtpAsync(int otp)
         {
 
-            //if (otp > 0)
-            //{
-            //    var item = await _repository.FirstOrDefaultAsync(x => x.OtpNo == otp && x.OtpStatus == OtpStatus.New && x.ExpireDateTime >= DateTime.Now);
-            //    if (item != null)
-            //    {
-            //        item.OtpStatus = OtpStatus.Varified;
-            //        await _repository.UpdateAsync(item);
-            //        await _unitOfWorkManager.Current.SaveChangesAsync();
-            return true;
-            //    }
-            //}
-            //return false; 
+            if (otp > 0)
+            {
+                var item = await _repository.FirstOrDefaultAsync(x => x.OtpNo == otp && x.OtpStatus == OtpStatus.New && x.ExpireDateTime >= DateTime.Now);
+                if (item != null)
+                {
+                    item.OtpStatus = OtpStatus.Varified;
+                    await _repository.UpdateAsync(item);
+                    await _unitOfWorkManager.Current.SaveChangesAsync();
+                    return true;
+                }
+            }
+            return false;
 
         }
 
