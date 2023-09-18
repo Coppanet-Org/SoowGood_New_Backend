@@ -12,8 +12,8 @@ namespace SoowGoodWeb.Interfaces
     {
         Task<List<AppointmentDto>> GetListAsync();
         Task<AppointmentDto?> GetAsync(int id);
-        Task<ResponseDto> CreateAsync(AppointmentInputDto input);
-        Task<ResponseDto> UpdateAsync(AppointmentInputDto input);
+        Task<AppointmentDto> CreateAsync(AppointmentInputDto input);
+        Task<AppointmentDto> UpdateAsync(AppointmentInputDto input);
 
         //Task<List<DoctorScheduleDaySessionDto>> GetSessionListAsync();
         //Task<DoctorScheduleDaySessionDto> GetSessionAsync(int id);
