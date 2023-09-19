@@ -2,6 +2,7 @@
 using SoowGoodWeb.DtoModels;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Models;
+using SoowGoodWeb.PaymentsModels.PaymentHistory;
 using Volo.Abp.Identity;
 
 namespace SoowGoodWeb;
@@ -125,5 +126,9 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<AppointmentDto, Appointment>()
             .ForMember(d => d.DoctorSchedule, o => o.Ignore());
         CreateMap<AppointmentInputDto, Appointment>();
+
+        CreateMap<PaymentHistory, PaymentHistoryDto>();
+        CreateMap<PaymentHistoryDto, PaymentHistory>();
+        CreateMap<PaymentHistoryInputDto, PaymentHistory>();
     }
 }
