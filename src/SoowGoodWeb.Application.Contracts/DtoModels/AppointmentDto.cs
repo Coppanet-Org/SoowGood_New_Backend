@@ -10,15 +10,18 @@ namespace SoowGoodWeb.DtoModels
     public class AppointmentDto : FullAuditedEntityDto<long>
     {
         public string? AppointmentSerial { get; set; }
+        public string? AppointmenCode { get; set; }
         public long? DoctorScheduleId { get; set; }
         //public DoctorScheduleDto? DoctorSchedule { get; set; }
         public string? DoctorScheduleName { get; set; }
         public long? DoctorProfileId { get; set; }
         //public DoctorProfileDto? DoctorProfile { get; set; }
         public string? DoctorName { get; set; }
+        public string? DoctorCode { get; set; }
         public long? PatientProfileId { get; set; }
         //public PatientProfileDto? PatientProfile { get; set; }
-        public string? PatientName { get; set; }        
+        public string? PatientName { get; set; }
+        public string? PatientCode { get; set; }
         public ConsultancyType? ConsultancyType { get; set; }
         public string? ConsultancyTypeName { get; set; }
         public long? DoctorChamberId { get; set; }

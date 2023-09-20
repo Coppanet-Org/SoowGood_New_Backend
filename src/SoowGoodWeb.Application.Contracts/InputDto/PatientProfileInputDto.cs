@@ -11,6 +11,7 @@ namespace SoowGoodWeb.InputDto
         public string? FullName { get; set; }
         public bool? IsSelf { get; set; }
         public string? PatientName { get; set; }
+        public string? PatientCode { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public int? Age { get; set; }
         public Gender? Gender { get; set; }
