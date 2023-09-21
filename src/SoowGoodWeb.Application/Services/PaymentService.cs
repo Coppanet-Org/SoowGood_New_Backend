@@ -2,7 +2,7 @@
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
-using SoowGoodWeb.SslCommerzData;
+using SoowGoodWeb.SslCommerz;
 using SoowGoodWeb.SslCommerz;
 using System;
 using System.Collections.Generic;
@@ -10,37 +10,33 @@ using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Uow;
-using SoowGoodWeb.Enums;
 
 namespace SoowGoodWeb.Services
 {
-    public class SslCommerzService : SoowGoodWebAppService, ISslCommerzService
+    public class PaymentService : SoowGoodWebAppService, ISslCommerzService
     {
-        private readonly IRepository<Appointment> _appointmentRepository;
-        private readonly IRepository<PatientProfile> _patientRepository;
-        private readonly IPaymentHistoryService _paymentHistoryService;
+        //private readonly IRepository<Appointment> _appointmentRepository;
+        //private readonly IPaymentHistoryService _paymentHistoryService;
         //private readonly INotificationAppService _notificationAppService;
-        private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
+        //private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
 
         //INotificationAppService notificationAppService,
-        public SslCommerzService(IRepository<Appointment> appointmentRepository,
-            IRepository<PatientProfile> patientRepository,
+        public PaymentService(IRepository<Appointment> appointmentRepository,
                                     IPaymentHistoryService paymentHistoryService,
                                     SslCommerzGatewayManager sslCommerzGatewayManager)
         {
-            _appointmentRepository = appointmentRepository;
-            _patientRepository = patientRepository;
-            _paymentHistoryService = paymentHistoryService;
+            //_appointmentRepository = appointmentRepository;
+            //_paymentHistoryService = paymentHistoryService;
             //_notificationAppService = notificationAppService;
-            _sslCommerzGatewayManager = sslCommerzGatewayManager;
+            //_sslCommerzGatewayManager = sslCommerzGatewayManager;
         }
 
 
         //[HttpPost]
         public async Task<SslCommerzInitDto> InitiatePaymentAsync(SslCommerzInputDto input)
         {
-            return new SslCommerzInitDto();
             input.TransactionId = GenerateTransactionId(16);
+            return new SslCommerzInitDto();
 
             //var applicantData = await GetApplicantDetails(input);
 
@@ -55,148 +51,152 @@ namespace SoowGoodWeb.Services
 
         private async Task InitPaymentHistory(SslCommerzInputDto input, SSLCommerzInitResponse initResponse)
         {
-            await _paymentHistoryService.CreateAsync(new PaymentHistoryInputDto
-            {
-                amount = input.TotalAmount,
-                status = initResponse.status,
-                tran_id = input.TransactionId,
-                sessionkey = initResponse.sessionkey,
-                failedreason = initResponse.failedreason,
-                application_code = input.ApplicationCode
-            });
+            //await _paymentHistoryService.CreateAsync(new PaymentHistoryInputDto
+            //{
+            //    amount = input.TotalAmount,
+            //    status = initResponse.status,
+            //    tran_id = input.TransactionId,
+            //    sessionkey = initResponse.sessionkey,
+            //    failedreason = initResponse.failedreason,
+            //    application_code = input.ApplicationCode
+            //});
         }
 
         //[HttpGet]
         public async Task<TransactionValidationDto> ValidateTransactionAsync(Dictionary<string, string> responseDic)
         {
-            return await _sslCommerzGatewayManager.ValidateTransactionAsync(responseDic);
+            return null;//await _sslCommerzGatewayManager.ValidateTransactionAsync(responseDic);
         }
 
         //[HttpGet]
         public async Task<bool> InitiateRefundAsync()
         {
-            var response = await Task.Run(() =>
-            {
-                return _sslCommerzGatewayManager.InitiateRefundAsync();
-            });
-            return response;
+            //var response = await Task.Run(() =>
+            //{
+            //    return _sslCommerzGatewayManager.InitiateRefundAsync();
+            //});
+            return false;// response;
         }
 
         //[HttpPost]
         public async Task<SslCommerzInitDto> InitiateTestPaymentAsync(SslCommerzInputDto input)
         {
-            var nuDto = new SslCommerzInitDto();
             input.TransactionId = GenerateTransactionId(16);
+            var nuDto = new SslCommerzInitDto();
 
-            var applicantData = await GetApplicantDetails(input);
+            //var applicantData = await GetApplicantDetails(input);
 
-            var postData = _sslCommerzGatewayManager.CreateTestPostData(applicantData);
+            //var postData = _sslCommerzGatewayManager.CreateTestPostData(applicantData);
 
-            var initResponse = await _sslCommerzGatewayManager.InitiateTestPaymentAsync(postData);
+            //var initResponse = await _sslCommerzGatewayManager.InitiateTestPaymentAsync(postData);
 
-            await InitPaymentHistory(input, initResponse);
+            //await InitPaymentHistory(input, initResponse);
 
-            return GetInitPaymentResponse(initResponse);
+            return nuDto; //GetInitPaymentResponse(initResponse);
         }
 
         //[HttpGet]
         public async Task<TransactionValidationDto> ValidateTestTransactionAsync(Dictionary<string, string> responseDic)
         {
-            return await _sslCommerzGatewayManager.ValidateTestTransactionAsync(responseDic);
+            return null; //await _sslCommerzGatewayManager.ValidateTestTransactionAsync(responseDic);
         }
 
 
         //[HttpGet]
         public async Task<bool> InitiateTestRefundAsync()
         {
-            var response = await Task.Run(() =>
-            {
-                return _sslCommerzGatewayManager.InitiateTestRefundAsync();
-            });
-            return response;
+            //var response = await Task.Run(() =>
+            //{
+            //    return _sslCommerzGatewayManager.InitiateTestRefundAsync();
+            //});
+            return false; // response;
         }
 
         private async Task<SslCommerzPostDataDto> GetApplicantDetails(SslCommerzInputDto input)
         {
             var nDto = new SslCommerzPostDataDto();
-            return await Task.Run(async () =>
-            {
-                var app = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-                var job = app.Where(a => a.AppointmenCode == input.ApplicationCode).FirstOrDefault();
-                var sslCommerzPostDataDto = new SslCommerzPostDataDto();
-                if (job != null && job.AppointmentStatus == AppointmentStatus.Pending)
-                {
-                    var patient = await _patientRepository.GetAsync(p => p.Id == job.PatientProfileId);
+            //return await Task.Run(() =>
+            //{
+            //    var job = _jobApplicationRepository.GetAll()
+            //                .Include(i => i.Applicant)
+            //                .ThenInclude(i => i.ApplicantAddresses)
+            //                .FirstOrDefault(a => a.ApplicationCode == input.ApplicationCode);
 
-                    sslCommerzPostDataDto.tran_id = input.TransactionId;
-                    sslCommerzPostDataDto.total_amount = input.TotalAmount;
-                    sslCommerzPostDataDto.currency = "BDT";
-                    sslCommerzPostDataDto.cus_name = job.PatientName;
-                    sslCommerzPostDataDto.cus_email = patient.PatientEmail;
-                    sslCommerzPostDataDto.cus_phone = patient.PatientMobileNo;
+            //    var sslCommerzPostDataDto = new SslCommerzPostDataDto();
+            //    if (job != null && job.ApplicationStatus == ApplicationStatus.Applied)
+            //    {
+            //        sslCommerzPostDataDto.tran_id = input.TransactionId;
+            //        sslCommerzPostDataDto.total_amount = input.TotalAmount;
+            //        sslCommerzPostDataDto.currency = "BDT";
+            //        sslCommerzPostDataDto.cus_name = job.Applicant.Name;
+            //        sslCommerzPostDataDto.cus_email = job.Applicant.Email;
+            //        sslCommerzPostDataDto.cus_phone = job.Applicant.Mobile;
 
-                    //var applicantAddr = job.Applicant.ApplicantAddresses.FirstOrDefault();
-                    sslCommerzPostDataDto.cus_add1 = patient.Address;
-                    sslCommerzPostDataDto.cus_postcode = patient.ZipCode;
-                    sslCommerzPostDataDto.cus_city = patient.City;
-                    sslCommerzPostDataDto.cus_country = "Bangladesh";
-                    sslCommerzPostDataDto.shipping_method = "NO";
-                    sslCommerzPostDataDto.num_of_item = "1";
-                    sslCommerzPostDataDto.product_name = "Soowgood";
-                    sslCommerzPostDataDto.product_profile = "general";
-                    sslCommerzPostDataDto.product_category = "Soowgood - Appointment";
-                }
+            //        var applicantAddr = job.Applicant.ApplicantAddresses.FirstOrDefault();
+            //        sslCommerzPostDataDto.cus_add1 = applicantAddr?.Address;
+            //        sslCommerzPostDataDto.cus_postcode = applicantAddr?.PostCode;
+            //        sslCommerzPostDataDto.cus_city = applicantAddr?.District;
+            //        sslCommerzPostDataDto.cus_country = "Bangladesh";
+            //        sslCommerzPostDataDto.shipping_method = "NO";
+            //        sslCommerzPostDataDto.num_of_item = "1";
+            //        sslCommerzPostDataDto.product_name = "Application Fee";
+            //        sslCommerzPostDataDto.product_profile = "PWD";
+            //        sslCommerzPostDataDto.product_category = "Job Application";
+            //    }
 
-                return sslCommerzPostDataDto;
-            });
+            //    return sslCommerzPostDataDto;
+            //});
+            return nDto;
         }
 
         public async Task UpdatePaymentHistory(Dictionary<string, string> sslCommerzResponseDic)
         {
-            sslCommerzResponseDic.TryGetValue("tran_id", out string tran_id);
-            if (!string.IsNullOrWhiteSpace(tran_id))
-            {
-                var paymentHistory = await _paymentHistoryService.GetByTranIdAsync(tran_id);
-                if (paymentHistory != null)
-                {
-                    var paymentHistoryInputDto = GetPaymentHistoryDto(sslCommerzResponseDic, paymentHistory);
-                    await _paymentHistoryService.UpdateHistoryAsync(paymentHistoryInputDto);
-                }
-            }
+            //sslCommerzResponseDic.TryGetValue("tran_id", out string tran_id);
+            //if (!string.IsNullOrWhiteSpace(tran_id))
+            //{
+            //    var paymentHistory = await _paymentHistoryService.GetByTranIdAsync(tran_id);
+            //    if (paymentHistory != null)
+            //    {
+            //        var paymentHistoryInputDto = GetPaymentHistoryDto(sslCommerzResponseDic, paymentHistory);
+            //        await _paymentHistoryService.UpdateHistoryAsync(paymentHistoryInputDto);
+            //    }
+            //}
         }
 
         public async Task UpdateApplicantPaymentStatus(Dictionary<string, string> sslCommerzResponseDic)
         {
-            sslCommerzResponseDic.TryGetValue("tran_id", out string tran_id);
-            if (!string.IsNullOrWhiteSpace(tran_id))
-            {
-                var paymentHistory = await _paymentHistoryService.GetByTranIdAsync(tran_id);
-                if (paymentHistory != null)
-                {
-                    if (!string.IsNullOrWhiteSpace(paymentHistory.application_code))
-                    {
-                        sslCommerzResponseDic.TryGetValue("amount", out string paid_amount);
-                        await UpdatePaymentStatus(paymentHistory.application_code, tran_id, paid_amount);
-                    }
-                }
-            }
+            //sslCommerzResponseDic.TryGetValue("tran_id", out string tran_id);
+            //if (!string.IsNullOrWhiteSpace(tran_id))
+            //{
+            //    var paymentHistory = await _paymentHistoryService.GetByTranIdAsync(tran_id);
+            //    if (paymentHistory != null)
+            //    {
+            //        if (!string.IsNullOrWhiteSpace(paymentHistory.application_code))
+            //        {
+            //            sslCommerzResponseDic.TryGetValue("amount", out string paid_amount);
+            //            await UpdatePaymentStatus(paymentHistory.application_code, tran_id, paid_amount);
+            //        }
+            //    }
+            //}
         }
 
         private async Task UpdatePaymentStatus(string application_code, string tran_id, string paid_amount)
         {
-            var applicant = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-            var app = applicant.Where(a=>a.AppointmenCode == application_code).FirstOrDefault();
+            //var applicant = _jobApplicationRepository.GetAll()
+            //                            .Include(a => a.Applicant)
+            //                            .Include(a => a.Circular)
+            //                            .Include(a => a.Post)
+            //                            .FirstOrDefault(a => a.ApplicationCode == application_code);
+            //if (applicant != null && applicant.ApplicationStatus != ApplicationStatus.AppliedAndPaid)
+            //{
+            //    applicant.ApplicationStatus = ApplicationStatus.AppliedAndPaid;
+            //    applicant.TransactionId = tran_id;
+            //    applicant.FeePaid = string.IsNullOrWhiteSpace(paid_amount) ? 0 : double.Parse(paid_amount);
 
-            if (app != null && app.AppointmentStatus != AppointmentStatus.Confirmed)
-            {
-                app.AppointmentStatus = AppointmentStatus.Confirmed;
-                //app.TransactionId = tran_id;
-                //app.FeePaid = string.IsNullOrWhiteSpace(paid_amount) ? 0 : double.Parse(paid_amount);
+            //    await _jobApplicationRepository.UpdateAsync(applicant);
 
-                await _appointmentRepository.UpdateAsync(app);
-
-                //await SendNotification(application_code, applicant.Applicant.Mobile);
-            }
+            //    await SendNotification(application_code, applicant.Applicant.Mobile);
+            //}
         }
 
         //private async Task SendNotification(string application_code, string msisdn)

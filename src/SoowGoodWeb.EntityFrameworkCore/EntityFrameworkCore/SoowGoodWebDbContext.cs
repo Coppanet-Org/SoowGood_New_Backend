@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SoowGoodWeb.Models;
-using SoowGoodWeb.PaymentsModels.PaymentHistory;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.Data;

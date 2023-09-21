@@ -1,4 +1,4 @@
-﻿namespace SoowGoodWeb.PaymentsModels.SslCommerz
+﻿namespace SoowGoodWeb.SslCommerzData
 {
     public class SSLCommerzIRefundedResponse
     {

@@ -27,6 +27,9 @@ namespace SoowGoodWeb.Services
         }
         public async Task<PatientProfileDto> CreateAsync(PatientProfileInputDto input)
         {
+            var totalPatients = await _patientProfileRepository.GetListAsync();
+            var count = totalPatients.Count();
+            input.PatientCode = "SG-P-" + (count + 1);
             var newEntity = ObjectMapper.Map<PatientProfileInputDto, PatientProfile>(input);
 
             var patientProfile = await _patientProfileRepository.InsertAsync(newEntity);

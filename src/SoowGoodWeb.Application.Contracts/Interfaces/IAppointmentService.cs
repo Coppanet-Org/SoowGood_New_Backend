@@ -26,5 +26,22 @@ namespace SoowGoodWeb.Interfaces
         //Task<DoctorScheduledDayOffDto> CreateDayOffAsync(DoctorScheduledDayOffInputDto input);
         //Task<DoctorScheduledDayOffDto> UpdateDayOffAsync(DoctorScheduledDayOffInputDto input);
         //Task<DoctorScheduleDto> GetByUserIdAsync(long doctorId);
+
+        //Payment Services
+
+        // For Live
+        //Task<bool> InitiateRefundAsync();
+        //Task<SslCommerzInitDto> InitiatePaymentAsync(SslCommerzInputDto input);
+        //Task<TransactionValidationDto> ValidateTransactionAsync(Dictionary<string, string> responseDic);
+
+        //// For Sandbox
+        //Task<bool> InitiateTestRefundAsync();
+        //Task<SslCommerzInitDto> InitiateTestPaymentAsync(SslCommerzInputDto input);
+        //Task<TransactionValidationDto> ValidateTestTransactionAsync(Dictionary<string, string> responseDic);
+
+        //Task UpdatePaymentHistory(Dictionary<string, string> sslCommerzResponseDic);
+        //Task UpdateApplicantPaymentStatus(Dictionary<string, string> sslCommerzResponseDic);
+
+
     }
 }

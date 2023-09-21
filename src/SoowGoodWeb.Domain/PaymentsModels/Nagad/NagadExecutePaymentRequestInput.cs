@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SoowGoodWeb.PaymentsModels.Nagad
+namespace SoowGoodWeb.NagadData
 {
     public class NagadPaymentRequestInput
     {

@@ -9,9 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="PaymentServices\Nagad\**" />
-    <EmbeddedResource Remove="PaymentServices\Nagad\**" />
-    <None Remove="PaymentServices\Nagad\**" />
+    <Compile Remove="Services\PaymentService.cs" />
   </ItemGroup>
 
   <ItemGroup>

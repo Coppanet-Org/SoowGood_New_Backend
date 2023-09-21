@@ -2,7 +2,7 @@
 using System.Collections.Specialized;
 using System.Linq;
 
-namespace SoowGoodWeb.PaymentsModels.SslCommerz
+namespace SoowGoodWeb.SslCommerzData
 {
     public static class NVCExtender
     {

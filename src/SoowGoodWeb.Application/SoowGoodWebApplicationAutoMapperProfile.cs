@@ -2,7 +2,7 @@
 using SoowGoodWeb.DtoModels;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Models;
-using SoowGoodWeb.PaymentsModels.PaymentHistory;
+//using SoowGoodWeb.PaymentsModels.PaymentHistory;
 using Volo.Abp.Identity;
 
 namespace SoowGoodWeb;

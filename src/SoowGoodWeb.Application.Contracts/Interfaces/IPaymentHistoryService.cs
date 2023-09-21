@@ -16,6 +16,5 @@ namespace SoowGoodWeb.Interfaces
         Task<PaymentHistoryDto> CreateAsync(PaymentHistoryInputDto input);
         Task<PaymentHistoryDto> UpdateAsync(PaymentHistoryInputDto input);
         Task<bool> UpdateHistoryAsync(PaymentHistoryInputDto input);
-        Task DeleteAsync(int id);
     }
 }

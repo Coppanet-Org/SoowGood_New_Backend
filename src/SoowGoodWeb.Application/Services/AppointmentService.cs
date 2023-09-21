@@ -11,6 +11,7 @@ using Volo.Abp.Uow;
 using Volo.Abp.ObjectMapping;
 using Scriban.Syntax;
 using SoowGoodWeb.InputDto;
+using SoowGoodWeb.SslCommerz;
 
 namespace SoowGoodWeb.Services
 {
@@ -20,16 +21,19 @@ namespace SoowGoodWeb.Services
         //private readonly IRepository<DoctorChamber> _doctorChamberRepository;
         private readonly IRepository<DoctorScheduleDaySession> _doctorScheduleSessionRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
+        private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
 
         public AppointmentService(IRepository<Appointment> appointmentRepository,
             //IRepository<DoctorChamber> doctorChamberRepository,
             IRepository<DoctorScheduleDaySession> doctorScheduleSessionRepository,
+            SslCommerzGatewayManager sslCommerzGatewayManager,
             IUnitOfWorkManager unitOfWorkManager)
         {
             _appointmentRepository = appointmentRepository;
             //_doctorScheduleRepository = doctorScheduleRepository;
             //_doctorChamberRepository = doctorChamberRepository;
             _doctorScheduleSessionRepository = doctorScheduleSessionRepository;
+            _sslCommerzGatewayManager = sslCommerzGatewayManager;
             //_unitOfWorkManager = unitOfWorkManager;
         }
 
@@ -45,7 +49,7 @@ namespace SoowGoodWeb.Services
                 var totalhr = (enTime - stTime).TotalHours; //Convert.ToDateTime(mainSession.EndTime) - Convert.ToDateTime(mainSession.StartTime);
                 var hrmnt = totalhr * 60;
                 var slotPerPatient = hrmnt / mainSession.NoOfPatients;
-                string[] slots=null;// = new string[0];
+                string[] slots = null;// = new string[0];
                 List<string> list = new List<string>();
                 //int durationOfSession = 60;
                 //int gapBetweenSessions = 30;
@@ -54,28 +58,19 @@ namespace SoowGoodWeb.Services
 
                 for (DateTime appointment = stTime; appointment < enTime; appointment = appointment.AddMinutes((double)slotPerPatient))
                 {
-                    //slots[appointment.ToString("HH:mm")];
                     list.Add(appointment.ToString("HH:mm"));
                     slots = list.ToArray();
-                    //slots = new string[] 
-                    //{ 
-                    //    appointment.ToString("HH:mm") 
-                    //};
-                    //Console.WriteLine(appointment.ToString("HH:mm"));
                 }
-
-
-
 
                 long lastSerial = await GetAppCountByScheduleIdSessionIdAsync(input.DoctorScheduleId, input.DoctorScheduleDaySessionId);
 
                 for (long i = lastSerial; i < mainSession.NoOfPatients; ++i)
                 {
                     input.AppointmentTime = slots != null ? slots[i].ToString() : "";
-                    //var aptime = stTime.AddMinutes((double)(slotPerPatient * i));
                     break;
                 }
                 input.AppointmentSerial = (lastSerial + 1).ToString();
+                input.AppointmenCode = input.DoctorCode + "-" + input.PatientCode + "-" + input.AppointmentSerial;
             }
             var newEntity = ObjectMapper.Map<AppointmentInputDto, Appointment>(input);
 
@@ -146,5 +141,6 @@ namespace SoowGoodWeb.Services
 
             return resultNp;//noOfPatients == appCounts? 0: (int)resultNp;
         }
+
     }
 }

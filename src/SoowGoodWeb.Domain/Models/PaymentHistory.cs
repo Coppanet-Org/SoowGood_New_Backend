@@ -1,6 +1,6 @@
 ﻿using Volo.Abp.Domain.Entities.Auditing;
 
-namespace SoowGoodWeb.PaymentsModels.PaymentHistory
+namespace SoowGoodWeb.Models
 {
     public class PaymentHistory : FullAuditedEntity<long>
     {

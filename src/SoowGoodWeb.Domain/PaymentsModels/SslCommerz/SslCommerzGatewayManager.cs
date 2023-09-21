@@ -1,7 +1,5 @@
-﻿using SoowGoodWeb.DtoModels;
+﻿using System;
 using Nancy.Json;
-using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
@@ -10,39 +8,31 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using Volo.Abp;
-using Volo.Abp.Application.Services;
 using Volo.Abp.DependencyInjection;
+using SoowGoodWeb.SslCommerzData;
+using Newtonsoft.Json;
+using SoowGoodWeb.DtoModels;
 
-namespace SoowGoodWeb.PaymentsModels.SslCommerz
+namespace SoowGoodWeb.SslCommerz
 {
-    public class SslCommerzGatewayManager : ApplicationService, ITransientDependency
+    public class SslCommerzGatewayManager :  ITransientDependency
     {
-        string liveStoreId = PaymentGatewayHelper.LiveStoreId;
-        string liveStorePassword = PaymentGatewayHelper.LiveStorePassword;
-        string liveSubmitUrl = PaymentGatewayHelper.LiveSubmitUrl;
-        string liveValidationUrl = PaymentGatewayHelper.LiveValidationUrl;
-        string prodSuccessCallbackUrl = PaymentGatewayHelper.ProdSuccessCallbackUrl;
-        string prodFailCallbackUrl = PaymentGatewayHelper.ProdFailCallbackUrl;
-        string prodCancelCallbackUrl = PaymentGatewayHelper.ProdCancelCallbackUrl;
-        string prodIpnLintener = PaymentGatewayHelper.ProdIpnLintener;
-        string sandboxStoreId = PaymentGatewayHelper.SandboxStoreId;
-        string sandboxStorePassword = PaymentGatewayHelper.SandboxStorePassword;
-        string devSuccessCallbackUrl = PaymentGatewayHelper.DevSuccessCallbackUrl;
-        string devFailCallbackUrl = PaymentGatewayHelper.DevFailCallbackUrl;
-        string devCancelCallbackUrl = PaymentGatewayHelper.DevCancelCallbackUrl;
-        string devIpnLintener = PaymentGatewayHelper.DevIpnLintener;
+        private readonly SslCommerzGatewayConfiguration _configuration;
+
+        public SslCommerzGatewayManager(SslCommerzGatewayConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
 
         // For Live
         public bool IsValidateStore()
         {
-            
-            if (string.IsNullOrWhiteSpace(liveStoreId))
+            if (string.IsNullOrWhiteSpace(_configuration.LiveStoreId))
             {
                 throw new Exception("Please provide Store ID to initialize SSLCommerz");
             }
 
-            if (string.IsNullOrWhiteSpace(liveStorePassword))
+            if (string.IsNullOrWhiteSpace(_configuration.LiveStorePassword))
             {
                 throw new Exception("Please provide Store Password to initialize SSLCommerz");
             }
@@ -53,10 +43,9 @@ namespace SoowGoodWeb.PaymentsModels.SslCommerz
         public async Task<SSLCommerzInitResponse> InitiatePaymentAsync(NameValueCollection postData)
         {
             var initResponse = new SSLCommerzInitResponse();
-            
             try
             {
-                var response = await SendPaymentRequestAsync(liveSubmitUrl, postData);
+                var response = await SendPaymentRequestAsync(_configuration.LiveSubmitUrl, postData);
                 initResponse = new JavaScriptSerializer().Deserialize<SSLCommerzInitResponse>(response);
                 return initResponse;
             }
@@ -64,7 +53,7 @@ namespace SoowGoodWeb.PaymentsModels.SslCommerz
             {
                 var jsonResponse = JsonConvert.SerializeObject(initResponse);
                 var jsonPostData = JsonConvert.SerializeObject(postData.ToDictionary());
-                throw new Exception($"InitResponse: {jsonResponse} {Environment.NewLine}- PostData: { jsonPostData } {Environment.NewLine}- ErrorMsg: { e.Message}");
+                throw new Exception($"InitResponse: {jsonResponse} {Environment.NewLine}- PostData: {jsonPostData} {Environment.NewLine}- ErrorMsg: {e.Message}");
             }
         }
 
@@ -75,15 +64,15 @@ namespace SoowGoodWeb.PaymentsModels.SslCommerz
                 string message;
                 bool isValidTransaction;
 
-                var hashVerified = IpnHashVerify(responseDic, liveStorePassword);
+                var hashVerified = IpnHashVerify(responseDic, _configuration.LiveStorePassword);
                 if (hashVerified)
                 {
                     responseDic.TryGetValue("val_id", out string valId);
                     var encodedValId = HttpUtility.UrlEncode(valId);
-                    var encodedStoreId = HttpUtility.UrlEncode(liveStoreId);
-                    var encodedStorePassword = HttpUtility.UrlEncode(liveStorePassword);
+                    var encodedStoreId = HttpUtility.UrlEncode(_configuration.LiveStoreId);
+                    var encodedStorePassword = HttpUtility.UrlEncode(_configuration.LiveStorePassword);
 
-                    var validateUrl = liveValidationUrl + "?val_id=" + encodedValId + "&store_id=" + encodedStoreId + "&store_passwd=" + encodedStorePassword + "&v=1&format=json";
+                    var validateUrl = _configuration.LiveValidationUrl + "?val_id=" + encodedValId + "&store_id=" + encodedStoreId + "&store_passwd=" + encodedStorePassword + "&v=1&format=json";
 
                     var request = (HttpWebRequest)WebRequest.Create(validateUrl);
                     var response = (HttpWebResponse)request.GetResponse();
@@ -167,15 +156,15 @@ namespace SoowGoodWeb.PaymentsModels.SslCommerz
         {
             var postData = new NameValueCollection
             {
-                { "store_id", liveStoreId },
-                { "store_passwd", liveStorePassword },
+                { "store_id", _configuration.LiveStoreId },
+                { "store_passwd", _configuration.LiveStorePassword },
                 { "total_amount", $"{postDataDto.total_amount}" },
                 { "currency", $"{postDataDto.currency}" },
                 { "tran_id", $"{postDataDto.tran_id}" },
-                { "success_url", prodSuccessCallbackUrl },
-                { "fail_url", prodFailCallbackUrl },
-                { "cancel_url", prodCancelCallbackUrl },
-                { "ipn_url", prodIpnLintener },
+                { "success_url", _configuration.ProdSuccessCallbackUrl },
+                { "fail_url", _configuration.ProdFailCallbackUrl },
+                { "cancel_url", _configuration.ProdCancelCallbackUrl },
+                { "ipn_url", _configuration.ProdIpnLintener },
                 { "cus_name", $"{postDataDto.cus_name}" },
                 { "cus_email", $"{postDataDto.cus_email}" },
                 { "cus_add1", $"{postDataDto.cus_add1}" },
@@ -211,12 +200,12 @@ namespace SoowGoodWeb.PaymentsModels.SslCommerz
         // For Sandbox
         public bool IsValidateTestStore()
         {
-            if (string.IsNullOrWhiteSpace(PaymentGatewayHelper.SandboxStoreId))
+            if (string.IsNullOrWhiteSpace(_configuration.SandboxStoreId))
             {
                 throw new Exception("Please provide Store ID to initialize SSLCommerz");
             }
 
-            if (string.IsNullOrWhiteSpace(PaymentGatewayHelper.SandboxStorePassword))
+            if (string.IsNullOrWhiteSpace(_configuration.SandboxStorePassword))
             {
                 throw new Exception("Please provide Store Password to initialize SSLCommerz");
             }
@@ -229,7 +218,7 @@ namespace SoowGoodWeb.PaymentsModels.SslCommerz
             var initResponse = new SSLCommerzInitResponse();
             try
             {
-                string response = await SendPaymentRequestAsync(PaymentGatewayHelper.SandboxSubmitUrl, postData);
+                string response = await SendPaymentRequestAsync(_configuration.SandboxSubmitUrl, postData);
                 initResponse = new JavaScriptSerializer().Deserialize<SSLCommerzInitResponse>(response);
                 return initResponse;
             }
@@ -237,7 +226,7 @@ namespace SoowGoodWeb.PaymentsModels.SslCommerz
             {
                 var jsonResponse = JsonConvert.SerializeObject(initResponse);
                 var jsonPostData = JsonConvert.SerializeObject(postData.ToDictionary());
-                throw new Exception($"InitResponse: {jsonResponse} {Environment.NewLine}- PostData: { jsonPostData } {Environment.NewLine}- ErrorMsg: { e.Message}");
+                throw new Exception($"InitResponse: {jsonResponse} {Environment.NewLine}- PostData: {jsonPostData} {Environment.NewLine}- ErrorMsg: {e.Message}");
             }
         }
 
@@ -248,15 +237,15 @@ namespace SoowGoodWeb.PaymentsModels.SslCommerz
                 string message;
                 bool isValidTransaction;
 
-                var hashVerified = IpnHashVerify(responseDic, PaymentGatewayHelper.SandboxStorePassword);
+                var hashVerified = IpnHashVerify(responseDic, _configuration.SandboxStorePassword);
                 if (hashVerified)
                 {
                     responseDic.TryGetValue("val_id", out string valId);
                     var encodedValId = HttpUtility.UrlEncode(valId);
-                    var encodedStoreId = HttpUtility.UrlEncode(PaymentGatewayHelper.SandboxStoreId);
-                    var encodedStorePassword = HttpUtility.UrlEncode(PaymentGatewayHelper.SandboxStorePassword);
+                    var encodedStoreId = HttpUtility.UrlEncode(_configuration.SandboxStoreId);
+                    var encodedStorePassword = HttpUtility.UrlEncode(_configuration.SandboxStorePassword);
 
-                    var validateUrl = liveValidationUrl + "?val_id=" + encodedValId + "&store_id=" + encodedStoreId + "&store_passwd=" + encodedStorePassword + "&v=1&format=json";
+                    var validateUrl = _configuration.LiveValidationUrl + "?val_id=" + encodedValId + "&store_id=" + encodedStoreId + "&store_passwd=" + encodedStorePassword + "&v=1&format=json";
 
                     var request = (HttpWebRequest)WebRequest.Create(validateUrl);
                     var response = (HttpWebResponse)request.GetResponse();
@@ -340,15 +329,15 @@ namespace SoowGoodWeb.PaymentsModels.SslCommerz
         {
             var postData = new NameValueCollection
             {
-                { "store_id", sandboxStoreId },
-                { "store_passwd", sandboxStorePassword },
+                { "store_id", _configuration.SandboxStoreId },
+                { "store_passwd", _configuration.SandboxStorePassword },
                 { "total_amount", $"{postDataDto.total_amount}" },
                 { "currency", $"{postDataDto.currency}" },
                 { "tran_id", $"{postDataDto.tran_id}" },
-                { "success_url", devSuccessCallbackUrl},
-                { "fail_url", devFailCallbackUrl },
-                { "cancel_url", devCancelCallbackUrl },
-                { "ipn_url", devIpnLintener },
+                { "success_url", _configuration.DevSuccessCallbackUrl},
+                { "fail_url", _configuration.DevFailCallbackUrl },
+                { "cancel_url", _configuration.DevCancelCallbackUrl },
+                { "ipn_url", _configuration.DevIpnLintener },
                 { "cus_name", $"{postDataDto.cus_name}" },
                 { "cus_email", $"{postDataDto.cus_email}" },
                 { "cus_add1", $"{postDataDto.cus_add1}" },
@@ -380,7 +369,7 @@ namespace SoowGoodWeb.PaymentsModels.SslCommerz
             return postData;
         }
 
-        
+
         // Common Actions
         public async Task<string> SendPaymentRequestAsync(string url, NameValueCollection postData)
         {
