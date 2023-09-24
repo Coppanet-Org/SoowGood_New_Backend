@@ -190,7 +190,8 @@ namespace SoowGoodWeb.Services
             if (app != null && app.AppointmentStatus != AppointmentStatus.Confirmed)
             {
                 app.AppointmentStatus = AppointmentStatus.Confirmed;
-                //app.TransactionId = tran_id;
+                app.PaymentTransactionId = tran_id;
+                app.AppointmentPaymentStatus = AppointmentPaymentStatus.Paid;
                 //app.FeePaid = string.IsNullOrWhiteSpace(paid_amount) ? 0 : double.Parse(paid_amount);
 
                 await _appointmentRepository.UpdateAsync(app);
