@@ -18,7 +18,7 @@ namespace SoowGoodWeb.Interfaces
         // For Sandbox
         Task<bool> InitiateTestRefundAsync();
         Task<SslCommerzInitDto> InitiateTestPaymentAsync(SslCommerzInputDto input);
-        //Task<TransactionValidationDto> ValidateTestTransactionAsync(Dictionary<string, string> responseDic);
+        Task<TransactionValidationDto> ValidateTestTransactionAsync(Dictionary<string, string> responseDic);
 
         Task UpdatePaymentHistory(Dictionary<string, string> sslCommerzResponseDic);
         Task UpdateApplicantPaymentStatus(Dictionary<string, string> sslCommerzResponseDic);
