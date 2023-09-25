@@ -13,12 +13,12 @@ namespace SoowGoodWeb.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [IgnoreAntiforgeryToken]
-    public class PaymentServiceController : AbpController
+    public class PaymentController : AbpController
     {
         private readonly ISslCommerzService _sslCommerzAppService;
         private readonly SslCommerzGatewayConfiguration _configuration;
 
-        public PaymentServiceController(ISslCommerzService sslCommerzAppService,
+        public PaymentController(ISslCommerzService sslCommerzAppService,
                                     SslCommerzGatewayConfiguration configuration)
         {
             _sslCommerzAppService = sslCommerzAppService;
@@ -29,27 +29,27 @@ namespace SoowGoodWeb.Controllers
         /// SSLCOMMERZ LIVE
         /// </summary>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost]//, ActionName("PaymentSuccess")]
         [Route("/api/services/payment-success")]
-        public async Task<RedirectResult> SuccessPaymentAsync()
+        public async Task<IActionResult> SuccessPaymentAsync()
         {
             await CompletePaymentProcess();
 
             return new RedirectResult(_configuration.ProdSuccessClientUrl);
         }
 
-        [HttpPost]
+        [HttpPost]//, ActionName("PaymentFailed")]
         [Route("/api/services/payment-fail")]
-        public async Task<RedirectResult> FailedPaymentAsync()
+        public async Task<IActionResult> FailedPaymentAsync()
         {
             await UpdatePaymentHistory();
 
             return new RedirectResult(_configuration.ProdFailClientUrl);
         }
 
-        [HttpPost]
+        [HttpPost]//, ActionName("PaymentCancelled")]
         [Route("/api/services/payment-cancel")]
-        public async Task<RedirectResult> CancelledPaymentAsync()
+        public async Task<IActionResult> CancelledPaymentAsync()
         {
             await UpdatePaymentHistory();
 
@@ -63,27 +63,27 @@ namespace SoowGoodWeb.Controllers
         /// SSLCOMMERZ SANDBOX
         /// </summary>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost]//, ActionName("TestPaymentSuccess")]
         [Route("/api/services/test/payment-success")]
-        public async Task<RedirectResult> SuccessTestPaymentAsync()
+        public async Task<IActionResult> SuccessTestPaymentAsync()
         {
             await CompleteTestPaymentProcess();
 
             return new RedirectResult(_configuration.DevSuccessClientUrl);
         }
 
-        [HttpPost]
+        [HttpPost]//, ActionName("TestPaymentFailed")]
         [Route("/api/services/test/payment-fail")]
-        public async Task<RedirectResult> FailedTestPaymentAsync()
+        public async Task<IActionResult> FailedTestPaymentAsync()
         {
             await UpdatePaymentHistory();
 
             return new RedirectResult(_configuration.DevFailClientUrl);
         }
 
-        [HttpPost]
+        [HttpPost]//, ActionName("TestPaymentCancelled")]
         [Route("/api/services/test/payment-cancel")]
-        public async Task<RedirectResult> CancelledTestPaymentAsync()
+        public async Task<IActionResult> CancelledTestPaymentAsync()
         {
             await UpdatePaymentHistory();
 

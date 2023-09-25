@@ -9,9 +9,8 @@ using Volo.Abp.PermissionManagement;
 using SoowGoodWeb.Interfaces;
 using Newtonsoft.Json.Linq;
 using System.Net;
-using SoowGoodWeb;
 
-namespace Coppanet.SoowGood.Services
+namespace SoowGoodWeb.Services
 {
     public class SmsService : SoowGoodWebAppService, ISmsService
     {

@@ -74,6 +74,13 @@ namespace SoowGoodWeb.Services
             await _unitOfWorkManager.Current.SaveChangesAsync();                        
             return ObjectMapper.Map<AgentProfile, AgentProfileDto>(item);
         }
-        
+
+        public async Task<AgentProfileDto> GetlByUserNameAsync(string userName)
+        {
+            var item = await _agentProfileRepository.GetAsync(x => x.MobileNo == userName);
+
+            return ObjectMapper.Map<AgentProfile, AgentProfileDto>(item);
+        }
+
     }
 }
