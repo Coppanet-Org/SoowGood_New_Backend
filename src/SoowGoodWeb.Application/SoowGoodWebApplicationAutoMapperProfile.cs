@@ -80,6 +80,8 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<PatientProfileDto, PatientProfile>();
         CreateMap<PatientProfileInputDto, PatientProfile>();
 
+        //CreateMap<PatientProfileDto, PatientProfileInputDto>();
+
         CreateMap<DoctorChamber, DoctorChamberDto>();
         CreateMap<DoctorChamberDto, DoctorChamber>()
             .ForMember(d => d.DoctorProfile, o => o.Ignore());
