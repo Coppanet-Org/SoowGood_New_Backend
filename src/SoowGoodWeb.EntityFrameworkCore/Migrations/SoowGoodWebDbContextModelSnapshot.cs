@@ -106,6 +106,129 @@ namespace SoowGoodWeb.Migrations
                     b.ToTable("SgAgentProfiles");
                 });
 
+            modelBuilder.Entity("SoowGoodWeb.Models.Appointment", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal?>("AgentFee")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<string>("AppointmenCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("AppointmentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("AppointmentPaymentStatus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AppointmentSerial")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("AppointmentStatus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AppointmentTime")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("AppointmentType")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("CancelledByEntityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CancelledByRole")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ConsultancyType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<long?>("DoctorChamberId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("DoctorCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("DoctorFee")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<long?>("DoctorFeesSetupId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("DoctorName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("DoctorProfileId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DoctorScheduleDaySessionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DoctorScheduleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("PatientCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PatientName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("PatientProfileId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("PaymentTransactionId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("PlatformFee")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<string>("ScheduleDayofWeek")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("TotalAppointmentFee")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DoctorScheduleId");
+
+                    b.ToTable("SgAppointments");
+                });
+
             modelBuilder.Entity("SoowGoodWeb.Models.Degree", b =>
                 {
                     b.Property<long>("Id")
@@ -415,6 +538,9 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("DeletionTime");
 
+                    b.Property<string>("DoctorCode")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("DoctorTitle")
                         .HasColumnType("int");
 
@@ -545,6 +671,9 @@ namespace SoowGoodWeb.Migrations
 
                     b.Property<DateTime?>("OffDayTo")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("ScheduleName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("ScheduleType")
                         .HasColumnType("int");
@@ -856,6 +985,266 @@ namespace SoowGoodWeb.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SgOtps");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.PatientProfile", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Age")
+                        .HasColumnType("int");
+
+                    b.Property<string>("BloodGroup")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CratorCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<long?>("CreatorEntityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Gender")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<bool?>("IsSelf")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("MobileNo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PatientCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PatientEmail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PatientMobileNo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PatientName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ZipCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SgPatientProfiles");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.PaymentHistory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("APIConnect")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("account_details")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("amount")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("application_code")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("bank_tran_id")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("base_fair")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("card_brand")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("card_issuer")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("card_issuer_country")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("card_issuer_country_code")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("card_no")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("card_sub_brand")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("card_type")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("currency")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("currency_amount")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("currency_rate")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("currency_type")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("emi_amount")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("emi_description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("emi_instalment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("emi_issuer")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("error")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("failedreason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("gw_version")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("risk_level")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("risk_title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("sessionkey")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("store_amount")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("subscription_id")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("tran_date")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("tran_id")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("val_id")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("validated_on")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("value_a")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("value_b")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("value_c")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("value_d")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SgPaymentHistory");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Speciality", b =>
@@ -2617,6 +3006,15 @@ namespace SoowGoodWeb.Migrations
                     b.ToTable("AbpTenantConnectionStrings", (string)null);
                 });
 
+            modelBuilder.Entity("SoowGoodWeb.Models.Appointment", b =>
+                {
+                    b.HasOne("SoowGoodWeb.Models.DoctorSchedule", "DoctorSchedule")
+                        .WithMany("Appointments")
+                        .HasForeignKey("DoctorScheduleId");
+
+                    b.Navigation("DoctorSchedule");
+                });
+
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorChamber", b =>
                 {
                     b.HasOne("SoowGoodWeb.Models.DoctorProfile", "DoctorProfile")
@@ -2873,6 +3271,8 @@ namespace SoowGoodWeb.Migrations
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorSchedule", b =>
                 {
+                    b.Navigation("Appointments");
+
                     b.Navigation("DoctorFeesSetup");
 
                     b.Navigation("DoctorScheduleDaySession");

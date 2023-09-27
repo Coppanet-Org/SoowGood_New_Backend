@@ -8,20 +8,28 @@ using System.Threading.Tasks;
 using SoowGoodWeb.Enums;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Uow;
+using Volo.Abp.ObjectMapping;
 
 namespace SoowGoodWeb.Services
 {
     public class DoctorScheduleService : SoowGoodWebAppService, IDoctorScheduleService
     {
         private readonly IRepository<DoctorSchedule> _doctorScheduleRepository;
+        private readonly IRepository<DoctorChamber> _doctorChamberRepository;
         private readonly IRepository<DoctorScheduleDaySession> _doctorScheduleSessionRepository;
+        private readonly IRepository<Appointment> _appointmentRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
 
-        public DoctorScheduleService(IRepository<DoctorSchedule> doctorScheduleRepository,
-            IRepository<DoctorScheduleDaySession> doctorScheduleSessionRepository, IUnitOfWorkManager unitOfWorkManager)
+        public DoctorScheduleService(IRepository<DoctorSchedule> doctorScheduleRepository, 
+            IRepository<DoctorChamber> doctorChamberRepository,
+            IRepository<DoctorScheduleDaySession> doctorScheduleSessionRepository, 
+            IRepository<Appointment> appointmentRepository,
+            IUnitOfWorkManager unitOfWorkManager)
         {
             _doctorScheduleRepository = doctorScheduleRepository;
+            _doctorChamberRepository = doctorChamberRepository;
             _doctorScheduleSessionRepository = doctorScheduleSessionRepository;
+            _appointmentRepository = appointmentRepository;
             _unitOfWorkManager = unitOfWorkManager;
         }
 
@@ -33,6 +41,17 @@ namespace SoowGoodWeb.Services
             {
                 if (input.Id == 0)
                 {
+                    //input.ScheduleName = input.cham;
+                    if(input.DoctorChamberId == 0)
+                    {
+                        input.DoctorChamberId = null;
+                        input.ScheduleName = ((ConsultancyType)input?.ConsultancyType!).ToString();
+                    }
+                    else
+                    {
+                        var chName = _doctorChamberRepository.FirstOrDefaultAsync(c => c.Id == input.DoctorChamberId);
+                        input.ScheduleName= ((ConsultancyType)input?.ConsultancyType!).ToString() + '_' + chName.Result?.ChamberName?.ToString();
+                    }
                     var newEntity = ObjectMapper.Map<DoctorScheduleInputDto, DoctorSchedule>(input);
 
                     var doctorSchedule = await _doctorScheduleRepository.InsertAsync(newEntity);
@@ -118,6 +137,16 @@ namespace SoowGoodWeb.Services
             var response = new ResponseDto();
             try
             {
+                if (input.DoctorChamberId == 0)
+                {
+                    input.DoctorChamberId = null;
+                    input.ScheduleName = ((ConsultancyType)input?.ConsultancyType!).ToString();
+                }
+                else
+                {
+                    var chName = _doctorChamberRepository.FirstOrDefaultAsync(c => c.Id == input.DoctorChamberId);
+                    input.ScheduleName = ((ConsultancyType)input?.ConsultancyType!).ToString() + '_' + chName.Result?.ChamberName?.ToString();
+                }
                 var updateItem = ObjectMapper.Map<DoctorScheduleInputDto, DoctorSchedule>(input);
                 var item = await _doctorScheduleRepository.UpdateAsync(updateItem);
                 await _unitOfWorkManager.Current.SaveChangesAsync();
@@ -300,14 +329,65 @@ namespace SoowGoodWeb.Services
                 result.Add(new DoctorScheduleDto()
                 {
                     Id = schedule.Id,
-                    ScheduleName = ((ConsultancyType)schedule?.ConsultancyType!).ToString()
-                                     + "_" + (schedule?.DoctorChamberId > 0 ? schedule.DoctorChamber?.ChamberName : "")
+                    ScheduleName = schedule.ScheduleName //((ConsultancyType)schedule?.ConsultancyType!).ToString() + "_" + (schedule?.DoctorChamberId > 0 ? schedule.DoctorChamber?.ChamberName : "")
                 });
             }
 
             return result; // ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(schedules);
         }
 
+        public async Task<List<DoctorScheduleDto>?> GetDetailsScheduleListByDoctorIdAsync(long doctorId)
+        {
+            List<DoctorScheduleDto>? result = null;
+            var allSchedule =
+                await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile, s => s.DoctorScheduleDaySession, c => c.DoctorChamber, f => f.DoctorFeesSetup, a=>a.Appointments);
+            var item = allSchedule.Where(s => s.DoctorProfileId == doctorId).ToList();
+            if (!item.Any())
+            {
+                return result; // ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(schedules);
+            }
+            try
+            {
+                result = ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(item);
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return result;
+            //return ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(item);
+            //result = new List<DoctorScheduleDto>();
+            //foreach (var schedule in item)
+            //{
+            //    result.Add(new DoctorScheduleDto()
+            //    {
+            //        Id = schedule.Id,
+            //        DoctorProfileId = schedule.DoctorProfileId,
+            //        DoctorName = schedule.DoctorProfileId > 0 ? schedule.DoctorProfile?.FullName : "",
+            //        DoctorChamberId = schedule.DoctorChamberId,
+            //        Chamber = schedule.DoctorChamberId > 0 ? schedule.DoctorChamber?.ChamberName : "N/A",
+            //        ConsultancyType = schedule.ConsultancyType,
+            //        ConsultancyTypeName = schedule.ConsultancyType > 0
+            //            ? ((ConsultancyType)schedule.ConsultancyType).ToString()
+            //            : "N/A",
+            //        ScheduleType = schedule.ScheduleType,
+            //        ScheduleTypeName = schedule.ScheduleType > 0
+            //            ? ((ScheduleType)schedule.ScheduleType).ToString()
+            //            : "N/A",
+            //        IsActive = schedule.IsActive,
+            //        Status = schedule.IsActive == true ? "Open" : "Close",
+            //        OffDayFrom = schedule.IsActive == false ? schedule.OffDayFrom : null,
+            //        OffDayTo = schedule.IsActive == false ? schedule.OffDayTo : null,
+            //        Remarks = schedule.IsActive == false
+            //            ? ("Chamber is closed from " + schedule.OffDayFrom.ToString() + " to" +
+            //               schedule.OffDayFrom.ToString())
+            //            : "Chamber is Open"
+            //    });
+            //}
+
+            //return result; // ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(schedules);
+        }
+        
         //public async Task<ResponseDto> CreateSessionAsync(DoctorScheduleDaySessionInputDto inputDto)
         //{
         //    var response = new ResponseDto();

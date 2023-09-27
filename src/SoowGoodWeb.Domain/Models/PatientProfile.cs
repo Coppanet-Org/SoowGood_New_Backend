@@ -13,6 +13,7 @@ namespace SoowGoodWeb.Models
         public string? FullName { get; set; }
         public bool? IsSelf { get; set; }
         public string? PatientName { get; set; }
+        public string? PatientCode { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public int? Age { get; set; }
         public Gender? Gender { get; set; }
@@ -22,12 +23,12 @@ namespace SoowGoodWeb.Models
         public string? ZipCode { get; set; }
         public string? Country { get; set; }
         public string? MobileNo { get; set; }
+        public string? PatientMobileNo { get; set; }
         public string? Email { get; set; }
-        public string? AgentCode { get; set; }
+        public string? PatientEmail { get; set; }
+        public string? CreatedBy { get; set; }
+        public string? CratorCode { get; set; }
+        public long? CreatorEntityId { get; set; }
         public Guid? UserId { get; set; }
-        public bool? IsOnline { get; set; }
-        public int? profileStep { get; set; }
-        public string? createFrom { get; set; }
-
     }
 }

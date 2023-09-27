@@ -10,6 +10,7 @@ namespace SoowGoodWeb.Models
 {
     public class DoctorSchedule : FullAuditedEntity<long>
     {
+        public string? ScheduleName { get;set; }
         public long? DoctorProfileId { get; set; }
         public DoctorProfile? DoctorProfile { get; set; }             
         public ScheduleType? ScheduleType { get; set; }
@@ -21,5 +22,6 @@ namespace SoowGoodWeb.Models
         public DateTime? OffDayTo { get;set; }
         public List<DoctorScheduleDaySession>? DoctorScheduleDaySession { get; set; }
         public List<DoctorFeesSetup>? DoctorFeesSetup { get; set; }
+        public List<Appointment>? Appointments { get; set; }
     }
 }

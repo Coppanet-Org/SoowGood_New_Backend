@@ -2,6 +2,7 @@
 using SoowGoodWeb.DtoModels;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Models;
+//using SoowGoodWeb.PaymentsModels.PaymentHistory;
 using Volo.Abp.Identity;
 
 namespace SoowGoodWeb;
@@ -75,6 +76,11 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<AgentProfileDto, AgentProfile>();
         CreateMap<AgentProfileInputDto, AgentProfile>();
 
+        CreateMap<PatientProfile, PatientProfileDto>().ForMember(p => p.GenderName, o => o.MapFrom(n => n.Gender > 0 ? n.Gender : 0));
+        CreateMap<PatientProfileDto, PatientProfile>();
+        CreateMap<PatientProfileInputDto, PatientProfile>();
+
+        //CreateMap<PatientProfileDto, PatientProfileInputDto>();
 
         CreateMap<DoctorChamber, DoctorChamberDto>();
         CreateMap<DoctorChamberDto, DoctorChamber>()
@@ -95,7 +101,8 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
             .ForMember(d => d.DoctorProfile, o => o.Ignore())
             .ForMember(d => d.DoctorChamber, o => o.Ignore())
             .ForMember(d => d.DoctorScheduleDaySession, o => o.Ignore())
-            .ForMember(d => d.DoctorFeesSetup, o => o.Ignore());
+            .ForMember(d => d.DoctorFeesSetup, o => o.Ignore())
+            .ForMember(d => d.Appointments, o => o.Ignore());
         CreateMap<DoctorScheduleInputDto, DoctorSchedule>()
             .ForMember(d => d.DoctorProfile, o => o.Ignore())
             .ForMember(d => d.DoctorChamber, o => o.Ignore());
@@ -112,5 +119,18 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
             .ForMember(d => d.DoctorSchedule, o => o.Ignore());
         CreateMap<DoctorFeesSetupInputDto, DoctorFeesSetup>()
             .ForMember(d => d.DoctorSchedule, o => o.Ignore());
+
+        CreateMap<Appointment, AppointmentDto>()
+            .ForMember(d => d.ConsultancyTypeName, o => o.MapFrom(e => (e.ConsultancyType > 0 && e.ConsultancyType != null) ? e.ConsultancyType : 0))
+            .ForMember(d => d.AppointmentTypeName, o => o.MapFrom(e => (e.AppointmentType > 0 && e.AppointmentType != null) ? e.AppointmentType : 0))
+            .ForMember(d => d.AppointmentStatus, o => o.MapFrom(e => (e.AppointmentStatus > 0 && e.AppointmentStatus != null) ? e.AppointmentStatus : 0))
+            .ForMember(d => d.AppointmentPaymentStatus, o => o.MapFrom(e => (e.AppointmentPaymentStatus > 0 && e.AppointmentPaymentStatus != null) ? e.AppointmentPaymentStatus : 0));
+        CreateMap<AppointmentDto, Appointment>()
+            .ForMember(d => d.DoctorSchedule, o => o.Ignore());
+        CreateMap<AppointmentInputDto, Appointment>();
+
+        CreateMap<PaymentHistory, PaymentHistoryDto>();
+        CreateMap<PaymentHistoryDto, PaymentHistory>();
+        CreateMap<PaymentHistoryInputDto, PaymentHistory>();
     }
 }

@@ -28,6 +28,7 @@ namespace SoowGoodWeb.DtoModels
         public string? Remarks { get; set; }
         public List<DoctorScheduleDaySessionDto>? DoctorScheduleDaySession { get; set; }
         public List<DoctorFeesSetupDto>? DoctorFeesSetup { get; set; }
+        public List<AppointmentDto>? Appointments { get; set; }
         public string? ScheduleName { get; set; }
     }
 }
