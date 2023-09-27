@@ -39,7 +39,7 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<PatientProfile, PatientProfileDto>(patientProfile);
         }
 
-        public async Task<PatientProfileDto> GetAsync(int id)
+        public async Task<PatientProfileDto> GetAsync(long id)
         {
             var item = await _patientProfileRepository.GetAsync(x => x.Id == id);
 
@@ -71,7 +71,18 @@ namespace SoowGoodWeb.Services
 
         public async Task<PatientProfileDto> UpdateAsync(PatientProfileInputDto input)
         {
-            var updateItem = ObjectMapper.Map<PatientProfileInputDto, PatientProfile>(input);
+            
+            var itemP = GetAsync(input.Id);
+
+            var upItemP = ObjectMapper.Map(itemP, input);
+
+            //input.FullName = itemP.FullName;
+            //input.IsSelf = itemP.IsSelf;
+            //input.
+
+
+
+            var updateItem = ObjectMapper.Map<PatientProfileInputDto, PatientProfile>(upItemP);
 
             var item = await _patientProfileRepository.UpdateAsync(updateItem);
             await _unitOfWorkManager.Current.SaveChangesAsync();
