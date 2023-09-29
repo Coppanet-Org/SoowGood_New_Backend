@@ -79,55 +79,55 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
         var configurationSection = _configuration.GetSection("OpenIddict:Applications");
 
         //Web Client
-        var webClientId = configurationSection["SoowGoodWeb_Web:ClientId"];
-        if (!webClientId.IsNullOrWhiteSpace())
-        {
-            var webClientRootUrl = configurationSection["SoowGoodWeb_Web:RootUrl"].EnsureEndsWith('/');
+        //var webClientId = configurationSection["SoowGoodWeb_Web:ClientId"];
+        //if (!webClientId.IsNullOrWhiteSpace())
+        //{
+        //    var webClientRootUrl = configurationSection["SoowGoodWeb_Web:RootUrl"].EnsureEndsWith('/');
 
-            /* SoowGoodWeb_Web client is only needed if you created a tiered
-             * solution. Otherwise, you can delete this client. */
-            await CreateApplicationAsync(
-                name: webClientId!,
-                type: OpenIddictConstants.ClientTypes.Confidential,
-                consentType: OpenIddictConstants.ConsentTypes.Implicit,
-                displayName: "Web Application",
-                secret: configurationSection["SoowGoodWeb_Web:ClientSecret"] ?? "1q2w3e*",
-                grantTypes: new List<string> //Hybrid flow
-                {
-                    OpenIddictConstants.GrantTypes.AuthorizationCode,
-                    OpenIddictConstants.GrantTypes.Implicit
-                },
-                scopes: commonScopes,
-                redirectUri: $"{webClientRootUrl}signin-oidc",
-                clientUri: webClientRootUrl,
-                postLogoutRedirectUri: $"{webClientRootUrl}signout-callback-oidc"
-            );
-        }
+        //    /* SoowGoodWeb_Web client is only needed if you created a tiered
+        //     * solution. Otherwise, you can delete this client. */
+        //    await CreateApplicationAsync(
+        //        name: webClientId!,
+        //        type: OpenIddictConstants.ClientTypes.Confidential,
+        //        consentType: OpenIddictConstants.ConsentTypes.Implicit,
+        //        displayName: "Web Application",
+        //        secret: configurationSection["SoowGoodWeb_Web:ClientSecret"] ?? "1q2w3e*",
+        //        grantTypes: new List<string> //Hybrid flow
+        //        {
+        //            OpenIddictConstants.GrantTypes.AuthorizationCode,
+        //            OpenIddictConstants.GrantTypes.Implicit
+        //        },
+        //        scopes: commonScopes,
+        //        redirectUri: $"{webClientRootUrl}signin-oidc",
+        //        clientUri: webClientRootUrl,
+        //        postLogoutRedirectUri: $"{webClientRootUrl}signout-callback-oidc"
+        //    );
+        //}
 
-        //Admin Client
-        var adminClientId = configurationSection["SoowGoodWebAdmin_App:ClientId"];
-        if (!adminClientId.IsNullOrWhiteSpace())
-        {
-            var adminClientRootUrl = configurationSection["SoowGoodWebAdmin_App:RootUrl"]?.TrimEnd('/');
-            await CreateApplicationAsync(
-                name: adminClientId!,
-                type: OpenIddictConstants.ClientTypes.Public,
-                consentType: OpenIddictConstants.ConsentTypes.Implicit,
-                displayName: "Super Admin Web Application",
-                secret: null,
-                grantTypes: new List<string>
-                {
-                    OpenIddictConstants.GrantTypes.AuthorizationCode,
-                    OpenIddictConstants.GrantTypes.Password,
-                    OpenIddictConstants.GrantTypes.ClientCredentials,
-                    OpenIddictConstants.GrantTypes.RefreshToken
-                },
-                scopes: commonScopes,
-                redirectUri: adminClientRootUrl,
-                clientUri: adminClientRootUrl,
-                postLogoutRedirectUri: adminClientRootUrl
-            );
-        }
+        ////Admin Client
+        //var adminClientId = configurationSection["SoowGoodWebAdmin_App:ClientId"];
+        //if (!adminClientId.IsNullOrWhiteSpace())
+        //{
+        //    var adminClientRootUrl = configurationSection["SoowGoodWebAdmin_App:RootUrl"]?.TrimEnd('/');
+        //    await CreateApplicationAsync(
+        //        name: adminClientId!,
+        //        type: OpenIddictConstants.ClientTypes.Public,
+        //        consentType: OpenIddictConstants.ConsentTypes.Implicit,
+        //        displayName: "Super Admin Web Application",
+        //        secret: null,
+        //        grantTypes: new List<string>
+        //        {
+        //            OpenIddictConstants.GrantTypes.AuthorizationCode,
+        //            OpenIddictConstants.GrantTypes.Password,
+        //            OpenIddictConstants.GrantTypes.ClientCredentials,
+        //            OpenIddictConstants.GrantTypes.RefreshToken
+        //        },
+        //        scopes: commonScopes,
+        //        redirectUri: adminClientRootUrl,
+        //        clientUri: adminClientRootUrl,
+        //        postLogoutRedirectUri: adminClientRootUrl
+        //    );
+        //}
 
         //Console Test / Angular Client
         var consoleAndAngularClientId = configurationSection["SoowGoodWeb_App:ClientId"];
@@ -154,76 +154,76 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
             );
         }
         //Emulator Test / Mobile Client
-        var emulatorClientId = configurationSection["SoowGoodMobile_App:ClientId"];
-        if (!emulatorClientId.IsNullOrWhiteSpace())
-        {
-            var emulatorClientRootUrl = configurationSection["SoowGoodMobile_App:RootUrl"]?.TrimEnd('/');
-            await CreateApplicationAsync(
-                name: emulatorClientId!,
-                type: OpenIddictConstants.ClientTypes.Public,
-                consentType: OpenIddictConstants.ConsentTypes.Implicit,
-                displayName: "Mobile Application",
-                secret: null,
-                grantTypes: new List<string>
-                {
-                    OpenIddictConstants.GrantTypes.AuthorizationCode,
-                    OpenIddictConstants.GrantTypes.Password,
-                    OpenIddictConstants.GrantTypes.ClientCredentials,
-                    OpenIddictConstants.GrantTypes.RefreshToken
-                },
-                scopes: commonScopes,
-                redirectUri: emulatorClientRootUrl,
-                clientUri: emulatorClientRootUrl,
-                postLogoutRedirectUri: emulatorClientRootUrl
-            );
-        }
+        //var emulatorClientId = configurationSection["SoowGoodMobile_App:ClientId"];
+        //if (!emulatorClientId.IsNullOrWhiteSpace())
+        //{
+        //    var emulatorClientRootUrl = configurationSection["SoowGoodMobile_App:RootUrl"]?.TrimEnd('/');
+        //    await CreateApplicationAsync(
+        //        name: emulatorClientId!,
+        //        type: OpenIddictConstants.ClientTypes.Public,
+        //        consentType: OpenIddictConstants.ConsentTypes.Implicit,
+        //        displayName: "Mobile Application",
+        //        secret: null,
+        //        grantTypes: new List<string>
+        //        {
+        //            OpenIddictConstants.GrantTypes.AuthorizationCode,
+        //            OpenIddictConstants.GrantTypes.Password,
+        //            OpenIddictConstants.GrantTypes.ClientCredentials,
+        //            OpenIddictConstants.GrantTypes.RefreshToken
+        //        },
+        //        scopes: commonScopes,
+        //        redirectUri: emulatorClientRootUrl,
+        //        clientUri: emulatorClientRootUrl,
+        //        postLogoutRedirectUri: emulatorClientRootUrl
+        //    );
+        //}
 
-        // Blazor Client
-        var blazorClientId = configurationSection["SoowGoodWeb_Blazor:ClientId"];
-        if (!blazorClientId.IsNullOrWhiteSpace())
-        {
-            var blazorRootUrl = configurationSection["SoowGoodWeb_Blazor:RootUrl"]?.TrimEnd('/');
+        //// Blazor Client
+        //var blazorClientId = configurationSection["SoowGoodWeb_Blazor:ClientId"];
+        //if (!blazorClientId.IsNullOrWhiteSpace())
+        //{
+        //    var blazorRootUrl = configurationSection["SoowGoodWeb_Blazor:RootUrl"]?.TrimEnd('/');
 
-            await CreateApplicationAsync(
-                name: blazorClientId!,
-                type: OpenIddictConstants.ClientTypes.Public,
-                consentType: OpenIddictConstants.ConsentTypes.Implicit,
-                displayName: "Blazor Application",
-                secret: null,
-                grantTypes: new List<string>
-                {
-                    OpenIddictConstants.GrantTypes.AuthorizationCode,
-                },
-                scopes: commonScopes,
-                redirectUri: $"{blazorRootUrl}/authentication/login-callback",
-                clientUri: blazorRootUrl,
-                postLogoutRedirectUri: $"{blazorRootUrl}/authentication/logout-callback"
-            );
-        }
+        //    await CreateApplicationAsync(
+        //        name: blazorClientId!,
+        //        type: OpenIddictConstants.ClientTypes.Public,
+        //        consentType: OpenIddictConstants.ConsentTypes.Implicit,
+        //        displayName: "Blazor Application",
+        //        secret: null,
+        //        grantTypes: new List<string>
+        //        {
+        //            OpenIddictConstants.GrantTypes.AuthorizationCode,
+        //        },
+        //        scopes: commonScopes,
+        //        redirectUri: $"{blazorRootUrl}/authentication/login-callback",
+        //        clientUri: blazorRootUrl,
+        //        postLogoutRedirectUri: $"{blazorRootUrl}/authentication/logout-callback"
+        //    );
+        //}
 
-        // Blazor Server Tiered Client
-        var blazorServerTieredClientId = configurationSection["SoowGoodWeb_BlazorServerTiered:ClientId"];
-        if (!blazorServerTieredClientId.IsNullOrWhiteSpace())
-        {
-            var blazorServerTieredRootUrl = configurationSection["SoowGoodWeb_BlazorServerTiered:RootUrl"].EnsureEndsWith('/');
+        //// Blazor Server Tiered Client
+        //var blazorServerTieredClientId = configurationSection["SoowGoodWeb_BlazorServerTiered:ClientId"];
+        //if (!blazorServerTieredClientId.IsNullOrWhiteSpace())
+        //{
+        //    var blazorServerTieredRootUrl = configurationSection["SoowGoodWeb_BlazorServerTiered:RootUrl"].EnsureEndsWith('/');
 
-            await CreateApplicationAsync(
-                name: blazorServerTieredClientId!,
-                type: OpenIddictConstants.ClientTypes.Confidential,
-                consentType: OpenIddictConstants.ConsentTypes.Implicit,
-                displayName: "Blazor Server Application",
-                secret: configurationSection["SoowGoodWeb_BlazorServerTiered:ClientSecret"] ?? "1q2w3e*",
-                grantTypes: new List<string> //Hybrid flow
-                {
-                    OpenIddictConstants.GrantTypes.AuthorizationCode,
-                    OpenIddictConstants.GrantTypes.Implicit
-                },
-                scopes: commonScopes,
-                redirectUri: $"{blazorServerTieredRootUrl}signin-oidc",
-                clientUri: blazorServerTieredRootUrl,
-                postLogoutRedirectUri: $"{blazorServerTieredRootUrl}signout-callback-oidc"
-            );
-        }
+        //    await CreateApplicationAsync(
+        //        name: blazorServerTieredClientId!,
+        //        type: OpenIddictConstants.ClientTypes.Confidential,
+        //        consentType: OpenIddictConstants.ConsentTypes.Implicit,
+        //        displayName: "Blazor Server Application",
+        //        secret: configurationSection["SoowGoodWeb_BlazorServerTiered:ClientSecret"] ?? "1q2w3e*",
+        //        grantTypes: new List<string> //Hybrid flow
+        //        {
+        //            OpenIddictConstants.GrantTypes.AuthorizationCode,
+        //            OpenIddictConstants.GrantTypes.Implicit
+        //        },
+        //        scopes: commonScopes,
+        //        redirectUri: $"{blazorServerTieredRootUrl}signin-oidc",
+        //        clientUri: blazorServerTieredRootUrl,
+        //        postLogoutRedirectUri: $"{blazorServerTieredRootUrl}signout-callback-oidc"
+        //    );
+        //}
 
         // Swagger Client
         var swaggerClientId = configurationSection["SoowGoodWeb_Swagger:ClientId"];

@@ -28,53 +28,73 @@ using Volo.Abp.Modularity;
 using Volo.Abp.Swashbuckle;
 using Volo.Abp.UI.Navigation.Urls;
 using Volo.Abp.VirtualFileSystem;
+using Volo.Abp.Caching.StackExchangeRedis;
+using Volo.Abp.OpenIddict;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.DataProtection;
+using StackExchange.Redis;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace SoowGoodWeb;
 
 [DependsOn(
     typeof(SoowGoodWebHttpApiModule),
     typeof(AbpAutofacModule),
+    typeof(AbpCachingStackExchangeRedisModule),
     typeof(AbpAspNetCoreMultiTenancyModule),
     typeof(SoowGoodWebApplicationModule),
     typeof(SoowGoodWebEntityFrameworkCoreModule),
     typeof(AbpAspNetCoreMvcUiBasicThemeModule),
-    typeof(AbpAccountWebOpenIddictModule),
+    //typeof(AbpAccountWebOpenIddictModule),
     typeof(AbpAspNetCoreSerilogModule),
     typeof(AbpSwashbuckleModule)
 )]
 public class SoowGoodWebHttpApiHostModule : AbpModule
 {
-    public override void PreConfigureServices(ServiceConfigurationContext context)
-    {
-        PreConfigure<OpenIddictBuilder>(builder =>
-        {
-            builder.AddValidation(options =>
-            {
-                options.AddAudiences("SoowGoodWeb");
-                options.UseLocalServer();
-                options.UseAspNetCore();
-            });
-        });
-    }
+    //public override void PreConfigureServices(ServiceConfigurationContext context)
+    //{
+    //    PreConfigure<OpenIddictBuilder>(builder =>
+    //    {
+    //        builder.AddValidation(options =>
+    //        {
+    //            options.AddAudiences("SoowGoodWeb");
+    //            options.UseLocalServer();
+    //            options.UseAspNetCore();
+    //        });
+    //    });
+    //}
+    
 
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
         var configuration = context.Services.GetConfiguration();
         var hostingEnvironment = context.Services.GetHostingEnvironment();
 
-        ConfigureAuthentication(context);
+        ConfigureAuthentication(context, configuration);
         ConfigureBundles();
         ConfigureUrls(configuration);
         ConfigureConventionalControllers();
         ConfigureVirtualFileSystem(context);
+        ConfigureDataProtection(context, configuration, hostingEnvironment);
         ConfigureCors(context, configuration);
         ConfigureSwaggerServices(context, configuration);
     }
 
-    private void ConfigureAuthentication(ServiceConfigurationContext context)
+    private void ConfigureAuthentication(ServiceConfigurationContext context, IConfiguration configuration)
     {
-        context.Services.ForwardIdentityAuthenticationForBearer(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+        context.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.Authority = configuration["AuthServer:Authority"];
+                options.RequireHttpsMetadata = Convert.ToBoolean(configuration["AuthServer:RequireHttpsMetadata"]);
+                options.Audience = "SoowGoodWeb";
+            });
     }
+
+    //private void ConfigureAuthentication(ServiceConfigurationContext context)
+    //{
+    //    context.Services.ForwardIdentityAuthenticationForBearer(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+    //}
 
     private void ConfigureBundles()
     {
@@ -150,6 +170,19 @@ public class SoowGoodWebHttpApiHostModule : AbpModule
             });
     }
 
+    private void ConfigureDataProtection(
+        ServiceConfigurationContext context,
+        IConfiguration configuration,
+        IWebHostEnvironment hostingEnvironment)
+    {
+        var dataProtectionBuilder = context.Services.AddDataProtection().SetApplicationName("SoowGoodWeb");
+        if (!hostingEnvironment.IsDevelopment())
+        {
+            var redis = ConnectionMultiplexer.Connect(configuration["Redis:Configuration"]);
+            //dataProtectionBuilder.PersistKeysToStackExchangeRedis(redis, "SoowGoodWeb-Protection-Keys");
+        }
+    }
+
     private void ConfigureCors(ServiceConfigurationContext context, IConfiguration configuration)
     {
         context.Services.AddCors(options =>
@@ -192,7 +225,7 @@ public class SoowGoodWebHttpApiHostModule : AbpModule
         app.UseRouting();
         app.UseCors();
         app.UseAuthentication();
-        app.UseAbpOpenIddictValidation();
+        //app.UseAbpOpenIddictValidation();
 
         if (MultiTenancyConsts.IsEnabled)
         {
