@@ -2,8 +2,8 @@
 {
     public static class PermissionHelper
     {
-        public static readonly string _authority = "https://localhost:44380";
-        public static readonly string _identityClientUrl = "https://localhost:44392";
+        public static readonly string _authority = "https://198.38.92.117";
+        public static readonly string _identityClientUrl = "https://198.38.92.117:8443";
         //public static readonly string _authorityDev = "https://localhost:44380";
         //public static readonly string _identityClientUrl = "http://idapi.mis1pwd.com";
         //public static readonly string _identityClientUrlDev = "https://localhost:44392";
