@@ -17,6 +17,9 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using static Volo.Abp.Identity.Settings.IdentitySettingNames;
+using System.Linq;
+using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace SoowGoodWeb.Services
 {
@@ -27,9 +30,9 @@ namespace SoowGoodWeb.Services
         string authUrl = PermissionHelper._authority;
 
         private readonly IdentityUserManager _userManager;
-        private readonly IdentityRoleManager _roleManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly IRepository<DoctorProfile> _doctorProfileRepository;
+        //private readonly IdentityRoleManager _roleManager;
+        //private readonly SignInManager<IdentityUser> _signInManager;
+        //private readonly IRepository<DoctorProfile> _doctorProfileRepository;
 
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         //private readonly DoctorProfileService _doctorProfileservice;
@@ -37,20 +40,239 @@ namespace SoowGoodWeb.Services
         private readonly IEmailSender _emailSender;
 
         public UserAccountsService(IdentityUserManager userManager,
-                                   IdentityRoleManager roleManager,
-                                   SignInManager<IdentityUser> signInManager,
-                                   IRepository<DoctorProfile> doctorProfileRepository,
+                                   //IdentityRoleManager roleManager,
+                                   //SignInManager<IdentityUser> signInManager,
+                                   //IRepository<DoctorProfile> doctorProfileRepository,
                                    IUnitOfWorkManager unitOfWorkManager,
                                    IEmailSender emailSender)
         {
             _userManager = userManager;
-            _roleManager = roleManager;
-            _signInManager = signInManager;
-            _doctorProfileRepository = doctorProfileRepository;
+            //_roleManager = roleManager;
+            //_signInManager = signInManager;
+            //_doctorProfileRepository = doctorProfileRepository;
             _unitOfWorkManager = unitOfWorkManager;
             _emailSender = emailSender;
             //_doctorProfileservice = new DoctorProfileService(_doctorProfileRepository, _unitOfWorkManager);
         }
+        private async Task<TokenResponse> GetToken()
+        {
+            var authorityUrl = $"{PermissionHelper._authority}";
+
+            var authority = new HttpClient();
+            var discoveryDocument = await authority.GetDiscoveryDocumentAsync(authorityUrl);
+            if (discoveryDocument.IsError)
+            {
+                //return null;
+            }
+
+            // Request Token
+            var tokenResponse = await authority.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            {
+                Address = discoveryDocument.TokenEndpoint,
+                ClientId = PermissionHelper._clientId,
+                ClientSecret = PermissionHelper._clientSecret,
+                Scope = PermissionHelper._scope
+            });
+
+            if (tokenResponse.IsError)
+            {
+                //return null;
+            }
+            return tokenResponse;
+        }
+
+        [AllowAnonymous]
+        public async Task<bool> RefreshAccessToken(IdentityUser user)
+        {
+            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    await _userManager.RemoveAuthenticationTokenAsync(user, "SoowGoodWeb", "RefreshToken");
+                    var newRefreshToken = await _userManager.GenerateUserTokenAsync(user, "SoowGoodWeb", "RefreshToken");
+                    var result = await _userManager.SetAuthenticationTokenAsync(user, "SoowGoodWeb", "RefreshToken", newRefreshToken);
+
+                    scope.Complete();
+                    return result.Succeeded;
+
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+            }
+        }
+        public async Task<LoginResponseDto> Login(LoginDto userDto)
+        {
+            LoginResponseDto result = new LoginResponseDto();
+            using (var client = new HttpClient())
+            {
+                var tokenResponse = await GetToken();
+                client.BaseAddress = new Uri(authClientUrl);
+                client.SetBearerToken(tokenResponse.AccessToken);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+
+                var update = JsonSerializer.Serialize(userDto);
+                var requestContent = new StringContent(update, Encoding.UTF8, "application/json");
+                HttpResponseMessage response =
+                    await client.PostAsync(($"api/app/account/login"), requestContent);
+                if (response.IsSuccessStatusCode)
+                {
+                    var newUserString = await response.Content.ReadAsStringAsync();
+                    var newUser = JsonConvert.DeserializeObject<LoginResponseDto>(newUserString);
+
+                    result = new LoginResponseDto()
+                    {
+                        UserId = newUser?.UserId,
+                        UserName = newUser?.UserName,
+                        RoleName=newUser?.RoleName,
+                        Success = newUser.Success,
+                        Message = newUser.Message,
+
+                    };
+                    return result;
+                }
+                return result;
+                //var user = await _userManager.FindByNameAsync(userDto.UserName);
+                //LoginResponseDto loginInfo = new LoginResponseDto();
+                //loginInfo.RoleName = new List<string>();
+                //if (user != null)
+                //{
+                //    var userole = await _userManager.GetRolesAsync(user); //_roleManager.GetRolesAsync(user);
+
+                //    var res = await _signInManager.PasswordSignInAsync(user.UserName, userDto.password, userDto.RememberMe, lockoutOnFailure: false);
+                //    if (res.Succeeded)
+                //    {
+                //        loginInfo.UserId = user.Id;
+                //        loginInfo.UserName = user.UserName;
+                //        foreach (string r in userole)
+                //        {
+                //            loginInfo.RoleName.Add(r);
+                //        }
+                //        loginInfo.Success = true;
+                //        loginInfo.Message = "User Exists! Login Successful!";
+                //        return loginInfo;
+                //    }
+                //    else
+                //    {
+                //        loginInfo.UserId = null;
+                //        loginInfo.UserName = "";
+                //        loginInfo.Success = false;
+                //        loginInfo.Message = "User Name Or Password is not correct !";
+                //        return loginInfo;
+                //    }
+                //}
+                //else
+                //{
+                //    loginInfo.UserId = null;
+                //    loginInfo.UserName = "";
+                //    loginInfo.Success = false;
+                //    loginInfo.Message = "User not exists! Please sign up as new user";
+                //    return loginInfo;
+                //}
+            }
+            
+        }
+
+
+        [AllowAnonymous]
+        public virtual async Task<UserSignUpResultDto> SignupUser(UserInfoDto userDto, string password, string role)
+        {
+            UserSignUpResultDto result = new UserSignUpResultDto();
+            using (var client = new HttpClient())
+            {
+                var tokenResponse = await GetToken();
+                client.BaseAddress = new Uri(authClientUrl);
+                client.SetBearerToken(tokenResponse.AccessToken);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                //GET Method
+
+                var update = JsonSerializer.Serialize(userDto);
+                var requestContent = new StringContent(update, Encoding.UTF8, "application/json");
+                HttpResponseMessage response =
+                    await client.PostAsync(($"api/app/account/sign-up?password={password}&role={role}"), requestContent);
+                if (response.IsSuccessStatusCode)
+                {
+                    var newUserString = await response.Content.ReadAsStringAsync();
+                    var newUser = JsonConvert.DeserializeObject<UserSignUpResultDto>(newUserString);
+
+                    result = new UserSignUpResultDto()
+                    {
+                        UserId = newUser?.UserId,
+                        UserName = newUser?.UserName,
+                        Name = newUser?.Name,
+                        Email = newUser?.Email,
+                        PhoneNumber = newUser?.PhoneNumber,
+                        Success = newUser?.Success,
+                        Message = newUser.Message.ToList(),
+
+                    };
+                    return result;
+
+                }
+            }
+            return result;
+        }
+
+
+        //[AllowAnonymous]
+        //public async Task<string> Register(UserRegInfoDto user)
+        //{
+
+        //    using (var client = new HttpClient())
+        //    {
+        //        var tokenResponse = await GetToken();
+        //        client.BaseAddress = new Uri(authClientUrl);
+        //        client.SetBearerToken(tokenResponse.AccessToken);
+        //        client.DefaultRequestHeaders.Accept.Clear();
+        //        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        //        var obj = new
+        //        {
+
+        //            userName = user.UserName,
+        //            name = user.Name,
+        //            surname = user.Surname,
+        //            email = user.Email,
+        //            phoneNumber = user.PhoneNumber,
+        //            isActive = user.IsActive,
+        //            lockoutEnabled = false,
+        //            roleNames = user.RoleNames,
+        //            password = user.Password
+
+        //        };
+        //        var update = JsonSerializer.Serialize(obj);
+        //        var requestContent = new StringContent(update, Encoding.UTF8, "application/json");
+        //        //JsonContent content = JsonContent.Create(obj);
+
+        //        //JsonContent content = JsonSerializer.Serialize<UserInfoDto>(obj);
+        //        //GET Method  api/account/register
+
+        //        try
+        //        {
+        //            //HttpResponseMessage response = await client.PostAsync($"api/app/account/signup-user?password={passWord}&role={role}", content);
+        //            HttpResponseMessage response = await client.PostAsync($"api/identity/users", requestContent);
+        //            if (response.IsSuccessStatusCode)
+        //            {
+        //                return "User Created Successfully";
+
+        //            }
+        //            else
+        //            {
+        //                Console.WriteLine("Internal server Error");
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine(ex.Message);
+        //        }
+        //    }
+        //    return null;
+        //}
+
 
         // POST /api/account/reset-password
         //public virtual async Task ResetPassword(ResetPasswordInputDto inputDto)
@@ -107,252 +329,6 @@ namespace SoowGoodWeb.Services
         //    var user = await _userManager.FindByNameAsync(input.UserName);
         //    var units = await _userManager.GetOrganizationUnitsAsync(user);
         //    return ObjectMapper.Map<List<OrganizationUnit>, List<OrganizationUnitDto>>(units);
-        //}
-        [AllowAnonymous]
-        public async Task<bool> RefreshAccessToken(IdentityUser user)
-        {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                try
-                {
-                    await _userManager.RemoveAuthenticationTokenAsync(user, "SoowGoodWeb", "RefreshToken");
-                    var newRefreshToken = await _userManager.GenerateUserTokenAsync(user, "SoowGoodWeb", "RefreshToken");
-                    var result = await _userManager.SetAuthenticationTokenAsync(user, "SoowGoodWeb", "RefreshToken", newRefreshToken);
-
-                    scope.Complete();
-                    return result.Succeeded;
-
-                }
-                catch (Exception ex)
-                {
-                    return false;
-                }
-            }
-        }
-        public async Task<LoginResponseDto> Login(LoginDto userDto)
-        {
-            //using (var client = new HttpClient())
-            //{
-            //    var tokenResponse = await GetToken();
-            //    client.BaseAddress = new Uri(authUrl);
-            //    client.SetBearerToken(tokenResponse.AccessToken);
-            //    client.DefaultRequestHeaders.Accept.Clear();
-            //    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            var user = await _userManager.FindByNameAsync(userDto.UserName);
-            LoginResponseDto loginInfo = new LoginResponseDto();
-            loginInfo.RoleName = new List<string>();
-            if (user != null)
-            {
-                var userole = await _userManager.GetRolesAsync(user); //_roleManager.GetRolesAsync(user);
-
-                var res = await _signInManager.PasswordSignInAsync(user.UserName, userDto.password, userDto.RememberMe, lockoutOnFailure: false);
-                if (res.Succeeded)
-                {
-                    loginInfo.UserId = user.Id;
-                    loginInfo.UserName = user.UserName;
-                    foreach (string r in userole)
-                    {
-                        loginInfo.RoleName.Add(r);
-                    }
-                    loginInfo.Success = true;
-                    loginInfo.Message = "User Exists! Login Successful!";
-                    return loginInfo;
-                }
-                else
-                {
-                    loginInfo.UserId = null;
-                    loginInfo.UserName = "";
-                    loginInfo.Success = false;
-                    loginInfo.Message = "User Name Or Password is not correct !";
-                    return loginInfo;
-                }
-            }
-            else
-            {
-                loginInfo.UserId = null;
-                loginInfo.UserName = "";
-                loginInfo.Success = false;
-                loginInfo.Message = "User not exists! Please sign up as new user";
-                return loginInfo;
-            }
-            //}            
-        }
-
-
-        [AllowAnonymous]
-        public virtual async Task<UserSignUpResultDto> SignupUser(UserInfoDto userDto, string password, string role)
-        {
-            UserSignUpResultDto userInfo = new UserSignUpResultDto();
-            using (var client = new HttpClient())
-            {
-                var tokenResponse = await GetToken();
-                client.BaseAddress = new Uri(authClientUrl);
-                client.SetBearerToken(tokenResponse.AccessToken);
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                //GET Method
-
-                var update = JsonSerializer.Serialize(userDto);
-                var requestContent = new StringContent(update, Encoding.UTF8, "application/json");
-                HttpResponseMessage response =
-                    await client.PostAsync(($"api/app/account/sign-up?password={password}&role={role}"), requestContent);
-                if (response.IsSuccessStatusCode)
-                {
-                    
-                    userInfo.Message.Add("User Created Successfully");
-
-                }
-            }
-            return userInfo;
-            //try
-            //{
-            //    var user = ObjectMapper.Map<UserInfoDto, IdentityUser>(userDto);
-            //    var isUserExists = await _userManager.FindByNameAsync(user.UserName);
-            //    UserSignUpResultDto userInfo = new UserSignUpResultDto();
-            //    userInfo.Message = new List<string>();
-            //    UserSignUpResultDto response = new UserSignUpResultDto();
-            //    //ErroMessageDto errorInfo = new ErroMessageDto();
-            //    if (isUserExists == null)
-            //    {
-            //        var result = await _userManager.CreateAsync(user, password);
-
-            //        if (result.Succeeded)
-            //        {
-            //            var roleRes = await _userManager.AddToRoleAsync(user, role);
-            //            if (roleRes.Succeeded)
-            //            {
-            //                var createdUser = await _userManager.FindByNameAsync(user.UserName);
-
-
-            //                if (createdUser != null)
-            //                {
-            //                    userInfo.UserId = createdUser.Id;
-            //                    userInfo.UserName = createdUser.UserName;
-            //                    userInfo.Name = createdUser.Name;
-            //                    userInfo.Email = createdUser.Email;
-            //                    userInfo.PhoneNumber = createdUser.PhoneNumber;
-            //                    userInfo.IsActive = createdUser.IsActive;
-            //                    userInfo.Success = true;
-            //                    userInfo.Message.Add("User Created Successfully");
-            //                    response = userInfo;
-            //                }
-            //                //    {
-            //                return userInfo;
-            //            }
-            //            else
-            //            {
-            //                userInfo.Success = false;
-            //                foreach (var e in roleRes.Errors)
-            //                {
-            //                    userInfo.Message.Add(e.Description);
-            //                }
-            //                return userInfo;
-            //            }
-
-            //        }
-            //        else
-            //        {
-            //            userInfo.Success = false;
-            //            foreach (var e in result.Errors)
-            //            {
-            //                userInfo.Message.Add(e.Description);
-            //            }
-            //            return userInfo;
-            //        }
-            //    }
-            //    else
-            //    {
-            //        userInfo.Success = false;
-            //        userInfo.Message.Add("User Already Exists");
-            //        return userInfo;
-            //    }
-            //}
-            //catch (Exception)
-            //{
-            //    throw new UserFriendlyException("User Create not successfull.");
-            //}
-        }
-
-        private async Task<TokenResponse> GetToken()
-        {
-            var authorityUrl = $"{PermissionHelper._authority}";
-
-            var authority = new HttpClient();
-            var discoveryDocument = await authority.GetDiscoveryDocumentAsync(authorityUrl);
-            if (discoveryDocument.IsError)
-            {
-                //return null;
-            }
-
-            // Request Token
-            var tokenResponse = await authority.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
-            {
-                Address = discoveryDocument.TokenEndpoint,
-                ClientId = PermissionHelper._clientId,
-                ClientSecret = PermissionHelper._clientSecret,
-                Scope = PermissionHelper._scope
-            });
-
-            if (tokenResponse.IsError)
-            {
-                //return null;
-            }
-            return tokenResponse;
-        }
-        //, string passWord, string role
-        //[AllowAnonymous]
-        //public async Task<string> Register(UserRegInfoDto user)
-        //{
-
-        //    using (var client = new HttpClient())
-        //    {
-        //        //var tokenResponse = await GetToken();
-        //        client.BaseAddress = new Uri(authClientUrl);
-        //        //client.SetBearerToken(tokenResponse.AccessToken);
-        //        //client.DefaultRequestHeaders.Accept.Clear();
-        //        //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-        //        var obj = new
-        //        {
-
-        //            userName = user.UserName,
-        //            name = user.Name,
-        //            surname = user.Surname,
-        //            email = user.Email,
-        //            phoneNumber = user.PhoneNumber,
-        //            isActive = user.IsActive,
-        //            lockoutEnabled = false,
-        //            roleNames = user.RoleNames,
-        //            password = user.Password
-
-        //        };
-
-        //        JsonContent content = JsonContent.Create(obj);
-
-        //        //JsonContent content = JsonSerializer.Serialize<UserInfoDto>(obj);
-        //        //GET Method  api/account/register
-
-        //        try
-        //        {
-        //            //HttpResponseMessage response = await client.PostAsync($"api/app/account/signup-user?password={passWord}&role={role}", content);
-        //            HttpResponseMessage response = await client.PostAsync($"api/identity/users", content);
-        //            if (response.IsSuccessStatusCode)
-        //            {
-        //                return "User Created Successfully";
-
-        //            }
-        //            else
-        //            {
-        //                Console.WriteLine("Internal server Error");
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            Console.WriteLine(ex.Message);
-        //        }
-        //    }
-        //    return null;
         //}
     }
 }
