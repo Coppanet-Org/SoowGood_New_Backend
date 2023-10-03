@@ -16,17 +16,23 @@ namespace SoowGoodWeb.Services
     public class PatientProfileService : SoowGoodWebAppService, IPatientProfileService
     {
         private readonly IRepository<PatientProfile> _patientProfileRepository;
+        private readonly IRepository<PatientProfile, long> _patientRepository;
         //private readonly IRepository<AgentDegree> _agentDegreeRepository;
         //private readonly IRepository<AgentSpecialization> _agentSpecializationRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
-        public PatientProfileService(IRepository<PatientProfile> patientProfileRepository
+        public PatientProfileService(IRepository<PatientProfile> patientProfileRepository, IRepository<PatientProfile, long> patientRepository
+
                                     , IUnitOfWorkManager unitOfWorkManager)
         {
             _patientProfileRepository = patientProfileRepository;
+            _patientRepository = patientRepository;
             _unitOfWorkManager = unitOfWorkManager;
         }
         public async Task<PatientProfileDto> CreateAsync(PatientProfileInputDto input)
         {
+            var totalPatients = await _patientProfileRepository.GetListAsync();
+            var count = totalPatients.Count();
+            input.PatientCode = "SG-P-" + (count + 1);
             var newEntity = ObjectMapper.Map<PatientProfileInputDto, PatientProfile>(input);
 
             var patientProfile = await _patientProfileRepository.InsertAsync(newEntity);
@@ -36,7 +42,7 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<PatientProfile, PatientProfileDto>(patientProfile);
         }
 
-        public async Task<PatientProfileDto> GetAsync(int id)
+        public async Task<PatientProfileDto> GetAsync(long id)
         {
             var item = await _patientProfileRepository.GetAsync(x => x.Id == id);
 
@@ -68,11 +74,41 @@ namespace SoowGoodWeb.Services
 
         public async Task<PatientProfileDto> UpdateAsync(PatientProfileInputDto input)
         {
-            var updateItem = ObjectMapper.Map<PatientProfileInputDto, PatientProfile>(input);
+            try
+            {
+                var itemPatient = await _patientRepository.FindAsync(input.Id);
+                itemPatient.IsSelf = input.IsSelf;
+                itemPatient.PatientName = input.PatientName;
+                itemPatient.PatientEmail = input.PatientEmail;
+                itemPatient.PatientMobileNo = input.PatientMobileNo;
+                
+                //input.FullName = itemPatient.FullName;
+                //input.DateOfBirth = itemPatient.DateOfBirth;
+                //input.Gender = itemPatient.Gender;
+                //input.Age = itemPatient.Age;
+                //input.Email = itemPatient.Email;
+                //input.Address = itemPatient.Address;
+                //input.MobileNo = itemPatient.MobileNo;
+                //input.BloodGroup = itemPatient.BloodGroup;
+                //input.City = itemPatient.City;
+                //input.Country = itemPatient.Country;
+                //input.ZipCode = itemPatient.ZipCode;
+                //input.CreatedBy = itemPatient.CreatedBy;
+                //input.CratorCode = itemPatient.CratorCode;
+                //input.CreatorEntityId = itemPatient.CreatorEntityId;
+                //input.PatientCode = itemPatient.PatientCode;
 
-            var item = await _patientProfileRepository.UpdateAsync(updateItem);
-            await _unitOfWorkManager.Current.SaveChangesAsync();
-            return ObjectMapper.Map<PatientProfile, PatientProfileDto>(item);
+                //var updateItem = ObjectMapper.Map<PatientProfileInputDto, PatientProfile>(input);
+
+                var item = await _patientRepository.UpdateAsync(itemPatient);
+                await _unitOfWorkManager.Current.SaveChangesAsync();
+                return ObjectMapper.Map<PatientProfile, PatientProfileDto>(item);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
         }
 
         public async Task<List<PatientProfileDto>> GetPatientListByUserProfileIdAsync(long profileId)

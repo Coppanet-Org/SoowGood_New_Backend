@@ -11,7 +11,7 @@ namespace SoowGoodWeb.Interfaces
     public interface IPatientProfileService : IApplicationService
     {
         Task<List<PatientProfileDto>> GetListAsync();
-        Task<PatientProfileDto> GetAsync(int id);
+        Task<PatientProfileDto> GetAsync(long id);
         Task<PatientProfileDto> GetByUserNameAsync(string userName);
         Task<PatientProfileDto> CreateAsync(PatientProfileInputDto input);
         Task<PatientProfileDto> UpdateAsync(PatientProfileInputDto input);

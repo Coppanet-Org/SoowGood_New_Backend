@@ -73,6 +73,7 @@ public class SoowGoodWebDbContext :
     public DbSet<AgentProfile> SgAgentProfiles { get; set; }
     public DbSet<PatientProfile> SgPatientProfiles { get; set; }
     public DbSet<Appointment> SgAppointments { get; set; }
+    public DbSet<PaymentHistory> SgPaymentHistory { get; set; }
 
     #endregion
 
