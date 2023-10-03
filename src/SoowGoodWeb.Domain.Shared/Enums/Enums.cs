@@ -92,4 +92,38 @@ namespace SoowGoodWeb.Enums
         Paid = 1,
         Due = 2
     }
+
+
+    // Payment SSLCommerze
+
+    public enum RefundStatus
+    {
+        INVALID_REQUEST,
+        FAILED,
+        INACTIVE,
+        DONE
+    }
+
+    public enum ResponseStatus
+    {
+        VALID,
+        FAILED,
+        CANCELLED,
+        UNATTEMPTED,
+        EXPIRED
+    }
+
+    public enum SecurityStatus
+    {
+        VALID,
+        FAILED,
+        CANCEL
+    }
+
+    public enum ValidationStatus
+    {
+        VALID,
+        VALIDATED,
+        INVALID_TRANSACTION
+    }
 }
