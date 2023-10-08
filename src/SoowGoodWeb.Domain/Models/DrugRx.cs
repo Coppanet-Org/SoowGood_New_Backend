@@ -17,9 +17,11 @@ namespace SoowGoodWeb.Models
         public string? DosageForm { get; set; }
         public string? Strength { get; set; }
         public DateTime? InclusionDate { get; set; }
+        public DateTime? VlidUpto { get; set; }
         public string? Manufacturer { get; set; }
         public string? DAR { get; set; }
         public string? CDAR { get; set; }
         public string? SDAR { get; set; }
+        public string? GDAR { get; set; }
     }
 }

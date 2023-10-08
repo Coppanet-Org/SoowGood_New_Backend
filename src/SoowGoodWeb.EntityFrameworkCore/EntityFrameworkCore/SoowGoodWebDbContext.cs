@@ -75,6 +75,13 @@ public class SoowGoodWebDbContext :
     public DbSet<Appointment> SgAppointments { get; set; }
     public DbSet<PaymentHistory> SgPaymentHistory { get; set; }
     public DbSet<DrugRx> SgDrugRx { get; set; }
+    public DbSet<CommonDisease> SgCommonDiseases { get; set; }
+    public DbSet<PrescriptionMaster> SgPrescriptionMaster { get; set; }
+    public DbSet<PrescriptionMainComplaint> SgPrescriptionMainComplaints { get; set; }
+    public DbSet<PrescriptionFindingsObservations> SgPrescriptionFindingsObservations { get; set; }
+    public DbSet<PrescriptionMedicalCheckups> SgPrescriptionMedicalCheckups { get; set; }
+    public DbSet<PrescriptionPatientDiseaseHistory> SgPrescriptionPatientDiseaseHistory { get; set; }
+    public DbSet<PrescriptionDrugDetails> SgPrescriptionDrugDetails { get; set; }
 
     #endregion
 

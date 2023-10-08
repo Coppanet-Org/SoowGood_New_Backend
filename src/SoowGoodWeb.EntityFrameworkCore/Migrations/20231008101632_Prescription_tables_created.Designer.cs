@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231008101632_Prescription_tables_created")]
+    partial class Prescription_tables_created
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1381,71 +1384,6 @@ namespace SoowGoodWeb.Migrations
                     b.ToTable("SgPaymentHistory");
                 });
 
-            modelBuilder.Entity("SoowGoodWeb.Models.PrescriptionDrugDetails", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<string>("Dose")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DrugName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("DrugRxId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Duration")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Instruction")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<long?>("PrescriptionMasterId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DrugRxId");
-
-                    b.HasIndex("PrescriptionMasterId");
-
-                    b.ToTable("SgPrescriptionDrugDetails");
-                });
-
             modelBuilder.Entity("SoowGoodWeb.Models.PrescriptionFindingsObservations", b =>
                 {
                     b.Property<long>("Id")
@@ -1586,7 +1524,7 @@ namespace SoowGoodWeb.Migrations
                     b.Property<int?>("AppointmentType")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ConsultancyType")
+                    b.Property<int>("ConsultancyType")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreationTime")
@@ -3636,25 +3574,10 @@ namespace SoowGoodWeb.Migrations
                     b.Navigation("Specialization");
                 });
 
-            modelBuilder.Entity("SoowGoodWeb.Models.PrescriptionDrugDetails", b =>
-                {
-                    b.HasOne("SoowGoodWeb.Models.DrugRx", "DrugRx")
-                        .WithMany()
-                        .HasForeignKey("DrugRxId");
-
-                    b.HasOne("SoowGoodWeb.Models.PrescriptionMaster", "PrescriptionMaster")
-                        .WithMany("PrescriptionDrugDetails")
-                        .HasForeignKey("PrescriptionMasterId");
-
-                    b.Navigation("DrugRx");
-
-                    b.Navigation("PrescriptionMaster");
-                });
-
             modelBuilder.Entity("SoowGoodWeb.Models.PrescriptionFindingsObservations", b =>
                 {
                     b.HasOne("SoowGoodWeb.Models.PrescriptionMaster", "PrescriptionMaster")
-                        .WithMany("PrescriptionFindingsObservations")
+                        .WithMany()
                         .HasForeignKey("PrescriptionMasterId");
 
                     b.Navigation("PrescriptionMaster");
@@ -3663,7 +3586,7 @@ namespace SoowGoodWeb.Migrations
             modelBuilder.Entity("SoowGoodWeb.Models.PrescriptionMainComplaint", b =>
                 {
                     b.HasOne("SoowGoodWeb.Models.PrescriptionMaster", "PrescriptionMaster")
-                        .WithMany("prescriptionMainComplaints")
+                        .WithMany()
                         .HasForeignKey("PrescriptionMasterId");
 
                     b.Navigation("PrescriptionMaster");
@@ -3681,7 +3604,7 @@ namespace SoowGoodWeb.Migrations
             modelBuilder.Entity("SoowGoodWeb.Models.PrescriptionMedicalCheckups", b =>
                 {
                     b.HasOne("SoowGoodWeb.Models.PrescriptionMaster", "PrescriptionMaster")
-                        .WithMany("PrescriptionMedicalCheckups")
+                        .WithMany()
                         .HasForeignKey("PrescriptionMasterId");
 
                     b.Navigation("PrescriptionMaster");
@@ -3694,7 +3617,7 @@ namespace SoowGoodWeb.Migrations
                         .HasForeignKey("CommonDiseaseId");
 
                     b.HasOne("SoowGoodWeb.Models.PrescriptionMaster", "PrescriptionMaster")
-                        .WithMany("PrescriptionPatientDiseaseHistory")
+                        .WithMany()
                         .HasForeignKey("PrescriptionMasterId");
 
                     b.Navigation("CommonDisease");
@@ -3867,19 +3790,6 @@ namespace SoowGoodWeb.Migrations
                     b.Navigation("DoctorFeesSetup");
 
                     b.Navigation("DoctorScheduleDaySession");
-                });
-
-            modelBuilder.Entity("SoowGoodWeb.Models.PrescriptionMaster", b =>
-                {
-                    b.Navigation("PrescriptionDrugDetails");
-
-                    b.Navigation("PrescriptionFindingsObservations");
-
-                    b.Navigation("PrescriptionMedicalCheckups");
-
-                    b.Navigation("PrescriptionPatientDiseaseHistory");
-
-                    b.Navigation("prescriptionMainComplaints");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Speciality", b =>
