@@ -16,7 +16,7 @@ namespace SoowGoodWeb.Models
         public DrugRx? DrugRx { get; set; }
         public string? DrugName { get; set; }
         public string? Dose { get; set; }
-        public string? Duration { get; set; }
+        public string? Duration { get; set; }        
         public string? Instruction { get; set; }
     }
 }
