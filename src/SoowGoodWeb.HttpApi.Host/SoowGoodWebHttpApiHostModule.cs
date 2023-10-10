@@ -104,6 +104,9 @@ public class SoowGoodWebHttpApiHostModule : AbpModule
                 options.Audience = "SoowGoodWeb";
             });
     }
+    /// <summary>
+    /// ////////////////////////////////////////////////////
+    /// </summary>
     //private void ConfigureBundles()
     //{
     //    Configure<AbpBundlingOptions>(options =>
@@ -129,7 +132,10 @@ public class SoowGoodWebHttpApiHostModule : AbpModule
     //        options.Applications["Angular"].Urls[AccountUrlNames.PasswordReset] = "account/reset-password";
     //    });
     //}
-
+    /// <summary>
+    /// //////////////////////////////////////////////////////
+    /// </summary>
+    /// <param name="context"></param>
     private void ConfigureVirtualFileSystem(ServiceConfigurationContext context)
     {
         var hostingEnvironment = context.Services.GetHostingEnvironment();
