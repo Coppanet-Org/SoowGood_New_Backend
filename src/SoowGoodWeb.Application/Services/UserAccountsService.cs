@@ -127,7 +127,7 @@ namespace SoowGoodWeb.Services
                     {
                         UserId = newUser?.UserId,
                         UserName = newUser?.UserName,
-                        RoleName=newUser?.RoleName,
+                        RoleName = newUser?.RoleName,
                         Success = newUser.Success,
                         Message = newUser.Message,
 
@@ -173,7 +173,7 @@ namespace SoowGoodWeb.Services
                 //    return loginInfo;
                 //}
             }
-            
+
         }
 
 
@@ -215,121 +215,7 @@ namespace SoowGoodWeb.Services
                 }
             }
             return result;
-        }
-
-
-        //[AllowAnonymous]
-        //public async Task<string> Register(UserRegInfoDto user)
-        //{
-
-        //    using (var client = new HttpClient())
-        //    {
-        //        var tokenResponse = await GetToken();
-        //        client.BaseAddress = new Uri(authClientUrl);
-        //        client.SetBearerToken(tokenResponse.AccessToken);
-        //        client.DefaultRequestHeaders.Accept.Clear();
-        //        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-        //        var obj = new
-        //        {
-
-        //            userName = user.UserName,
-        //            name = user.Name,
-        //            surname = user.Surname,
-        //            email = user.Email,
-        //            phoneNumber = user.PhoneNumber,
-        //            isActive = user.IsActive,
-        //            lockoutEnabled = false,
-        //            roleNames = user.RoleNames,
-        //            password = user.Password
-
-        //        };
-        //        var update = JsonSerializer.Serialize(obj);
-        //        var requestContent = new StringContent(update, Encoding.UTF8, "application/json");
-        //        //JsonContent content = JsonContent.Create(obj);
-
-        //        //JsonContent content = JsonSerializer.Serialize<UserInfoDto>(obj);
-        //        //GET Method  api/account/register
-
-        //        try
-        //        {
-        //            //HttpResponseMessage response = await client.PostAsync($"api/app/account/signup-user?password={passWord}&role={role}", content);
-        //            HttpResponseMessage response = await client.PostAsync($"api/identity/users", requestContent);
-        //            if (response.IsSuccessStatusCode)
-        //            {
-        //                return "User Created Successfully";
-
-        //            }
-        //            else
-        //            {
-        //                Console.WriteLine("Internal server Error");
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            Console.WriteLine(ex.Message);
-        //        }
-        //    }
-        //    return null;
-        //}
-
-
-        // POST /api/account/reset-password
-        //public virtual async Task ResetPassword(ResetPasswordInputDto inputDto)
-        //{
-        //    try
-        //    {
-        //        var user = await _userManager.FindByIdAsync(inputDto.UserId);
-        //        //var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-        //        //await _userManager.ResetPasswordAsync(user, resetToken, inputDto.NewPassword);
-        //        await _userManager.RemovePasswordAsync(user);
-        //        await _userManager.AddPasswordAsync(user, inputDto.NewPassword);
-        //        await _userManager.UpdateAsync(user);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        throw new UserFriendlyException("Password reset not successfull.");
-        //    }
-        //}
-
-        //// POST /api/account/reset-password-request
-        //public async Task ResetPasswordRequest(ResetPasswordRequestInputDto input)
-        //{
-        //    var user = await _userManager.FindByEmailAsync(input.EmailAddress);
-        //    if (user == null)
-        //    {
-        //        return;
-        //    }
-
-        //    var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-
-        //    var body = L[
-        //        "ResetPasswordRequest:EmailBody",
-        //        user.Name,
-        //        input.ReturnUrl.RemovePostFix("/"),
-        //        System.Web.HttpUtility.UrlEncode(resetToken),
-        //        user.TenantId,
-        //        user.Id,
-        //        System.Web.HttpUtility.UrlEncode(user.Email)
-        //    ];
-
-        //    try
-        //    {
-        //        await _emailSender.SendAsync(user.Email, L["ResetPasswordRequest:EmailSubject"], body);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        throw new UserFriendlyException("Unable to process your request, please try again later.");
-        //    }
-        //    await _userManager.UpdateAsync(user);
-        //}
-
-        //public async Task<List<OrganizationUnitDto>> Offices(ChangePass input)
-        //{
-        //    var user = await _userManager.FindByNameAsync(input.UserName);
-        //    var units = await _userManager.GetOrganizationUnitsAsync(user);
-        //    return ObjectMapper.Map<List<OrganizationUnit>, List<OrganizationUnitDto>>(units);
-        //}
+        }        
     }
 }
 
