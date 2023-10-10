@@ -12,6 +12,7 @@ namespace SoowGoodWeb.Models
     {
         public long? PrescriptionMasterId { get; set; }
         public PrescriptionMaster? PrescriptionMaster { get; set; }
+        public string? Symptom { get; set; }
         public string? Duration { get; set; }
         public string? Condition { get; set; }
         public string? Problems { get; set; }

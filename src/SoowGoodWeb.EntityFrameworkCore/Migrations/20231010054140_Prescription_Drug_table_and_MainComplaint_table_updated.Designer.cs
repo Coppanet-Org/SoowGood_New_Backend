@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231010054140_Prescription_Drug_table_and_MainComplaint_table_updated")]
+    partial class Prescription_Drug_table_and_MainComplaint_table_updated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1405,10 +1408,7 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("DeletionTime");
 
-                    b.Property<string>("DrugDoseSchedule")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DrugDoseScheduleDays")
+                    b.Property<string>("DoseTiming")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DrugName")
@@ -1442,6 +1442,9 @@ namespace SoowGoodWeb.Migrations
 
                     b.Property<long?>("PrescriptionMasterId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("timingDays")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
