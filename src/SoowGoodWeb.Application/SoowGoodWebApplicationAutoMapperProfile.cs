@@ -132,5 +132,38 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<PaymentHistory, PaymentHistoryDto>();
         CreateMap<PaymentHistoryDto, PaymentHistory>();
         CreateMap<PaymentHistoryInputDto, PaymentHistory>();
+
+        CreateMap<DrugRx, DrugRxDto>();
+        CreateMap<DrugRxDto, DrugRx>();
+        CreateMap<DrugRxInputDto, DrugRx>();
+
+        CreateMap<CommonDisease, CommonDiseaseDto>();
+        CreateMap<CommonDiseaseDto, CommonDisease>();
+        CreateMap<CommonDiseaseInputDto, CommonDisease>();
+
+        CreateMap<PrescriptionMaster, PrescriptionMasterDto>();
+        CreateMap<PrescriptionMasterDto, PrescriptionMaster>();
+        CreateMap<PrescriptionMasterInputDto, PrescriptionMaster>();
+
+        CreateMap<PrescriptionMainComplaint, PrescriptionMainComplaintDto>();
+        CreateMap<PrescriptionMainComplaintDto, PrescriptionMainComplaint>();
+        CreateMap<PrescriptionMainComplaintInputDto, PrescriptionMainComplaint>();
+
+        CreateMap<PrescriptionFindingsObservations, PrescriptionFindingsObservationsDto>();
+        CreateMap<PrescriptionFindingsObservationsDto, PrescriptionFindingsObservations>();
+        CreateMap<PrescriptionFindingsObservationsInputDto, PrescriptionFindingsObservations>();
+
+        CreateMap<PrescriptionPatientDiseaseHistory, PrescriptionPatientDiseaseHistoryDto>();
+        CreateMap<PrescriptionPatientDiseaseHistoryDto, PrescriptionPatientDiseaseHistory>();
+        CreateMap<PrescriptionPatientDiseaseHistoryInputDto, PrescriptionPatientDiseaseHistory>();
+
+        CreateMap<PrescriptionMedicalCheckups, PrescriptionMedicalCheckupsDto>();
+        CreateMap<PrescriptionMedicalCheckupsDto, PrescriptionMedicalCheckups>();
+        CreateMap<PrescriptionMedicalCheckupsInputDto, PrescriptionMedicalCheckups>();
+
+        CreateMap<PrescriptionDrugDetails, PrescriptionDrugDetailsDto>();
+        CreateMap<PrescriptionDrugDetailsDto, PrescriptionDrugDetails>();
+        CreateMap<PrescriptionDrugDetailsInputDto, PrescriptionDrugDetails>();
+
     }
 }

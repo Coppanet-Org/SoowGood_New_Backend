@@ -2,38 +2,40 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Medallion.Threading;
+using Medallion.Threading.Redis;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SoowGoodWeb.EntityFrameworkCore;
 using SoowGoodWeb.MultiTenancy;
-using Volo.Abp.AspNetCore.Mvc.UI.Theme.Basic;
-using Volo.Abp.AspNetCore.Mvc.UI.Theme.Basic.Bundling;
+using StackExchange.Redis;
 using Microsoft.OpenApi.Models;
-using OpenIddict.Validation.AspNetCore;
 using Volo.Abp;
-using Volo.Abp.Account;
-using Volo.Abp.Account.Web;
-using Volo.Abp.AspNetCore.MultiTenancy;
 using Volo.Abp.AspNetCore.Mvc;
-using Volo.Abp.AspNetCore.Mvc.UI.Bundling;
-using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared;
+using Volo.Abp.AspNetCore.Mvc.UI.MultiTenancy;
 using Volo.Abp.AspNetCore.Serilog;
 using Volo.Abp.Autofac;
+using Volo.Abp.Caching;
+using Volo.Abp.Caching.StackExchangeRedis;
+using Volo.Abp.DistributedLocking;
 using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
 using Volo.Abp.Swashbuckle;
-using Volo.Abp.UI.Navigation.Urls;
 using Volo.Abp.VirtualFileSystem;
-using Volo.Abp.Caching.StackExchangeRedis;
-using Volo.Abp.OpenIddict;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.DataProtection;
-using StackExchange.Redis;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+
+//using OpenIddict.Validation.AspNetCore;
+//using Volo.Abp.Account;
+//using Volo.Abp.Account.Web;
+//using Volo.Abp.AspNetCore.MultiTenancy;
+//using Volo.Abp.AspNetCore.Mvc.UI.Bundling;
+//using Volo.Abp.UI.Navigation.Urls;
+//using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared;
 
 namespace SoowGoodWeb;
 
@@ -41,10 +43,12 @@ namespace SoowGoodWeb;
     typeof(SoowGoodWebHttpApiModule),
     typeof(AbpAutofacModule),
     typeof(AbpCachingStackExchangeRedisModule),
-    typeof(AbpAspNetCoreMultiTenancyModule),
+    typeof(AbpDistributedLockingModule),
+    typeof(AbpAspNetCoreMvcUiMultiTenancyModule),
+    //typeof(AbpAspNetCoreMultiTenancyModule),
     typeof(SoowGoodWebApplicationModule),
     typeof(SoowGoodWebEntityFrameworkCoreModule),
-    typeof(AbpAspNetCoreMvcUiBasicThemeModule),
+    //typeof(AbpAspNetCoreMvcUiBasicThemeModule),
     //typeof(AbpAccountWebOpenIddictModule),
     typeof(AbpAspNetCoreSerilogModule),
     typeof(AbpSwashbuckleModule)
@@ -63,22 +67,32 @@ public class SoowGoodWebHttpApiHostModule : AbpModule
     //        });
     //    });
     //}
-    
 
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
         var configuration = context.Services.GetConfiguration();
         var hostingEnvironment = context.Services.GetHostingEnvironment();
 
-        ConfigureAuthentication(context, configuration);
-        ConfigureBundles();
-        ConfigureUrls(configuration);
         ConfigureConventionalControllers();
-        ConfigureVirtualFileSystem(context);
+        ConfigureAuthentication(context, configuration);
+        ConfigureCache(configuration);
+        //ConfigureBundles();
+        //ConfigureUrls(configuration);
         ConfigureDataProtection(context, configuration, hostingEnvironment);
+        ConfigureDistributedLocking(context, configuration);
+        ConfigureVirtualFileSystem(context);
         ConfigureCors(context, configuration);
         ConfigureSwaggerServices(context, configuration);
     }
+
+    private void ConfigureCache(IConfiguration configuration)
+    {
+        Configure<AbpDistributedCacheOptions>(options => { options.KeyPrefix = "SoowGoodWeb:"; });
+    }
+    //private void ConfigureAuthentication(ServiceConfigurationContext context)
+    //{
+    //    context.Services.ForwardIdentityAuthenticationForBearer(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+    //}
 
     private void ConfigureAuthentication(ServiceConfigurationContext context, IConfiguration configuration)
     {
@@ -90,37 +104,31 @@ public class SoowGoodWebHttpApiHostModule : AbpModule
                 options.Audience = "SoowGoodWeb";
             });
     }
-
-    //private void ConfigureAuthentication(ServiceConfigurationContext context)
+    //private void ConfigureBundles()
     //{
-    //    context.Services.ForwardIdentityAuthenticationForBearer(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+    //    Configure<AbpBundlingOptions>(options =>
+    //    {
+    //        options.StyleBundles.Configure(
+    //            BasicThemeBundles.Styles.Global,
+    //            bundle =>
+    //            {
+    //                bundle.AddFiles("/global-styles.css");
+    //            }
+    //        );
+    //    });
     //}
 
-    private void ConfigureBundles()
-    {
-        Configure<AbpBundlingOptions>(options =>
-        {
-            options.StyleBundles.Configure(
-                BasicThemeBundles.Styles.Global,
-                bundle =>
-                {
-                    bundle.AddFiles("/global-styles.css");
-                }
-            );
-        });
-    }
+    //private void ConfigureUrls(IConfiguration configuration)
+    //{
+    //    Configure<AppUrlOptions>(options =>
+    //    {
+    //        options.Applications["MVC"].RootUrl = configuration["App:SelfUrl"];
+    //        options.RedirectAllowedUrls.AddRange(configuration["App:RedirectAllowedUrls"]?.Split(',') ?? Array.Empty<string>());
 
-    private void ConfigureUrls(IConfiguration configuration)
-    {
-        Configure<AppUrlOptions>(options =>
-        {
-            options.Applications["MVC"].RootUrl = configuration["App:SelfUrl"];
-            options.RedirectAllowedUrls.AddRange(configuration["App:RedirectAllowedUrls"]?.Split(',') ?? Array.Empty<string>());
-
-            options.Applications["Angular"].RootUrl = configuration["App:ClientUrl"];
-            options.Applications["Angular"].Urls[AccountUrlNames.PasswordReset] = "account/reset-password";
-        });
-    }
+    //        options.Applications["Angular"].RootUrl = configuration["App:ClientUrl"];
+    //        options.Applications["Angular"].Urls[AccountUrlNames.PasswordReset] = "account/reset-password";
+    //    });
+    //}
 
     private void ConfigureVirtualFileSystem(ServiceConfigurationContext context)
     {
@@ -160,7 +168,7 @@ public class SoowGoodWebHttpApiHostModule : AbpModule
             configuration["AuthServer:Authority"],
             new Dictionary<string, string>
             {
-                    {"SoowGoodWeb", "SoowGoodWeb API"}
+                {"SoowGoodWeb", "SoowGoodWeb API"}
             },
             options =>
             {
@@ -179,10 +187,21 @@ public class SoowGoodWebHttpApiHostModule : AbpModule
         if (!hostingEnvironment.IsDevelopment())
         {
             var redis = ConnectionMultiplexer.Connect(configuration["Redis:Configuration"]);
-            //dataProtectionBuilder.PersistKeysToStackExchangeRedis(redis, "SoowGoodWeb-Protection-Keys");
+            dataProtectionBuilder.PersistKeysToStackExchangeRedis(redis, "SoowGoodWeb-Protection-Keys");
         }
     }
 
+    private void ConfigureDistributedLocking(
+        ServiceConfigurationContext context,
+        IConfiguration configuration)
+    {
+        context.Services.AddSingleton<IDistributedLockProvider>(sp =>
+        {
+            var connection = ConnectionMultiplexer
+                .Connect(configuration["Redis:Configuration"]);
+            return new RedisDistributedSynchronizationProvider(connection.GetDatabase());
+        });
+    }
     private void ConfigureCors(ServiceConfigurationContext context, IConfiguration configuration)
     {
         context.Services.AddCors(options =>
@@ -215,10 +234,10 @@ public class SoowGoodWebHttpApiHostModule : AbpModule
 
         app.UseAbpRequestLocalization();
 
-        if (!env.IsDevelopment())
-        {
-            app.UseErrorPage();
-        }
+        //if (!env.IsDevelopment())
+        //{
+        //    app.UseErrorPage();
+        //}
 
         app.UseCorrelationId();
         app.UseStaticFiles();

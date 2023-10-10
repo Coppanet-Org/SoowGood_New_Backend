@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231008111656_All_prescription_tables_finalize")]
+    partial class All_prescription_tables_finalize
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1405,10 +1408,7 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("DeletionTime");
 
-                    b.Property<string>("DrugDoseSchedule")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DrugDoseScheduleDays")
+                    b.Property<string>("Dose")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DrugName")
@@ -1428,9 +1428,6 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
-
-                    b.Property<bool?>("IsDrugExceptional")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("datetime2")
@@ -1559,9 +1556,6 @@ namespace SoowGoodWeb.Migrations
                     b.Property<string>("Problems")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Symptom")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("PrescriptionMasterId");
@@ -1595,7 +1589,7 @@ namespace SoowGoodWeb.Migrations
                     b.Property<int?>("AppointmentType")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ConsultancyType")
+                    b.Property<int>("ConsultancyType")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreationTime")
