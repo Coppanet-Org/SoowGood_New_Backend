@@ -33,15 +33,38 @@ namespace SoowGoodWeb.Services
             var degrees = await _drugRxRepository.GetListAsync();
             return ObjectMapper.Map<List<DrugRx>, List<DrugRxDto>>(degrees);
         }
-        public async Task<List<DrugRxDto>> GetDrugNameListAsync()
+
+        public async Task<List<DrugRxDto>> GetDrugWithLimitListAsync()
         {
-            List<DrugRxDto>? result = null;
-            var item = await _drugRxRepository.GetListAsync();
+            List<DrugRxDto>? result = null;            
+            var item = await _drugRxRepository.WithDetailsAsync();
+            var drugs = item.Take(300);//.Where(d => d.BrandName.ToLower().StartsWith(searchDrug)).Take(100).ToList();
             //return ObjectMapper.Map<List<DrugRx>, List<DrugRxDto>>(degrees);
 
 
             result = new List<DrugRxDto>();
-            foreach (var drug in item)
+            foreach (var drug in drugs)
+            {
+                result.Add(new DrugRxDto()
+                {
+                    Id = drug.Id,
+                    PrescribedDrugName = drug.DosageForm + " " + drug.BrandName
+
+                });
+            }
+            return result;
+        }
+        public async Task<List<DrugRxDto>> GetDrugNameSearchListAsync(string searchDrug)
+        {
+            List<DrugRxDto>? result = null;
+            var dName = searchDrug.ToLower();
+            var item = await _drugRxRepository.WithDetailsAsync();
+            var drugs = item.Where(d => d.BrandName.ToLower().StartsWith(dName)).Take(100).ToList();
+            //return ObjectMapper.Map<List<DrugRx>, List<DrugRxDto>>(degrees);
+
+
+            result = new List<DrugRxDto>();
+            foreach (var drug in drugs)
             {
                 result.Add(new DrugRxDto()
                 {
