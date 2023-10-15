@@ -105,7 +105,7 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
 
-        public async Task<List<AppointmentDto>> GeAppointmentListByDoctorIdAsync(long doctorId)
+        public async Task<List<AppointmentDto>> GetAppointmentListByDoctorIdAsync(long doctorId)
         {
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
             //var appointments = await item.Where(d=> d.DoctorProfileId == doctorId && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
@@ -113,7 +113,7 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
 
-        public async Task<List<AppointmentDto>> GeAppointmentListByPatientIdAsync(long patientId)
+        public async Task<List<AppointmentDto>> GetAppointmentListByPatientIdAsync(long patientId)
         {
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
             //var appointments = await item.Where(d=> d.DoctorProfileId == doctorId && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
