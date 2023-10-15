@@ -34,15 +34,36 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<List<CommonDisease>, List<CommonDiseaseDto>>(degrees);
         }
 
-        public async Task<List<CommonDiseaseDto>> GetDrugNameListAsync()
+        public async Task<List<CommonDiseaseDto>> GetDiseaseNameWithLimitListAsync()
         {
             List<CommonDiseaseDto>? result = null;
-            var item = await _commonDiseaseRepository.GetListAsync();
+            var item = await _commonDiseaseRepository.WithDetailsAsync();
+            var diseases = item.Take(150);
             //return ObjectMapper.Map<List<DrugRx>, List<DrugRxDto>>(degrees);
 
 
             result = new List<CommonDiseaseDto>();
-            foreach (var disease in item)
+            foreach (var disease in diseases)
+            {
+                result.Add(new CommonDiseaseDto()
+                {
+                    Id = disease.Id,
+                    Name = disease.Name
+
+                });
+            }
+            return result;
+        }
+
+        public async Task<List<CommonDiseaseDto>> GetDiseaseNameSearchListAsync(string searchDisease)
+        {
+            List<CommonDiseaseDto>? result = null;
+            var dName = searchDisease.ToLower();
+            var item = await _commonDiseaseRepository.WithDetailsAsync();
+            var diseases = item.Where(d => d.Name.ToLower().StartsWith(dName)).Take(100).ToList();
+            
+            result = new List<CommonDiseaseDto>();
+            foreach (var disease in diseases)
             {
                 result.Add(new CommonDiseaseDto()
                 {
