@@ -1,4 +1,5 @@
 ﻿using SoowGoodWeb.DtoModels;
+using SoowGoodWeb.Enums;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
@@ -31,6 +32,25 @@ namespace SoowGoodWeb.Services
         {
             var degrees = await _drugRxRepository.GetListAsync();
             return ObjectMapper.Map<List<DrugRx>, List<DrugRxDto>>(degrees);
+        }
+        public async Task<List<DrugRxDto>> GetDrugNameListAsync()
+        {
+            List<DrugRxDto>? result = null;
+            var item = await _drugRxRepository.GetListAsync();
+            //return ObjectMapper.Map<List<DrugRx>, List<DrugRxDto>>(degrees);
+
+
+            result = new List<DrugRxDto>();
+            foreach (var drug in item)
+            {
+                result.Add(new DrugRxDto()
+                {
+                    Id = drug.Id,
+                    PrescribedDrugName = drug.DosageForm + " " + drug.BrandName                  
+
+                });
+            }
+            return result;
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.ObjectMapping;
 using Volo.Abp.Uow;
 
 namespace SoowGoodWeb.Services
@@ -91,6 +92,32 @@ namespace SoowGoodWeb.Services
             var item = await _prescriptionMasterRepository.UpdateAsync(updateItem);
 
             return ObjectMapper.Map<PrescriptionMaster, PrescriptionMasterDto>(item);
+        }
+
+        public async Task<List<PrescriptionPatientDiseaseHistoryDto>> GetPatientDiseaseListAsync(long patientId)
+        {
+            List<PrescriptionPatientDiseaseHistoryDto>? result = null;
+
+            var prescriptionMaster = await _prescriptionMasterRepository.GetListAsync();
+            var patientPrescription = prescriptionMaster.Where(p => p.PatientProfileId == patientId).OrderByDescending(d => d.Id).FirstOrDefault();          
+            var item = await _prescriptionPatientDiseaseHistory.GetListAsync(p=>p.PatientProfileId == patientId 
+                                                                            && p.PrescriptionMasterId == patientPrescription.Id);
+            //var diseaseItem = item.OrderByDescending(d => d.PrescriptionMasterId).FirstOrDefault();
+
+            //result = new List<PrescriptionPatientDiseaseHistoryDto>();
+            //foreach (var disease in item)
+            //{
+            //    result.Add(new PrescriptionPatientDiseaseHistoryDto()
+            //    {
+            //        Id = disease.CommonDisease.Id,
+            //        DiseaseName = disease. //drug.DosageForm + " " + drug.BrandName
+
+            //    });
+            //}
+            //return result;
+
+
+            return ObjectMapper.Map<List<PrescriptionPatientDiseaseHistory>, List<PrescriptionPatientDiseaseHistoryDto>>(item);
         }
     }
 }
