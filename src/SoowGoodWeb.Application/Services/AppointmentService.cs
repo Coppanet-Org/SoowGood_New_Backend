@@ -117,7 +117,7 @@ namespace SoowGoodWeb.Services
         {
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
             //var appointments = await item.Where(d=> d.DoctorProfileId == doctorId && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
-            var appointments = item.Where(d => d.PatientProfileId == patientId).ToList();// && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
+            var appointments = item.Where(d => d.AppointmentCreatorId == patientId).ToList();// && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
 
