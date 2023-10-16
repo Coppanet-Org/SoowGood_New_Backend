@@ -47,5 +47,6 @@ namespace SoowGoodWeb.Models
         public long? CancelledByEntityId { get; set; }
         public string? CancelledByRole { get; set; }
         public string? PaymentTransactionId { get; set; }
+        public long? AppointmentCreatorId { get; set; }
     }
 }
