@@ -60,10 +60,9 @@ namespace SoowGoodWeb.Services
             //var dName = searchDrug.ToLower();
             var item = await _drugRxRepository.WithDetailsAsync();
             var drugs = item.Take(100).ToList();
-            if(searchDrug != null)
+            if(searchDrug!=null)
                 drugs = item.Where(d => d.BrandName.ToLower().StartsWith(searchDrug)).Take(100).ToList();
             //return ObjectMapper.Map<List<DrugRx>, List<DrugRxDto>>(degrees);
-
 
             result = new List<DrugRxDto>();
             foreach (var drug in drugs)
