@@ -54,14 +54,15 @@ namespace SoowGoodWeb.Services
             }
             return result;
         }
-        public async Task<List<DrugRxDto>> GetDrugNameSearchListAsync(string searchDrug)
+        public async Task<List<DrugRxDto>> GetDrugNameSearchListAsync(string? searchDrug=null)
         {
             List<DrugRxDto>? result = null;
-            var dName = searchDrug.ToLower();
+            //var dName = searchDrug.ToLower();
             var item = await _drugRxRepository.WithDetailsAsync();
-            var drugs = item.Where(d => d.BrandName.ToLower().StartsWith(dName)).Take(100).ToList();
+            var drugs = item.Take(100).ToList();
+            if(searchDrug!=null)
+                drugs = item.Where(d => d.BrandName.ToLower().StartsWith(searchDrug)).Take(100).ToList();
             //return ObjectMapper.Map<List<DrugRx>, List<DrugRxDto>>(degrees);
-
 
             result = new List<DrugRxDto>();
             foreach (var drug in drugs)

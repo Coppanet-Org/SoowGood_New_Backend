@@ -55,12 +55,14 @@ namespace SoowGoodWeb.Services
             return result;
         }
 
-        public async Task<List<CommonDiseaseDto>> GetDiseaseNameSearchListAsync(string searchDisease)
+        public async Task<List<CommonDiseaseDto>> GetDiseaseNameSearchListAsync(string? searchDisease=null)
         {
             List<CommonDiseaseDto>? result = null;
-            var dName = searchDisease.ToLower();
+            //var dName = searchDisease.ToLower();
             var item = await _commonDiseaseRepository.WithDetailsAsync();
-            var diseases = item.Where(d => d.Name.ToLower().StartsWith(dName)).Take(100).ToList();
+            var diseases = item.Take(100).ToList();
+            if(searchDisease != null)
+                diseases = item.Where(d => d.Name.ToLower().StartsWith(searchDisease)).Take(100).ToList();
             
             result = new List<CommonDiseaseDto>();
             foreach (var disease in diseases)
