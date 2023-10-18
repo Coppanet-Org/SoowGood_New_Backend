@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231018074142_appointment_table_correction")]
+    partial class appointment_table_correction
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -117,7 +120,7 @@ namespace SoowGoodWeb.Migrations
                     b.Property<decimal?>("AgentFee")
                         .HasColumnType("decimal(18, 2)");
 
-                    b.Property<string>("AppointmentCode")
+                    b.Property<string>("AppointmenCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long?>("AppointmentCreatorId")
@@ -1581,7 +1584,7 @@ namespace SoowGoodWeb.Migrations
                     b.Property<string>("Advice")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("AppointmentCode")
+                    b.Property<string>("AppointmenCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("AppointmentDate")
@@ -1640,9 +1643,6 @@ namespace SoowGoodWeb.Migrations
                     b.Property<Guid?>("LastModifierId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
-
-                    b.Property<string>("PatientAdditionalInfo")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PatientCode")
                         .HasColumnType("nvarchar(max)");
