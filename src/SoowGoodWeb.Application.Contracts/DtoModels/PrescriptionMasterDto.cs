@@ -19,7 +19,7 @@ namespace SoowGoodWeb.DtoModels
         public long? PatientProfileId { get; set; }
         public string? PatientName { get; set; }
         public string? PatientCode { get; set; }
-        public string? PatientAge { get; set; }
+        public int? PatientAge { get; set; }
         public string? PatientBloodGroup { get; set; }
         public string? PatientAdditionalInfo { get; set; }
         public ConsultancyType? ConsultancyType { get; set; }
