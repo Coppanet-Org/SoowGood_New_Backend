@@ -70,7 +70,7 @@ namespace SoowGoodWeb.Services
                     break;
                 }
                 input.AppointmentSerial = (lastSerial + 1).ToString();
-                input.AppointmenCode = input.DoctorCode + "-" + input.PatientCode + "-" + input.AppointmentSerial;
+                input.AppointmentCode = input.DoctorCode + "-" + input.PatientCode + "-" + input.AppointmentSerial;
             }
             var newEntity = ObjectMapper.Map<AppointmentInputDto, Appointment>(input);
 
@@ -117,7 +117,7 @@ namespace SoowGoodWeb.Services
         {
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
             //var appointments = await item.Where(d=> d.DoctorProfileId == doctorId && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
-            var appointments = item.Where(d => d.PatientProfileId == patientId).ToList();// && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
+            var appointments = item.Where(d => d.AppointmentCreatorId == patientId).ToList();// && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
 

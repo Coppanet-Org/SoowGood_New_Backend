@@ -14,5 +14,8 @@ namespace SoowGoodWeb.Interfaces
         Task<PrescriptionMasterDto> GetAsync(int id);
         Task<PrescriptionMasterDto> CreateAsync(PrescriptionMasterInputDto input);
         Task<PrescriptionMasterDto> UpdateAsync(PrescriptionMasterInputDto input);
+
+        Task<List<PrescriptionPatientDiseaseHistoryDto>> GetPatientDiseaseListAsync(long patientId);
+
     }
 }

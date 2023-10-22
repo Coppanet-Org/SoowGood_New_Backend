@@ -1583,7 +1583,7 @@ namespace SoowGoodWeb.Migrations
                     b.Property<string>("Advice")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("AppointmentCode")
+                    b.Property<string>("AppointmenCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("AppointmentDate")

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231016071502_appointment_table_updated_with_appCreatorId")]
+    partial class appointment_table_updated_with_appCreatorId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -117,7 +120,7 @@ namespace SoowGoodWeb.Migrations
                     b.Property<decimal?>("AgentFee")
                         .HasColumnType("decimal(18, 2)");
 
-                    b.Property<string>("AppointmentCode")
+                    b.Property<string>("AppointmenCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long?>("AppointmentCreatorId")
@@ -1448,6 +1451,8 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DrugRxId");
+
                     b.HasIndex("PrescriptionMasterId");
 
                     b.ToTable("SgPrescriptionDrugDetails");
@@ -1581,7 +1586,7 @@ namespace SoowGoodWeb.Migrations
                     b.Property<string>("Advice")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("AppointmentCode")
+                    b.Property<string>("AppointmenCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("AppointmentDate")
@@ -1640,9 +1645,6 @@ namespace SoowGoodWeb.Migrations
                     b.Property<Guid?>("LastModifierId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
-
-                    b.Property<string>("PatientAdditionalInfo")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PatientCode")
                         .HasColumnType("nvarchar(max)");
@@ -1777,6 +1779,8 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CommonDiseaseId");
 
                     b.HasIndex("PrescriptionMasterId");
 
@@ -3649,9 +3653,15 @@ namespace SoowGoodWeb.Migrations
 
             modelBuilder.Entity("SoowGoodWeb.Models.PrescriptionDrugDetails", b =>
                 {
+                    b.HasOne("SoowGoodWeb.Models.DrugRx", "DrugRx")
+                        .WithMany()
+                        .HasForeignKey("DrugRxId");
+
                     b.HasOne("SoowGoodWeb.Models.PrescriptionMaster", "PrescriptionMaster")
                         .WithMany("PrescriptionDrugDetails")
                         .HasForeignKey("PrescriptionMasterId");
+
+                    b.Navigation("DrugRx");
 
                     b.Navigation("PrescriptionMaster");
                 });
@@ -3694,9 +3704,15 @@ namespace SoowGoodWeb.Migrations
 
             modelBuilder.Entity("SoowGoodWeb.Models.PrescriptionPatientDiseaseHistory", b =>
                 {
+                    b.HasOne("SoowGoodWeb.Models.CommonDisease", "CommonDisease")
+                        .WithMany()
+                        .HasForeignKey("CommonDiseaseId");
+
                     b.HasOne("SoowGoodWeb.Models.PrescriptionMaster", "PrescriptionMaster")
                         .WithMany("PrescriptionPatientDiseaseHistory")
                         .HasForeignKey("PrescriptionMasterId");
+
+                    b.Navigation("CommonDisease");
 
                     b.Navigation("PrescriptionMaster");
                 });
