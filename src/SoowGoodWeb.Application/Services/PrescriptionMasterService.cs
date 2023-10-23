@@ -183,6 +183,12 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<List<PrescriptionMaster>, List<PrescriptionMasterDto>>(doctDegrees);
         }
 
+        public async Task<List<PrescriptionMasterDto>> GetPrescriptionMasterListByDoctorIdPatientIdAsync(int doctorId, int patientId)
+        {
+            var doctDegrees = await _prescriptionMasterRepository.GetListAsync(dd => dd.DoctorProfileId == doctorId && dd.PatientProfileId==patientId);
+            return ObjectMapper.Map<List<PrescriptionMaster>, List<PrescriptionMasterDto>>(doctDegrees);
+        }
+
         public async Task<List<PrescriptionMasterDto>> GetPrescriptionMasterListByPatientIdAsync(int patientId)
         {
             var doctDegrees = await _prescriptionMasterRepository.GetListAsync(dd => dd.PatientProfileId == patientId);
