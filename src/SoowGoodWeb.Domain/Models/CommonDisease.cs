@@ -11,7 +11,7 @@ namespace SoowGoodWeb.Models
     public class CommonDisease : FullAuditedEntity<long>
     {
         public string? Code { get; set; }
-        public string? DiseaseName { get; set; }
+        public string? Name { get; set; }
         public string? Description { get; set; }
     }
 }
