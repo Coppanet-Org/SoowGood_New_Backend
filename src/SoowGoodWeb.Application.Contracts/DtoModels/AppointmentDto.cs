@@ -10,7 +10,7 @@ namespace SoowGoodWeb.DtoModels
     public class AppointmentDto : FullAuditedEntityDto<long>
     {
         public string? AppointmentSerial { get; set; }
-        public string? AppointmenCode { get; set; }
+        public string? AppointmentCode { get; set; }
         public long? DoctorScheduleId { get; set; }
         //public DoctorScheduleDto? DoctorSchedule { get; set; }
         public string? DoctorScheduleName { get; set; }
@@ -46,5 +46,6 @@ namespace SoowGoodWeb.DtoModels
         public long? CancelledByEntityId { get; set; }
         public string? CancelledByRole { get; set; }
         public string? PaymentTransactionId { get; set; }
+        public long? AppointmentCreatorId { get; set; }
     }
 }

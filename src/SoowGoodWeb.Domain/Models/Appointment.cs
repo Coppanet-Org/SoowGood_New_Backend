@@ -12,7 +12,7 @@ namespace SoowGoodWeb.Models
     public class Appointment : FullAuditedEntity<long>
     {
         public string? AppointmentSerial { get; set; }
-        public string? AppointmenCode { get; set; }
+        public string? AppointmentCode { get; set; }
         public long? DoctorScheduleId { get; set; }
         public DoctorSchedule? DoctorSchedule { get; set; }
         //public string? ScheduleName { get; set; }
@@ -47,5 +47,6 @@ namespace SoowGoodWeb.Models
         public long? CancelledByEntityId { get; set; }
         public string? CancelledByRole { get; set; }
         public string? PaymentTransactionId { get; set; }
+        public long? AppointmentCreatorId { get; set; }
     }
 }

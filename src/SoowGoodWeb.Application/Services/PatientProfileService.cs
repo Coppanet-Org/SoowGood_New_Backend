@@ -54,7 +54,19 @@ namespace SoowGoodWeb.Services
 
             //return result;
         }
+        public async Task<PatientProfileDto> GetByPhoneAndCodeAsync(string pCode, string pPhone)
+        {
+            var item = await _patientProfileRepository.GetAsync(x => x.PatientCode == pCode && x.PatientMobileNo == pPhone);//.WithDetailsAsync();
+            //var patient = item.Where(x => x.PatientCode == pCode && x.PatientMobileNo == pPhone).FirstOrDefault();
+            //if(patient!=null)
+                return ObjectMapper.Map<PatientProfile, PatientProfileDto>(item);
 
+            //var item = await _patientProfileRepository.WithDetailsAsync();
+            //var profile = item.FirstOrDefault(item => item.Id == id);
+            //var result = profile != null ? ObjectMapper.Map<PatientProfile, PatientProfileDto>(profile) : null;
+
+            //return null;
+        }
         public async Task<PatientProfileDto> GetByUserNameAsync(string userName)
         {
             var item = await _patientProfileRepository.GetAsync(x => x.MobileNo == userName);
