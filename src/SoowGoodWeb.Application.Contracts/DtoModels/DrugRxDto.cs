@@ -21,6 +21,7 @@ namespace SoowGoodWeb.DtoModels
         public string? CDAR { get; set; }
         public string? SDAR { get; set; }
         public string? GDAR { get; set; }
+        public string? PrescribedDrugName { get; set; }
 
     }
 }

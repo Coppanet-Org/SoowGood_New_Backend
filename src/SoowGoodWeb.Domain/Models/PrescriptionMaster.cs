@@ -34,6 +34,7 @@ namespace SoowGoodWeb.Models
         public List<PrescriptionFindingsObservations>? PrescriptionFindingsObservations { get;set; } 
         public List<PrescriptionMedicalCheckups>? PrescriptionMedicalCheckups { get;set; } 
         public List<PrescriptionDrugDetails>? PrescriptionDrugDetails { get;set; }
+        public string? PatientAdditionalInfo { get; set; }
 
     }
 }

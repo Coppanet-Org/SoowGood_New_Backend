@@ -10,6 +10,7 @@ namespace SoowGoodWeb.DtoModels
     {
         public long? PrescriptionMasterId { get; set; }
         public string? PrescriptionRefferenceCode { get; set; }
+        public string? Symptom { get; set; }
         public string? Duration { get; set; }
         public string? Condition { get; set; }
         public string? Problems { get; set; }

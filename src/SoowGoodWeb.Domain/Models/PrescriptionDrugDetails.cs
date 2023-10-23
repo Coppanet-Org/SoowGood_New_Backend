@@ -13,7 +13,7 @@ namespace SoowGoodWeb.Models
         public long? PrescriptionMasterId { get; set; }
         public PrescriptionMaster? PrescriptionMaster { get; set; }
         public long? DrugRxId { get; set; }
-        public DrugRx? DrugRx { get; set; }
+        //public DrugRx? DrugRx { get; set; }
         public string? DrugName { get; set; }
         public string? DrugDoseSchedule { get; set; }
         public bool? IsDrugExceptional { get; set; }

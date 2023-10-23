@@ -164,6 +164,5 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<PrescriptionDrugDetails, PrescriptionDrugDetailsDto>();
         CreateMap<PrescriptionDrugDetailsDto, PrescriptionDrugDetails>();
         CreateMap<PrescriptionDrugDetailsInputDto, PrescriptionDrugDetails>();
-
     }
 }

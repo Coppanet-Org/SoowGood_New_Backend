@@ -122,7 +122,7 @@ namespace SoowGoodWeb.Services
             return await Task.Run(async () =>
             {
                 var app = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-                var job = app.Where(a => a.AppointmenCode == input.ApplicationCode).FirstOrDefault();
+                var job = app.Where(a => a.AppointmentCode == input.ApplicationCode).FirstOrDefault();
                 var sslCommerzPostDataDto = new SslCommerzPostDataDto();
                 if (job != null && job.AppointmentStatus == AppointmentStatus.Pending)
                 {
@@ -185,7 +185,7 @@ namespace SoowGoodWeb.Services
         private async Task UpdatePaymentStatus(string application_code, string tran_id, string paid_amount)
         {
             var applicant = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-            var app = applicant.Where(a=>a.AppointmenCode == application_code).FirstOrDefault();
+            var app = applicant.Where(a=>a.AppointmentCode == application_code).FirstOrDefault();
 
             if (app != null && app.AppointmentStatus != AppointmentStatus.Confirmed)
             {
