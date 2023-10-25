@@ -1,14 +1,21 @@
-﻿using SoowGoodWeb.DtoModels;
+﻿using Microsoft.AspNetCore.Authorization;
+using Newtonsoft.Json;
+using SoowGoodWeb.DtoModels;
 using SoowGoodWeb.Enums;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
 using SoowGoodWeb.Utilities;
 using System;
 using System.Linq;
+using System.Net.Http.Headers;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Identity;
 using Volo.Abp.Uow;
+using IdentityModel.Client;
+using System.Text;
 
 namespace SoowGoodWeb.Services
 {
@@ -19,12 +26,21 @@ namespace SoowGoodWeb.Services
         private readonly IdentityUserManager _userManager;
         private readonly IRepository<Otp, int> _repository;
         private readonly ISmsService _smsService;
+        private readonly IRepository<DoctorProfile> _doctorProfileRepository;
+        private readonly IRepository<PatientProfile> _patientProfileRepository;
+        private readonly IRepository<AgentProfile> _agentProfileRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         public OtpService(IdentityUserManager userManager, IRepository<Otp, int> repository,
+            IRepository<DoctorProfile> doctorProfileRepository,
+            IRepository<PatientProfile> patientProfileRepository,
+            IRepository<AgentProfile> agentProfileRepository,
             ISmsService smsService,
             IUnitOfWorkManager unitOfWorkManager)
         {
             _userManager = userManager;
+            _agentProfileRepository = agentProfileRepository;
+            _doctorProfileRepository = doctorProfileRepository;
+            _patientProfileRepository = patientProfileRepository;
             this._repository = repository;
             this._smsService = smsService;
             this._unitOfWorkManager = unitOfWorkManager;
@@ -33,9 +49,32 @@ namespace SoowGoodWeb.Services
 
         //[HttpGet]
         //[AllowAnonymous]
+
         public async Task<bool> ApplyOtp(string clientKey, string mobileNo)
         {
             var isUserExists = await _userManager.FindByNameAsync(mobileNo);
+
+            //var doctorUser = await IsDoctorExist(mobileNo);
+
+            //if (doctorUser == true)
+            //{
+            //    return false;
+            //}
+
+            //var patientUser = await IsPatientExist(mobileNo);
+
+            //if (patientUser == true)
+            //{
+            //    return false;
+            //}
+
+            //var agentUser = await IsAgentExist(mobileNo);
+
+            //if (agentUser == true)
+            //{
+            //    return false;
+            //}
+            //if (doctorUser == null && patientUser == null && agentUser == null)
             if (isUserExists == null)
             {
                 if (!string.IsNullOrEmpty(clientKey) && clientKey.Equals("SoowGood_App", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrEmpty(mobileNo))
@@ -69,6 +108,60 @@ namespace SoowGoodWeb.Services
                 return false;
             }
             return false;
+        }
+
+
+        [AllowAnonymous]
+        public virtual async Task<bool> IsExist(string mobile)
+        {
+            UserSignUpResultDto result = new UserSignUpResultDto();
+            using (var client = new HttpClient())
+            {
+                var tokenResponse = await GetToken();
+                client.BaseAddress = new Uri(PermissionHelper._identityClientUrl);
+                client.SetBearerToken(tokenResponse.AccessToken);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                //GET Method
+
+                //var update = JsonSerializer.Serialize(userDto);
+                //var requestContent = new StringContent(update, Encoding.UTF8, "application/json");
+                HttpResponseMessage response =
+                    await client.GetAsync($"api/app/account/IsUserExist?mobile={mobile}");
+                if (response.IsSuccessStatusCode)
+                {
+                    
+                    return true;
+
+                }
+            }
+            return false;
+        }
+        private async Task<TokenResponse> GetToken()
+        {
+            var authorityUrl = $"{PermissionHelper._authority}";
+
+            var authority = new HttpClient();
+            var discoveryDocument = await authority.GetDiscoveryDocumentAsync(authorityUrl);
+            if (discoveryDocument.IsError)
+            {
+                //return null;
+            }
+
+            // Request Token
+            var tokenResponse = await authority.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            {
+                Address = discoveryDocument.TokenEndpoint,
+                ClientId = PermissionHelper._clientId,
+                ClientSecret = PermissionHelper._clientSecret,
+                Scope = PermissionHelper._scope
+            });
+
+            if (tokenResponse.IsError)
+            {
+                //return null;
+            }
+            return tokenResponse;
         }
         private static string GenerateTransactionId(int length)
         {
@@ -108,7 +201,34 @@ namespace SoowGoodWeb.Services
             return input;
         }
 
+        public async Task<bool> IsDoctorExist(string mobile)
+        {
+            var doctor = await _doctorProfileRepository.GetAsync(d => d.MobileNo==mobile);
+            if (doctor != null)
+            {
+                return true;
+            }
+            else { return false; }
+        }
 
+        public async Task<bool> IsPatientExist(string mobile)
+        {
+            var doctor = await _patientProfileRepository.GetAsync(d => d.MobileNo==mobile);
+            if (doctor != null)
+            {
+                return true;
+            }
+            else { return false; }
+        }
+        public async Task<bool> IsAgentExist(string mobile)
+        {
+            var doctor = await _agentProfileRepository.GetAsync(d => d.MobileNo==mobile);
+            if (doctor != null)
+            {
+                return true;
+            }
+            else { return false; }
+        }
     }
 }
 
