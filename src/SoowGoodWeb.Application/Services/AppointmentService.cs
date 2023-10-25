@@ -12,6 +12,7 @@ using Volo.Abp.ObjectMapping;
 using Scriban.Syntax;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.SslCommerz;
+using System.Collections;
 
 namespace SoowGoodWeb.Services
 {
@@ -20,12 +21,14 @@ namespace SoowGoodWeb.Services
         private readonly IRepository<Appointment> _appointmentRepository;
         //private readonly IRepository<DoctorChamber> _doctorChamberRepository;
         private readonly IRepository<DoctorScheduleDaySession> _doctorScheduleSessionRepository;
+        private readonly IRepository<PatientProfile> _patientProfileRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
 
         public AppointmentService(IRepository<Appointment> appointmentRepository,
             //IRepository<DoctorChamber> doctorChamberRepository,
             IRepository<DoctorScheduleDaySession> doctorScheduleSessionRepository,
+            IRepository<PatientProfile> patientProfileRepository,
             SslCommerzGatewayManager sslCommerzGatewayManager,
             IUnitOfWorkManager unitOfWorkManager)
         {
@@ -33,6 +36,7 @@ namespace SoowGoodWeb.Services
             //_doctorScheduleRepository = doctorScheduleRepository;
             //_doctorChamberRepository = doctorChamberRepository;
             _doctorScheduleSessionRepository = doctorScheduleSessionRepository;
+            _patientProfileRepository = patientProfileRepository;
             _sslCommerzGatewayManager = sslCommerzGatewayManager;
             //_unitOfWorkManager = unitOfWorkManager;
         }
@@ -148,6 +152,38 @@ namespace SoowGoodWeb.Services
             }
 
             return resultNp;//noOfPatients == appCounts? 0: (int)resultNp;
+        }
+
+        public async Task<List<AppointmentDto>> GetPatientListByDoctorIdAsync(long doctorId)
+        {
+            var restultPatientList = new List<AppointmentDto>();
+            try
+            {
+                var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
+                //var appointments = await item.Where(d=> d.DoctorProfileId == doctorId && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
+                var appointments = item.Where(d => d.DoctorProfileId == doctorId);// && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
+                var patientIds = (from app in appointments
+                                  select app.PatientProfileId).Distinct();
+                foreach (var appointment in patientIds)
+                {
+                    var patient = await _patientProfileRepository.GetAsync(p => p.Id == appointment);
+                    restultPatientList.Add(new AppointmentDto()
+                    {
+
+                        PatientProfileId = patient.Id,
+                        PatientCode = patient.PatientCode,
+                        PatientName = patient.PatientName,
+                        PatientMobileNo = patient.PatientMobileNo,
+                        PatientEmail = patient.PatientEmail,
+                        PatientLocation = patient.City
+                    });
+                }
+                return restultPatientList;//ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
+            }
+            catch (Exception ex) {
+                return restultPatientList;
+            }
+            
         }
 
     }
