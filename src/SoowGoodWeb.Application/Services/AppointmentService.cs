@@ -169,7 +169,7 @@ namespace SoowGoodWeb.Services
                     var patient = await _patientProfileRepository.GetAsync(p => p.Id == appointment);
                     restultPatientList.Add(new AppointmentDto()
                     {
-
+                        DoctorProfileId=doctorId,
                         PatientProfileId = patient.Id,
                         PatientCode = patient.PatientCode,
                         PatientName = patient.PatientName,
