@@ -187,7 +187,7 @@ namespace SoowGoodWeb.Services
             var applicant = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
             var app = applicant.Where(a=>a.AppointmentCode == application_code).FirstOrDefault();
 
-            if (app != null && app.AppointmentStatus != AppointmentStatus.Confirmed)
+            if (app != null) //&& app.AppointmentStatus != AppointmentStatus.Confirmed)
             {
                 app.AppointmentStatus = AppointmentStatus.Confirmed;
                 app.PaymentTransactionId = tran_id;
@@ -290,12 +290,18 @@ namespace SoowGoodWeb.Services
 
         private static SslCommerzInitDto GetInitPaymentResponse(SSLCommerzInitResponse initResponse)
         {
-            return new SslCommerzInitDto
-            {
-                status = initResponse.status,
-                failedreason = initResponse.failedreason,
-                GatewayPageURL = initResponse.GatewayPageURL
-            };
+            var pResponse = new SslCommerzInitDto();
+            //pResponse =
+            pResponse.status = initResponse.status;
+            pResponse.failedreason = initResponse.failedreason;
+            pResponse.GatewayPageURL = initResponse.GatewayPageURL;
+            //return new SslCommerzInitDto
+            //{
+            //    status = initResponse.status,
+            //    failedreason = initResponse.failedreason,
+            //    GatewayPageURL = initResponse.GatewayPageURL
+            //};
+            return pResponse;
         }
 
         private static SslCommerzDto GetFullInitPaymentResponse(SSLCommerzInitResponse initResponse)
