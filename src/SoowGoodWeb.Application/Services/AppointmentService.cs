@@ -13,6 +13,8 @@ using Scriban.Syntax;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.SslCommerz;
 using System.Collections;
+using AgoraIO.Media;
+using System.Security.Principal;
 
 namespace SoowGoodWeb.Services
 {
@@ -25,6 +27,8 @@ namespace SoowGoodWeb.Services
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
 
+
+        private uint _expireTimeInSeconds = 3600;
         public AppointmentService(IRepository<Appointment> appointmentRepository,
             //IRepository<DoctorChamber> doctorChamberRepository,
             IRepository<DoctorScheduleDaySession> doctorScheduleSessionRepository,
@@ -38,6 +42,7 @@ namespace SoowGoodWeb.Services
             _doctorScheduleSessionRepository = doctorScheduleSessionRepository;
             _patientProfileRepository = patientProfileRepository;
             _sslCommerzGatewayManager = sslCommerzGatewayManager;
+
             //_unitOfWorkManager = unitOfWorkManager;
         }
 
@@ -184,6 +189,24 @@ namespace SoowGoodWeb.Services
                 return restultPatientList;
             }
             
+        }
+
+        public string testBuildTokenWithUserAccount(string _appId, string _appCertificate, string _channelName, string _account)
+        {
+            uint privilegeExpiredTs = _expireTimeInSeconds + (uint)Utils.getTimestamp();
+            string token = RtcTokenBuilder.buildTokenWithUserAccount(_appId, _appCertificate, _channelName, _account, RtcTokenBuilder.Role.RolePublisher, privilegeExpiredTs);
+            return token;
+            //Output.WriteLine(">> token");
+            //Output.WriteLine(token);
+        }
+
+        public string testBuildTokenWithUID(string _appId, string _appCertificate, string _channelName, uint _uid)
+        {
+            uint privilegeExpiredTs = _expireTimeInSeconds + (uint)Utils.getTimestamp();
+            string token = RtcTokenBuilder.buildTokenWithUID(_appId, _appCertificate, _channelName, _uid, RtcTokenBuilder.Role.RolePublisher, privilegeExpiredTs);
+            return token;
+            //Output.WriteLine(">> token");
+            //Output.WriteLine(token);
         }
 
     }

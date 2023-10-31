@@ -378,7 +378,8 @@ namespace SoowGoodWeb.SslCommerz
             {
                 response = await client.UploadValuesTaskAsync(url, "POST", postData);
             }
-            return Encoding.UTF8.GetString(response);
+            var str = Encoding.UTF8.GetString(response);
+            return str;//Encoding.UTF8.GetString(response);
         }
 
         public bool IpnHashVerify(Dictionary<string, string> responseDic, string storePassword)

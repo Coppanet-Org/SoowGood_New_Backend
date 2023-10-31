@@ -9,7 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Services\AccessToken2.cs" />
     <Compile Remove="Services\PaymentService.cs" />
+    <Compile Remove="Services\RtcTokenBuilder2.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -18,6 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AgoraDynamicKey" Version="1.0.0" />
+    <PackageReference Include="agora_csharp_sdk" Version="3.6.2.4" />
     <PackageReference Include="IdentityModel" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
     <PackageReference Include="Nancy" Version="2.0.0" />
