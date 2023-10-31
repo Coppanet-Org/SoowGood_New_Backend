@@ -295,6 +295,7 @@ namespace SoowGoodWeb.Services
             pResponse.status = initResponse.status;
             pResponse.failedreason = initResponse.failedreason;
             pResponse.GatewayPageURL = initResponse.GatewayPageURL;
+            
             //return new SslCommerzInitDto
             //{
             //    status = initResponse.status,
