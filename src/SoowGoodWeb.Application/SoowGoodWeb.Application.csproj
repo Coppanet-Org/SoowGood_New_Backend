@@ -22,6 +22,7 @@
   <ItemGroup>
     <PackageReference Include="AgoraDynamicKey" Version="1.0.0" />
     <PackageReference Include="agora_csharp_sdk" Version="3.6.2.4" />
+    <PackageReference Include="Crc32.NET" Version="1.2.0" />
     <PackageReference Include="IdentityModel" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
     <PackageReference Include="Nancy" Version="2.0.0" />
