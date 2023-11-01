@@ -200,11 +200,11 @@ namespace SoowGoodWeb.Services
             //Output.WriteLine(token);
         }
 
-        public string testBuildTokenWithUID(string _appId, string _appCertificate, string _channelName, uint _uid)
+        public string testBuildTokenWithUID(RtcTokenBuilerDto input)
         {
             uint privilegeExpiredTs = _expireTimeInSeconds + (uint)Utils.getTimestamp();
-            string token = RtcTokenBuilder.buildTokenWithUID(_appId, _appCertificate, _channelName, _uid, RtcTokenBuilder.Role.RolePublisher, privilegeExpiredTs);
-            return token;
+            string token = RtcTokenBuilder.buildTokenWithUID(input.Appid, input.AppCertificate,input.ChanelName, input.Uid, RtcTokenBuilder.Role.RolePublisher, privilegeExpiredTs);
+            return  token;
             //Output.WriteLine(">> token");
             //Output.WriteLine(token);
         }
