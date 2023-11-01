@@ -203,8 +203,23 @@ namespace SoowGoodWeb.Services
         public string testBuildTokenWithUID(RtcTokenBuilerDto input)
         {
             uint privilegeExpiredTs = _expireTimeInSeconds + (uint)Utils.getTimestamp();
-            string token = RtcTokenBuilder.buildTokenWithUID(input.Appid, input.AppCertificate,input.ChanelName, input.Uid, RtcTokenBuilder.Role.RolePublisher, privilegeExpiredTs);
+            string token = "";//RtcTokenBuilder.buildTokenWithUID(input.Appid, input.AppCertificate,input.ChanelName, input.Uid, RtcTokenBuilder.Role.RolePublisher, privilegeExpiredTs);
             return  token;
+            //Output.WriteLine(">> token");
+            //Output.WriteLine(token);
+        }
+
+        public string testAcToken(RtcTokenBuilerDto input)
+        {
+            uint privilegeExpiredTs = _expireTimeInSeconds + (uint)Utils.getTimestamp();
+            AccessToken accessToken = new AccessToken(input.Appid, input.AppCertificate, input.ChanelName, input.Uid, privilegeExpiredTs, 1);
+            accessToken.addPrivilege(Privileges.kJoinChannel, privilegeExpiredTs);
+            accessToken.addPrivilege(Privileges.kPublishAudioStream, privilegeExpiredTs);
+            accessToken.addPrivilege(Privileges.kPublishVideoStream, privilegeExpiredTs);
+            accessToken.addPrivilege(Privileges.kPublishDataStream, privilegeExpiredTs);
+
+            string token = accessToken.build();
+            return token;
             //Output.WriteLine(">> token");
             //Output.WriteLine(token);
         }
