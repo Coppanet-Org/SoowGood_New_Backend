@@ -1,4 +1,5 @@
 ﻿using SoowGoodWeb.DtoModels;
+using SoowGoodWeb.Enums;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
@@ -67,6 +68,34 @@ namespace SoowGoodWeb.Services
             var profiles = await _doctorProfileRepository.GetListAsync();
             return ObjectMapper.Map<List<DoctorProfile>, List<DoctorProfileDto>>(profiles);
         }
+
+        public async Task<List<DoctorProfileDto>> GetListByAdminAsync()
+        {
+            List<DoctorProfileDto>? result= null;
+            var allProfile = await _doctorProfileRepository.GetListAsync(); ;
+            if (!allProfile.Any())
+            {
+                return result;
+            }
+
+            result = new List<DoctorProfileDto>();
+            foreach (var item in allProfile)
+            {
+                result.Add(new DoctorProfileDto()
+                {
+                    Id = item.Id,
+                    FullName = item.FullName,
+                    Email = item.Email,
+                    MobileNo = item.MobileNo,
+                    DateOfBirth = item.DateOfBirth,
+                    Gender = item.Gender,
+                    GenderName = item.Gender >0 ? ((Gender)item.Gender).ToString():"n/a",
+                    Address = item.Address,
+                }) ;
+            }
+            return result;
+        }
+
         public async Task<DoctorProfileDto> GetByUserIdAsync(Guid userId)
         {
             var item = await _doctorProfileRepository.GetAsync(x => x.UserId == userId);
