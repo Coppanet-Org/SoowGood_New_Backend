@@ -12,6 +12,9 @@ using Volo.Abp.ObjectMapping;
 using Scriban.Syntax;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.SslCommerz;
+using System.Collections;
+using AgoraIO.Media;
+using System.Security.Principal;
 
 namespace SoowGoodWeb.Services
 {
@@ -20,12 +23,16 @@ namespace SoowGoodWeb.Services
         private readonly IRepository<Appointment> _appointmentRepository;
         //private readonly IRepository<DoctorChamber> _doctorChamberRepository;
         private readonly IRepository<DoctorScheduleDaySession> _doctorScheduleSessionRepository;
+        private readonly IRepository<PatientProfile> _patientProfileRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
 
+
+        private uint _expireTimeInSeconds = 3600;
         public AppointmentService(IRepository<Appointment> appointmentRepository,
             //IRepository<DoctorChamber> doctorChamberRepository,
             IRepository<DoctorScheduleDaySession> doctorScheduleSessionRepository,
+            IRepository<PatientProfile> patientProfileRepository,
             SslCommerzGatewayManager sslCommerzGatewayManager,
             IUnitOfWorkManager unitOfWorkManager)
         {
@@ -33,7 +40,9 @@ namespace SoowGoodWeb.Services
             //_doctorScheduleRepository = doctorScheduleRepository;
             //_doctorChamberRepository = doctorChamberRepository;
             _doctorScheduleSessionRepository = doctorScheduleSessionRepository;
+            _patientProfileRepository = patientProfileRepository;
             _sslCommerzGatewayManager = sslCommerzGatewayManager;
+
             //_unitOfWorkManager = unitOfWorkManager;
         }
 
@@ -148,6 +157,92 @@ namespace SoowGoodWeb.Services
             }
 
             return resultNp;//noOfPatients == appCounts? 0: (int)resultNp;
+        }
+
+        public async Task<List<AppointmentDto>> GetPatientListByDoctorIdAsync(long doctorId)
+        {
+            var restultPatientList = new List<AppointmentDto>();
+            try
+            {
+                var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
+                //var appointments = await item.Where(d=> d.DoctorProfileId == doctorId && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
+                var appointments = item.Where(d => d.DoctorProfileId == doctorId);// && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
+                var patientIds = (from app in appointments
+                                  select app.PatientProfileId).Distinct();
+                foreach (var appointment in patientIds)
+                {
+                    var patient = await _patientProfileRepository.GetAsync(p => p.Id == appointment);
+                    restultPatientList.Add(new AppointmentDto()
+                    {
+                        DoctorProfileId=doctorId,
+                        PatientProfileId = patient.Id,
+                        PatientCode = patient.PatientCode,
+                        PatientName = patient.PatientName,
+                        PatientMobileNo = patient.PatientMobileNo,
+                        PatientEmail = patient.PatientEmail,
+                        PatientLocation = patient.City
+                    });
+                }
+                return restultPatientList;//ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
+            }
+            catch (Exception ex) {
+                return restultPatientList;
+            }
+            
+        }
+
+        public string testBuildTokenWithUserAccount(string _appId, string _appCertificate, string _channelName, string _account)
+        {
+            uint privilegeExpiredTs = _expireTimeInSeconds + (uint)Utils.getTimestamp();
+            string token = RtcTokenBuilder.buildTokenWithUserAccount(_appId, _appCertificate, _channelName, _account, RtcTokenBuilder.Role.RolePublisher, privilegeExpiredTs);
+            return token;
+            //Output.WriteLine(">> token");
+            //Output.WriteLine(token);
+        }
+
+        public string testBuildTokenWithUID(RtcTokenBuilerDto input)
+        {
+            uint privilegeExpiredTs = _expireTimeInSeconds + (uint)Utils.getTimestamp();
+            string token = "";//RtcTokenBuilder.buildTokenWithUID(input.Appid, input.AppCertificate,input.ChanelName, input.Uid, RtcTokenBuilder.Role.RolePublisher, privilegeExpiredTs);
+            return  token;
+            //Output.WriteLine(">> token");
+            //Output.WriteLine(token);
+        }
+
+        public string testAcToken(RtcTokenBuilerDto input)
+        {
+            uint privilegeExpiredTs = _expireTimeInSeconds + (uint)Utils.getTimestamp();
+            AccessToken accessToken = new AccessToken(input.Appid, input.AppCertificate, input.ChanelName, input.Uid, privilegeExpiredTs, 1);
+            accessToken.addPrivilege(Privileges.kJoinChannel, privilegeExpiredTs);
+            accessToken.addPrivilege(Privileges.kPublishAudioStream, privilegeExpiredTs);
+            accessToken.addPrivilege(Privileges.kPublishVideoStream, privilegeExpiredTs);
+            accessToken.addPrivilege(Privileges.kPublishDataStream, privilegeExpiredTs);
+
+            string token = accessToken.build();
+            return token;
+            //Output.WriteLine(">> token");
+            //Output.WriteLine(token);
+        }
+
+        public async Task<AppointmentDto> UpdateCallConsultationAppointmentAsync(string appCode)
+        {
+            try
+            {
+                var itemAppointment = await _appointmentRepository.GetAsync(a => a.AppointmentCode == appCode);//.FindAsync(input.Id);
+                itemAppointment.AppointmentStatus = AppointmentStatus.Completed;
+                itemAppointment.IsCousltationComplete = true;
+
+                
+
+                var item = await _appointmentRepository.UpdateAsync(itemAppointment);
+                //await _unitOfWorkManager.Current.SaveChangesAsync();
+                return ObjectMapper.Map<Appointment, AppointmentDto>(item);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
         }
 
     }

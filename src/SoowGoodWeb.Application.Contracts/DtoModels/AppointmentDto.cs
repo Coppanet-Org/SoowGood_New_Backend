@@ -22,6 +22,9 @@ namespace SoowGoodWeb.DtoModels
         //public PatientProfileDto? PatientProfile { get; set; }
         public string? PatientName { get; set; }
         public string? PatientCode { get; set; }
+        public string? PatientMobileNo { get; set; }
+        public string? PatientEmail { get; set; }
+        public string? PatientLocation { get; set; }
         public ConsultancyType? ConsultancyType { get; set; }
         public string? ConsultancyTypeName { get; set; }
         public long? DoctorChamberId { get; set; }
@@ -47,5 +50,6 @@ namespace SoowGoodWeb.DtoModels
         public string? CancelledByRole { get; set; }
         public string? PaymentTransactionId { get; set; }
         public long? AppointmentCreatorId { get; set; }
+        public bool? IsCousltationComplete { get; set; }
     }
 }

@@ -178,6 +178,7 @@ namespace SoowGoodWeb.Controllers
         private async Task<Dictionary<string, string>> MapSslCommerzResponse()
         {
             var sslCommerzResponseDic = new Dictionary<string, string>();
+            //var reader = new StreamReader(Request.Body, Encoding.UTF8);
             using (var reader = new StreamReader(Request.Body, Encoding.UTF8))
             {
                 var result = await reader.ReadToEndAsync();
