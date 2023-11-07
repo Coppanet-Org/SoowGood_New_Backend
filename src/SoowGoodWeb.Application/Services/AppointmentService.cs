@@ -229,7 +229,9 @@ namespace SoowGoodWeb.Services
             try
             {
                 var itemAppointment = await _appointmentRepository.GetAsync(a => a.AppointmentCode == appCode);//.FindAsync(input.Id);
+                itemAppointment.AppointmentStatus = AppointmentStatus.Completed;
                 itemAppointment.IsCousltationComplete = true;
+
                 
 
                 var item = await _appointmentRepository.UpdateAsync(itemAppointment);
