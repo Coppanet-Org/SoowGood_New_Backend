@@ -52,30 +52,37 @@ namespace SoowGoodWeb.Services
 
         public async Task<bool> ApplyOtp(string clientKey, string mobileNo)
         {
-            var isUserExists = await _userManager.FindByNameAsync(mobileNo);
+            int exits = 0;
+            var doctors = await _doctorProfileRepository.GetListAsync();//(d => d.MobileNo==mobileNo);
+            var doctor = doctors.FirstOrDefault(d => d.MobileNo == mobileNo);
 
-            //var doctorUser = await IsDoctorExist(mobileNo);
-
-            //if (doctorUser == true)
-            //{
-            //    return false;
-            //}
-
-            //var patientUser = await IsPatientExist(mobileNo);
-
-            //if (patientUser == true)
-            //{
-            //    return false;
-            //}
-
-            //var agentUser = await IsAgentExist(mobileNo);
-
-            //if (agentUser == true)
-            //{
-            //    return false;
-            //}
-            //if (doctorUser == null && patientUser == null && agentUser == null)
-            if (isUserExists == null)
+            if (doctor==null)
+            {
+                var patients = await _patientProfileRepository.GetListAsync();//.GetAsync(p => p.MobileNo==mobileNo);
+                var patient = patients.FirstOrDefault(p => p.MobileNo == mobileNo);
+                if (patient==null)
+                {
+                    var agents = await _agentProfileRepository.GetListAsync();//.GetAsync(a => a.MobileNo==mobileNo);
+                    var agent = agents.FirstOrDefault(a => a.MobileNo == mobileNo);
+                    if (agent==null)
+                    {
+                        exits=0;
+                    }
+                    else
+                    {
+                        exits = 1;
+                    }
+                }
+                else
+                {
+                    exits = 1;
+                }
+            }
+            else
+            {
+                exits = 1;
+            }
+            if (exits==0)
             {
                 if (!string.IsNullOrEmpty(clientKey) && clientKey.Equals("SoowGood_App", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrEmpty(mobileNo))
                 {
@@ -130,7 +137,7 @@ namespace SoowGoodWeb.Services
                     await client.GetAsync($"api/app/account/IsUserExist?mobile={mobile}");
                 if (response.IsSuccessStatusCode)
                 {
-                    
+
                     return true;
 
                 }
