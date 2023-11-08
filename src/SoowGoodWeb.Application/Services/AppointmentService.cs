@@ -224,5 +224,26 @@ namespace SoowGoodWeb.Services
             //Output.WriteLine(token);
         }
 
+        public async Task<AppointmentDto> UpdateCallConsultationAppointmentAsync(string appCode)
+        {
+            try
+            {
+                var itemAppointment = await _appointmentRepository.GetAsync(a => a.AppointmentCode == appCode);//.FindAsync(input.Id);
+                itemAppointment.AppointmentStatus = AppointmentStatus.Completed;
+                itemAppointment.IsCousltationComplete = true;
+
+                
+
+                var item = await _appointmentRepository.UpdateAsync(itemAppointment);
+                //await _unitOfWorkManager.Current.SaveChangesAsync();
+                return ObjectMapper.Map<Appointment, AppointmentDto>(item);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+        }
+
     }
 }

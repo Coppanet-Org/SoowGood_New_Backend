@@ -9,6 +9,7 @@ using SoowGoodWeb.Enums;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Uow;
 using Volo.Abp.ObjectMapping;
+using AutoMapper.Internal.Mappers;
 
 namespace SoowGoodWeb.Services
 {
@@ -32,7 +33,6 @@ namespace SoowGoodWeb.Services
             _appointmentRepository = appointmentRepository;
             _unitOfWorkManager = unitOfWorkManager;
         }
-
         public async Task<ResponseDto> CreateAsync(DoctorScheduleInputDto input)
         {
             var response = new ResponseDto();
@@ -42,7 +42,7 @@ namespace SoowGoodWeb.Services
                 if (input.Id == 0)
                 {
                     //input.ScheduleName = input.cham;
-                    if(input.DoctorChamberId == 0)
+                    if (input.DoctorChamberId == 0)
                     {
                         input.DoctorChamberId = null;
                         input.ScheduleName = ((ConsultancyType)input?.ConsultancyType!).ToString();
@@ -50,7 +50,7 @@ namespace SoowGoodWeb.Services
                     else
                     {
                         var chName = _doctorChamberRepository.FirstOrDefaultAsync(c => c.Id == input.DoctorChamberId);
-                        input.ScheduleName= ((ConsultancyType)input?.ConsultancyType!).ToString() + '_' + chName.Result?.ChamberName?.ToString();
+                        input.ScheduleName = ((ConsultancyType)input?.ConsultancyType!).ToString() + '_' + chName.Result?.ChamberName?.ToString();
                     }
                     var newEntity = ObjectMapper.Map<DoctorScheduleInputDto, DoctorSchedule>(input);
 
@@ -59,58 +59,10 @@ namespace SoowGoodWeb.Services
                     var result = ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(doctorSchedule);
                     if (result is { Id: > 0 })
                     {
-                        //if (input.DoctorScheduleDaySession?.Count > 0)
-                        //{
-                        //    foreach (var i in input.DoctorScheduleDaySession)
-                        //    {
-                        //        var session = new DoctorScheduleDaySessionInputDto
-                        //        {
-                        //            DoctorScheduleId = result.Id,
-                        //            ScheduleDayofWeek = i.ScheduleDayofWeek,
-                        //            StartTime = i.StartTime,
-                        //            EndTime = i.EndTime,
-                        //            NoOfPatients = i.NoOfPatients,
-                        //            IsActive = i.IsActive,
-                        //            //CreationTime = i.CreationTime,
-                        //            //CreatorId = i.CreatorId,
-                        //            //LastModificationTime = i.LastModificationTime,
-                        //            //LastModifierId = i.LastModifierId,
-                        //            //IsDeleted = i.IsDeleted,
-                        //            //DeleterId = i.DeleterId,
-                        //            //DeletionTime = i.DeletionTime
-                        //        };
-
-                        //        var sessionResult = CreateSessionAsync(session);
-                        //        if (sessionResult.Result.Success == true)
-                        //        {
-                        //            br++;
-                        //        }
-                        //        else
-                        //        {
-                        //            response.Id = 0;
-                        //            response.Value = sessionResult.Result.Value;
-                        //            response.Success = false;
-                        //            response.Message = sessionResult.Result.Message;
-                        //            return response;
-                        //            //break;                                    
-                        //        }
-                        //    }
-
-                        //if (br == input.DoctorScheduleDaySession?.Count)
-                        //{
                         response.Id = result.Id;
                         response.Value = "Schedule & Session Created";
                         response.Success = true;
                         response.Message = "Your Schedules & Sessions Created Successfully";
-                        //}
-                        //}
-                        //else
-                        //{
-                        //    response.Id = 0;
-                        //    response.Value = "Failed to Create Schedules and Sessions";
-                        //    response.Success = false;
-                        //    response.Message = "Failed to Create Your Schedule and session. Session infos not inserted";
-                        //}
                     }
                     else
                     {
@@ -153,75 +105,10 @@ namespace SoowGoodWeb.Services
                 var result = ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
                 if (result is { Id: > 0 })
                 {
-                    //if (input.DoctorScheduleDaySession?.Count > 0)
-                    //{
-                    //    foreach (var i in input.DoctorScheduleDaySession)
-                    //    {
-                    //        Task<ResponseDto>? sessionResult;
-                    //        if (i.Id > 0)
-                    //        {
-                    //            totalItemCount += input.DoctorScheduleDaySession.Count(c => c.Id > 0);
-
-                    //            sessionResult = UpdateSessionAsync(i);
-                    //            if (sessionResult.Result.Success == true)
-                    //            {
-                    //                br++;
-                    //            }
-                    //            else
-                    //            {
-                    //                response.Id = 0;
-                    //                response.Value = sessionResult.Result.Value;
-                    //                response.Success = false;
-                    //                response.Message = sessionResult.Result.Message;
-                    //                return response;
-                    //                //break;                                    
-                    //            }
-                    //        }
-                    //        else
-                    //        {
-                    //            totalItemCount += input.DoctorScheduleDaySession.Count(c => c.Id == 0);
-                    //            var session = new DoctorScheduleDaySessionInputDto
-                    //            {
-                    //                DoctorScheduleId = result.Id,
-                    //                ScheduleDayofWeek = i.ScheduleDayofWeek,
-                    //                StartTime = i.StartTime,
-                    //                EndTime = i.EndTime,
-                    //                NoOfPatients = i.NoOfPatients,
-                    //                IsActive = i.IsActive
-                    //            };
-
-                    //            sessionResult = CreateSessionAsync(session);
-                    //            if (sessionResult.Result.Success == true)
-                    //            {
-                    //                br++;
-                    //            }
-                    //            else
-                    //            {
-                    //                response.Id = 0;
-                    //                response.Value = sessionResult.Result.Value;
-                    //                response.Success = false;
-                    //                response.Message = sessionResult.Result.Message;
-                    //                return response;
-                    //                //break;                                    
-                    //            }
-                    //        }
-                    //    }
-
-                    //if (br == totalItemCount)
-                    //{
                     response.Id = result.Id;
                     response.Value = "Schedule & Session Updated.";
                     response.Success = true;
                     response.Message = "Your Schedules & Sessions Updated Successfully.";
-                    // }
-                    //}
-                    //else
-                    //{
-                    //    response.Id = 0;
-                    //    response.Value = "Failed to Updated Schedules and Sessions.";
-                    //    response.Success = false;
-                    //    response.Message = "Failed to Updated your Schedules and Sessions.";
-                    //}
                 }
                 else
                 {
@@ -238,8 +125,106 @@ namespace SoowGoodWeb.Services
                 response.Success = false;
                 response.Message = ex.Message;
             }
+            return response;
+        }
+        public async Task<DoctorScheduleDto> CreateFromMobileAppAsync(DoctorScheduleInputDto input)
+        {
+            var response = new ResponseDto();
+            var result = new DoctorScheduleDto();
+            var br = 0;
+            try
+            {
+                if (input.Id == 0)
+                {
+                    if(input.DoctorChamberId == 0)
+                    {
+                        input.DoctorChamberId = null;
+                        input.ScheduleName = ((ConsultancyType)input?.ConsultancyType!).ToString();
+                    }
+                    else
+                    {
+                        var chName = _doctorChamberRepository.FirstOrDefaultAsync(c => c.Id == input.DoctorChamberId);
+                        input.ScheduleName= ((ConsultancyType)input?.ConsultancyType!).ToString() + '_' + chName.Result?.ChamberName?.ToString();
+                    }
+                    var newEntity = ObjectMapper.Map<DoctorScheduleInputDto, DoctorSchedule>(input);
 
-            return response; //ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
+                    var doctorSchedule = await _doctorScheduleRepository.InsertAsync(newEntity);
+                    await _unitOfWorkManager.Current.SaveChangesAsync();
+                    result = ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(doctorSchedule);
+                    //if (result is { Id: > 0 })
+                    //{
+                    //    response.Id = result.Id;
+                    //    response.Value = "Schedule & Session Created";
+                    //    response.Success = true;
+                    //    response.Message = "Your Schedules & Sessions Created Successfully";
+                    //}
+                    //else
+                    //{
+                    //    response.Id = 0;
+                    //    response.Value = "Failed to Create Schedule.";
+                    //    response.Success = false;
+                    //    response.Message = "Failed to Create Your Schedule.";
+                    //}
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                //response.Id = null;
+                //response.Value = "Exception";
+                //response.Success = false;
+                //response.Message = ex.Message;
+            }
+
+            return result;
+        }
+
+        public async Task<DoctorScheduleDto> UpdateFromMobileAppAsync(DoctorScheduleInputDto input)
+        {
+            var response = new ResponseDto();
+            var result = new DoctorScheduleDto();
+            try
+            {
+                if (input.DoctorChamberId == 0)
+                {
+                    input.DoctorChamberId = null;
+                    input.ScheduleName = ((ConsultancyType)input?.ConsultancyType!).ToString();
+                }
+                else
+                {
+                    var chName = _doctorChamberRepository.FirstOrDefaultAsync(c => c.Id == input.DoctorChamberId);
+                    input.ScheduleName = ((ConsultancyType)input?.ConsultancyType!).ToString() + '_' + chName.Result?.ChamberName?.ToString();
+                }
+                var updateItem = ObjectMapper.Map<DoctorScheduleInputDto, DoctorSchedule>(input);
+                var item = await _doctorScheduleRepository.UpdateAsync(updateItem);
+                await _unitOfWorkManager.Current.SaveChangesAsync();
+                result = ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
+                //if (result is { Id: > 0 })
+                //{
+                   
+                //    response.Id = result.Id;
+                //    response.Value = "Schedule & Session Updated.";
+                //    response.Success = true;
+                //    response.Message = "Your Schedules & Sessions Updated Successfully.";
+                //}
+                //else
+                //{
+                //    response.Id = result?.Id;
+                //    response.Value = "Failed to Updated Schedule.";
+                //    response.Success = false;
+                //    response.Message = "Failed to Update Your Schedule.";
+                //}
+                return result;
+            }
+            catch (Exception ex)
+            {
+                response.Id = null;
+                response.Value = "Update failed";
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+
+            return result; //ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
         }
 
         public async Task<DoctorScheduleDto?> GetAsync(int id)
@@ -335,7 +320,6 @@ namespace SoowGoodWeb.Services
 
             return result; // ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(schedules);
         }
-
         public async Task<List<DoctorScheduleDto>?> GetDetailsScheduleListByDoctorIdAsync(long doctorId)
         {
             List<DoctorScheduleDto>? result = null;
@@ -459,3 +443,102 @@ namespace SoowGoodWeb.Services
         //}
     }
 }
+
+
+// Create and Update function archived --20231107
+
+/*public async Task<ResponseDto> CreateAsync(DoctorScheduleInputDto input)
+{
+    var response = new ResponseDto();
+    var br = 0;
+    try
+    {
+        if (input.Id == 0)
+        {
+            //input.ScheduleName = input.cham;
+            if (input.DoctorChamberId == 0)
+            {
+                input.DoctorChamberId = null;
+                input.ScheduleName = ((ConsultancyType)input?.ConsultancyType!).ToString();
+            }
+            else
+            {
+                var chName = _doctorChamberRepository.FirstOrDefaultAsync(c => c.Id == input.DoctorChamberId);
+                input.ScheduleName = ((ConsultancyType)input?.ConsultancyType!).ToString() + '_' + chName.Result?.ChamberName?.ToString();
+            }
+            var newEntity = ObjectMapper.Map<DoctorScheduleInputDto, DoctorSchedule>(input);
+
+            var doctorSchedule = await _doctorScheduleRepository.InsertAsync(newEntity);
+            await _unitOfWorkManager.Current.SaveChangesAsync();
+            var result = ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(doctorSchedule);
+            if (result is { Id: > 0 })
+            {
+                response.Id = result.Id;
+                response.Value = "Schedule & Session Created";
+                response.Success = true;
+                response.Message = "Your Schedules & Sessions Created Successfully";
+            }
+            else
+            {
+                response.Id = 0;
+                response.Value = "Failed to Create Schedule.";
+                response.Success = false;
+                response.Message = "Failed to Create Your Schedule.";
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        response.Id = null;
+        response.Value = "Exception";
+        response.Success = false;
+        response.Message = ex.Message;
+    }
+
+    return response;
+}
+
+public async Task<ResponseDto> UpdateAsync(DoctorScheduleInputDto input)
+{
+    var response = new ResponseDto();
+    try
+    {
+        if (input.DoctorChamberId == 0)
+        {
+            input.DoctorChamberId = null;
+            input.ScheduleName = ((ConsultancyType)input?.ConsultancyType!).ToString();
+        }
+        else
+        {
+            var chName = _doctorChamberRepository.FirstOrDefaultAsync(c => c.Id == input.DoctorChamberId);
+            input.ScheduleName = ((ConsultancyType)input?.ConsultancyType!).ToString() + '_' + chName.Result?.ChamberName?.ToString();
+        }
+        var updateItem = ObjectMapper.Map<DoctorScheduleInputDto, DoctorSchedule>(input);
+        var item = await _doctorScheduleRepository.UpdateAsync(updateItem);
+        await _unitOfWorkManager.Current.SaveChangesAsync();
+        var result = ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
+        if (result is { Id: > 0 })
+        {
+            response.Id = result.Id;
+            response.Value = "Schedule & Session Updated.";
+            response.Success = true;
+            response.Message = "Your Schedules & Sessions Updated Successfully.";
+        }
+        else
+        {
+            response.Id = result?.Id;
+            response.Value = "Failed to Updated Schedule.";
+            response.Success = false;
+            response.Message = "Failed to Update Your Schedule.";
+        }
+    }
+    catch (Exception ex)
+    {
+        response.Id = null;
+        response.Value = "Update failed";
+        response.Success = false;
+        response.Message = ex.Message;
+    }
+    return response;
+}
+*/
