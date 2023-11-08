@@ -79,10 +79,10 @@ namespace SoowGoodWeb.Services
             var profiles = await _patientProfileRepository.GetListAsync();
             return ObjectMapper.Map<List<PatientProfile>, List<PatientProfileDto>>(profiles);
         }
-        public async Task<List<PatientProfileDto>> GetListByAdminAsync()
+        public async Task<List<PatientProfileDto>> GetListPatientListByAdminAsync()
         {
             List<PatientProfileDto>? result = null;
-            var allProfile = await _patientProfileRepository.GetListAsync(); ;
+            var allProfile = await _patientProfileRepository.GetListAsync(); 
             if (!allProfile.Any())
             {
                 return result;
@@ -94,15 +94,17 @@ namespace SoowGoodWeb.Services
                 result.Add(new PatientProfileDto()
                 {
                     Id = item.Id,
-                    FullName = item.FullName,
-                    Email = item.Email,
-                    MobileNo = item.MobileNo,
+                    PatientName = item.PatientName,
+                    PatientEmail = item.PatientEmail,
+                    PatientMobileNo = item.PatientMobileNo,
+                    PatientCode = item.PatientCode,
                     DateOfBirth = item.DateOfBirth,
                     Gender = item.Gender,
                     GenderName = item.Gender > 0 ? ((Gender)item.Gender).ToString() : "n/a",
                     BloodGroup = item.BloodGroup,
                     Address = item.Address,
-                });
+                    ProfileRole = "Patient"
+                }); ;
             }
             return result;
         }

@@ -69,7 +69,7 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<List<DoctorProfile>, List<DoctorProfileDto>>(profiles);
         }
 
-        public async Task<List<DoctorProfileDto>> GetListByAdminAsync()
+        public async Task<List<DoctorProfileDto>> GetListDoctorListByAdminAsync()
         {
             List<DoctorProfileDto>? result= null;
             var allProfile = await _doctorProfileRepository.GetListAsync(); ;
@@ -91,6 +91,7 @@ namespace SoowGoodWeb.Services
                     Gender = item.Gender,
                     GenderName = item.Gender >0 ? ((Gender)item.Gender).ToString():"n/a",
                     Address = item.Address,
+                    ProfileRole="Doctor"
                 }) ;
             }
             return result;
