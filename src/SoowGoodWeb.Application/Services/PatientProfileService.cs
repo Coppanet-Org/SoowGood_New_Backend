@@ -103,7 +103,8 @@ namespace SoowGoodWeb.Services
                     GenderName = item.Gender > 0 ? ((Gender)item.Gender).ToString() : "n/a",
                     BloodGroup = item.BloodGroup,
                     Address = item.Address,
-                    ProfileRole = "Patient"
+                    ProfileRole = "Patient",
+                    
                 }); ;
             }
             return result;

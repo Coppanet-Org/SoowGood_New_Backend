@@ -91,10 +91,26 @@ namespace SoowGoodWeb.Services
                     Gender = item.Gender,
                     GenderName = item.Gender >0 ? ((Gender)item.Gender).ToString():"n/a",
                     Address = item.Address,
-                    ProfileRole="Doctor"
+                    ProfileRole="Doctor",
+                    IsActive = item.IsActive,
                 }) ;
             }
             return result;
+        }
+
+        public async Task<DoctorProfileDto> UpdateActiveStatusByAdmin(int Id, bool activeStatus)
+        {
+            var user = await _doctorProfileRepository.GetAsync(x => x.Id == Id);
+            if(user != null)
+            {
+                if (user.IsActive == false) { 
+                user.IsActive = activeStatus;
+                }                
+            }
+            var item = await _doctorProfileRepository.UpdateAsync(user);
+            await _unitOfWorkManager.Current.SaveChangesAsync();
+            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+
         }
 
         public async Task<DoctorProfileDto> GetByUserIdAsync(Guid userId)
