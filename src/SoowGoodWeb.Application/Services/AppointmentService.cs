@@ -79,7 +79,7 @@ namespace SoowGoodWeb.Services
                     break;
                 }
                 input.AppointmentSerial = (lastSerial + 1).ToString();
-                input.AppointmentCode = input.DoctorCode + "-" + input.PatientCode + "-" + input.AppointmentSerial;
+                input.AppointmentCode = input.DoctorCode + input.PatientCode + input.AppointmentDate?.ToString("yyyyMMdd") + input.AppointmentSerial;
             }
             var newEntity = ObjectMapper.Map<AppointmentInputDto, Appointment>(input);
 
