@@ -18,6 +18,7 @@ namespace SoowGoodWeb.Services
     {
         private readonly IRepository<Appointment> _appointmentRepository;
         private readonly IRepository<PatientProfile> _patientRepository;
+        private readonly IRepository<PaymentHistory> _paymentHistoryRepository;
         private readonly IPaymentHistoryService _paymentHistoryService;
         //private readonly INotificationAppService _notificationAppService;
         private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
@@ -25,11 +26,13 @@ namespace SoowGoodWeb.Services
         //INotificationAppService notificationAppService,
         public SslCommerzService(IRepository<Appointment> appointmentRepository,
             IRepository<PatientProfile> patientRepository,
+            IRepository<PaymentHistory> paymentHistoryRepository,
                                     IPaymentHistoryService paymentHistoryService,
                                     SslCommerzGatewayManager sslCommerzGatewayManager)
         {
             _appointmentRepository = appointmentRepository;
             _patientRepository = patientRepository;
+            _paymentHistoryRepository = paymentHistoryRepository;
             _paymentHistoryService = paymentHistoryService;
             //_notificationAppService = notificationAppService;
             _sslCommerzGatewayManager = sslCommerzGatewayManager;
@@ -323,6 +326,18 @@ namespace SoowGoodWeb.Services
                 store_name = initResponse.store_name,
                 is_direct_pay_enable = initResponse.is_direct_pay_enable
             };
+        }
+
+        private async Task<string> GetPaymentHistoryAsync(string appCode)
+        {
+            var ph = await _paymentHistoryRepository.GetAsync(p => p.application_code == appCode);
+
+            var trnId = "";
+            if(ph != null)
+            {
+                trnId = ph.tran_id;
+            }
+            return trnId;
         }
     }
 }
