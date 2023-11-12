@@ -78,8 +78,9 @@ namespace SoowGoodWeb.Services
                     input.AppointmentTime = slots != null ? slots[i].ToString() : "";
                     break;
                 }
+                DateTime? x = input.AppointmentDate;
                 input.AppointmentSerial = (lastSerial + 1).ToString();
-                input.AppointmentCode = input.DoctorCode + "-" + input.PatientCode + "-" + input.AppointmentSerial;
+                input.AppointmentCode = input.DoctorCode + input.PatientCode + x?.ToString("yyyyMMdd") + input.AppointmentSerial;
             }
             var newEntity = ObjectMapper.Map<AppointmentInputDto, Appointment>(input);
 
@@ -185,10 +186,11 @@ namespace SoowGoodWeb.Services
                 }
                 return restultPatientList;//ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 return restultPatientList;
             }
-            
+
         }
 
         public string testBuildTokenWithUserAccount(string _appId, string _appCertificate, string _channelName, string _account)
@@ -203,8 +205,8 @@ namespace SoowGoodWeb.Services
         public string testBuildTokenWithUID(RtcTokenBuilerDto input)
         {
             uint privilegeExpiredTs = _expireTimeInSeconds + (uint)Utils.getTimestamp();
-            string token = RtcTokenBuilder.buildTokenWithUID(input.Appid, input.AppCertificate,input.ChanelName, input.Uid, RtcTokenBuilder.Role.RolePublisher, privilegeExpiredTs);
-            return  token;
+            string token = RtcTokenBuilder.buildTokenWithUID(input.Appid, input.AppCertificate, input.ChanelName, input.Uid, RtcTokenBuilder.Role.RolePublisher, privilegeExpiredTs);
+            return token;
             //Output.WriteLine(">> token");
             //Output.WriteLine(token);
         }
@@ -233,12 +235,12 @@ namespace SoowGoodWeb.Services
                 itemAppointment.AppointmentStatus = AppointmentStatus.Completed;
                 itemAppointment.IsCousltationComplete = true;
 
-                
+
 
                 var item = await _appointmentRepository.UpdateAsync(itemAppointment);
                 //await _unitOfWorkManager.Current.SaveChangesAsync();
-                var result= ObjectMapper.Map<Appointment, AppointmentDto>(item);
-                if(result != null)
+                var result = ObjectMapper.Map<Appointment, AppointmentDto>(item);
+                if (result != null)
                 {
                     response.Id = result.Id;
                     response.Value = "";
