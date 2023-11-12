@@ -118,16 +118,14 @@ namespace SoowGoodWeb.Services
         public async Task<List<AppointmentDto>> GetAppointmentListByDoctorIdAsync(long doctorId)
         {
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-            //var appointments = await item.Where(d=> d.DoctorProfileId == doctorId && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
-            var appointments = item.Where(d => d.DoctorProfileId == doctorId).ToList();// && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
+            var appointments = item.Where(d => d.DoctorProfileId == doctorId && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
 
         public async Task<List<AppointmentDto>> GetAppointmentListByPatientIdAsync(long patientId)
         {
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-            //var appointments = await item.Where(d=> d.DoctorProfileId == doctorId && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
-            var appointments = item.Where(d => d.AppointmentCreatorId == patientId).ToList();// && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
+            var appointments = item.Where(d => d.AppointmentCreatorId == patientId && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
 
@@ -254,6 +252,27 @@ namespace SoowGoodWeb.Services
                 return null;
             }
             return response;
+        }
+
+        public async Task UpdateAppointmentPaymentStatusAsync(string appCode, string trnId)
+        {
+            try
+            {
+                var appointment = await _appointmentRepository.GetAsync(a => a.AppointmentCode == appCode);
+                if (appointment != null && appointment.AppointmentStatus != AppointmentStatus.Confirmed) //&& app.AppointmentStatus != AppointmentStatus.Confirmed)
+                {
+                    appointment.AppointmentStatus = AppointmentStatus.Confirmed;
+                    appointment.PaymentTransactionId = trnId;
+                    appointment.AppointmentPaymentStatus = AppointmentPaymentStatus.Paid;
+                    //app.FeePaid = string.IsNullOrWhiteSpace(paid_amount) ? 0 : double.Parse(paid_amount);
+
+                    await _appointmentRepository.UpdateAsync(appointment);
+
+                    //await SendNotification(application_code, applicant.Applicant.Mobile);
+                }
+            }
+            catch (Exception ex) { }
+            
         }
 
     }

@@ -66,6 +66,7 @@ namespace SoowGoodWeb.Controllers
         /// <returns></returns>
         [HttpPost]//, ActionName("TestPaymentSuccess")]
         [Route("/api/services/test/payment-success")]
+        [DisableRequestSizeLimit]
         public async Task<IActionResult> SuccessTestPaymentAsync()
         {
             await CompleteTestPaymentProcess();
@@ -179,10 +180,8 @@ namespace SoowGoodWeb.Controllers
         private async Task<Dictionary<string, string>> MapSslCommerzResponse()
         {
             var sslCommerzResponseDic = new Dictionary<string, string>();
-            //var reader = new StreamReader(Request.Body, Encoding.UTF8);
             using (var reader = new StreamReader(Request.Body, Encoding.UTF8))
             {
-                var a = JsonConvert.DeserializeObject<Dictionary<string, string>>(reader.ReadToEnd());
                 var result = await reader.ReadToEndAsync();
                 if (!string.IsNullOrWhiteSpace(result))
                 {
