@@ -51,8 +51,67 @@ namespace SoowGoodWeb.Services
             //return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
 
             var item = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, d => d.DoctorSpecialization);
+
             var profile = item.FirstOrDefault(item => item.Id == id);
+            
             var result = profile != null ? ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(profile) : null;
+
+            return result;
+        }
+
+        public async Task<DoctorProfileDto> GetDoctorDetailsByAdminAsync(int id)
+        {
+            DoctorProfileDto? result = null;
+            var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p=>p.Speciality, d => d.DoctorSpecialization);
+            if (!profileWithDetails.Any())
+            {
+                return result;
+            }
+            result = new DoctorProfileDto();
+            var degrees = await _doctorDegreeRepository.GetListAsync(i => i.DoctorProfileId == id);
+            var doctorDegrees=ObjectMapper.Map<List<DoctorDegree>,List<DoctorDegreeDto>>(degrees);
+            var specializations=await _doctorSpecializationRepository.GetListAsync(i => i.DoctorProfileId == id);
+            var doctorSpecializations=ObjectMapper.Map<List<DoctorSpecialization>,List<DoctorSpecializationDto>>(specializations);
+            foreach(var item in profileWithDetails)
+            {
+                //result.Add(new DoctorProfileDto()
+                //{
+                result.Id = item.Id;
+                result.Degrees = doctorDegrees;
+                result.DoctorSpecialization = doctorSpecializations;
+                result.FullName = item.FullName;
+                result.DoctorTitle = item.DoctorTitle;
+                result.DoctorTitleName = item.DoctorTitle > 0 ? ((DoctorTitle)item.DoctorTitle).ToString() : "n/a";
+                result.MaritalStatus = item.MaritalStatus;
+                result.MaritalStatusName = item.MaritalStatus > 0 ? ((MaritalStatus)item.MaritalStatus).ToString() : "n/a";
+                result.City = item.City;
+                result.ZipCode = item.ZipCode;
+                result.Country = item.Country;
+                result.IdentityNumber = item.IdentityNumber;
+                result.BMDCRegNo = item.BMDCRegNo;
+                result.BMDCRegExpiryDate = item.BMDCRegExpiryDate;
+                result.Email = item.Email;
+                result.MobileNo = item.MobileNo;
+                result.DateOfBirth = item.DateOfBirth;
+                result.Gender = item.Gender;
+                result.GenderName = item.Gender > 0 ? ((Gender)item.Gender).ToString() : "n/a";
+                result.Address = item.Address;
+                result.ProfileRole = "Doctor";
+                result.IsActive = item.IsActive;
+                result.UserId = item.UserId;
+                result.IsOnline = item.IsOnline;
+                result.profileStep = item.profileStep;
+                result.createFrom = item.createFrom;
+                result.DoctorCode = item.DoctorCode;
+                result.SpecialityId = item.SpecialityId;
+                result.SpecialityName = item.SpecialityId > 0 ? item.Speciality.SpecialityName : "n/a";
+                result.CreationTime = item.CreationTime;
+                result.CreatorId = item.CreatorId;
+                result.LastModificationTime = item.LastModificationTime;
+                result.LastModifierId = item.LastModifierId;
+
+                //}) ;
+            }
 
             return result;
         }
@@ -93,6 +152,7 @@ namespace SoowGoodWeb.Services
                     Address = item.Address,
                     ProfileRole="Doctor",
                     IsActive = item.IsActive,
+  
                 }) ;
             }
             return result;
