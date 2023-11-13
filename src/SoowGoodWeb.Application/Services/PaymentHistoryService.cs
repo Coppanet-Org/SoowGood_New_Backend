@@ -55,6 +55,12 @@ namespace SoowGoodWeb.Services
 
             return ObjectMapper.Map<PaymentHistory, PaymentHistoryDto>(item);
         }
+        public async Task<string> GetByAppointmentCodeAsync(string appCode)
+        {
+            var item = await _paymentHistoryRepository.GetAsync(x => x.application_code == appCode);
+            var tranId = item.tran_id;
+            return (!string.IsNullOrEmpty(tranId) ? tranId : "");// ObjectMapper.Map<PaymentHistory, PaymentHistoryDto>(item);
+        }
         public async Task<bool> UpdateHistoryAsync(PaymentHistoryInputDto input)
         {
             var paymentHistory = _paymentHistoryRepository.GetAsync(p=>p.Id == input.Id);

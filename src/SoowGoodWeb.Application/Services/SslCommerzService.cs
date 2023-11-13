@@ -19,18 +19,21 @@ namespace SoowGoodWeb.Services
         private readonly IRepository<Appointment> _appointmentRepository;
         private readonly IRepository<PatientProfile> _patientRepository;
         private readonly IPaymentHistoryService _paymentHistoryService;
+        private readonly IRepository<PaymentHistory> _paymentHistoryRepository;
         //private readonly INotificationAppService _notificationAppService;
         private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
 
         //INotificationAppService notificationAppService,
         public SslCommerzService(IRepository<Appointment> appointmentRepository,
             IRepository<PatientProfile> patientRepository,
+            IRepository<PaymentHistory> paymentHistoryRepository,
                                     IPaymentHistoryService paymentHistoryService,
                                     SslCommerzGatewayManager sslCommerzGatewayManager)
         {
             _appointmentRepository = appointmentRepository;
             _patientRepository = patientRepository;
             _paymentHistoryService = paymentHistoryService;
+            _paymentHistoryRepository = paymentHistoryRepository;
             //_notificationAppService = notificationAppService;
             _sslCommerzGatewayManager = sslCommerzGatewayManager;
         }
@@ -187,7 +190,7 @@ namespace SoowGoodWeb.Services
             var applicant = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
             var app = applicant.Where(a=>a.AppointmentCode == application_code).FirstOrDefault();
 
-            if (app != null && app.AppointmentStatus != AppointmentStatus.Confirmed)
+            if (app != null) //&& app.AppointmentStatus != AppointmentStatus.Confirmed)
             {
                 app.AppointmentStatus = AppointmentStatus.Confirmed;
                 app.PaymentTransactionId = tran_id;
@@ -290,12 +293,19 @@ namespace SoowGoodWeb.Services
 
         private static SslCommerzInitDto GetInitPaymentResponse(SSLCommerzInitResponse initResponse)
         {
-            return new SslCommerzInitDto
-            {
-                status = initResponse.status,
-                failedreason = initResponse.failedreason,
-                GatewayPageURL = initResponse.GatewayPageURL
-            };
+            var pResponse = new SslCommerzInitDto();
+            //pResponse =
+            pResponse.status = initResponse.status;
+            pResponse.failedreason = initResponse.failedreason;
+            pResponse.GatewayPageURL = initResponse.GatewayPageURL;
+            
+            //return new SslCommerzInitDto
+            //{
+            //    status = initResponse.status,
+            //    failedreason = initResponse.failedreason,
+            //    GatewayPageURL = initResponse.GatewayPageURL
+            //};
+            return pResponse;
         }
 
         private static SslCommerzDto GetFullInitPaymentResponse(SSLCommerzInitResponse initResponse)
@@ -316,6 +326,28 @@ namespace SoowGoodWeb.Services
                 store_name = initResponse.store_name,
                 is_direct_pay_enable = initResponse.is_direct_pay_enable
             };
+        }
+
+        public async Task UpdateAppointmentPaymentStatusAsync(string appCode)
+        {
+            try
+            {
+                var appointment = await _appointmentRepository.GetAsync(a => a.AppointmentCode == appCode);
+                var transactions = await _paymentHistoryRepository.GetAsync(p=>p.application_code == appCode);
+                if (appointment != null && appointment.AppointmentStatus != AppointmentStatus.Confirmed) //&& app.AppointmentStatus != AppointmentStatus.Confirmed)
+                {
+                    appointment.AppointmentStatus = AppointmentStatus.Confirmed;
+                    appointment.PaymentTransactionId = transactions.tran_id;
+                    appointment.AppointmentPaymentStatus = AppointmentPaymentStatus.Paid;
+                    //app.FeePaid = string.IsNullOrWhiteSpace(paid_amount) ? 0 : double.Parse(paid_amount);
+
+                    await _appointmentRepository.UpdateAsync(appointment);
+
+                    //await SendNotification(application_code, applicant.Applicant.Mobile);
+                }
+            }
+            catch (Exception ex) { }
+
         }
     }
 }

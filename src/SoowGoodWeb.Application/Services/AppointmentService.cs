@@ -13,6 +13,8 @@ using Scriban.Syntax;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.SslCommerz;
 using System.Collections;
+using AgoraIO.Media;
+using System.Security.Principal;
 
 namespace SoowGoodWeb.Services
 {
@@ -25,6 +27,8 @@ namespace SoowGoodWeb.Services
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
 
+
+        private uint _expireTimeInSeconds = 3600;
         public AppointmentService(IRepository<Appointment> appointmentRepository,
             //IRepository<DoctorChamber> doctorChamberRepository,
             IRepository<DoctorScheduleDaySession> doctorScheduleSessionRepository,
@@ -38,6 +42,7 @@ namespace SoowGoodWeb.Services
             _doctorScheduleSessionRepository = doctorScheduleSessionRepository;
             _patientProfileRepository = patientProfileRepository;
             _sslCommerzGatewayManager = sslCommerzGatewayManager;
+
             //_unitOfWorkManager = unitOfWorkManager;
         }
 
@@ -73,8 +78,9 @@ namespace SoowGoodWeb.Services
                     input.AppointmentTime = slots != null ? slots[i].ToString() : "";
                     break;
                 }
+                DateTime? x = input.AppointmentDate;
                 input.AppointmentSerial = (lastSerial + 1).ToString();
-                input.AppointmentCode = input.DoctorCode + "-" + input.PatientCode + "-" + input.AppointmentSerial;
+                input.AppointmentCode = input.DoctorCode + input.PatientCode + input.AppointmentDate?.ToString("yyyyMMdd") + input.AppointmentSerial;
             }
             var newEntity = ObjectMapper.Map<AppointmentInputDto, Appointment>(input);
 
@@ -112,16 +118,14 @@ namespace SoowGoodWeb.Services
         public async Task<List<AppointmentDto>> GetAppointmentListByDoctorIdAsync(long doctorId)
         {
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-            //var appointments = await item.Where(d=> d.DoctorProfileId == doctorId && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
-            var appointments = item.Where(d => d.DoctorProfileId == doctorId).ToList();// && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
+            var appointments = item.Where(d => d.DoctorProfileId == doctorId && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
 
         public async Task<List<AppointmentDto>> GetAppointmentListByPatientIdAsync(long patientId)
         {
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-            //var appointments = await item.Where(d=> d.DoctorProfileId == doctorId && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
-            var appointments = item.Where(d => d.AppointmentCreatorId == patientId).ToList();// && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
+            var appointments = item.Where(d => d.AppointmentCreatorId == patientId && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
 
@@ -180,9 +184,94 @@ namespace SoowGoodWeb.Services
                 }
                 return restultPatientList;//ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 return restultPatientList;
             }
+
+        }
+
+        public string testBuildTokenWithUserAccount(string _appId, string _appCertificate, string _channelName, string _account)
+        {
+            uint privilegeExpiredTs = _expireTimeInSeconds + (uint)Utils.getTimestamp();
+            string token = RtcTokenBuilder.buildTokenWithUserAccount(_appId, _appCertificate, _channelName, _account, RtcTokenBuilder.Role.RolePublisher, privilegeExpiredTs);
+            return token;
+            //Output.WriteLine(">> token");
+            //Output.WriteLine(token);
+        }
+
+        public string testBuildTokenWithUID(RtcTokenBuilerDto input)
+        {
+            uint privilegeExpiredTs = _expireTimeInSeconds + (uint)Utils.getTimestamp();
+            string token = RtcTokenBuilder.buildTokenWithUID(input.Appid, input.AppCertificate, input.ChanelName, input.Uid, RtcTokenBuilder.Role.RolePublisher, privilegeExpiredTs);
+            return token;
+            //Output.WriteLine(">> token");
+            //Output.WriteLine(token);
+        }
+
+        public string testAcToken(RtcTokenBuilerDto input)
+        {
+            uint privilegeExpiredTs = _expireTimeInSeconds + (uint)Utils.getTimestamp();
+            AccessToken accessToken = new AccessToken(input.Appid, input.AppCertificate, input.ChanelName, input.Uid.ToString(), privilegeExpiredTs, 1);
+            accessToken.addPrivilege(Privileges.kJoinChannel, privilegeExpiredTs);
+            accessToken.addPrivilege(Privileges.kPublishAudioStream, privilegeExpiredTs);
+            accessToken.addPrivilege(Privileges.kPublishVideoStream, privilegeExpiredTs);
+            accessToken.addPrivilege(Privileges.kPublishDataStream, privilegeExpiredTs);
+
+            string token = accessToken.build();
+            return token;
+            //Output.WriteLine(">> token");
+            //Output.WriteLine(token);
+        }
+
+        public async Task<ResponseDto> UpdateCallConsultationAppointmentAsync(string appCode)
+        {
+            var response = new ResponseDto();
+            try
+            {
+                var itemAppointment = await _appointmentRepository.GetAsync(a => a.AppointmentCode == appCode);//.FindAsync(input.Id);
+                itemAppointment.AppointmentStatus = AppointmentStatus.Completed;
+                itemAppointment.IsCousltationComplete = true;
+
+
+
+                var item = await _appointmentRepository.UpdateAsync(itemAppointment);
+                //await _unitOfWorkManager.Current.SaveChangesAsync();
+                var result = ObjectMapper.Map<Appointment, AppointmentDto>(item);
+                if (result != null)
+                {
+                    response.Id = result.Id;
+                    response.Value = "";
+                    response.Success = true;
+                    response.Message = "Consultation complete";
+                }
+                return response;//ObjectMapper.Map<Appointment, AppointmentDto>(item);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            return response;
+        }
+
+        public async Task UpdateAppointmentPaymentStatusAsync(string appCode, string trnId)
+        {
+            try
+            {
+                var appointment = await _appointmentRepository.GetAsync(a => a.AppointmentCode == appCode);
+                if (appointment != null && appointment.AppointmentStatus != AppointmentStatus.Confirmed) //&& app.AppointmentStatus != AppointmentStatus.Confirmed)
+                {
+                    appointment.AppointmentStatus = AppointmentStatus.Confirmed;
+                    appointment.PaymentTransactionId = trnId;
+                    appointment.AppointmentPaymentStatus = AppointmentPaymentStatus.Paid;
+                    //app.FeePaid = string.IsNullOrWhiteSpace(paid_amount) ? 0 : double.Parse(paid_amount);
+
+                    await _appointmentRepository.UpdateAsync(appointment);
+
+                    //await SendNotification(application_code, applicant.Applicant.Mobile);
+                }
+            }
+            catch (Exception ex) { }
             
         }
 

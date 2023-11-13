@@ -95,6 +95,58 @@ namespace SoowGoodWeb.Services
             return response; //ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
         }
 
+
+        //Create from Mobile App
+        public async Task<DoctorFeesSetupDto> CreateFromMobileAppAsync(DoctorFeesSetupInputDto input)
+        {
+            var response = new ResponseDto();
+            var result = new DoctorFeesSetupDto();
+            try
+            {
+                var newEntity = ObjectMapper.Map<DoctorFeesSetupInputDto, DoctorFeesSetup>(input);
+
+                var doctorSchedule = await _doctorFeeRepository.InsertAsync(newEntity);
+                await _unitOfWorkManager.Current.SaveChangesAsync();
+                result = ObjectMapper.Map<DoctorFeesSetup, DoctorFeesSetupDto>(doctorSchedule);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                response.Id = null;
+                response.Value = "Exception";
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+
+            return result;
+        }
+
+        public async Task<DoctorFeesSetupDto> UpdateFromMobileAppAsync(DoctorFeesSetupInputDto input)
+        {
+            var response = new ResponseDto();
+            var result = new DoctorFeesSetupDto();
+            try
+            {
+                var updateItem = ObjectMapper.Map<DoctorFeesSetupInputDto, DoctorFeesSetup>(input);
+                var item = await _doctorFeeRepository.UpdateAsync(updateItem);
+                await _unitOfWorkManager.Current.SaveChangesAsync();
+                result = ObjectMapper.Map<DoctorFeesSetup, DoctorFeesSetupDto>(item);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                response.Id = null;
+                response.Value = "Update failed";
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+
+            return result; //ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
+        }
+        //
+        //Update from Mobile App
+
+
         public async Task<DoctorFeesSetupDto?> GetAsync(int id)
         {
             var item = await _doctorFeeRepository.WithDetailsAsync();
