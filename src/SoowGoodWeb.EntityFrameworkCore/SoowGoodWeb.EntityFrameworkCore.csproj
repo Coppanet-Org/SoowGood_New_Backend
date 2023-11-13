@@ -9,6 +9,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20231008053300_drugrx_table creted.cs" />
+    <Compile Remove="Migrations\20231008053300_drugrx_table creted.Designer.cs" />
+    <Compile Remove="Migrations\20231008061059_Medicine_table updated.cs" />
+    <Compile Remove="Migrations\20231008061059_Medicine_table updated.Designer.cs" />
+    <Compile Remove="Migrations\20231008101632_Prescription_tables_created.cs" />
+    <Compile Remove="Migrations\20231008101632_Prescription_tables_created.Designer.cs" />
+    <Compile Remove="Migrations\20231008111656_All_prescription_tables_finalize.cs" />
+    <Compile Remove="Migrations\20231008111656_All_prescription_tables_finalize.Designer.cs" />
+    <Compile Remove="Migrations\20231010054140_Prescription_Drug_table_and_MainComplaint_table_updated.cs" />
+    <Compile Remove="Migrations\20231010054140_Prescription_Drug_table_and_MainComplaint_table_updated.Designer.cs" />
+    <Compile Remove="Migrations\20231010060746_Prescription_DrugDetails_table_updated.cs" />
+    <Compile Remove="Migrations\20231010060746_Prescription_DrugDetails_table_updated.Designer.cs" />
+    <Compile Remove="Migrations\20231010061407_Prescription_DrugDetails_table_Column_updated.cs" />
+    <Compile Remove="Migrations\20231010061407_Prescription_DrugDetails_table_Column_updated.Designer.cs" />
+    <Compile Remove="Migrations\20231010061526_Prescription_DrugDetails_table_DrugDays_updated.cs" />
+    <Compile Remove="Migrations\20231010061526_Prescription_DrugDetails_table_DrugDays_updated.Designer.cs" />
+    <Compile Remove="Migrations\20231010063015_Prescription_DrugDetails_table_Drugdetails_col_updated.cs" />
+    <Compile Remove="Migrations\20231010063015_Prescription_DrugDetails_table_Drugdetails_col_updated.Designer.cs" />
     <Compile Remove="Migrations\20231010110309_AllDrugsAndPrescriptonDatabase_create.cs" />
     <Compile Remove="Migrations\20231010110309_AllDrugsAndPrescriptonDatabase_create.Designer.cs" />
   </ItemGroup>
