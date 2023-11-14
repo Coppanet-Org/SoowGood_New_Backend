@@ -68,9 +68,13 @@ namespace SoowGoodWeb.Services
                 return result;
             }
             result = new DoctorProfileDto();
-            var degrees = await _doctorDegreeRepository.GetListAsync(i => i.DoctorProfileId == id);
+            var medicaldegrees = await _doctorDegreeRepository.WithDetailsAsync(d=>d.Degree);
+            var degrees = medicaldegrees.Where(i => i.DoctorProfileId == id).ToList();
             var doctorDegrees=ObjectMapper.Map<List<DoctorDegree>,List<DoctorDegreeDto>>(degrees);
-            var specializations=await _doctorSpecializationRepository.GetListAsync(i => i.DoctorProfileId == id);
+
+
+            var medcalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization,sp=>sp.Speciality);
+            var specializations= medcalSpecializations.Where(i => i.DoctorProfileId == id).ToList();
             var doctorSpecializations=ObjectMapper.Map<List<DoctorSpecialization>,List<DoctorSpecializationDto>>(specializations);
             foreach(var item in profileWithDetails)
             {
