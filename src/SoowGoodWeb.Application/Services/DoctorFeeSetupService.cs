@@ -28,24 +28,35 @@ namespace SoowGoodWeb.Services
             var response = new ResponseDto();
             try
             {
-                var newEntity = ObjectMapper.Map<DoctorFeesSetupInputDto, DoctorFeesSetup>(input);
-
-                var doctorSchedule = await _doctorFeeRepository.InsertAsync(newEntity);
-                await _unitOfWorkManager.Current.SaveChangesAsync();
-                var result = ObjectMapper.Map<DoctorFeesSetup, DoctorFeesSetupDto>(doctorSchedule);
-                if (result is { Id: > 0 })
+                var isFeesExist = await _doctorFeeRepository.GetAsync(f => f.AppointmentType == input.AppointmentType && f.DoctorScheduleId == input.DoctorScheduleId);
+                if (isFeesExist == null)
                 {
-                    response.Id = result.Id;
-                    response.Value = "Fee Created";
-                    response.Success = true;
-                    response.Message = "Your Visiting Fee Created Successfully";
+                    var newEntity = ObjectMapper.Map<DoctorFeesSetupInputDto, DoctorFeesSetup>(input);
+
+                    var doctorSchedule = await _doctorFeeRepository.InsertAsync(newEntity);
+                    await _unitOfWorkManager.Current.SaveChangesAsync();
+                    var result = ObjectMapper.Map<DoctorFeesSetup, DoctorFeesSetupDto>(doctorSchedule);
+                    if (result is { Id: > 0 })
+                    {
+                        response.Id = result.Id;
+                        response.Value = "Fee Created";
+                        response.Success = true;
+                        response.Message = "Your Visiting Fee Created Successfully";
+                    }
+                    else
+                    {
+                        response.Id = 0;
+                        response.Value = "Failed to Create Fee.";
+                        response.Success = false;
+                        response.Message = "Failed to Create Your Visiting Fee.";
+                    }
                 }
                 else
                 {
                     response.Id = 0;
-                    response.Value = "Failed to Create Fee.";
+                    response.Value = "Fee Exists";
                     response.Success = false;
-                    response.Message = "Failed to Create Your Visiting Fee.";
+                    response.Message = "Fee Already Exists for the selected Schedule and Appointment type...!!! You can update or remove the existing fee.";
                 }
             }
             catch (Exception ex)
@@ -103,12 +114,24 @@ namespace SoowGoodWeb.Services
             var result = new DoctorFeesSetupDto();
             try
             {
-                var newEntity = ObjectMapper.Map<DoctorFeesSetupInputDto, DoctorFeesSetup>(input);
+                var isFeesExist = await _doctorFeeRepository.GetAsync(f => f.AppointmentType == input.AppointmentType && f.DoctorScheduleId == input.DoctorScheduleId);
+                if (isFeesExist == null)
+                {
+                    var newEntity = ObjectMapper.Map<DoctorFeesSetupInputDto, DoctorFeesSetup>(input);
 
-                var doctorSchedule = await _doctorFeeRepository.InsertAsync(newEntity);
-                await _unitOfWorkManager.Current.SaveChangesAsync();
-                result = ObjectMapper.Map<DoctorFeesSetup, DoctorFeesSetupDto>(doctorSchedule);
-                return result;
+                    var doctorSchedule = await _doctorFeeRepository.InsertAsync(newEntity);
+                    await _unitOfWorkManager.Current.SaveChangesAsync();
+                    result = ObjectMapper.Map<DoctorFeesSetup, DoctorFeesSetupDto>(doctorSchedule);
+                    result.ResponseSuccess = true;
+                    result.ResponseMessage = "Fee successfully inserted.";
+                    return result;
+                }
+                else {
+                    result.ResponseSuccess = false;
+                    result.ResponseMessage = "Fee Already Exists for the selected Schedule and Appointment type...!!! You can update or remove the existing fee.";
+                    return result;
+                }
+
             }
             catch (Exception ex)
             {
@@ -165,7 +188,7 @@ namespace SoowGoodWeb.Services
         public async Task<List<DoctorFeesSetupDto>?> GetListByDoctorIdListAsync(long doctorId)
         {
             List<DoctorFeesSetupDto>? result = null;
-            var allFees = await _doctorFeeRepository.WithDetailsAsync(s => s.DoctorSchedule, d=>d.DoctorSchedule.DoctorChamber);
+            var allFees = await _doctorFeeRepository.WithDetailsAsync(s => s.DoctorSchedule, d => d.DoctorSchedule.DoctorChamber);
             var item = allFees.Where(s => s.DoctorSchedule != null && s.DoctorSchedule.DoctorProfileId == doctorId);
             if (!item.Any())
             {
@@ -182,10 +205,10 @@ namespace SoowGoodWeb.Services
                     DoctorSchedule = ((ConsultancyType)fee?.DoctorSchedule?.ConsultancyType!).ToString()
                                      + "_" + (fee.DoctorSchedule?.DoctorChamberId > 0 ? fee?.DoctorSchedule.DoctorChamber?.ChamberName : ""),
                     AppointmentType = fee.AppointmentType,
-                    AppointmentTypeName=((AppointmentType)fee.AppointmentType).ToString(),
+                    AppointmentTypeName = ((AppointmentType)fee.AppointmentType).ToString(),
                     CurrentFee = fee.CurrentFee,
-                    FeeAppliedFrom = fee.FeeAppliedFrom, 
-                    PreviousFee=fee.PreviousFee,
+                    FeeAppliedFrom = fee.FeeAppliedFrom,
+                    PreviousFee = fee.PreviousFee,
 
                     Discount = fee.Discount,
                     DiscountAppliedFrom = fee.DiscountAppliedFrom,
