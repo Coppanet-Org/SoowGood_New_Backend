@@ -40,7 +40,7 @@ namespace SoowGoodWeb.Services
             try
             {
                 var isExistSchedule = await _doctorScheduleRepository.GetAsync(s => s.ConsultancyType == input.ConsultancyType && s.DoctorChamberId == input.DoctorChamberId);
-                if (isExistSchedule!=null)
+                if (isExistSchedule != null)
                 {
                     //input.ScheduleName = input.cham;
                     if (input.DoctorChamberId == 0)
@@ -143,7 +143,7 @@ namespace SoowGoodWeb.Services
             try
             {
                 var isExistSchedule = await _doctorScheduleRepository.GetAsync(s => s.ConsultancyType == input.ConsultancyType && s.DoctorChamberId == input.DoctorChamberId);
-                if (isExistSchedule!=null)
+                if (isExistSchedule != null)
                 {
                     if (input.DoctorChamberId == 0)
                     {
@@ -153,16 +153,23 @@ namespace SoowGoodWeb.Services
                     else
                     {
                         var chName = _doctorChamberRepository.FirstOrDefaultAsync(c => c.Id == input.DoctorChamberId);
-                        input.ScheduleName= ((ConsultancyType)input?.ConsultancyType!).ToString() + '_' + chName.Result?.ChamberName?.ToString();
+                        input.ScheduleName = ((ConsultancyType)input?.ConsultancyType!).ToString() + '_' + chName.Result?.ChamberName?.ToString();
                     }
                     var newEntity = ObjectMapper.Map<DoctorScheduleInputDto, DoctorSchedule>(input);
 
                     var doctorSchedule = await _doctorScheduleRepository.InsertAsync(newEntity);
                     await _unitOfWorkManager.Current.SaveChangesAsync();
                     result = ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(doctorSchedule);
+                    result.ResponseSuccess = true;
+                    result.ResponseMessage = "Schedule Successfully Created.";
                     return result;
                 }
-                else { return result; }
+                else
+                {
+                    result.ResponseSuccess = false;
+                    result.ResponseMessage = "Schedule Already Exists for the selected chamber and consultancy type...!!! You can update or remove the existing schedule.";
+                    return result;
+                }
             }
             catch (Exception ex)
             {
