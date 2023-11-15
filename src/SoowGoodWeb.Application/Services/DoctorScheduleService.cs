@@ -21,9 +21,9 @@ namespace SoowGoodWeb.Services
         private readonly IRepository<Appointment> _appointmentRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
 
-        public DoctorScheduleService(IRepository<DoctorSchedule> doctorScheduleRepository, 
+        public DoctorScheduleService(IRepository<DoctorSchedule> doctorScheduleRepository,
             IRepository<DoctorChamber> doctorChamberRepository,
-            IRepository<DoctorScheduleDaySession> doctorScheduleSessionRepository, 
+            IRepository<DoctorScheduleDaySession> doctorScheduleSessionRepository,
             IRepository<Appointment> appointmentRepository,
             IUnitOfWorkManager unitOfWorkManager)
         {
@@ -39,7 +39,8 @@ namespace SoowGoodWeb.Services
             var br = 0;
             try
             {
-                if (input.Id == 0)
+                var isExistSchedule = await _doctorScheduleRepository.GetAsync(s => s.ConsultancyType == input.ConsultancyType && s.DoctorChamberId == input.DoctorChamberId);
+                if (isExistSchedule!=null)
                 {
                     //input.ScheduleName = input.cham;
                     if (input.DoctorChamberId == 0)
@@ -71,6 +72,13 @@ namespace SoowGoodWeb.Services
                         response.Success = false;
                         response.Message = "Failed to Create Your Schedule.";
                     }
+                }
+                else
+                {
+                    response.Id = 0;
+                    response.Value = "Schedule Exists";
+                    response.Success = false;
+                    response.Message = "Schedule Already Exists for the selected chamber and consultancy type...!!! You can update or remove the existing schedule.";
                 }
             }
             catch (Exception ex)
@@ -134,9 +142,10 @@ namespace SoowGoodWeb.Services
             var br = 0;
             try
             {
-                if (input.Id == 0)
+                var isExistSchedule = await _doctorScheduleRepository.GetAsync(s => s.ConsultancyType == input.ConsultancyType && s.DoctorChamberId == input.DoctorChamberId);
+                if (isExistSchedule!=null)
                 {
-                    if(input.DoctorChamberId == 0)
+                    if (input.DoctorChamberId == 0)
                     {
                         input.DoctorChamberId = null;
                         input.ScheduleName = ((ConsultancyType)input?.ConsultancyType!).ToString();
@@ -151,29 +160,12 @@ namespace SoowGoodWeb.Services
                     var doctorSchedule = await _doctorScheduleRepository.InsertAsync(newEntity);
                     await _unitOfWorkManager.Current.SaveChangesAsync();
                     result = ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(doctorSchedule);
-                    //if (result is { Id: > 0 })
-                    //{
-                    //    response.Id = result.Id;
-                    //    response.Value = "Schedule & Session Created";
-                    //    response.Success = true;
-                    //    response.Message = "Your Schedules & Sessions Created Successfully";
-                    //}
-                    //else
-                    //{
-                    //    response.Id = 0;
-                    //    response.Value = "Failed to Create Schedule.";
-                    //    response.Success = false;
-                    //    response.Message = "Failed to Create Your Schedule.";
-                    //}
                     return result;
                 }
+                else { return result; }
             }
             catch (Exception ex)
             {
-                //response.Id = null;
-                //response.Value = "Exception";
-                //response.Success = false;
-                //response.Message = ex.Message;
             }
 
             return result;
@@ -201,7 +193,7 @@ namespace SoowGoodWeb.Services
                 result = ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
                 //if (result is { Id: > 0 })
                 //{
-                   
+
                 //    response.Id = result.Id;
                 //    response.Value = "Schedule & Session Updated.";
                 //    response.Success = true;
@@ -324,7 +316,7 @@ namespace SoowGoodWeb.Services
         {
             List<DoctorScheduleDto>? result = null;
             var allSchedule =
-                await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile, s => s.DoctorScheduleDaySession, c => c.DoctorChamber, f => f.DoctorFeesSetup, a=>a.Appointments);
+                await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile, s => s.DoctorScheduleDaySession, c => c.DoctorChamber, f => f.DoctorFeesSetup, a => a.Appointments);
             var item = allSchedule.Where(s => s.DoctorProfileId == doctorId).ToList();
             if (!item.Any())
             {
@@ -371,7 +363,7 @@ namespace SoowGoodWeb.Services
 
             //return result; // ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(schedules);
         }
-        
+
         //public async Task<ResponseDto> CreateSessionAsync(DoctorScheduleDaySessionInputDto inputDto)
         //{
         //    var response = new ResponseDto();
