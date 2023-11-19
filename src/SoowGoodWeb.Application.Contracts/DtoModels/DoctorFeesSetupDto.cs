@@ -23,5 +23,7 @@ namespace SoowGoodWeb.DtoModels
         public int? DiscountPeriod { get; set; }
         public decimal? TotalFee { get; set; }
         public bool? IsActive { get; set; }
+        public bool? ResponseSuccess { get; set; }
+        public string? ResponseMessage { get; set; }
     }
 }

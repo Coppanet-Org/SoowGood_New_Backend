@@ -18,8 +18,8 @@ namespace SoowGoodWeb.Services
     {
         private readonly IRepository<Appointment> _appointmentRepository;
         private readonly IRepository<PatientProfile> _patientRepository;
-        private readonly IRepository<PaymentHistory> _paymentHistoryRepository;
         private readonly IPaymentHistoryService _paymentHistoryService;
+        private readonly IRepository<PaymentHistory> _paymentHistoryRepository;
         //private readonly INotificationAppService _notificationAppService;
         private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
 
@@ -32,8 +32,8 @@ namespace SoowGoodWeb.Services
         {
             _appointmentRepository = appointmentRepository;
             _patientRepository = patientRepository;
-            _paymentHistoryRepository = paymentHistoryRepository;
             _paymentHistoryService = paymentHistoryService;
+            _paymentHistoryRepository = paymentHistoryRepository;
             //_notificationAppService = notificationAppService;
             _sslCommerzGatewayManager = sslCommerzGatewayManager;
         }
@@ -328,16 +328,26 @@ namespace SoowGoodWeb.Services
             };
         }
 
-        private async Task<string> GetPaymentHistoryAsync(string appCode)
+        public async Task UpdateAppointmentPaymentStatusAsync(string appCode)
         {
-            var ph = await _paymentHistoryRepository.GetAsync(p => p.application_code == appCode);
-
-            var trnId = "";
-            if(ph != null)
+            try
             {
-                trnId = ph.tran_id;
+                var appointment = await _appointmentRepository.GetAsync(a => a.AppointmentCode == appCode);
+                var transactions = await _paymentHistoryRepository.GetAsync(p=>p.application_code == appCode);
+                if (appointment != null && appointment.AppointmentStatus != AppointmentStatus.Confirmed) //&& app.AppointmentStatus != AppointmentStatus.Confirmed)
+                {
+                    appointment.AppointmentStatus = AppointmentStatus.Confirmed;
+                    appointment.PaymentTransactionId = transactions.tran_id;
+                    appointment.AppointmentPaymentStatus = AppointmentPaymentStatus.Paid;
+                    //app.FeePaid = string.IsNullOrWhiteSpace(paid_amount) ? 0 : double.Parse(paid_amount);
+
+                    await _appointmentRepository.UpdateAsync(appointment);
+
+                    //await SendNotification(application_code, applicant.Applicant.Mobile);
+                }
             }
-            return trnId;
+            catch (Exception ex) { }
+
         }
     }
 }

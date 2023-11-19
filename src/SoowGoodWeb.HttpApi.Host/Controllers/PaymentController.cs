@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System;
 using Volo.Abp.AspNetCore.Mvc;
 using SoowGoodWeb.Interfaces;
+using Newtonsoft.Json;
 
 namespace SoowGoodWeb.Controllers
 {
@@ -65,6 +66,7 @@ namespace SoowGoodWeb.Controllers
         /// <returns></returns>
         [HttpPost]//, ActionName("TestPaymentSuccess")]
         [Route("/api/services/test/payment-success")]
+        [DisableRequestSizeLimit]
         public async Task<IActionResult> SuccessTestPaymentAsync()
         {
             await CompleteTestPaymentProcess();
@@ -178,7 +180,6 @@ namespace SoowGoodWeb.Controllers
         private async Task<Dictionary<string, string>> MapSslCommerzResponse()
         {
             var sslCommerzResponseDic = new Dictionary<string, string>();
-            //var reader = new StreamReader(Request.Body, Encoding.UTF8);
             using (var reader = new StreamReader(Request.Body, Encoding.UTF8))
             {
                 var result = await reader.ReadToEndAsync();
