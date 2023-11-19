@@ -1,4 +1,5 @@
 ﻿using SoowGoodWeb.DtoModels;
+using SoowGoodWeb.Enums;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
@@ -78,12 +79,41 @@ namespace SoowGoodWeb.Services
             var profiles = await _patientProfileRepository.GetListAsync();
             return ObjectMapper.Map<List<PatientProfile>, List<PatientProfileDto>>(profiles);
         }
+        public async Task<List<PatientProfileDto>> GetListPatientListByAdminAsync()
+        {
+            List<PatientProfileDto>? result = null;
+            var allProfile = await _patientProfileRepository.GetListAsync(); 
+            if (!allProfile.Any())
+            {
+                return result;
+            }
+
+            result = new List<PatientProfileDto>();
+            foreach (var item in allProfile)
+            {
+                result.Add(new PatientProfileDto()
+                {
+                    Id = item.Id,
+                    PatientName = item.PatientName,
+                    PatientEmail = item.PatientEmail,
+                    PatientMobileNo = item.PatientMobileNo,
+                    PatientCode = item.PatientCode,
+                    DateOfBirth = item.DateOfBirth,
+                    Gender = item.Gender,
+                    GenderName = item.Gender > 0 ? ((Gender)item.Gender).ToString() : "n/a",
+                    BloodGroup = item.BloodGroup,
+                    Address = item.Address,
+                    ProfileRole = "Patient",
+                    
+                }); ;
+            }
+            return result;
+        }
         public async Task<PatientProfileDto> GetByUserIdAsync(Guid userId)
         {
             var item = await _patientProfileRepository.GetAsync(x => x.UserId == userId);
             return ObjectMapper.Map<PatientProfile, PatientProfileDto>(item);
         }
-
         public async Task<PatientProfileDto> UpdateAsync(PatientProfileInputDto input)
         {
             try
@@ -122,7 +152,6 @@ namespace SoowGoodWeb.Services
             }
 
         }
-
         public async Task<List<PatientProfileDto>> GetPatientListByUserProfileIdAsync(long profileId)
         {
             var profiles = await _patientProfileRepository.GetListAsync(p => p.CreatorEntityId == profileId);

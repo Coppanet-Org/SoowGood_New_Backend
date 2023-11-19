@@ -12,7 +12,7 @@ namespace SoowGoodWeb.Interfaces
     {
         Task<List<DegreeDto>> GetListAsync();
         Task<DegreeDto> GetAsync(int id);
-        //Task<SpecialityDto> CreateAsync(SpecialityInputDto input);
-        //Task<SpecialityDto> UpdateAsync(SpecialityInputDto input);
+        Task<DegreeDto> CreateAsync(DegreeInputDto input);
+        Task<DegreeDto> UpdateAsync(DegreeInputDto input);
     }
 }
