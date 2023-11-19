@@ -5,19 +5,15 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System;
-//using Volo.Abp.AspNetCore.Mvc;
+using Volo.Abp.AspNetCore.Mvc;
 using SoowGoodWeb.Interfaces;
-using Microsoft.AspNetCore.Http;
-using Polly;
-using System.IO.Pipelines;
-using System.Buffers;
 
 namespace SoowGoodWeb.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     [IgnoreAntiforgeryToken]
-    public class PaymentController : Controller
+    public class PaymentController : AbpController
     {
         private readonly ISslCommerzService _sslCommerzAppService;
         private readonly SslCommerzGatewayConfiguration _configuration;
@@ -181,34 +177,9 @@ namespace SoowGoodWeb.Controllers
 
         private async Task<Dictionary<string, string>> MapSslCommerzResponse()
         {
-            //byte[] bytes = await Request.Body.GetAllBytesAsync();//.GetAllBytes();//.Body(Request.TotalBytes);
-            //string s = Encoding.UTF8.GetString(bytes);
-
-            var code = HttpContext.Response.StatusCode;
-            var request = Request;
-            var type = request.ContentType;
-
-
-            string strInfoBody = string.Empty;
-            bool infoBody = request.ContentLength > 0;
-            if (infoBody)
-            {
-                request.EnableBuffering();
-                request.Body.Position = 0;
-                List<string> tmp = await GetListOfStringFromPipe(request.BodyReader);
-                request.Body.Position = 0;
-
-                strInfoBody = string.Concat("\r\nBody: ", string.Join("", tmp.ToArray()));
-            }
-
-            //request.EnableBuffering();
-            //var buffer = new byte[Convert.ToInt32(request.ContentLength)];
-            //var a =request.Body.ReadAsync(buffer, 0, buffer.Length);
-            //var r = new StreamReader(request.Body.ToString()).ReadToEnd();
-
             var sslCommerzResponseDic = new Dictionary<string, string>();
             //var reader = new StreamReader(Request.Body, Encoding.UTF8);
-            using (var reader = new StreamReader(request.Body, Encoding.UTF8))
+            using (var reader = new StreamReader(Request.Body, Encoding.UTF8))
             {
                 var result = await reader.ReadToEndAsync();
                 if (!string.IsNullOrWhiteSpace(result))
@@ -226,58 +197,6 @@ namespace SoowGoodWeb.Controllers
             }
 
             return sslCommerzResponseDic;
-        }
-
-        private async Task<List<string>> GetListOfStringFromPipe(PipeReader reader)
-        {
-            List<string> results = new List<string>();
-
-            while (true)
-            {
-                ReadResult readResult = await reader.ReadAsync();
-                var buffer = readResult.Buffer;
-
-                SequencePosition? position = null;
-
-                do
-                {
-                    // Look for a EOL in the buffer
-                    position = buffer.PositionOf((byte)'\n');
-
-                    if (position != null)
-                    {
-                        var readOnlySequence = buffer.Slice(0, position.Value);
-                        AddStringToList(results, in readOnlySequence);
-
-                        // Skip the line + the \n character (basically position)
-                        buffer = buffer.Slice(buffer.GetPosition(1, position.Value));
-                    }
-                }
-                while (position != null);
-
-
-                if (readResult.IsCompleted && buffer.Length > 0)
-                {
-                    AddStringToList(results, in buffer);
-                }
-
-                reader.AdvanceTo(buffer.Start, buffer.End);
-
-                // At this point, buffer will be updated to point one byte after the last
-                // \n character.
-                if (readResult.IsCompleted)
-                {
-                    break;
-                }
-            }
-
-            return results;
-        }
-        private static void AddStringToList(List<string> results, in ReadOnlySequence<byte> readOnlySequence)
-        {
-            // Separate method because Span/ReadOnlySpan cannot be used in async methods
-            ReadOnlySpan<byte> span = readOnlySequence.IsSingleSegment ? readOnlySequence.First.Span : readOnlySequence.ToArray().AsSpan();
-            results.Add(Encoding.UTF8.GetString(span));
         }
     }
 }
