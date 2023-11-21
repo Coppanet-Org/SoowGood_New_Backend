@@ -40,5 +40,6 @@ namespace SoowGoodWeb.DtoModels
         public bool? IsOnline { get; set; }
         public int? profileStep { get; set; }
         public string? createFrom { get; set; }
+        public string? ProfileRole { get; set; }
     }
 }

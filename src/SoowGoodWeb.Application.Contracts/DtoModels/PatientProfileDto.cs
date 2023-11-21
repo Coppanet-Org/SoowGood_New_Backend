@@ -29,5 +29,6 @@ namespace SoowGoodWeb.DtoModels
         public string? CratorCode { get; set; }
         public long? CreatorEntityId { get; set; }
         public Guid? UserId { get; set; }
+        public string? ProfileRole { get; set;}
     }
 }
