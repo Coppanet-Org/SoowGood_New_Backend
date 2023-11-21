@@ -176,7 +176,6 @@ namespace SoowGoodWeb.Services
 
         }
 
-
         [AllowAnonymous]
         public virtual async Task<UserSignUpResultDto> SignupUser(UserInfoDto userDto, string password, string role)
         {
@@ -216,6 +215,8 @@ namespace SoowGoodWeb.Services
             }
             return result;
         }        
+
+
     }
 }
 
