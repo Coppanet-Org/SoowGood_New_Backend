@@ -1,9 +1,11 @@
 ﻿using SoowGoodWeb.DtoModels;
+using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.ObjectMapping;
 using Volo.Abp.Uow;
 
 namespace SoowGoodWeb.Services
@@ -51,6 +53,28 @@ namespace SoowGoodWeb.Services
         public async Task<SpecializationDto> GetBySpecialityIdAsync(int specialityId)
         {
             var item = await _specializationRepository.GetAsync(x => x.SpecialityId == specialityId);
+
+            return ObjectMapper.Map<Specialization, SpecializationDto>(item);
+        }
+
+        public async Task<SpecializationDto> CreateAsync(SpecializationInputDto input)
+        {
+            var newEntity = ObjectMapper.Map<SpecializationInputDto, Specialization>(input);
+
+            var specialization = await _specializationRepository.InsertAsync(newEntity);
+
+            await _unitOfWorkManager.Current.SaveChangesAsync();
+
+            return ObjectMapper.Map<Specialization, SpecializationDto>(specialization);
+        }
+
+        public async Task<SpecializationDto> UpdateAsync(SpecializationInputDto input)
+        {
+            var updateItem = ObjectMapper.Map<SpecializationInputDto, Specialization>(input);
+
+            var item = await _specializationRepository.UpdateAsync(updateItem);
+
+            await _unitOfWorkManager.Current.SaveChangesAsync();
 
             return ObjectMapper.Map<Specialization, SpecializationDto>(item);
         }

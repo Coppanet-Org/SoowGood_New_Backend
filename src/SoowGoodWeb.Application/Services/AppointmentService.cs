@@ -129,6 +129,56 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
 
+        public async Task<List<AppointmentDto>> GetListAppointmentListByAdminAsync()
+        {
+            List<AppointmentDto>? result = null;
+            var allAppoinment = await _appointmentRepository.WithDetailsAsync(s=>s.DoctorSchedule, c=>c.DoctorSchedule.DoctorChamber);
+            //var  = await _appointmentRepository.GetListAsync();
+            if (!allAppoinment.Any())
+            {
+                return result;
+            }
+
+            result = new List<AppointmentDto>();
+            foreach (var item in allAppoinment)
+            {
+                var patientDetails = await _patientProfileRepository.GetAsync(p => p.Id == item.PatientProfileId);
+                var weekDayName= await _doctorScheduleSessionRepository.GetAsync(p => p.Id == item.DoctorScheduleDaySessionId);
+                result.Add(new AppointmentDto()
+                {
+                    Id = item.Id,
+                    PatientName = item.PatientName,
+                    AppointmentDate = item.AppointmentDate,
+                    AppointmentTime = item.AppointmentTime,
+                    AppointmentType = item.AppointmentType,
+                    AppointmentTypeName=item.AppointmentType > 0 ? ((AppointmentType)item.AppointmentType).ToString() : "n/a",
+                    DoctorName = item.DoctorName,
+                    DoctorScheduleId = item.DoctorScheduleId,
+                    DoctorScheduleName=item.DoctorSchedule.ScheduleName,
+                    AppointmentCode = item.AppointmentCode,
+                    AppointmentStatus = item.AppointmentStatus,
+                    DoctorCode = item.DoctorCode,
+                    PatientCode = item.PatientCode,
+                    PatientMobileNo= patientDetails.PatientMobileNo,
+                    PatientEmail= patientDetails.PatientEmail,
+                    AppointmentStatusName = item.AppointmentStatus > 0 ? ((AppointmentStatus)item.AppointmentStatus).ToString() : "n/a",
+                    AppointmentPaymentStatus = item.AppointmentPaymentStatus,
+                    AppointmentPaymentStatusName = item.AppointmentPaymentStatus > 0 ? ((AppointmentPaymentStatus)item.AppointmentPaymentStatus).ToString() : "n/a",
+                    ConsultancyType = item.ConsultancyType,
+                    ConsultancyTypeName = item.ConsultancyType > 0 ? ((ConsultancyType)item.ConsultancyType).ToString() : "n/a",
+                    DoctorChamberId = item.DoctorChamberId,
+                    DoctorChamberName = item.DoctorSchedule.DoctorChamber.ChamberName,
+                    DoctorFee = item.DoctorFee,
+                    PatientLocation = patientDetails?.City?.ToString(),
+                    DoctorScheduleDaySessionId = item.DoctorScheduleDaySessionId,
+                    ScheduleDayofWeek =weekDayName?.ScheduleDayofWeek?.ToString(),
+                    CancelledByRole = item.CancelledByRole,
+                    PaymentTransactionId=item.PaymentTransactionId,
+            }) ;
+            }
+            return result;
+        }
+
         public async Task<int> GetAppCountByScheduleIdSessionIdAsync(long? scheduleId, long? sessionId)
         {
             var appointments = await _appointmentRepository.GetListAsync(a => a.DoctorScheduleId == scheduleId && a.DoctorScheduleDaySessionId == sessionId);
