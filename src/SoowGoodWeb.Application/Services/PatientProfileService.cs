@@ -31,16 +31,26 @@ namespace SoowGoodWeb.Services
         }
         public async Task<PatientProfileDto> CreateAsync(PatientProfileInputDto input)
         {
-            var totalPatients = await _patientProfileRepository.GetListAsync();
-            var count = totalPatients.Count();
-            input.PatientCode = "SG-P-" + (count + 1);
-            var newEntity = ObjectMapper.Map<PatientProfileInputDto, PatientProfile>(input);
+            var result = new PatientProfileDto();
+            try
+            {
+                var totalPatients = await _patientProfileRepository.GetListAsync();
+                var count = totalPatients.Count();
+                var date = DateTime.Now;
+                input.PatientCode = "SGP" + date.ToString("yyyyMMdd") + (count + 1);
+                var newEntity = ObjectMapper.Map<PatientProfileInputDto, PatientProfile>(input);
 
-            var patientProfile = await _patientProfileRepository.InsertAsync(newEntity);
+                var patientProfile = await _patientProfileRepository.InsertAsync(newEntity);
 
-            //await _unitOfWorkManager.Current.SaveChangesAsync();
+                //await _unitOfWorkManager.Current.SaveChangesAsync();
+                result = ObjectMapper.Map<PatientProfile, PatientProfileDto>(patientProfile);
 
-            return ObjectMapper.Map<PatientProfile, PatientProfileDto>(patientProfile);
+            }
+            catch (Exception ex)
+            {
+                return result;
+            }
+            return result;
         }
 
         public async Task<PatientProfileDto> GetAsync(long id)
@@ -58,9 +68,9 @@ namespace SoowGoodWeb.Services
         public async Task<PatientProfileDto> GetByPhoneAndCodeAsync(string pCode, string pPhone)
         {
             var item = await _patientProfileRepository.GetAsync(x => x.PatientCode == pCode && x.PatientMobileNo == pPhone);//.WithDetailsAsync();
-            //var patient = item.Where(x => x.PatientCode == pCode && x.PatientMobileNo == pPhone).FirstOrDefault();
-            //if(patient!=null)
-                return ObjectMapper.Map<PatientProfile, PatientProfileDto>(item);
+                                                                                                                            //var patient = item.Where(x => x.PatientCode == pCode && x.PatientMobileNo == pPhone).FirstOrDefault();
+                                                                                                                            //if(patient!=null)
+            return ObjectMapper.Map<PatientProfile, PatientProfileDto>(item);
 
             //var item = await _patientProfileRepository.WithDetailsAsync();
             //var profile = item.FirstOrDefault(item => item.Id == id);
@@ -82,7 +92,7 @@ namespace SoowGoodWeb.Services
         public async Task<List<PatientProfileDto>> GetListPatientListByAdminAsync()
         {
             List<PatientProfileDto>? result = null;
-            var allProfile = await _patientProfileRepository.GetListAsync(); 
+            var allProfile = await _patientProfileRepository.GetListAsync();
             if (!allProfile.Any())
             {
                 return result;
@@ -104,7 +114,7 @@ namespace SoowGoodWeb.Services
                     BloodGroup = item.BloodGroup,
                     Address = item.Address,
                     ProfileRole = "Patient",
-                    
+
                 }); ;
             }
             return result;
@@ -123,7 +133,7 @@ namespace SoowGoodWeb.Services
                 itemPatient.PatientName = input.PatientName;
                 itemPatient.PatientEmail = input.PatientEmail;
                 itemPatient.PatientMobileNo = input.PatientMobileNo;
-                
+
                 //input.FullName = itemPatient.FullName;
                 //input.DateOfBirth = itemPatient.DateOfBirth;
                 //input.Gender = itemPatient.Gender;
