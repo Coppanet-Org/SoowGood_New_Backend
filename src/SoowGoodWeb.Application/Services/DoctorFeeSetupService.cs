@@ -28,7 +28,8 @@ namespace SoowGoodWeb.Services
             var response = new ResponseDto();
             try
             {
-                var isFeesExist = await _doctorFeeRepository.GetAsync(f => f.AppointmentType == input.AppointmentType && f.DoctorScheduleId == input.DoctorScheduleId);
+                var allFees = await _doctorFeeRepository.WithDetailsAsync();
+                var isFeesExist = allFees.Where(f => f.AppointmentType == input.AppointmentType && f.DoctorScheduleId == input.DoctorScheduleId).FirstOrDefault();
                 if (isFeesExist == null)
                 {
                     var newEntity = ObjectMapper.Map<DoctorFeesSetupInputDto, DoctorFeesSetup>(input);
@@ -126,7 +127,8 @@ namespace SoowGoodWeb.Services
                     result.ResponseMessage = "Fee successfully inserted.";
                     return result;
                 }
-                else {
+                else
+                {
                     result.ResponseSuccess = false;
                     result.ResponseMessage = "Fee Already Exists for the selected Schedule and Appointment type...!!! You can update or remove the existing fee.";
                     return result;
@@ -203,7 +205,7 @@ namespace SoowGoodWeb.Services
                     Id = fee.Id,
                     DoctorScheduleId = fee.DoctorScheduleId,
                     DoctorSchedule = ((ConsultancyType)fee?.DoctorSchedule?.ConsultancyType!).ToString()
-                                     + "_" + (fee.DoctorSchedule?.DoctorChamberId > 0 ? fee?.DoctorSchedule.DoctorChamber?.ChamberName : ""),
+                                      + (fee.DoctorSchedule?.DoctorChamberId > 0 ? "_" + fee?.DoctorSchedule.DoctorChamber?.ChamberName : ""),
                     AppointmentType = fee.AppointmentType,
                     AppointmentTypeName = ((AppointmentType)fee.AppointmentType).ToString(),
                     CurrentFee = fee.CurrentFee,

@@ -36,11 +36,20 @@ namespace SoowGoodWeb.Services
         public async Task<ResponseDto> CreateAsync(DoctorScheduleInputDto input)
         {
             var response = new ResponseDto();
-            var br = 0;
             try
             {
-                var isExistSchedule = await _doctorScheduleRepository.GetAsync(s => s.ConsultancyType == input.ConsultancyType && s.DoctorChamberId == input.DoctorChamberId);
-                if (isExistSchedule != null)
+                DoctorSchedule? isExistSchedule = null;
+                var doctorSchedules = await _doctorScheduleRepository.WithDetailsAsync();
+                if (input.ConsultancyType == ConsultancyType.Chamber && input.DoctorChamberId > 0)
+                {
+
+                    isExistSchedule = doctorSchedules.Where(s => s.ConsultancyType == input.ConsultancyType && s.DoctorChamberId == input.DoctorChamberId).FirstOrDefault();
+                }
+                else
+                {
+                    isExistSchedule = doctorSchedules.Where(s => s.ConsultancyType == input.ConsultancyType).FirstOrDefault();
+                }
+                if (isExistSchedule == null)
                 {
                     //input.ScheduleName = input.cham;
                     if (input.DoctorChamberId == 0)
@@ -139,11 +148,20 @@ namespace SoowGoodWeb.Services
         {
             var response = new ResponseDto();
             var result = new DoctorScheduleDto();
-            var br = 0;
             try
             {
-                var isExistSchedule = await _doctorScheduleRepository.GetAsync(s => s.ConsultancyType == input.ConsultancyType && s.DoctorChamberId == input.DoctorChamberId);
-                if (isExistSchedule != null)
+                DoctorSchedule? isExistSchedule = null;
+                var doctorSchedules = await _doctorScheduleRepository.WithDetailsAsync();
+                if (input.ConsultancyType == ConsultancyType.Chamber && input.DoctorChamberId > 0)
+                {
+
+                    isExistSchedule = doctorSchedules.Where(s => s.ConsultancyType == input.ConsultancyType && s.DoctorChamberId == input.DoctorChamberId).FirstOrDefault();
+                }
+                else
+                {
+                    isExistSchedule = doctorSchedules.Where(s => s.ConsultancyType == input.ConsultancyType).FirstOrDefault();
+                }
+                if (isExistSchedule == null)
                 {
                     if (input.DoctorChamberId == 0)
                     {
@@ -371,6 +389,11 @@ namespace SoowGoodWeb.Services
             //return result; // ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(schedules);
         }
 
+        private bool IsScheduleExists(ConsultancyType cType, long? chamberId)
+        {
+
+            return false;
+        }
         //public async Task<ResponseDto> CreateSessionAsync(DoctorScheduleDaySessionInputDto inputDto)
         //{
         //    var response = new ResponseDto();
