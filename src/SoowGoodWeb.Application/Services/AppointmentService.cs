@@ -75,18 +75,25 @@ namespace SoowGoodWeb.Services
 
                     long lastSerial = await GetAppCountByScheduleIdSessionIdAsync(input.DoctorScheduleId, input.DoctorScheduleDaySessionId);
 
-                for (long i = lastSerial; i < mainSession.NoOfPatients; ++i)
-                {
-                    input.AppointmentTime = slots != null ? slots[i].ToString() : "";
-                    break;
+                    for (long i = lastSerial; i < mainSession.NoOfPatients; ++i)
+                    {
+                        input.AppointmentTime = slots != null ? slots[i].ToString() : "";
+                        break;
+                    }
+                    //DateTime? x = input.AppointmentDate;
+                    var consultencyType = (input.ConsultancyType > 0 ? (ConsultancyType)input.ConsultancyType : 0).ToString();
+                    input.AppointmentSerial = (lastSerial + 1).ToString();
+                    input.AppointmentCode = input.DoctorCode + input.AppointmentDate?.ToString("yyyyMMdd") + consultencyType + "SL00" + input.AppointmentSerial;
                 }
-                DateTime? x = input.AppointmentDate;
-                input.AppointmentSerial = (lastSerial + 1).ToString();
-                input.AppointmentCode = input.DoctorCode + input.PatientCode + input.AppointmentDate?.ToString("yyyyMMdd") + input.AppointmentSerial;
-            }
-            var newEntity = ObjectMapper.Map<AppointmentInputDto, Appointment>(input);
+                var newEntity = ObjectMapper.Map<AppointmentInputDto, Appointment>(input);
 
-            var doctorChamber = await _appointmentRepository.InsertAsync(newEntity);
+                var doctorChamber = await _appointmentRepository.InsertAsync(newEntity);
+                response = ObjectMapper.Map<Appointment, AppointmentDto>(doctorChamber);
+            }
+            catch (Exception ex)
+            {
+                return response;
+            }
 
 
             //await _unitOfWorkManager.Current.SaveChangesAsync();
@@ -176,8 +183,8 @@ namespace SoowGoodWeb.Services
                     DoctorScheduleDaySessionId = item.DoctorScheduleDaySessionId,
                     ScheduleDayofWeek = weekDayName?.ScheduleDayofWeek?.ToString(),
                     CancelledByRole = item.CancelledByRole,
-                    PaymentTransactionId=item.PaymentTransactionId,
-            }) ;
+                    PaymentTransactionId = item.PaymentTransactionId,
+                });
             }
             return result;
         }
