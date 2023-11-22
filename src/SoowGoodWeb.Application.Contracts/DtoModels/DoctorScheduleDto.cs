@@ -30,5 +30,8 @@ namespace SoowGoodWeb.DtoModels
         public List<DoctorFeesSetupDto>? DoctorFeesSetup { get; set; }
         public List<AppointmentDto>? Appointments { get; set; }
         public string? ScheduleName { get; set; }
+        public bool? ResponseSuccess { get; set; }
+        public string? ResponseMessage { get; set; }
+
     }
 }

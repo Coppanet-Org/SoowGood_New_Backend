@@ -1,9 +1,11 @@
 ﻿using SoowGoodWeb.DtoModels;
+using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.ObjectMapping;
 using Volo.Abp.Uow;
 
 namespace SoowGoodWeb.Services
@@ -18,6 +20,29 @@ namespace SoowGoodWeb.Services
 
             _unitOfWorkManager = unitOfWorkManager;
         }
+
+        public async Task<SpecialityDto> CreateAsync(SpecialityInputDto input)
+        {
+            var newEntity = ObjectMapper.Map<SpecialityInputDto, Speciality>(input);
+
+            var speciality = await _specialityRepository.InsertAsync(newEntity);
+
+            await _unitOfWorkManager.Current.SaveChangesAsync();
+
+            return ObjectMapper.Map<Speciality, SpecialityDto>(speciality);
+        }
+
+        public async Task<SpecialityDto> UpdateAsync(SpecialityInputDto input)
+        {
+            var updateItem = ObjectMapper.Map<SpecialityInputDto, Speciality>(input);
+
+            var item = await _specialityRepository.UpdateAsync(updateItem);
+
+            await _unitOfWorkManager.Current.SaveChangesAsync();
+
+            return ObjectMapper.Map<Speciality, SpecialityDto>(item);
+        }
+
         //public async Task<DoctorProfileDto> CreateAsync(DoctorProfileInputDto input)
         //{
         //    var newEntity = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(input);
@@ -40,6 +65,8 @@ namespace SoowGoodWeb.Services
             var specialities = await _specialityRepository.GetListAsync();
             return ObjectMapper.Map<List<Speciality>, List<SpecialityDto>>(specialities);
         }
+
+       
         //public async Task<List<DoctorProfileDto>> GetListAsync()
         //{
         //    List<DoctorProfileDto> list = null;

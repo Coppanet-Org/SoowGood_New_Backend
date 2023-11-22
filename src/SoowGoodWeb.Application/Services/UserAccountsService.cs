@@ -14,6 +14,7 @@ using Volo.Abp.Uow;
 using System.Net.Http;
 using IdentityModel.Client;
 using System.Net.Http.Headers;
+using System.Linq;
 
 namespace SoowGoodWeb.Services
 {
@@ -27,6 +28,8 @@ namespace SoowGoodWeb.Services
         private readonly IdentityRoleManager _roleManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IRepository<DoctorProfile> _doctorProfileRepository;
+        private readonly IRepository<PatientProfile> _patientProfileRepository;
+        private readonly IRepository<AgentProfile> _agentProfileRepository;
 
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         //private readonly DoctorProfileService _doctorProfileservice;
@@ -37,6 +40,8 @@ namespace SoowGoodWeb.Services
                                    IdentityRoleManager roleManager,
                                    SignInManager<IdentityUser> signInManager,
                                    IRepository<DoctorProfile> doctorProfileRepository,
+                                   IRepository<PatientProfile> patientProfileRepository,
+                                   IRepository<AgentProfile> agentProfileRepository,
                                    IUnitOfWorkManager unitOfWorkManager,
                                    IEmailSender emailSender)
         {
@@ -44,28 +49,87 @@ namespace SoowGoodWeb.Services
             _roleManager = roleManager;
             _signInManager = signInManager;
             _doctorProfileRepository = doctorProfileRepository;
+            _patientProfileRepository = patientProfileRepository;
+            _agentProfileRepository = agentProfileRepository;
             _unitOfWorkManager = unitOfWorkManager;
             _emailSender = emailSender;
             //_doctorProfileservice = new DoctorProfileService(_doctorProfileRepository, _unitOfWorkManager);
         }
 
         // POST /api/account/reset-password
-        //public virtual async Task ResetPassword(ResetPasswordInputDto inputDto)
-        //{
-        //    try
-        //    {
-        //        var user = await _userManager.FindByIdAsync(inputDto.UserId);
-        //        //var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-        //        //await _userManager.ResetPasswordAsync(user, resetToken, inputDto.NewPassword);
-        //        await _userManager.RemovePasswordAsync(user);
-        //        await _userManager.AddPasswordAsync(user, inputDto.NewPassword);
-        //        await _userManager.UpdateAsync(user);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        throw new UserFriendlyException("Password reset not successfull.");
-        //    }
-        //}
+        public async Task<ResetPasswordResponseDto> ResetPassword(ResetPasswordInputDto inputDto)
+        {
+            ResetPasswordResponseDto result = new ResetPasswordResponseDto();
+            try
+            {
+                var mainUser = await _userManager.FindByNameAsync(inputDto.UserId);
+                if (mainUser != null)
+                {
+                    string userId = mainUser.Id.ToString();
+                    if (!string.IsNullOrEmpty(userId))
+                    {
+                        var user = await _userManager.FindByIdAsync(userId);
+                        if (user != null)
+                        {
+                            var removePwd = await _userManager.RemovePasswordAsync(user);
+                            if (removePwd.Succeeded)
+                            {
+                                var addnewPwd = await _userManager.AddPasswordAsync(user, inputDto.NewPassword);
+                                if (addnewPwd.Succeeded)
+                                {
+                                    var updateUser = await _userManager.UpdateAsync(user);
+                                    if (updateUser.Succeeded)
+                                    {
+                                        result.UserName = inputDto.UserId.ToString();
+                                        result.Name = user.Name;
+                                        result.Success = true;
+                                        result.Message = "Dear Mr. " + user.Name + ",Your Password Updated Successfully at SoowGood.com. You can login now with your new password.";
+
+                                    }
+                                    else // if (updateUser.Errors.Count() > 0)
+                                    {
+
+                                        result.Success = false;
+                                        foreach (var error in updateUser.Errors)
+                                        {
+                                            result.Message = "Password Reset Failed for. " + error;
+                                        }
+                                    }
+                                }
+                                else //if (addnewPwd.Errors.Count() > 0)
+                                {
+
+                                    result.Success = false;
+                                    foreach (var error in addnewPwd.Errors)
+                                    {
+                                        result.Message = "Password Reset Failed for. " + error;
+                                    }
+                                }
+                            }
+                            else //if (removePwd.Errors.Count() > 0)
+                            {
+
+                                result.Success = false;
+                                foreach (var error in removePwd.Errors)
+                                {
+                                    result.Message = "Password Reset Failed for. " + error;
+                                }
+                            }
+                        }
+                        else //if (removePwd.Errors.Count() > 0)
+                        {
+                            result.Success = false;
+                            result.Message = "User not found !!!";
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw new UserFriendlyException("Password reset not successfull.");
+            }
+            return result;
+        }
 
         //// POST /api/account/reset-password-request
         //public async Task ResetPasswordRequest(ResetPasswordRequestInputDto input)
@@ -329,6 +393,46 @@ namespace SoowGoodWeb.Services
         //    }
         //    return null;
         //}
+
+        public async Task<bool> IsUserExists(string userName)
+        {
+
+            var allDoctors = await _doctorProfileRepository.GetListAsync();
+            if (allDoctors.Any())
+            {
+                var doctor = allDoctors.FirstOrDefault(d => d.MobileNo == userName);
+                if (doctor != null && doctor.Id > 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    var allPatient = await _patientProfileRepository.GetListAsync();
+                    if (allPatient.Any())
+                    {
+                        var patient = allPatient.FirstOrDefault(p => p.MobileNo == userName);
+                        if (patient != null && patient.Id > 0)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            var allAgent = await _agentProfileRepository.GetListAsync();
+                            if (allAgent.Any())
+                            {
+                                var agent = allAgent.FirstOrDefault(a => a.MobileNo == userName);
+                                if (agent != null && agent.Id > 0)
+                                {
+                                    return true;
+                                }
+                                else { return false; }
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
     }
 }
 
