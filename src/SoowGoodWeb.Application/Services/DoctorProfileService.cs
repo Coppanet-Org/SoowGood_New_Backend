@@ -32,15 +32,10 @@ namespace SoowGoodWeb.Services
         }
         public async Task<DoctorProfileDto> CreateAsync(DoctorProfileInputDto input)
         {
-            var result = new DoctorProfileDto();
-            try
-            {
-
-                var totalDoctors = await _doctorProfileRepository.GetListAsync();
-                var count = totalDoctors.Count();
-                var date = DateTime.Now;
-                input.DoctorCode = "SGD"+date.ToString("yyyyMMdd") + (count + 1);
-                var newEntity = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(input);
+            var totalDoctors = await _doctorProfileRepository.GetListAsync();
+            var count = totalDoctors.Count();
+            input.DoctorCode = "SG-D-" + (count + 1);
+            var newEntity = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(input);
 
                 var doctorProfile = await _doctorProfileRepository.InsertAsync(newEntity);
 
@@ -163,9 +158,9 @@ namespace SoowGoodWeb.Services
                     MobileNo = item.MobileNo,
                     DateOfBirth = item.DateOfBirth,
                     Gender = item.Gender,
-                    GenderName = item.Gender >0 ? ((Gender)item.Gender).ToString() : "n/a",
+                    GenderName = item.Gender >0 ? ((Gender)item.Gender).ToString():"n/a",
                     Address = item.Address,
-                    ProfileRole="Doctor",
+                    ProfileRole = "Doctor",
                     IsActive = item.IsActive,
 
                 });

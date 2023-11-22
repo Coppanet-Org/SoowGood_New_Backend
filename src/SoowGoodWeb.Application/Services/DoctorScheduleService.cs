@@ -38,18 +38,8 @@ namespace SoowGoodWeb.Services
             var response = new ResponseDto();
             try
             {
-                DoctorSchedule? isExistSchedule = null;
-                var doctorSchedules = await _doctorScheduleRepository.WithDetailsAsync();
-                if (input.ConsultancyType == ConsultancyType.Chamber && input.DoctorChamberId > 0)
-                {
-
-                    isExistSchedule =  doctorSchedules.Where(s => s.ConsultancyType == input.ConsultancyType && s.DoctorChamberId == input.DoctorChamberId).FirstOrDefault();
-                }
-                else
-                {
-                    isExistSchedule = doctorSchedules.Where(s => s.ConsultancyType == input.ConsultancyType).FirstOrDefault();
-                }
-                if (isExistSchedule == null)
+                var isExistSchedule = await _doctorScheduleRepository.GetAsync(s => s.ConsultancyType == input.ConsultancyType && s.DoctorChamberId == input.DoctorChamberId);
+                if (isExistSchedule != null)
                 {
                     //input.ScheduleName = input.cham;
                     if (input.DoctorChamberId == 0)
@@ -150,18 +140,8 @@ namespace SoowGoodWeb.Services
             var result = new DoctorScheduleDto();
             try
             {
-                DoctorSchedule? isExistSchedule = null;
-                var doctorSchedules = await _doctorScheduleRepository.WithDetailsAsync();
-                if (input.ConsultancyType == ConsultancyType.Chamber && input.DoctorChamberId > 0)
-                {
-
-                    isExistSchedule =  doctorSchedules.Where(s => s.ConsultancyType == input.ConsultancyType && s.DoctorChamberId == input.DoctorChamberId).FirstOrDefault();
-                }
-                else
-                {
-                    isExistSchedule = doctorSchedules.Where(s => s.ConsultancyType == input.ConsultancyType).FirstOrDefault();
-                }
-                if (isExistSchedule == null)
+                var isExistSchedule = await _doctorScheduleRepository.GetAsync(s => s.ConsultancyType == input.ConsultancyType && s.DoctorChamberId == input.DoctorChamberId);
+                if (isExistSchedule != null)
                 {
                     if (input.DoctorChamberId == 0)
                     {
