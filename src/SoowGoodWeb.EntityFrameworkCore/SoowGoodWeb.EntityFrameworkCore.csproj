@@ -9,6 +9,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20231010110309_AllDrugsAndPrescriptonDatabase_create.cs" />
+    <Compile Remove="Migrations\20231010110309_AllDrugsAndPrescriptonDatabase_create.Designer.cs" />
+    <Compile Remove="Migrations\20231017114614_presc_drug_disease_table_constraint_removed.cs" />
+    <Compile Remove="Migrations\20231017114614_presc_drug_disease_table_constraint_removed.Designer.cs" />
+    <Compile Remove="Migrations\20231018075700_appointment_table_correction_with_Prescription_master.cs" />
+    <Compile Remove="Migrations\20231018075700_appointment_table_correction_with_Prescription_master.Designer.cs" />
+    <Compile Remove="Migrations\20231018080943_prescription_master_appcode.cs" />
+    <Compile Remove="Migrations\20231018080943_prescription_master_appcode.Designer.cs" />
+    <Compile Remove="Migrations\20231018101207_prescription_master_updated_with_Patient_info.cs" />
+    <Compile Remove="Migrations\20231018101207_prescription_master_updated_with_Patient_info.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SoowGoodWeb.Domain\SoowGoodWeb.Domain.csproj" />
     <PackageReference Include="Volo.Abp.EntityFrameworkCore.SqlServer" Version="7.2.3" />
     <PackageReference Include="Volo.Abp.PermissionManagement.EntityFrameworkCore" Version="7.2.3" />

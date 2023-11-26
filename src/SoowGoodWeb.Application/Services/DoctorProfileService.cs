@@ -240,6 +240,26 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
         }
 
+        public async Task<DoctorProfileDto> UpdateProfileStepAsync(long profileId, int step)
+        {
+            try
+            {
+                var profile = await _doctorProfileRepository.GetAsync(a => a.Id == profileId);//.FindAsync(input.Id);
+                profile.profileStep = step;
+
+                var item = await _doctorProfileRepository.UpdateAsync(profile);
+                //await _unitOfWorkManager.Current.SaveChangesAsync();
+                return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+        }
+
+
+
         //public async Task<List<DoctorProfileDto>> GetListAsync()
         //{
         //    List<DoctorProfileDto> list = null;

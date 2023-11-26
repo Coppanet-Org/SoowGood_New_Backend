@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231106111111_AppointmentCallStatusUpdate")]
+    partial class AppointmentCallStatusUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,100 +26,6 @@ namespace SoowGoodWeb.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("SoowGoodWeb.Models.AgentMaster", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AgentMasterCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("AgentMasterDocExpireDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("AgentMasterDocNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AgentMasterOrgName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("City")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ContactPerson")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ContactPersonIdentityNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ContactPersonOfficeId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ContactPersongMobileNo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Country")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EmergencyContact")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool?>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<string>("PhoneNo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ZipCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SgAgentMasters");
-                });
 
             modelBuilder.Entity("SoowGoodWeb.Models.AgentProfile", b =>
                 {
@@ -131,18 +40,6 @@ namespace SoowGoodWeb.Migrations
 
                     b.Property<string>("AgentCode")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("AgentDocExpireDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("AgentDocNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("AgentMasterId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("AgentSupervisorId")
-                        .HasColumnType("bigint");
 
                     b.Property<string>("City")
                         .HasColumnType("nvarchar(max)");
@@ -209,107 +106,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AgentMasterId");
-
-                    b.HasIndex("AgentSupervisorId");
-
                     b.ToTable("SgAgentProfiles");
-                });
-
-            modelBuilder.Entity("SoowGoodWeb.Models.AgentSupervisor", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("AgentMasterId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("AgentSupervisorCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("AgentSupervisorDocExpireDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("AgentSupervisorDocNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AgentSupervisorOrgName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("City")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Country")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EmergencyContact")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool?>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<string>("PhoneNo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SupervisorIdentityNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SupervisorMobileNo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SupervisorName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ZipCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AgentMasterId");
-
-                    b.ToTable("SgAgentSupervisors");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Appointment", b =>
@@ -3749,30 +3546,6 @@ namespace SoowGoodWeb.Migrations
                     b.HasKey("TenantId", "Name");
 
                     b.ToTable("AbpTenantConnectionStrings", (string)null);
-                });
-
-            modelBuilder.Entity("SoowGoodWeb.Models.AgentProfile", b =>
-                {
-                    b.HasOne("SoowGoodWeb.Models.AgentMaster", "AgentMaster")
-                        .WithMany()
-                        .HasForeignKey("AgentMasterId");
-
-                    b.HasOne("SoowGoodWeb.Models.AgentSupervisor", "AgentSupervisor")
-                        .WithMany()
-                        .HasForeignKey("AgentSupervisorId");
-
-                    b.Navigation("AgentMaster");
-
-                    b.Navigation("AgentSupervisor");
-                });
-
-            modelBuilder.Entity("SoowGoodWeb.Models.AgentSupervisor", b =>
-                {
-                    b.HasOne("SoowGoodWeb.Models.AgentMaster", "AgentMaster")
-                        .WithMany()
-                        .HasForeignKey("AgentMasterId");
-
-                    b.Navigation("AgentMaster");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Appointment", b =>

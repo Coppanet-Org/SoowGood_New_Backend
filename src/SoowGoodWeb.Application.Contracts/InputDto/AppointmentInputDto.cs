@@ -43,5 +43,6 @@ namespace SoowGoodWeb.DtoModels
         public string? CancelledByRole { get; set; }
         public string? PaymentTransactionId { get; set; }
         public long? AppointmentCreatorId { get; set; }
+        public bool? IsCousltationComplete { get; set; }
     }
 }
