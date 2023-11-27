@@ -43,6 +43,8 @@ namespace SoowGoodWeb.Services
             //var agentSupervisors = await _agentSupervisorRepository.GetListAsync();
             List<AgentSupervisorDto>? result = null;
             var allsupervisorwithDetails = await _agentSupervisorRepository.WithDetailsAsync(s=>s.AgentMaster);
+            //var list = allsupervisorwithDetails.ToList();
+            
             if (!allsupervisorwithDetails.Any())
             {
                 return result;
@@ -50,7 +52,7 @@ namespace SoowGoodWeb.Services
             result = new List<AgentSupervisorDto>();
             foreach(var item in allsupervisorwithDetails)
             {
-                result.Add(new AgentSupervisorDto
+                result.Add(new AgentSupervisorDto()
                 {
                     AgentMasterId = item.AgentMasterId,
                     AgentMasterName = item.AgentMasterId > 0 ? item.AgentMaster.AgentMasterOrgName:""
