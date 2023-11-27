@@ -197,59 +197,66 @@ namespace SoowGoodWeb.Services
 
         public async Task<DoctorProfileDto> UpdateAsync(DoctorProfileInputDto input)
         {
-            var updateItem = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(input);
-
-            var item = await _doctorProfileRepository.UpdateAsync(updateItem);
-            await _unitOfWorkManager.Current.SaveChangesAsync();
-            var result = ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
-            if (result != null)
+            var result = new DoctorProfileDto();
+            try
             {
-                if (input.Degrees?.Count > 0)
+                var updateItem = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(input);
+
+                var item = await _doctorProfileRepository.UpdateAsync(updateItem);
+                await _unitOfWorkManager.Current.SaveChangesAsync();
+                result = ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+                if (result != null)
                 {
-                    foreach (var d in input.Degrees)
+                    if (input.Degrees?.Count > 0)
                     {
-                        var degree = new DoctorDegreeInputDto
+                        foreach (var d in input.Degrees)
                         {
-                            DoctorProfileId = result.Id,
-                            DegreeId = d.DegreeId,
-                            Duration = d.Duration,
-                            PassingYear = d.PassingYear,
-                            InstituteName = d.InstituteName,
-                            InstituteCity = d.InstituteCity,
-                            InstituteCountry = d.InstituteCountry
-                        };
-                        var newDegree = ObjectMapper.Map<DoctorDegreeInputDto, DoctorDegree>(degree);
+                            var degree = new DoctorDegreeInputDto
+                            {
+                                DoctorProfileId = result.Id,
+                                DegreeId = d.DegreeId,
+                                Duration = d.Duration,
+                                PassingYear = d.PassingYear,
+                                InstituteName = d.InstituteName,
+                                InstituteCity = d.InstituteCity,
+                                InstituteCountry = d.InstituteCountry
+                            };
+                            var newDegree = ObjectMapper.Map<DoctorDegreeInputDto, DoctorDegree>(degree);
 
-                        var doctorDegree = await _doctorDegreeRepository.InsertAsync(newDegree);
+                            var doctorDegree = await _doctorDegreeRepository.InsertAsync(newDegree);
 
-                        //await _unitOfWorkManager.Current.SaveChangesAsync();
+                            //await _unitOfWorkManager.Current.SaveChangesAsync();
 
-                        ObjectMapper.Map<DoctorDegree, DoctorDegreeDto>(doctorDegree);
+                            ObjectMapper.Map<DoctorDegree, DoctorDegreeDto>(doctorDegree);
 
+                        }
                     }
-                }
-                if (input.DoctorSpecialization?.Count > 0)
-                {
-                    foreach (var s in input.DoctorSpecialization)
+                    if (input.DoctorSpecialization?.Count > 0)
                     {
-                        var specialization = new DoctorSpecializationInputDto
+                        foreach (var s in input.DoctorSpecialization)
                         {
-                            DoctorProfileId = result.Id,
-                            SpecialityId = s.SpecialityId,
-                            SpecializationId = s.SpecializationId,
-                            DocumentName = s.DocumentName,
-                        };
-                        var newDegree = ObjectMapper.Map<DoctorSpecializationInputDto, DoctorSpecialization>(specialization);
+                            var specialization = new DoctorSpecializationInputDto
+                            {
+                                DoctorProfileId = result.Id,
+                                SpecialityId = s.SpecialityId,
+                                SpecializationId = s.SpecializationId,
+                                DocumentName = s.DocumentName,
+                            };
+                            var newDegree = ObjectMapper.Map<DoctorSpecializationInputDto, DoctorSpecialization>(specialization);
 
-                        var doctorSpecialization = await _doctorSpecializationRepository.InsertAsync(newDegree);
+                            var doctorSpecialization = await _doctorSpecializationRepository.InsertAsync(newDegree);
 
-                        //await _unitOfWorkManager.Current.SaveChangesAsync();
+                            //await _unitOfWorkManager.Current.SaveChangesAsync();
 
-                        ObjectMapper.Map<DoctorSpecialization, DoctorSpecializationDto>(doctorSpecialization);
+                            ObjectMapper.Map<DoctorSpecialization, DoctorSpecializationDto>(doctorSpecialization);
+                        }
                     }
                 }
             }
-            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+            catch (Exception ex)
+            {
+            }
+            return result;//ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
         }
 
         public async Task<DoctorProfileDto> UpdateProfileStepAsync(long profileId, int step)
