@@ -27,6 +27,7 @@ namespace SoowGoodWeb.Services
             var doctorDegree = await _doctorDegreeRepository.InsertAsync(newEntity);
 
             await _unitOfWorkManager.Current.SaveChangesAsync();
+            //var retObj = ObjectMapper.Map<DoctorDegree, DoctorDegreeDto>(doctorDegree);
 
             return ObjectMapper.Map<DoctorDegree, DoctorDegreeDto>(doctorDegree);
         }
