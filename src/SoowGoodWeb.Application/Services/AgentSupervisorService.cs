@@ -29,6 +29,9 @@ namespace SoowGoodWeb.Services
 
         public async Task<AgentSupervisorDto> CreateAsync(AgentSupervisorInputDto input)
         {
+            var totalAgentSupervisors = await _agentSupervisorRepository.GetListAsync();
+            var count = totalAgentSupervisors.Count();
+            input.AgentSupervisorCode = "SG-AS-" + (count + 1);
             var newEntity = ObjectMapper.Map<AgentSupervisorInputDto, AgentSupervisor>(input);
 
             var agentSupervisor = await _agentSupervisorRepository.InsertAsync(newEntity);
