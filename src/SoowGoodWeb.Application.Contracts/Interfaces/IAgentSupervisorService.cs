@@ -11,10 +11,10 @@ namespace SoowGoodWeb.Interfaces
     public interface IAgentSupervisorService : IApplicationService
     {
         Task<List<AgentSupervisorDto>> GetListAsync();
-        //Task<AgentSupervisorDto> GetAsync(int id);
+        Task<AgentSupervisorDto> GetAsync(int id);
         //Task<AgentSupervisorDto> GetByUserNameAsync(string userName);
         Task<AgentSupervisorDto> CreateAsync(AgentSupervisorInputDto input);
-        //Task<AgentSupervisorDto> UpdateAsync(AgentSupervisorInputDto input);
+        Task<AgentSupervisorDto> UpdateAsync(AgentSupervisorInputDto input);
         //Task<AgentSupervisorDto> GetByUserIdAsync(Guid userId);
     }
 }

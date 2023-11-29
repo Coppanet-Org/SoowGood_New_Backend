@@ -41,6 +41,18 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<AgentSupervisor, AgentSupervisorDto>(agentSupervisor);
         }
 
+        public async Task<AgentSupervisorDto> GetAsync(int id)
+        {
+            var item = await _agentSupervisorRepository.WithDetailsAsync(m=>m.AgentMaster);
+
+            var profile = item.FirstOrDefault(item => item.Id == id);
+            
+
+            var result = profile != null ? ObjectMapper.Map<AgentSupervisor, AgentSupervisorDto>(profile) : null;
+            result.AgentMasterName = profile.AgentMaster.AgentMasterOrgName;
+            return result;
+        }
+
         public async Task<List<AgentSupervisorDto>> GetListAsync()
         {
             //var agentSupervisors = await _agentSupervisorRepository.GetListAsync();
@@ -58,38 +70,37 @@ namespace SoowGoodWeb.Services
                 result.Add(new AgentSupervisorDto()
                 {
                     AgentMasterId = item.AgentMasterId,
-                    AgentMasterName = item.AgentMasterId > 0 ? item.AgentMaster.AgentMasterOrgName:""
-                    //SupervisorName = item.SupervisorName,
-                    //AgentSupervisorOrgName = item.AgentSupervisorOrgName,
-                    //AgentSupervisorCode = item.AgentSupervisorCode,
-                    //SupervisorIdentityNumber = item.SupervisorIdentityNumber,
-                    //SupervisorMobileNo = item.SupervisorMobileNo,
-                    //Address = item.Address,
-                    //City = item.City,
-                    //ZipCode = item.ZipCode,
-                    //Country = item.Country,
-                    //PhoneNo = item.PhoneNo,
-                    //Email = item.Email,
-                    //EmergencyContact = item.EmergencyContact,
-                    //AgentSupervisorDocNumber = item.AgentSupervisorDocNumber,
-                    //AgentSupervisorDocExpireDate = item.AgentSupervisorDocExpireDate,
-                    //IsActive = item.IsActive,
-                    //IsDeleted = item.IsDeleted,
-                }); 
+                    AgentMasterName = item.AgentMasterId > 0 ? item.AgentMaster.AgentMasterOrgName : "",
+                    SupervisorName = item.SupervisorName,
+                    AgentSupervisorOrgName = item.AgentSupervisorOrgName,
+                    AgentSupervisorCode = item.AgentSupervisorCode,
+                    SupervisorIdentityNumber = item.SupervisorIdentityNumber,
+                    SupervisorMobileNo = item.SupervisorMobileNo,
+                    Address = item.Address,
+                    City = item.City,
+                    ZipCode = item.ZipCode,
+                    Country = item.Country,
+                    PhoneNo = item.PhoneNo,
+                    Email = item.Email,
+                    EmergencyContact = item.EmergencyContact,
+                    AgentSupervisorDocNumber = item.AgentSupervisorDocNumber,
+                    AgentSupervisorDocExpireDate = item.AgentSupervisorDocExpireDate,
+                    IsActive = item.IsActive,
+                    IsDeleted = item.IsDeleted,
+                }) ; 
             }
             return result;
             //return ObjectMapper.Map<List<AgentSupervisor>, List<AgentSupervisorDto>>(agentSupervisors);
         }
-        //public async Task<AgentProfileDto> CreateAsync(AgentProfileInputDto input)
-        //{
-        //    var newEntity = ObjectMapper.Map<AgentProfileInputDto, AgentProfile>(input);
 
-        //    var agentProfile = await _agentProfileRepository.InsertAsync(newEntity);
+        public async Task<AgentSupervisorDto> UpdateAsync(AgentSupervisorInputDto input)
+        {
+            var updateItem = ObjectMapper.Map<AgentSupervisorInputDto, AgentSupervisor>(input);
 
-        //    //await _unitOfWorkManager.Current.SaveChangesAsync();
+            var item = await _agentSupervisorRepository.UpdateAsync(updateItem);
 
-        //    return ObjectMapper.Map<AgentProfile, AgentProfileDto>(agentProfile);
-        //}
+            return ObjectMapper.Map<AgentSupervisor, AgentSupervisorDto>(item);
+        }
 
         //public async Task<AgentProfileDto> GetAsync(int id)
         //{

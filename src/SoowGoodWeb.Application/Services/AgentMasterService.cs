@@ -40,10 +40,30 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<AgentMaster, AgentMasterDto>(agentMaster);
         }
 
+        public async Task<AgentMasterDto> GetAsync(int id)
+        {
+            var item = await _agentMasterRepository.WithDetailsAsync();
+
+            var profile = item.FirstOrDefault(item => item.Id == id);
+
+            var result = profile != null ? ObjectMapper.Map<AgentMaster, AgentMasterDto>(profile) : null;
+
+            return result;
+        }
+
         public async Task<List<AgentMasterDto>> GetListAsync()
         {
             var agentMasters = await _agentMasterRepository.GetListAsync();
             return ObjectMapper.Map<List<AgentMaster>, List<AgentMasterDto>>(agentMasters);
+        }
+
+        public async Task<AgentMasterDto> UpdateAsync(AgentMasterInputDto input)
+        {
+            var updateItem = ObjectMapper.Map<AgentMasterInputDto, AgentMaster>(input);
+
+            var item = await _agentMasterRepository.UpdateAsync(updateItem);
+
+            return ObjectMapper.Map<AgentMaster, AgentMasterDto>(item);
         }
         //public async Task<AgentProfileDto> CreateAsync(AgentProfileInputDto input)
         //{
@@ -98,6 +118,6 @@ namespace SoowGoodWeb.Services
         //    return ObjectMapper.Map<AgentProfile, AgentProfileDto>(item);
         //}
 
-       
+
     }
 }
