@@ -178,8 +178,8 @@ namespace SoowGoodWeb.Services
                             select t1).ToList();
             }
 
-            profiles = profiles.Skip((int)skipValue)
-                               .Take((int)currentLimit).ToList();
+            profiles = profiles.Skip((int)(skipValue>0?skipValue:0))
+                               .Take((int)(currentLimit > 0 ? currentLimit : 0)).ToList();
 
             foreach (var item in profiles)
             {
