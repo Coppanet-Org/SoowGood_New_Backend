@@ -98,6 +98,7 @@ namespace SoowGoodWeb.Services
             var updateItem = ObjectMapper.Map<AgentSupervisorInputDto, AgentSupervisor>(input);
 
             var item = await _agentSupervisorRepository.UpdateAsync(updateItem);
+            await _unitOfWorkManager.Current.SaveChangesAsync();
 
             return ObjectMapper.Map<AgentSupervisor, AgentSupervisorDto>(item);
         }

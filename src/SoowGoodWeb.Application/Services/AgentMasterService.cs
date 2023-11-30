@@ -62,7 +62,7 @@ namespace SoowGoodWeb.Services
             var updateItem = ObjectMapper.Map<AgentMasterInputDto, AgentMaster>(input);
 
             var item = await _agentMasterRepository.UpdateAsync(updateItem);
-
+            await _unitOfWorkManager.Current.SaveChangesAsync();
             return ObjectMapper.Map<AgentMaster, AgentMasterDto>(item);
         }
         //public async Task<AgentProfileDto> CreateAsync(AgentProfileInputDto input)
