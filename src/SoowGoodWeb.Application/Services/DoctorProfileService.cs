@@ -217,10 +217,6 @@ namespace SoowGoodWeb.Services
                 });
             }
 
-            
-
-            
-
             return result;
         }
 
