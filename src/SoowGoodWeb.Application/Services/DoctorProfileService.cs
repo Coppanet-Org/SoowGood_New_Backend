@@ -130,7 +130,7 @@ namespace SoowGoodWeb.Services
             return result;
         }
 
-        public async Task<List<DoctorProfileDto>> GetDoctorDetailsListAsync(string? name, ConsultancyType? consultancy, long? speciality, long? specialization, FilterModel? filter)
+        public async Task<List<DoctorProfileDto>> GetDoctorDetailsListAsync(string? name, ConsultancyType? consultancy, long? speciality, long? specialization, int? skipValue, int? currentLimit)
         {
             List<DoctorProfileDto> result = null;
             var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
@@ -149,6 +149,10 @@ namespace SoowGoodWeb.Services
             var medcalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
             var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medcalSpecializations.ToList());
 
+            if (!string.IsNullOrEmpty(name))
+            {
+                profiles = profiles.Where(p => p.FullName == name).ToList();
+            }
 
             if (speciality > 0)
             {
@@ -173,6 +177,9 @@ namespace SoowGoodWeb.Services
                             on t1.Id equals t2.DoctorProfileId
                             select t1).ToList();
             }
+
+            profiles = profiles.Skip((int)skipValue)
+                               .Take((int)currentLimit).ToList();
 
             foreach (var item in profiles)
             {
@@ -210,10 +217,9 @@ namespace SoowGoodWeb.Services
                 });
             }
 
-            if (!string.IsNullOrEmpty(name))
-            {
-                result = result.Where(d => d.FullName.Contains(name)).ToList();
-            }
+            
+
+            
 
             return result;
         }
