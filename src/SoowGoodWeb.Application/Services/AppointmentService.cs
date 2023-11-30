@@ -329,7 +329,6 @@ namespace SoowGoodWeb.Services
                     await _appointmentRepository.UpdateAsync(appointment);
 
                     //await SendNotification(application_code, applicant.Applicant.Mobile);
-                    ///////
                 }
             }
             catch (Exception ex) { }
