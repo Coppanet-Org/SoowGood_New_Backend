@@ -11,16 +11,16 @@
 *.userprefs
 
 # Build results
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
-x64/
-x86/
-bld/
-[Bb]in/
-[Oo]bj/
-[Ll]og/
+#[Dd]ebug/
+#[Dd]ebugPublic/
+#[Rr]elease/
+#[Rr]eleases/
+#x64/
+#x86/
+#bld/
+#[Bb]in/
+#[Oo]bj/
+#[Ll]og/
 
 # Visual Studio 2015 cache/options directory
 .vs/
@@ -135,15 +135,15 @@ DocProject/Help/Html2
 DocProject/Help/html
 
 # Click-Once directory
-publish/
+#publish/
 
 # Publish Web Output
-*.[Pp]ublish.xml
+#*.[Pp]ublish.xml
 *.azurePubxml
 # TODO: Comment the next line if you want to checkin your web deploy settings
 # but database connection strings (with potential passwords) will be unencrypted
-*.pubxml
-*.publishproj
+#*.pubxml
+#*.publishproj
 
 # Microsoft Azure Web App publish settings. Comment the next line if you want to
 # checkin your Azure Web App publish settings, but sensitive information contained
@@ -263,3 +263,43 @@ src/SoowGoodWeb.Blazor.Server.Tiered/Logs/*
 
 # Use abp install-libs to restore.
 **/wwwroot/libs/*
+/src/SoowGoodWeb.Application/bin
+/src/SoowGoodWeb.Application/obj/Debug/net7.0
+/src/SoowGoodWeb.Application/obj/Release/net7.0
+/src/SoowGoodWeb.Application/obj
+/src/SoowGoodWeb.Application.Contracts/bin
+/src/SoowGoodWeb.Application.Contracts/obj
+/src/SoowGoodWeb.DbMigrator/bin
+/src/SoowGoodWeb.DbMigrator/obj
+/src/SoowGoodWeb.Domain/bin
+/src/SoowGoodWeb.Domain/obj
+/src/SoowGoodWeb.Domain.Shared/bin
+/src/SoowGoodWeb.Domain.Shared/obj
+/src/SoowGoodWeb.EntityFrameworkCore/bin
+/src/SoowGoodWeb.EntityFrameworkCore/obj
+/src/SoowGoodWeb.HttpApi/bin
+/src/SoowGoodWeb.HttpApi/obj
+/src/SoowGoodWeb.HttpApi.Client/bin
+/src/SoowGoodWeb.HttpApi.Client/obj
+/test/SoowGoodWeb.Application.Tests/obj
+/test/SoowGoodWeb.EntityFrameworkCore.Tests/bin/Debug/net7.0
+/test/SoowGoodWeb.Application.Tests/bin
+/test/SoowGoodWeb.Domain.Tests/bin
+/test/SoowGoodWeb.Domain.Tests/obj
+/test/SoowGoodWeb.EntityFrameworkCore.Tests/bin/Release/net7.0
+/test/SoowGoodWeb.EntityFrameworkCore.Tests/obj
+/test/SoowGoodWeb.HttpApi.Client.ConsoleTestApp/bin
+/test/SoowGoodWeb.HttpApi.Client.ConsoleTestApp/obj
+/test/SoowGoodWeb.TestBase/bin
+/test/SoowGoodWeb.TestBase/obj
+/src/SoowGoodWeb.HttpApi.Host/bin/Debug/net7.0
+/src/SoowGoodWeb.HttpApi.Host/bin/Release/net7.0/cs
+/src/SoowGoodWeb.HttpApi.Host/bin/Release/net7.0/de
+/src/SoowGoodWeb.HttpApi.Host/bin/Release/net7.0/es
+/src/SoowGoodWeb.HttpApi.Host/bin/Release/net7.0/fr
+/src/SoowGoodWeb.HttpApi.Host/bin/Release/net7.0/it
+/src/SoowGoodWeb.HttpApi.Host/bin/Release/net7.0/ja
+/src/SoowGoodWeb.HttpApi.Host/bin/Release/net7.0/ko
+/src/SoowGoodWeb.HttpApi.Host/bin/Release/net7.0/pl
+/src/SoowGoodWeb.HttpApi.Host/bin/Release/net7.0/pt-BR
+/src/SoowGoodWeb.HttpApi.Host/bin/Release/net7.0/refs
