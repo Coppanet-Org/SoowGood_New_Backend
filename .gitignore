@@ -264,3 +264,5 @@ src/SoowGoodWeb.Blazor.Server.Tiered/Logs/*
 # Use abp install-libs to restore.
 **/wwwroot/libs/*
 
+/src/SoowGoodWeb.HttpApi.Host/bin/Release/net7.0/publish/appsettings.json
+/src/SoowGoodWeb.HttpApi.Host/bin/Release/net7.0/publish/web.config
