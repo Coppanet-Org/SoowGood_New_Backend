@@ -49,7 +49,7 @@ namespace SoowGoodWeb.Services
             
 
             var result = profile != null ? ObjectMapper.Map<AgentSupervisor, AgentSupervisorDto>(profile) : null;
-            result.AgentMasterName = profile.AgentMaster.AgentMasterOrgName;
+            result.AgentMasterName =profile.AgentMasterId>0? profile.AgentMaster.AgentMasterOrgName:"";
             return result;
         }
 
@@ -69,6 +69,7 @@ namespace SoowGoodWeb.Services
             {
                 result.Add(new AgentSupervisorDto()
                 {
+                    Id = item.Id,
                     AgentMasterId = item.AgentMasterId,
                     AgentMasterName = item.AgentMasterId > 0 ? item.AgentMaster.AgentMasterOrgName : "",
                     SupervisorName = item.SupervisorName,
