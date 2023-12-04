@@ -245,7 +245,7 @@ namespace SoowGoodWeb.SslCommerz
                     var encodedStoreId = HttpUtility.UrlEncode(_configuration.SandboxStoreId);
                     var encodedStorePassword = HttpUtility.UrlEncode(_configuration.SandboxStorePassword);
 
-                    var validateUrl = _configuration.LiveValidationUrl + "?val_id=" + encodedValId + "&store_id=" + encodedStoreId + "&store_passwd=" + encodedStorePassword + "&v=1&format=json";
+                    var validateUrl = _configuration.SandboxValidationUrl + "?val_id=" + encodedValId + "&store_id=" + encodedStoreId + "&store_passwd=" + encodedStorePassword + "&v=1&format=json";
 
                     var request = (HttpWebRequest)WebRequest.Create(validateUrl);
                     var response = (HttpWebResponse)request.GetResponse();
