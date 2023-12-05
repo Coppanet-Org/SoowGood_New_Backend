@@ -115,7 +115,9 @@ namespace SoowGoodWeb.Services
             var result = new DoctorFeesSetupDto();
             try
             {
-                var isFeesExist = await _doctorFeeRepository.GetAsync(f => f.AppointmentType == input.AppointmentType && f.DoctorScheduleId == input.DoctorScheduleId);
+                //var isFeesExist = await _doctorFeeRepository.GetAsync(f => f.AppointmentType == input.AppointmentType && f.DoctorScheduleId == input.DoctorScheduleId);
+                var allFees = await _doctorFeeRepository.WithDetailsAsync();
+                var isFeesExist = allFees.Where(f => f.AppointmentType == input.AppointmentType && f.DoctorScheduleId == input.DoctorScheduleId).FirstOrDefault();
                 if (isFeesExist == null)
                 {
                     var newEntity = ObjectMapper.Map<DoctorFeesSetupInputDto, DoctorFeesSetup>(input);
