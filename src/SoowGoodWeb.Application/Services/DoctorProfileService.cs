@@ -5,6 +5,7 @@ using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
 using System.Linq;
@@ -245,7 +246,7 @@ namespace SoowGoodWeb.Services
 
             if (!string.IsNullOrEmpty(doctorFilterModel?.name))
             {
-                profiles = profiles.Where(p =>  p.FullName.ToLower().Contains(doctorFilterModel.name.ToLower())).ToList();
+                profiles = profiles.Where(p =>  p.FullName.ToLower().Contains(doctorFilterModel.name.ToLower().Trim())).ToList();
             }
 
             if (doctorFilterModel?.specialityId > 0)
@@ -265,11 +266,11 @@ namespace SoowGoodWeb.Services
 
             if (doctorFilterModel?.consultancyType > 0)
             {
-                //schedules = schedules.Where(c=>c.ConsultancyType==consultType).ToList();
+                schedules = schedules.Where(c=>c.ConsultancyType== doctorFilterModel.consultancyType);
                 profiles = (from t1 in profiles
-                            join t2 in schedules.Where(c => c.ConsultancyType == doctorFilterModel.consultancyType)
+                            join t2 in schedules //.Where(c => c.ConsultancyType == doctorFilterModel.consultancyType)
                             on t1.Id equals t2.DoctorProfileId
-                            select t1).ToList();
+                            select t1).Distinct().ToList();
             }
 
             profiles = profiles.Skip(filterModel.Offset)
@@ -313,8 +314,55 @@ namespace SoowGoodWeb.Services
 
             return result;
         }
+        //, int? skipValue, int? currentLimit)
+        public async Task<int> GetDoctorsCountByFiltersAsync(DataFilterModel? doctorFilterModel) 
+        {
+            var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
+            var profiles = profileWithDetails.ToList();
+            var schedules = await _doctorScheduleRepository.WithDetailsAsync();
+            //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
+            if (!profileWithDetails.Any())
+            {
+                return 0;
+            }
+            var medicaldegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
+            var doctorDegrees = ObjectMapper.Map<List<DoctorDegree>, List<DoctorDegreeDto>>(medicaldegrees.ToList());
 
 
+            var medcalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
+            var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medcalSpecializations.ToList());
+
+            if (!string.IsNullOrEmpty(doctorFilterModel?.name))
+            {
+                profiles = profiles.Where(p => p.FullName.ToLower().Contains(doctorFilterModel.name.ToLower())).ToList();
+            }
+
+            if (doctorFilterModel?.specialityId > 0)
+            {
+                profiles = profiles.Where(p => p.SpecialityId == doctorFilterModel?.specialityId).ToList();
+                //doctorSpecializations = doctorSpecializations.Where(sp => sp.SpecialityId == doctorFilterModel.specialityId).ToList();
+            }
+
+            if (doctorFilterModel?.specializationId > 0)
+            {
+                doctorSpecializations = doctorSpecializations.Where(sp => sp.Id == doctorFilterModel.specializationId).ToList();
+                profiles = (from t1 in profiles
+                            join t2 in doctorSpecializations.Where(c => c.Id == doctorFilterModel.specializationId)
+                            on t1.Id equals t2.DoctorProfileId
+                            select t1).ToList();
+            }
+
+            if (doctorFilterModel?.consultancyType > 0)
+            {
+                //schedules = schedules.Where(c=>c.ConsultancyType==consultType).ToList();
+                profiles = (from t1 in profiles
+                            join t2 in schedules.Where(c => c.ConsultancyType == doctorFilterModel.consultancyType)
+                            on t1.Id equals t2.DoctorProfileId
+                            select t1).ToList();
+            }
+
+            return profiles.Count;
+        }
         public async Task<List<DoctorProfileDto>> GetDoctorListWithSearchFilterAsync(string? name, ConsultancyType? consultancy, long? speciality, long? specialization, int? skipValue, int? currentLimit)
         {
             List<DoctorProfileDto> result = null;
