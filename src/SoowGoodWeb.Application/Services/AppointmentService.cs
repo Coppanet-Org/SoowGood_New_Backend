@@ -15,6 +15,8 @@ using SoowGoodWeb.SslCommerz;
 using System.Collections;
 using AgoraIO.Media;
 using System.Security.Principal;
+using agora.rtc.LitJson;
+using System.Globalization;
 
 namespace SoowGoodWeb.Services
 {
@@ -129,6 +131,39 @@ namespace SoowGoodWeb.Services
         {
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
             var appointments = item.Where(d => d.DoctorProfileId == doctorId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+            return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
+        }
+
+        public async Task<List<AppointmentDto>> GetAppointmentListWithSearchFilterAsync(long doctorId, string? name, ConsultancyType? consultancy, string? fromDate, string? toDate, AppointmentStatus? aptStatus, int? skipValue, int? currentLimit)
+        {
+            CultureInfo provider = CultureInfo.InvariantCulture;
+            var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
+            var appointments = item.Where(d => d.DoctorProfileId == doctorId).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                appointments = appointments.Where(p => p.PatientName.Contains(name)).ToList();
+            }
+            if (consultancy > 0)
+            {
+                appointments = appointments.Where(p => p.ConsultancyType == consultancy).ToList();
+            }
+            if (aptStatus > 0)
+            {
+                appointments = appointments.Where(p => p.AppointmentStatus == aptStatus).ToList();
+            }
+            if (!string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate))
+            {
+                appointments = appointments.Where(p =>
+                p.AppointmentDate.Value.Date >= DateTime.ParseExact(fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)
+                && p.AppointmentDate.Value.Date <= DateTime.ParseExact(toDate, "dd/MM/yyyy", provider, DateTimeStyles.None)).ToList();
+            }
+            if (!string.IsNullOrEmpty(fromDate) && string.IsNullOrEmpty(toDate))
+            {
+                appointments = appointments.Where(p =>
+                p.AppointmentDate.Value.Date >= DateTime.ParseExact(fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)
+                && p.AppointmentDate.Value.Date <= DateTime.ParseExact(fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)).ToList();
+            }
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
 
