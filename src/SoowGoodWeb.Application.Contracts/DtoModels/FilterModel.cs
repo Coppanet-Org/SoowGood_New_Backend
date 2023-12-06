@@ -23,5 +23,8 @@ namespace SoowGoodWeb.DtoModels
         public ConsultancyType? consultancyType { get; set; }
         public long? specialityId { get; set; }
         public long? specializationId { get; set; }        
+        public AppointmentStatus? appointmentStatus { get; set; }
+        public string? fromDate { get; set; }
+        public string? toDate { get; set; }
     }
 }
