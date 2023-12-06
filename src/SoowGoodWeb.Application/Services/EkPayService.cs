@@ -2,8 +2,8 @@
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
-using SoowGoodWeb.SslCommerzData;
-using SoowGoodWeb.SslCommerz;
+using SoowGoodWeb.EkPayData;
+//using SoowGoodWeb.EkPay;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,53 +11,52 @@ using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Uow;
 using SoowGoodWeb.Enums;
-using System.Transactions;
 
 namespace SoowGoodWeb.Services
 {
-    public class SslCommerzService : SoowGoodWebAppService, ISslCommerzService
+    public class EkPayService : SoowGoodWebAppService, IEkPayService
     {
         private readonly IRepository<Appointment> _appointmentRepository;
         private readonly IRepository<PatientProfile> _patientRepository;
         private readonly IPaymentHistoryService _paymentHistoryService;
         private readonly IRepository<PaymentHistory> _paymentHistoryRepository;
         //private readonly INotificationAppService _notificationAppService;
-        private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
+        private readonly EkPayGatewayManager _ekPayGatewayManager;
 
         //INotificationAppService notificationAppService,
-        public SslCommerzService(IRepository<Appointment> appointmentRepository,
+        public EkPayService(IRepository<Appointment> appointmentRepository,
             IRepository<PatientProfile> patientRepository,
             IRepository<PaymentHistory> paymentHistoryRepository,
                                     IPaymentHistoryService paymentHistoryService,
-                                    SslCommerzGatewayManager sslCommerzGatewayManager)
+                                    EkPayGatewayManager ekPayGatewayManager)
         {
             _appointmentRepository = appointmentRepository;
             _patientRepository = patientRepository;
             _paymentHistoryService = paymentHistoryService;
             _paymentHistoryRepository = paymentHistoryRepository;
             //_notificationAppService = notificationAppService;
-            _sslCommerzGatewayManager = sslCommerzGatewayManager;
+            _ekPayGatewayManager = ekPayGatewayManager;
         }
 
 
         //[HttpPost]
-        public async Task<SslCommerzInitDto> InitiatePaymentAsync(SslCommerzInputDto input)
+        public async Task<EkPayInitDto> InitiatePaymentAsync(EkPayInputDto input)
         {
-            return new SslCommerzInitDto();
+            return new EkPayInitDto();
             input.TransactionId = GenerateTransactionId(16);
 
             //var applicantData = await GetApplicantDetails(input);
 
-            //var postData = _sslCommerzGatewayManager.CreatePostData(applicantData);
+            //var postData = _ekPayGatewayManager.CreatePostData(applicantData);
 
-            //var initResponse = await _sslCommerzGatewayManager.InitiatePaymentAsync(postData);
+            //var initResponse = await _ekPayGatewayManager.InitiatePaymentAsync(postData);
 
             //await InitPaymentHistory(input, initResponse);
 
             //return GetInitPaymentResponse(initResponse);
         }
 
-        private async Task InitPaymentHistory(SslCommerzInputDto input, SSLCommerzInitResponse initResponse)
+        private async Task InitPaymentHistory(EkPayInputDto input, EkPayInitResponse initResponse)
         {
             await _paymentHistoryService.CreateAsync(new PaymentHistoryInputDto
             {
@@ -71,32 +70,32 @@ namespace SoowGoodWeb.Services
         }
 
         //[HttpGet]
-        public async Task<TransactionValidationDto> ValidateTransactionAsync(Dictionary<string, string> responseDic)
-        {
-            return await _sslCommerzGatewayManager.ValidateTransactionAsync(responseDic);
-        }
+        //public async Task<TransactionValidationDto> ValidateTransactionAsync(Dictionary<string, string> responseDic)
+        //{
+        //    return await _ekPayGatewayManager.ValidateTransactionAsync(responseDic);
+        //}
 
-        //[HttpGet]
-        public async Task<bool> InitiateRefundAsync()
-        {
-            var response = await Task.Run(() =>
-            {
-                return _sslCommerzGatewayManager.InitiateRefundAsync();
-            });
-            return response;
-        }
+        ////[HttpGet]
+        //public async Task<bool> InitiateRefundAsync()
+        //{
+        //    var response = await Task.Run(() =>
+        //    {
+        //        return _ekPayGatewayManager.InitiateRefundAsync();
+        //    });
+        //    return response;
+        //}
 
         //[HttpPost]
-        public async Task<SslCommerzInitDto> InitiateTestPaymentAsync(SslCommerzInputDto input)
+        public async Task<EkPayInitDto> InitiateTestPaymentAsync(EkPayInputDto input)
         {
-            var nuDto = new SslCommerzInitDto();
+            var nuDto = new EkPayInitDto();
             input.TransactionId = GenerateTransactionId(16);
 
             var applicantData = await GetApplicantDetails(input);
 
-            var postData = _sslCommerzGatewayManager.CreateTestPostData(applicantData);
+            var postData = _ekPayGatewayManager.CreateTestPostData(applicantData);
 
-            var initResponse = await _sslCommerzGatewayManager.InitiateTestPaymentAsync(postData);
+            var initResponse = await _ekPayGatewayManager.InitiateTestPaymentAsync(postData);
 
             await InitPaymentHistory(input, initResponse);
 
@@ -104,10 +103,10 @@ namespace SoowGoodWeb.Services
         }
 
         //[HttpGet]
-        public async Task<TransactionValidationDto> ValidateTestTransactionAsync(Dictionary<string, string> responseDic)
-        {
-            return await _sslCommerzGatewayManager.ValidateTestTransactionAsync(responseDic);
-        }
+        //public async Task<TransactionValidationDto> ValidateTestTransactionAsync(Dictionary<string, string> responseDic)
+        //{
+        //    return await _ekPayGatewayManager.ValidateTestTransactionAsync(responseDic);
+        //}
 
 
         //[HttpGet]
@@ -115,63 +114,63 @@ namespace SoowGoodWeb.Services
         {
             var response = await Task.Run(() =>
             {
-                return _sslCommerzGatewayManager.InitiateTestRefundAsync();
+                return _ekPayGatewayManager.InitiateTestRefundAsync();
             });
             return response;
         }
 
-        private async Task<SslCommerzPostDataDto> GetApplicantDetails(SslCommerzInputDto input)
+        private async Task<EkPayPostDataDto> GetApplicantDetails(EkPayInputDto input)
         {
-            var nDto = new SslCommerzPostDataDto();
+            var nDto = new EkPayPostDataDto();
             return await Task.Run(async () =>
             {
                 var app = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
                 var job = app.Where(a => a.AppointmentCode == input.ApplicationCode).FirstOrDefault();
-                var sslCommerzPostDataDto = new SslCommerzPostDataDto();
+                var ekPayPostDataDto = new EkPayPostDataDto();
                 if (job != null && job.AppointmentStatus == AppointmentStatus.Pending)
                 {
                     var patient = await _patientRepository.GetAsync(p => p.Id == job.PatientProfileId);
 
-                    sslCommerzPostDataDto.tran_id = input.TransactionId;
-                    sslCommerzPostDataDto.total_amount = input.TotalAmount;
-                    sslCommerzPostDataDto.currency = "BDT";
-                    sslCommerzPostDataDto.cus_name = job.PatientName;
-                    sslCommerzPostDataDto.cus_email = patient.PatientEmail;
-                    sslCommerzPostDataDto.cus_phone = patient.PatientMobileNo;
+                    ekPayPostDataDto.tran_id = input.TransactionId;
+                    ekPayPostDataDto.total_amount = input.TotalAmount;
+                    ekPayPostDataDto.currency = "BDT";
+                    ekPayPostDataDto.cus_name = job.PatientName;
+                    ekPayPostDataDto.cus_email = patient.PatientEmail;
+                    ekPayPostDataDto.cus_phone = patient.PatientMobileNo;
 
                     //var applicantAddr = job.Applicant.ApplicantAddresses.FirstOrDefault();
-                    sslCommerzPostDataDto.cus_add1 = patient.Address;
-                    sslCommerzPostDataDto.cus_postcode = patient.ZipCode;
-                    sslCommerzPostDataDto.cus_city = patient.City;
-                    sslCommerzPostDataDto.cus_country = "Bangladesh";
-                    sslCommerzPostDataDto.shipping_method = "NO";
-                    sslCommerzPostDataDto.num_of_item = "1";
-                    sslCommerzPostDataDto.product_name = "Soowgood";
-                    sslCommerzPostDataDto.product_profile = "general";
-                    sslCommerzPostDataDto.product_category = "Soowgood - Appointment";
+                    ekPayPostDataDto.cus_add1 = patient.Address;
+                    ekPayPostDataDto.cus_postcode = patient.ZipCode;
+                    ekPayPostDataDto.cus_city = patient.City;
+                    ekPayPostDataDto.cus_country = "Bangladesh";
+                    ekPayPostDataDto.shipping_method = "NO";
+                    ekPayPostDataDto.num_of_item = "1";
+                    ekPayPostDataDto.product_name = "Soowgood";
+                    ekPayPostDataDto.product_profile = "general";
+                    ekPayPostDataDto.product_category = "Soowgood - Appointment";
                 }
 
-                return sslCommerzPostDataDto;
+                return ekPayPostDataDto;
             });
         }
 
-        public async Task UpdatePaymentHistory(Dictionary<string, string> sslCommerzResponseDic)
+        public async Task UpdatePaymentHistory(Dictionary<string, string> ekPayResponseDic)
         {
-            sslCommerzResponseDic.TryGetValue("tran_id", out string tran_id);
+            ekPayResponseDic.TryGetValue("tran_id", out string tran_id);
             if (!string.IsNullOrWhiteSpace(tran_id))
             {
                 var paymentHistory = await _paymentHistoryService.GetByTranIdAsync(tran_id);
                 if (paymentHistory != null)
                 {
-                    var paymentHistoryInputDto = GetPaymentHistoryDto(sslCommerzResponseDic, paymentHistory);
+                    var paymentHistoryInputDto = GetPaymentHistoryDto(ekPayResponseDic, paymentHistory);
                     await _paymentHistoryService.UpdateHistoryAsync(paymentHistoryInputDto);
                 }
             }
         }
 
-        public async Task UpdateApplicantPaymentStatus(Dictionary<string, string> sslCommerzResponseDic)
+        public async Task UpdateApplicantPaymentStatus(Dictionary<string, string> ekPayResponseDic)
         {
-            sslCommerzResponseDic.TryGetValue("tran_id", out string tran_id);
+            ekPayResponseDic.TryGetValue("tran_id", out string tran_id);
             if (!string.IsNullOrWhiteSpace(tran_id))
             {
                 var paymentHistory = await _paymentHistoryService.GetByTranIdAsync(tran_id);
@@ -179,7 +178,7 @@ namespace SoowGoodWeb.Services
                 {
                     if (!string.IsNullOrWhiteSpace(paymentHistory.application_code))
                     {
-                        sslCommerzResponseDic.TryGetValue("amount", out string paid_amount);
+                        ekPayResponseDic.TryGetValue("amount", out string paid_amount);
                         await UpdatePaymentStatus(paymentHistory.application_code, tran_id, paid_amount);
                     }
                 }
@@ -216,35 +215,35 @@ namespace SoowGoodWeb.Services
         //    await _notificationAppService.SendSmsNotification(smsInput);
         //}
 
-        private PaymentHistoryInputDto GetPaymentHistoryDto(Dictionary<string, string> sslCommerzResponseDic, PaymentHistoryDto paymentHistoryDto)
+        private PaymentHistoryInputDto GetPaymentHistoryDto(Dictionary<string, string> ekPayResponseDic, PaymentHistoryDto paymentHistoryDto)
         {
-            sslCommerzResponseDic.TryGetValue("tran_id", out string tran_id);
-            sslCommerzResponseDic.TryGetValue("val_id", out string val_id);
-            sslCommerzResponseDic.TryGetValue("amount", out string amount);
-            sslCommerzResponseDic.TryGetValue("card_type", out string card_type);
-            sslCommerzResponseDic.TryGetValue("store_amount", out string store_amount);
-            sslCommerzResponseDic.TryGetValue("card_no", out string card_no);
-            sslCommerzResponseDic.TryGetValue("bank_tran_id", out string bank_tran_id);
-            sslCommerzResponseDic.TryGetValue("status", out string status);
-            sslCommerzResponseDic.TryGetValue("tran_date", out string tran_date);
-            sslCommerzResponseDic.TryGetValue("error", out string error);
-            sslCommerzResponseDic.TryGetValue("currency", out string currency);
-            sslCommerzResponseDic.TryGetValue("card_issuer", out string card_issuer);
-            sslCommerzResponseDic.TryGetValue("card_brand", out string card_brand);
-            sslCommerzResponseDic.TryGetValue("card_sub_brand", out string card_sub_brand);
-            sslCommerzResponseDic.TryGetValue("card_issuer_country", out string card_issuer_country);
-            sslCommerzResponseDic.TryGetValue("card_issuer_country_code", out string card_issuer_country_code);
-            sslCommerzResponseDic.TryGetValue("currency_type", out string currency_type);
-            sslCommerzResponseDic.TryGetValue("currency_amount", out string currency_amount);
-            sslCommerzResponseDic.TryGetValue("currency_rate", out string currency_rate);
-            sslCommerzResponseDic.TryGetValue("base_fair", out string base_fair);
-            sslCommerzResponseDic.TryGetValue("value_a", out string value_a);
-            sslCommerzResponseDic.TryGetValue("value_b", out string value_b);
-            sslCommerzResponseDic.TryGetValue("value_c", out string value_c);
-            sslCommerzResponseDic.TryGetValue("value_d", out string value_d);
-            sslCommerzResponseDic.TryGetValue("subscription_id", out string subscription_id);
-            sslCommerzResponseDic.TryGetValue("risk_level", out string risk_level);
-            sslCommerzResponseDic.TryGetValue("risk_title", out string risk_title);
+            ekPayResponseDic.TryGetValue("tran_id", out string tran_id);
+            ekPayResponseDic.TryGetValue("val_id", out string val_id);
+            ekPayResponseDic.TryGetValue("amount", out string amount);
+            ekPayResponseDic.TryGetValue("card_type", out string card_type);
+            ekPayResponseDic.TryGetValue("store_amount", out string store_amount);
+            ekPayResponseDic.TryGetValue("card_no", out string card_no);
+            ekPayResponseDic.TryGetValue("bank_tran_id", out string bank_tran_id);
+            ekPayResponseDic.TryGetValue("status", out string status);
+            ekPayResponseDic.TryGetValue("tran_date", out string tran_date);
+            ekPayResponseDic.TryGetValue("error", out string error);
+            ekPayResponseDic.TryGetValue("currency", out string currency);
+            ekPayResponseDic.TryGetValue("card_issuer", out string card_issuer);
+            ekPayResponseDic.TryGetValue("card_brand", out string card_brand);
+            ekPayResponseDic.TryGetValue("card_sub_brand", out string card_sub_brand);
+            ekPayResponseDic.TryGetValue("card_issuer_country", out string card_issuer_country);
+            ekPayResponseDic.TryGetValue("card_issuer_country_code", out string card_issuer_country_code);
+            ekPayResponseDic.TryGetValue("currency_type", out string currency_type);
+            ekPayResponseDic.TryGetValue("currency_amount", out string currency_amount);
+            ekPayResponseDic.TryGetValue("currency_rate", out string currency_rate);
+            ekPayResponseDic.TryGetValue("base_fair", out string base_fair);
+            ekPayResponseDic.TryGetValue("value_a", out string value_a);
+            ekPayResponseDic.TryGetValue("value_b", out string value_b);
+            ekPayResponseDic.TryGetValue("value_c", out string value_c);
+            ekPayResponseDic.TryGetValue("value_d", out string value_d);
+            ekPayResponseDic.TryGetValue("subscription_id", out string subscription_id);
+            ekPayResponseDic.TryGetValue("risk_level", out string risk_level);
+            ekPayResponseDic.TryGetValue("risk_title", out string risk_title);
 
             var paymentHistoryInputDto = new PaymentHistoryInputDto
             {
@@ -292,15 +291,15 @@ namespace SoowGoodWeb.Services
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        private static SslCommerzInitDto GetInitPaymentResponse(SSLCommerzInitResponse initResponse)
+        private static EkPayInitDto GetInitPaymentResponse(EkPayInitResponse initResponse)
         {
-            var pResponse = new SslCommerzInitDto();
+            var pResponse = new EkPayInitDto();
             //pResponse =
             pResponse.status = initResponse.status;
             pResponse.failedreason = initResponse.failedreason;
             pResponse.GatewayPageURL = initResponse.GatewayPageURL;
             
-            //return new SslCommerzInitDto
+            //return new EkPayInitDto
             //{
             //    status = initResponse.status,
             //    failedreason = initResponse.failedreason,
@@ -309,9 +308,9 @@ namespace SoowGoodWeb.Services
             return pResponse;
         }
 
-        private static SslCommerzDto GetFullInitPaymentResponse(SSLCommerzInitResponse initResponse)
+        private static EkPayDto GetFullInitPaymentResponse(EkPayInitResponse initResponse)
         {
-            return new SslCommerzDto
+            return new EkPayDto
             {
                 status = initResponse.status,
                 sessionkey = initResponse.sessionkey,
@@ -333,10 +332,8 @@ namespace SoowGoodWeb.Services
         {
             try
             {
-                var allAppointment = await _appointmentRepository.WithDetailsAsync();
-                var appointment = allAppointment.Where(a => a.AppointmentCode == appCode).FirstOrDefault();
-                var allTransactions = await _paymentHistoryRepository.WithDetailsAsync();
-                var transactions = allTransactions.Where(p => p.application_code == appCode).FirstOrDefault();
+                var appointment = await _appointmentRepository.GetAsync(a => a.AppointmentCode == appCode);
+                var transactions = await _paymentHistoryRepository.GetAsync(p=>p.application_code == appCode);
                 if (appointment != null && appointment.AppointmentStatus != AppointmentStatus.Confirmed) //&& app.AppointmentStatus != AppointmentStatus.Confirmed)
                 {
                     appointment.AppointmentStatus = AppointmentStatus.Confirmed;

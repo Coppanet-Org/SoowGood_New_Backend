@@ -53,13 +53,16 @@ namespace SoowGoodWeb.Services
         }
         public async Task<List<DoctorSpecializationDto>> GetDoctorSpecializationListByDoctorIdAsync(int doctorId)
         {
-            var specialization = await _doctorSpecializationRepository.GetListAsync(x => x.DoctorProfileId == doctorId);
-            return ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(specialization);
+            var docSpecialization = await _doctorSpecializationRepository.WithDetailsAsync(x => x.DoctorProfile, t=>t.Speciality, s=>s.Specialization);
+            var specialization = docSpecialization.Where(x => x.DoctorProfileId == doctorId);
+            return ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(specialization.ToList());
         }
         public async Task<List<DoctorSpecializationDto>> GetDoctorSpecializationListByDoctorIdSpecialityIdAsync(int doctorId, int specialityId)
         {
-            var specialization = await _doctorSpecializationRepository.GetListAsync(x => x.DoctorProfileId == doctorId && x.SpecialityId == specialityId);
-            return ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(specialization);
+            var docSpecialization = await _doctorSpecializationRepository.WithDetailsAsync(x => x.DoctorProfile, t => t.Speciality, s => s.Specialization);
+            var specialization = docSpecialization.Where(x => x.DoctorProfileId == doctorId && x.SpecialityId == specialityId);
+            //var specialization = await _doctorSpecializationRepository.GetListAsync(x => x.DoctorProfileId == doctorId && x.SpecialityId == specialityId);
+            return ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(specialization.ToList());
         }
         public async Task<List<DoctorSpecializationDto>?> GetListByDoctorIdSpIdAsync(int doctorId, int specialityId)
         {
