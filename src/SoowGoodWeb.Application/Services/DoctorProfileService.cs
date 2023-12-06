@@ -179,7 +179,7 @@ namespace SoowGoodWeb.Services
             }
 
             profiles = profiles.Skip((int)(skipValue>0?skipValue:0))
-                               .Take((int)(currentLimit > 0 ? currentLimit : 0)).ToList();
+                               .Take((int)(currentLimit > 0 ? currentLimit : 8)).ToList();
 
             foreach (var item in profiles)
             {
