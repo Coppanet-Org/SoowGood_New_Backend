@@ -118,7 +118,8 @@ namespace SoowGoodWeb.Services
             try
             {
                 //var isFeesExist = await _doctorFeeRepository.GetAsync(f => f.AppointmentType == input.AppointmentType && f.DoctorScheduleId == input.DoctorScheduleId);
-                var schedule = await _doctorScheduleRepository.GetAsync(s=>s.Id == input.DoctorScheduleId);
+                var schedules = await _doctorScheduleRepository.WithDetailsAsync(c => c.DoctorChamber);
+                var schedule = schedules.Where(s=>s.Id == input.DoctorScheduleId).FirstOrDefault();
                 var allFees = await _doctorFeeRepository.WithDetailsAsync();
                 var isFeesExist = allFees.Where(f => f.AppointmentType == input.AppointmentType && f.DoctorScheduleId == input.DoctorScheduleId).FirstOrDefault();
                 if (isFeesExist == null)
@@ -129,8 +130,7 @@ namespace SoowGoodWeb.Services
                     
                     await _unitOfWorkManager.Current.SaveChangesAsync();
                     result = ObjectMapper.Map<DoctorFeesSetup, DoctorFeesSetupDto>(doctorSchedule);
-                    result.DoctorSchedule = ((ConsultancyType)schedule?.ConsultancyType!).ToString()
-                                      + (schedule?.DoctorChamberId > 0 ? "_" + schedule?.DoctorChamber.ChamberName : "");
+                    result.DoctorSchedule = ((ConsultancyType)schedule?.ConsultancyType!).ToString() + '_' +  schedule?.DoctorChamber.ChamberName;
                     result.ResponseSuccess = true;
                     result.ResponseMessage = "Fee successfully inserted.";
                     return result;
