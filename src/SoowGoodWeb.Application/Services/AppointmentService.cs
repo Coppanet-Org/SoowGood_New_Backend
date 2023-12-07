@@ -169,7 +169,7 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
 
-        public async Task<List<AppointmentDto>> GetAppointmentListForDoctorWithSearchFilterAsync(long doctorId, DataFilterModel? dataFilter, FilterModel filter)
+        public async Task<List<AppointmentDto>> GetAppointmentListForDoctorWithSearchFilterAsync(long doctorId, DataFilterModel? dataFilter, FilterModel filterModel)
         {
             CultureInfo provider = CultureInfo.InvariantCulture;
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
@@ -199,6 +199,10 @@ namespace SoowGoodWeb.Services
                 p.AppointmentDate.Value.Date >= DateTime.ParseExact(dataFilter.fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)
                 && p.AppointmentDate.Value.Date <= DateTime.ParseExact(dataFilter.fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)).ToList();
             }
+
+            appointments = appointments.Skip(filterModel.Offset)
+                               .Take(filterModel.Limit).ToList();
+
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
         public async Task<List<AppointmentDto>> GetAppointmentListByPatientIdAsync(long patientId)
@@ -208,7 +212,7 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
 
-        public async Task<List<AppointmentDto>> GetAppointmentListForPatientWithSearchFilterAsync(long patientId, DataFilterModel? dataFilter, FilterModel filter)
+        public async Task<List<AppointmentDto>> GetAppointmentListForPatientWithSearchFilterAsync(long patientId, DataFilterModel? dataFilter, FilterModel filterModel)
         {
             CultureInfo provider = CultureInfo.InvariantCulture;
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
@@ -238,6 +242,10 @@ namespace SoowGoodWeb.Services
                 p.AppointmentDate.Value.Date >= DateTime.ParseExact(dataFilter.fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)
                 && p.AppointmentDate.Value.Date <= DateTime.ParseExact(dataFilter.fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)).ToList();
             }
+
+            appointments = appointments.Skip(filterModel.Offset)
+                               .Take(filterModel.Limit).ToList();
+
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
 
