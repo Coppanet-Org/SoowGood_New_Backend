@@ -9,7 +9,7 @@ namespace SoowGoodWeb.InputDto
 {
     public class PlatformFinancialSetupInputDto : FullAuditedEntityDto<long>
     {
-        public long? PlatformServicesId { get; set; }
+        public long? PlatformServiceId { get; set; }
         public string? AmountIn { get; set; } //Percent Or Flat Amount
         public decimal? FeeAmount { get; set; }
         public string? ExternalAmountIn { get; set; } //Percent Or Flat Amount

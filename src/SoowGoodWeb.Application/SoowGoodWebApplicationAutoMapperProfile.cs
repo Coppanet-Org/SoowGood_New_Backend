@@ -173,9 +173,9 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<AgentSupervisorDto, AgentSupervisor>();
         CreateMap<AgentSupervisorInputDto, AgentSupervisor>();
 
-        CreateMap<PlatformServices, PlatformServicesDto>();
-        CreateMap<PlatformServicesDto, PlatformServices>();
-        CreateMap <PlatformServicesInputDto, PlatformServices>();
+        CreateMap<PlatformService, PlatformServiceDto>();
+        CreateMap<PlatformServiceDto, PlatformService>();
+        CreateMap <PlatformServiceInputDto, PlatformService>();
 
         CreateMap<PlatformFinancialSetup, PlatformFinancialSetupDto>();
         CreateMap<PlatformFinancialSetupDto, PlatformFinancialSetup>();

@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Text;
 using Volo.Abp.Application.Dtos;
 
-namespace SoowGoodWeb.DtoModels
+namespace SoowGoodWeb.InputDto
 {
-    public class PlatformServicesDto : FullAuditedEntityDto<long>
+    public class PlatformServiceInputDto : FullAuditedEntityDto<long>
     {
         public string? ServiceName { get; set; }
         public string? ServiceDescription { get; set; }

@@ -9,7 +9,7 @@ using Volo.Abp.Domain.Entities.Auditing;
 
 namespace SoowGoodWeb.Models
 {
-    public class PlatformServices : FullAuditedEntity<int>
+    public class PlatformService : FullAuditedEntity<int>
     {
         public string? ServiceName { get; set; }
         public string? ServiceDescription { get; set; }        

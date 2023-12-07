@@ -10,51 +10,52 @@ using Volo.Abp.Uow;
 
 namespace SoowGoodWeb.Services
 {
-    public class PlatformService : SoowGoodWebAppService, IPlatformServicesService
+    public class PlatformAppService : SoowGoodWebAppService, IPlatformServiceAppService
     {
-        private readonly IRepository<PlatformServices> _platformServicesRepository;
+        private readonly IRepository<PlatformService> _platformServiceRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly IRepository<DoctorProfile> _doctorProfileRepository;
 
-        public PlatformService(IRepository<PlatformServices> platformServicesRepository, IUnitOfWorkManager unitOfWorkManager)
+        public PlatformAppService(IRepository<PlatformService> platformServiceRepository, IUnitOfWorkManager unitOfWorkManager)
         {
-            _platformServicesRepository = platformServicesRepository;
+            _platformServiceRepository = platformServiceRepository;
 
             _unitOfWorkManager = unitOfWorkManager;
         }
-        public async Task<PlatformServicesDto> CreateAsync(PlatformServicesInputDto input)
+        public async Task<PlatformServiceDto> CreateAsync(PlatformServiceInputDto input)
         {
-            var newEntity = ObjectMapper.Map<PlatformServicesInputDto, PlatformServices>(input);
+            var newEntity = ObjectMapper.Map<PlatformServiceInputDto, PlatformService>(input);
 
-            var platformServices = await _platformServicesRepository.InsertAsync(newEntity);
+            var platformService = await _platformServiceRepository.InsertAsync(newEntity);
 
             await _unitOfWorkManager.Current.SaveChangesAsync();
 
-            return ObjectMapper.Map<PlatformServices, PlatformServicesDto>(platformServices);
+            return ObjectMapper.Map<PlatformService, PlatformServiceDto>(platformService);
         }
 
-        public async Task<PlatformServicesDto> UpdateAsync(PlatformServicesInputDto input)
+        public async Task<PlatformServiceDto> UpdateAsync(PlatformServiceInputDto input)
         {
-            var updateItem = ObjectMapper.Map<PlatformServicesInputDto, PlatformServices>(input);
+            var updateItem = ObjectMapper.Map<PlatformServiceInputDto, PlatformService>(input);
 
-            var item = await _platformServicesRepository.UpdateAsync(updateItem);
+            var item = await _platformServiceRepository.UpdateAsync(updateItem);
 
             await _unitOfWorkManager.Current.SaveChangesAsync();
 
-            return ObjectMapper.Map<PlatformServices, PlatformServicesDto>(item);
+            return ObjectMapper.Map<PlatformService, PlatformServiceDto>(item);
         }
 
 
-        public async Task<PlatformServicesDto> GetAsync(int id)
+        public async Task<PlatformServiceDto> GetAsync(int id)
         {
-            var item = await _platformServicesRepository.GetAsync(x => x.Id == id);
+            var item = await _platformServiceRepository.GetAsync(x => x.Id == id);
 
-            return ObjectMapper.Map<PlatformServices, PlatformServicesDto>(item);
+            return ObjectMapper.Map<PlatformService, PlatformServiceDto>(item);
         }
-        public async Task<List<PlatformServicesDto>> GetListAsync()
+        public async Task<List<PlatformServiceDto>> GetListAsync()
         {
-            var platformServicess = await _platformServicesRepository.GetListAsync();
-            return ObjectMapper.Map<List<PlatformServices>, List<PlatformServicesDto>>(platformServicess);
+            var platformServices = await _platformServiceRepository.GetListAsync();
+            //var x = platformServices.Where(c=>c.Id == 1).ToList();
+            return ObjectMapper.Map<List<PlatformService>, List<PlatformServiceDto>>(platformServices);
         }
 
         
@@ -174,5 +175,13 @@ namespace SoowGoodWeb.Services
         //    }
         //    return ObjectMapper.Map<List<Quarter>, List<QuarterDto>>(quarters.ToList());
         //}
+    }
+
+    internal class PlatformServicesInputDto
+    {
+    }
+
+    public class PlatformServicesDto
+    {
     }
 }

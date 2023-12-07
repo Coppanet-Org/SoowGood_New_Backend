@@ -12,8 +12,8 @@ namespace SoowGoodWeb.Models
     public class PlatformFinancialSetup : FullAuditedEntity<long>
     {
 
-        public long? PlatformServicesId { get; set; }
-        public PlatformServices? PlatformServices { get; set; }
+        public long? PlatformServiceId { get; set; }
+        public PlatformService? PlatformService { get; set; }
         public string? AmountIn { get; set; } //Percent Or Flat Amount
         [Column(TypeName = "decimal(18, 2)")]
         public decimal? FeeAmount { get; set; }

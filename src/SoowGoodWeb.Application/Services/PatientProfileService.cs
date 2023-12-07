@@ -105,7 +105,7 @@ namespace SoowGoodWeb.Services
                     Address = item.Address,
                     ProfileRole = "Patient",
                     
-                }); ;
+                });
             }
             return result;
         }
