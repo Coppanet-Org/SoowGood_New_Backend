@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.ObjectMapping;
 using Volo.Abp.Uow;
 
 namespace SoowGoodWeb.Services
@@ -13,23 +14,26 @@ namespace SoowGoodWeb.Services
     public class DoctorDegreeService : SoowGoodWebAppService, IDoctorDegreeService
     {
         private readonly IRepository<DoctorDegree> _doctorDegreeRepository;
+        private readonly IRepository<Degree> _degreeRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
-        public DoctorDegreeService(IRepository<DoctorDegree> doctorDegreeRepository, IUnitOfWorkManager unitOfWorkManager)
+        public DoctorDegreeService(IRepository<DoctorDegree> doctorDegreeRepository, IRepository<Degree> degreeRepository, IUnitOfWorkManager unitOfWorkManager)
         {
             _doctorDegreeRepository = doctorDegreeRepository;
-
+            _degreeRepository = degreeRepository;
             _unitOfWorkManager = unitOfWorkManager;
         }
         public async Task<DoctorDegreeDto> CreateAsync(DoctorDegreeInputDto input)
         {
+            var result = new DoctorDegreeDto();
+            var degree = await _degreeRepository.GetAsync(d => d.Id == input.DegreeId);
             var newEntity = ObjectMapper.Map<DoctorDegreeInputDto, DoctorDegree>(input);
 
             var doctorDegree = await _doctorDegreeRepository.InsertAsync(newEntity);
 
             await _unitOfWorkManager.Current.SaveChangesAsync();
-            //var retObj = ObjectMapper.Map<DoctorDegree, DoctorDegreeDto>(doctorDegree);
-
-            return ObjectMapper.Map<DoctorDegree, DoctorDegreeDto>(doctorDegree);
+            result = ObjectMapper.Map<DoctorDegree, DoctorDegreeDto>(doctorDegree);
+            result.DegreeName = degree.DegreeName;
+            return result;//ObjectMapper.Map<DoctorDegree, DoctorDegreeDto>(result);
         }
 
         public async Task<DoctorDegreeDto> GetAsync(int id)
