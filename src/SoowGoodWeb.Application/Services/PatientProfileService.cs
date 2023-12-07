@@ -114,8 +114,8 @@ namespace SoowGoodWeb.Services
                     BloodGroup = item.BloodGroup,
                     Address = item.Address,
                     ProfileRole = "Patient",
-
-                }); ;
+                    
+                });
             }
             return result;
         }

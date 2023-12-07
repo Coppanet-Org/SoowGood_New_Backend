@@ -164,5 +164,21 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<PrescriptionDrugDetails, PrescriptionDrugDetailsDto>();
         CreateMap<PrescriptionDrugDetailsDto, PrescriptionDrugDetails>();
         CreateMap<PrescriptionDrugDetailsInputDto, PrescriptionDrugDetails>();
+
+        CreateMap<AgentMaster, AgentMasterDto>();
+        CreateMap<AgentMasterDto, AgentMaster>();
+        CreateMap<AgentMasterInputDto, AgentMaster>();
+
+        CreateMap<AgentSupervisor, AgentSupervisorDto>();
+        CreateMap<AgentSupervisorDto, AgentSupervisor>();
+        CreateMap<AgentSupervisorInputDto, AgentSupervisor>();
+
+        CreateMap<PlatformService, PlatformServiceDto>();
+        CreateMap<PlatformServiceDto, PlatformService>();
+        CreateMap <PlatformServiceInputDto, PlatformService>();
+
+        CreateMap<PlatformFinancialSetup, PlatformFinancialSetupDto>();
+        CreateMap<PlatformFinancialSetupDto, PlatformFinancialSetup>();
+        CreateMap<PlatformFinancialSetupInputDto, PlatformFinancialSetup>();
     }
 }

@@ -287,7 +287,7 @@ namespace SoowGoodWeb.Services
                     ConsultancyType = item.ConsultancyType,
                     ConsultancyTypeName = item.ConsultancyType > 0 ? ((ConsultancyType)item.ConsultancyType).ToString() : "n/a",
                     DoctorChamberId = item.DoctorChamberId,
-                    DoctorChamberName = item.DoctorSchedule.DoctorChamber.ChamberName,
+                    DoctorChamberName = item.DoctorChamberId > 0 ? item.DoctorSchedule.DoctorChamber.ChamberName : "n/a",
                     DoctorFee = item.DoctorFee,
                     PatientLocation = patientDetails?.City?.ToString(),
                     DoctorScheduleDaySessionId = item.DoctorScheduleDaySessionId,
