@@ -167,5 +167,87 @@ namespace SoowGoodWeb.Services
             var profiles = await _patientProfileRepository.GetListAsync(p => p.CreatorEntityId == profileId);
             return ObjectMapper.Map<List<PatientProfile>, List<PatientProfileDto>>(profiles);
         }
+
+        public async Task<List<PatientProfileDto>> GetDoctorListFilterAsync(DataFilterModel? patientFilterModel, FilterModel filterModel)
+        {
+            List<PatientProfileDto> result = null;
+            var profileWithDetails = await _patientProfileRepository.WithDetailsAsync();
+            var profiles = profileWithDetails.ToList();
+            var schedules = await _patientProfileRepository.WithDetailsAsync();
+            //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
+            if (!profileWithDetails.Any())
+            {
+                return result;
+            }
+            result = new List<PatientProfileDto>();
+    
+            if (!string.IsNullOrEmpty(patientFilterModel?.name))
+            {
+                profiles = profiles.Where(p => p.FullName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())).ToList();
+            }
+
+            profiles = profiles.Skip(filterModel.Offset)
+                               .Take(filterModel.Limit).ToList();
+
+            foreach (var item in profiles)
+            {
+                result.Add(new PatientProfileDto()
+                {
+                    Id = item.Id,
+                    PatientName = item.PatientName,
+                    PatientEmail = item.PatientEmail,
+                    PatientMobileNo = item.PatientMobileNo,
+                    PatientCode = item.PatientCode,
+                    DateOfBirth = item.DateOfBirth,
+                    Gender = item.Gender,
+                    GenderName = item.Gender > 0 ? ((Gender)item.Gender).ToString() : "n/a",
+                    BloodGroup = item.BloodGroup,
+                    Address = item.Address,
+                    ProfileRole = "Patient",
+                });
+            }
+            return result;
+        }
+
+        public async Task<List<PatientProfileDto>> GetDoctorListByCreatorIdFilterAsync(long profileId, DataFilterModel? patientFilterModel, FilterModel filterModel)
+        {
+            List<PatientProfileDto> result = null;
+            var profileWithDetails = await _patientProfileRepository.WithDetailsAsync();
+            var profiles = profileWithDetails.Where(c=>c.CreatorEntityId == profileId).ToList();
+            var schedules = await _patientProfileRepository.WithDetailsAsync();
+            //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
+            if (!profileWithDetails.Any())
+            {
+                return result;
+            }
+            result = new List<PatientProfileDto>();
+
+            if (!string.IsNullOrEmpty(patientFilterModel?.name))
+            {
+                profiles = profiles.Where(p => p.FullName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())).ToList();
+            }
+
+            profiles = profiles.Skip(filterModel.Offset)
+                               .Take(filterModel.Limit).ToList();
+
+            foreach (var item in profiles)
+            {
+                result.Add(new PatientProfileDto()
+                {
+                    Id = item.Id,
+                    PatientName = item.PatientName,
+                    PatientEmail = item.PatientEmail,
+                    PatientMobileNo = item.PatientMobileNo,
+                    PatientCode = item.PatientCode,
+                    DateOfBirth = item.DateOfBirth,
+                    Gender = item.Gender,
+                    GenderName = item.Gender > 0 ? ((Gender)item.Gender).ToString() : "n/a",
+                    BloodGroup = item.BloodGroup,
+                    Address = item.Address,
+                    ProfileRole = "Patient",
+                });
+            }
+            return result;
+        }
     }
 }
