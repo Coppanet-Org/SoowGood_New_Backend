@@ -84,6 +84,8 @@ public class SoowGoodWebDbContext :
     public DbSet<PrescriptionDrugDetails> SgPrescriptionDrugDetails { get; set; }
     public DbSet<AgentMaster> SgAgentMasters { get; set; }
     public DbSet<AgentSupervisor> SgAgentSupervisors { get; set; }
+    public DbSet<PlatformFacility> SgPlatformFacilities { get; set; }
+    public DbSet<FinancialSetup> SgFinancialSetups { get; set; }
 
     #endregion
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231207104657_platform_facility_crated")]
+    partial class platform_facility_crated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1273,69 +1276,6 @@ namespace SoowGoodWeb.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SgDrugRx");
-                });
-
-            modelBuilder.Entity("SoowGoodWeb.Models.FinancialSetup", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<decimal?>("Amount")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.Property<string>("AmountIn")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<decimal?>("ExternalAmount")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.Property<string>("ExternalAmountIn")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool?>("IsActivie")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<long?>("PlatformFacilityId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlatformFacilityId");
-
-                    b.ToTable("SgFinancialSetups");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Otp", b =>
@@ -3990,15 +3930,6 @@ namespace SoowGoodWeb.Migrations
                     b.Navigation("Speciality");
 
                     b.Navigation("Specialization");
-                });
-
-            modelBuilder.Entity("SoowGoodWeb.Models.FinancialSetup", b =>
-                {
-                    b.HasOne("SoowGoodWeb.Models.PlatformFacility", "PlatformFacility")
-                        .WithMany()
-                        .HasForeignKey("PlatformFacilityId");
-
-                    b.Navigation("PlatformFacility");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.PrescriptionDrugDetails", b =>
