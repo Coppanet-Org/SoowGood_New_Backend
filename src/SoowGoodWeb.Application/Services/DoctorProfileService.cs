@@ -334,7 +334,7 @@ namespace SoowGoodWeb.Services
 
             if (!string.IsNullOrEmpty(doctorFilterModel?.name))
             {
-                profiles = profiles.Where(p => p.FullName.ToLower().Contains(doctorFilterModel.name.ToLower())).ToList();
+                profiles = profiles.Where(p => p.FullName.ToLower().Contains(doctorFilterModel.name.ToLower().Trim())).ToList();
             }
 
             if (doctorFilterModel?.specialityId > 0)
@@ -354,11 +354,11 @@ namespace SoowGoodWeb.Services
 
             if (doctorFilterModel?.consultancyType > 0)
             {
-                //schedules = schedules.Where(c=>c.ConsultancyType==consultType).ToList();
+                schedules = schedules.Where(c => c.ConsultancyType == doctorFilterModel.consultancyType);
                 profiles = (from t1 in profiles
-                            join t2 in schedules.Where(c => c.ConsultancyType == doctorFilterModel.consultancyType)
+                            join t2 in schedules //.Where(c => c.ConsultancyType == doctorFilterModel.consultancyType)
                             on t1.Id equals t2.DoctorProfileId
-                            select t1).ToList();
+                            select t1).Distinct().ToList();
             }
 
             return profiles.Count;
