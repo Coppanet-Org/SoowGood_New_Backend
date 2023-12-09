@@ -525,7 +525,7 @@ namespace SoowGoodWeb.Services
 
         }
 
-        public async Task<DoctorProfileDto> UpdateOnlineStatusByAdmin(long Id, bool onlineStatus)
+        public async Task<DoctorProfileDto> UpdateDoctorsOnlineStatus(long Id, bool onlineStatus)
         {
             var user = await _doctorProfileRepository.GetAsync(x => x.Id == Id);
             if (user != null)
