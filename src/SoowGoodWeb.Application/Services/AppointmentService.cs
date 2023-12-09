@@ -168,38 +168,30 @@ namespace SoowGoodWeb.Services
             }
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
-
         public async Task<List<AppointmentDto>> GetAppointmentListForDoctorWithSearchFilterAsync(long doctorId, DataFilterModel? dataFilter, FilterModel filterModel)
         {
             CultureInfo provider = CultureInfo.InvariantCulture;
-            try
+            try 
             {
+                if(dataFilter?.toDate == "Invalid Date")
+                {
+                    dataFilter.toDate = dataFilter.fromDate;
+                }
                 var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-                var appointments = item.Where(d => d.DoctorProfileId == doctorId).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+                var appointments = item.Where(d => d.DoctorProfileId == doctorId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
 
                 if (!string.IsNullOrEmpty(dataFilter.name))
                 {
                     appointments = appointments.Where(p => p.PatientName.Contains(dataFilter.name)).ToList();
                 }
-                if (dataFilter.consultancyType > 0)
+
+                if (dataFilter.consultancyType > 0 || dataFilter.appointmentStatus > 0
+                    || (!string.IsNullOrEmpty(dataFilter.fromDate) && !string.IsNullOrEmpty(dataFilter.toDate)))
                 {
-                    appointments = appointments.Where(p => p.ConsultancyType == dataFilter.consultancyType).ToList();
-                }
-                if (dataFilter.appointmentStatus > 0)
-                {
-                    appointments = appointments.Where(p => p.AppointmentStatus == dataFilter.appointmentStatus).ToList();
-                }
-                if (!string.IsNullOrEmpty(dataFilter.fromDate) && !string.IsNullOrEmpty(dataFilter.toDate))
-                {
-                    appointments = appointments.Where(p =>
-                    p.AppointmentDate.Value.Date >= DateTime.ParseExact(dataFilter.fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)
-                    && p.AppointmentDate.Value.Date <= DateTime.ParseExact(dataFilter.toDate, "dd/MM/yyyy", provider, DateTimeStyles.None)).ToList();
-                }
-                if (!string.IsNullOrEmpty(dataFilter.fromDate) && string.IsNullOrEmpty(dataFilter.toDate))
-                {
-                    appointments = appointments.Where(p =>
-                    p.AppointmentDate.Value.Date >= DateTime.ParseExact(dataFilter.fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)
-                    && p.AppointmentDate.Value.Date <= DateTime.ParseExact(dataFilter.fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)).ToList();
+                    appointments = appointments.Where(p =>  p.ConsultancyType == dataFilter.consultancyType
+                                                            || p.AppointmentStatus == dataFilter.appointmentStatus
+                                                            || (p.AppointmentDate.Value.Date >= DateTime.ParseExact(dataFilter.fromDate, "MM/dd/yyyy", provider, DateTimeStyles.None)
+                                                            && p.AppointmentDate.Value.Date <= DateTime.ParseExact(dataFilter.toDate, "MM/dd/yyyy", provider, DateTimeStyles.None))).ToList();
                 }
 
                 appointments = appointments.Skip(filterModel.Offset)
@@ -207,12 +199,48 @@ namespace SoowGoodWeb.Services
 
                 return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
             }
-            catch (Exception ex)
+            catch (Exception ex) 
             {
                 return null;
             }
+            
+        }
+        public async Task<int> GetAppointmentCountForDoctorWithSearchFilterAsync(long doctorId, DataFilterModel? dataFilter)
+        {
+            CultureInfo provider = CultureInfo.InvariantCulture;
+            try
+            {
+                if (dataFilter?.toDate == "Invalid Date")
+                {
+                    dataFilter.toDate = dataFilter.fromDate;
+                }
+                var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
+                var appointments = item.Where(d => d.DoctorProfileId == doctorId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+
+                if (!string.IsNullOrEmpty(dataFilter.name))
+                {
+                    appointments = appointments.Where(p => p.PatientName.Contains(dataFilter.name)).ToList();
+                }
+
+                if (dataFilter.consultancyType > 0 || dataFilter.appointmentStatus > 0
+                    || (!string.IsNullOrEmpty(dataFilter.fromDate) && !string.IsNullOrEmpty(dataFilter.toDate)))
+                {
+                    appointments = appointments.Where(p => p.ConsultancyType == dataFilter.consultancyType
+                                                            || p.AppointmentStatus == dataFilter.appointmentStatus
+                                                            || (p.AppointmentDate.Value.Date >= DateTime.ParseExact(dataFilter.fromDate, "MM/dd/yyyy", provider, DateTimeStyles.None)
+                                                            && p.AppointmentDate.Value.Date <= DateTime.ParseExact(dataFilter.toDate, "MM/dd/yyyy", provider, DateTimeStyles.None))).ToList();
+                }
+
+
+                return appointments.Count();
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
 
         }
+
         public async Task<List<AppointmentDto>> GetAppointmentListByPatientIdAsync(long patientId)
         {
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
@@ -223,38 +251,71 @@ namespace SoowGoodWeb.Services
         public async Task<List<AppointmentDto>> GetAppointmentListForPatientWithSearchFilterAsync(long patientId, DataFilterModel? dataFilter, FilterModel filterModel)
         {
             CultureInfo provider = CultureInfo.InvariantCulture;
-            var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-            var appointments = item.Where(d => d.DoctorProfileId == patientId).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+            try 
+            {
+                if (dataFilter?.toDate == "Invalid Date")
+                {
+                    dataFilter.toDate = dataFilter.fromDate; ;
+                }
+                var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
+                var appointments = item.Where(d => d.DoctorProfileId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
 
-            if (!string.IsNullOrEmpty(dataFilter.name))
-            {
-                appointments = appointments.Where(p => p.DoctorName.Contains(dataFilter.name)).ToList();
+                if (!string.IsNullOrEmpty(dataFilter.name))
+                {
+                    appointments = appointments.Where(p => p.DoctorName.Contains(dataFilter.name)).ToList();
+                }
+                if (dataFilter.consultancyType > 0 || dataFilter.appointmentStatus > 0
+                    || (!string.IsNullOrEmpty(dataFilter.fromDate) && !string.IsNullOrEmpty(dataFilter.toDate)))
+                {
+                    appointments = appointments.Where(p => p.ConsultancyType == dataFilter.consultancyType
+                                                            || p.AppointmentStatus == dataFilter.appointmentStatus
+                                                            || (p.AppointmentDate.Value.Date >= DateTime.ParseExact(dataFilter.fromDate, "MM/dd/yyyy", provider, DateTimeStyles.None)
+                                                            && p.AppointmentDate.Value.Date <= DateTime.ParseExact(dataFilter.toDate, "MM/dd/yyyy", provider, DateTimeStyles.None))).ToList();
+                }
+
+                appointments = appointments.Skip(filterModel.Offset)
+                                   .Take(filterModel.Limit).ToList();
+
+                return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
             }
-            if (dataFilter.consultancyType > 0)
+            catch(Exception ex)
             {
-                appointments = appointments.Where(p => p.ConsultancyType == dataFilter.consultancyType).ToList();
+                return null;
             }
-            if (dataFilter.appointmentStatus > 0)
+            
+        }
+        public async Task<int> GetAppointmentCountForPatientWithSearchFilterAsync(long patientId, DataFilterModel? dataFilter)
+        {
+            CultureInfo provider = CultureInfo.InvariantCulture;
+            try
             {
-                appointments = appointments.Where(p => p.AppointmentStatus == dataFilter.appointmentStatus).ToList();
+                if (dataFilter?.toDate == "Invalid Date")
+                {
+                    dataFilter.toDate = dataFilter.fromDate; ;
+                }
+                var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
+                var appointments = item.Where(d => d.DoctorProfileId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+
+                if (!string.IsNullOrEmpty(dataFilter.name))
+                {
+                    appointments = appointments.Where(p => p.DoctorName.Contains(dataFilter.name)).ToList();
+                }
+                if (dataFilter.consultancyType > 0 || dataFilter.appointmentStatus > 0
+                    || (!string.IsNullOrEmpty(dataFilter.fromDate) && !string.IsNullOrEmpty(dataFilter.toDate)))
+                {
+                    appointments = appointments.Where(p => p.ConsultancyType == dataFilter.consultancyType
+                                                            || p.AppointmentStatus == dataFilter.appointmentStatus
+                                                            || (p.AppointmentDate.Value.Date >= DateTime.ParseExact(dataFilter.fromDate, "MM/dd/yyyy", provider, DateTimeStyles.None)
+                                                            && p.AppointmentDate.Value.Date <= DateTime.ParseExact(dataFilter.toDate, "MM/dd/yyyy", provider, DateTimeStyles.None))).ToList();
+                }
+
+                return appointments.Count;
             }
-            if (!string.IsNullOrEmpty(dataFilter.fromDate) && !string.IsNullOrEmpty(dataFilter.toDate))
+            catch (Exception ex)
             {
-                appointments = appointments.Where(p =>
-                p.AppointmentDate.Value.Date >= DateTime.ParseExact(dataFilter.fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)
-                && p.AppointmentDate.Value.Date <= DateTime.ParseExact(dataFilter.toDate, "dd/MM/yyyy", provider, DateTimeStyles.None)).ToList();
-            }
-            if (!string.IsNullOrEmpty(dataFilter.fromDate) && string.IsNullOrEmpty(dataFilter.toDate))
-            {
-                appointments = appointments.Where(p =>
-                p.AppointmentDate.Value.Date >= DateTime.ParseExact(dataFilter.fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)
-                && p.AppointmentDate.Value.Date <= DateTime.ParseExact(dataFilter.fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)).ToList();
+                return 0;
             }
 
-            appointments = appointments.Skip(filterModel.Offset)
-                               .Take(filterModel.Limit).ToList();
-
-            return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
 
         public async Task<List<AppointmentDto>> GetListAppointmentListByAdminAsync()
@@ -453,5 +514,5 @@ namespace SoowGoodWeb.Services
 
         }
 
-    }
+    }    
 }
