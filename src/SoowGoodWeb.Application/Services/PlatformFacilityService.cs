@@ -12,13 +12,13 @@ namespace SoowGoodWeb.Services
 {
     public class PlatformFacilityService : SoowGoodWebAppService, IPlatformFacilityService
     {
-        private readonly IRepository<PlatformFacility> _dlatformFacilityRepository;
+        private readonly IRepository<PlatformFacility> _platformFacilityRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly IRepository<DoctorProfile> _doctorProfileRepository;
 
-        public PlatformFacilityService(IRepository<PlatformFacility> dlatformFacilityRepository, IUnitOfWorkManager unitOfWorkManager)
+        public PlatformFacilityService(IRepository<PlatformFacility> platformFacilityRepository, IUnitOfWorkManager unitOfWorkManager)
         {
-            _dlatformFacilityRepository = dlatformFacilityRepository;
+            _platformFacilityRepository = platformFacilityRepository;
 
             _unitOfWorkManager = unitOfWorkManager;
         }
@@ -26,18 +26,18 @@ namespace SoowGoodWeb.Services
         {
             var newEntity = ObjectMapper.Map<PlatformFacilityInputDto, PlatformFacility>(input);
 
-            var dlatformFacility = await _dlatformFacilityRepository.InsertAsync(newEntity);
+            var platformFacility = await _platformFacilityRepository.InsertAsync(newEntity);
 
             await _unitOfWorkManager.Current.SaveChangesAsync();
 
-            return ObjectMapper.Map<PlatformFacility, PlatformFacilityDto>(dlatformFacility);
+            return ObjectMapper.Map<PlatformFacility, PlatformFacilityDto>(platformFacility);
         }
 
         public async Task<PlatformFacilityDto> UpdateAsync(PlatformFacilityInputDto input)
         {
             var updateItem = ObjectMapper.Map<PlatformFacilityInputDto, PlatformFacility>(input);
 
-            var item = await _dlatformFacilityRepository.UpdateAsync(updateItem);
+            var item = await _platformFacilityRepository.UpdateAsync(updateItem);
 
             await _unitOfWorkManager.Current.SaveChangesAsync();
 
@@ -47,14 +47,14 @@ namespace SoowGoodWeb.Services
 
         public async Task<PlatformFacilityDto> GetAsync(int id)
         {
-            var item = await _dlatformFacilityRepository.GetAsync(x => x.Id == id);
+            var item = await _platformFacilityRepository.GetAsync(x => x.Id == id);
 
             return ObjectMapper.Map<PlatformFacility, PlatformFacilityDto>(item);
         }
         public async Task<List<PlatformFacilityDto>> GetListAsync()
         {
-            var dlatformFacilitys = await _dlatformFacilityRepository.GetListAsync();
-            return ObjectMapper.Map<List<PlatformFacility>, List<PlatformFacilityDto>>(dlatformFacilitys);
+            var platformFacilitys = await _platformFacilityRepository.GetListAsync();
+            return ObjectMapper.Map<List<PlatformFacility>, List<PlatformFacilityDto>>(platformFacilitys);
         }
 
         

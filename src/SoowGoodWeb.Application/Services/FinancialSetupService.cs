@@ -44,8 +44,28 @@ namespace SoowGoodWeb.Services
         }
         public async Task<List<FinancialSetupDto>> GetListAsync()
         {
-            var platformFacilitys = await _financialSetupRepository.GetListAsync();
-            return ObjectMapper.Map<List<FinancialSetup>, List<FinancialSetupDto>>(platformFacilitys);
+            List<FinancialSetupDto>? result = null;
+
+            var allFinancialSetupDetails = await _financialSetupRepository.WithDetailsAsync(p=>p.PlatformFacility);
+            if(!allFinancialSetupDetails.Any())
+            {
+                return result;
+            }
+            result = new List<FinancialSetupDto>();
+            foreach (var item in allFinancialSetupDetails)
+            {
+                result.Add(new FinancialSetupDto()
+                {
+                    Id = item.Id,
+                    PlatformFacilityId = item.PlatformFacilityId,
+                    FacilityName = item.PlatformFacilityId > 0 ? item.PlatformFacility.ServiceName : "",
+                    AmountIn=item.AmountIn,
+                    Amount=item.Amount,
+                    ExternalAmount=item.ExternalAmount,
+                    ExternalAmountIn=item.ExternalAmountIn,
+                });
+            }
+            return result;
         }
         
         public async Task<FinancialSetupDto> UpdateAsync(FinancialSetupInputDto input)
