@@ -63,6 +63,7 @@ namespace SoowGoodWeb.Services
                     Amount=item.Amount,
                     ExternalAmount=item.ExternalAmount,
                     ExternalAmountIn=item.ExternalAmountIn,
+                    IsActivie=item.IsActivie,
                 });
             }
             return result;
