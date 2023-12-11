@@ -528,18 +528,20 @@ namespace SoowGoodWeb.Services
         public async Task<DoctorProfileDto> UpdateDoctorsOnlineStatus(long Id, bool onlineStatus)
         {
             var user = await _doctorProfileRepository.GetAsync(x => x.Id == Id);
+
             if (user != null)
             {
-                //if (user.IsOnline == false)
-                //{
-                user.IsActive = onlineStatus;
-                //}
+                user.IsOnline = onlineStatus;
+                var updatedUser = await _doctorProfileRepository.UpdateAsync(user);
+                await _unitOfWorkManager.Current.SaveChangesAsync();
+                return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(updatedUser);
             }
-            var item = await _doctorProfileRepository.UpdateAsync(user);
-            await _unitOfWorkManager.Current.SaveChangesAsync();
-            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
-
+            else
+            {
+                return null;
+            }
         }
+
 
         public async Task<DoctorProfileDto> GetByUserIdAsync(Guid userId)
         {
@@ -633,7 +635,7 @@ namespace SoowGoodWeb.Services
         {
             List<DoctorProfileDto> result = null;
             var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
-            var profiles = profileWithDetails.Where(o => o.IsOnline == true && o.IsActive == true).ToList();
+            var profiles = profileWithDetails.Where(o => o.IsOnline == true).ToList();
             var schedules = await _doctorScheduleRepository.WithDetailsAsync();
             //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
             if (!profileWithDetails.Any())
