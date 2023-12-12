@@ -95,7 +95,7 @@ namespace SoowGoodWeb.Services
                 else
                 {
                     input.ConsultancyType=ConsultancyType.OnlineRT;
-                    input.AppointmentDate=DateTime.Now;
+                    input.AppointmentDate=DateTime.Today;
                     input.AppointmentTime = DateTime.Now.ToString("HH:mm");
                     input.AppointmentType = AppointmentType.New;
                     lastSerial = await GetAppCountByRealTimeConsultancyAsync(input.AppointmentDate);
