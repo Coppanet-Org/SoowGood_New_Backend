@@ -79,7 +79,7 @@ namespace SoowGoodWeb.Services
                         slots = list.ToArray();
                     }
 
-                    lastSerial =  await GetAppCountByScheduleIdSessionIdAsync(input.DoctorScheduleId, input.DoctorScheduleDaySessionId);
+                    lastSerial = await GetAppCountByScheduleIdSessionIdAsync(input.DoctorScheduleId, input.DoctorScheduleDaySessionId);
 
 
                     for (long i = lastSerial; i < mainSession.NoOfPatients; ++i)
@@ -94,8 +94,8 @@ namespace SoowGoodWeb.Services
                 }
                 else
                 {
-                    input.ConsultancyType=ConsultancyType.OnlineRT;
-                    input.AppointmentDate=DateTime.Today;
+                    input.ConsultancyType = ConsultancyType.OnlineRT;
+                    input.AppointmentDate = DateTime.Today;
                     input.AppointmentTime = DateTime.Now.ToString("HH:mm");
                     input.AppointmentType = AppointmentType.New;
                     lastSerial = await GetAppCountByRealTimeConsultancyAsync(input.AppointmentDate);

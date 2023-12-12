@@ -69,7 +69,7 @@ namespace SoowGoodWeb.Enums
         Online = 2,
         PhysicalVisit = 3,
         OnDemand = 4,
-        OnlineRT = 5
+        OnlineRT = 5        //Online Real Time
     }
 
     public enum AppointmentType
