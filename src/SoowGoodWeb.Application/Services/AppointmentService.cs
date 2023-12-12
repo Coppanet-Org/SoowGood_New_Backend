@@ -56,6 +56,8 @@ namespace SoowGoodWeb.Services
             //return response;
             try
             {
+                var consultencyType = "";
+                long lastSerial = 0;//await GetAppCountByScheduleIdSessionIdAsync(input.DoctorScheduleId, input.DoctorScheduleDaySessionId);
                 if (input.DoctorScheduleId > 0 && input.DoctorScheduleDaySessionId > 0)
                 {
                     var mainSession = await _doctorScheduleSessionRepository.GetAsync(s => s.Id == input.DoctorScheduleDaySessionId && s.DoctorScheduleId == input.DoctorScheduleId);
@@ -77,7 +79,8 @@ namespace SoowGoodWeb.Services
                         slots = list.ToArray();
                     }
 
-                    long lastSerial = await GetAppCountByScheduleIdSessionIdAsync(input.DoctorScheduleId, input.DoctorScheduleDaySessionId);
+                    lastSerial =  await GetAppCountByScheduleIdSessionIdAsync(input.DoctorScheduleId, input.DoctorScheduleDaySessionId);
+
 
                     for (long i = lastSerial; i < mainSession.NoOfPatients; ++i)
                     {
@@ -85,7 +88,18 @@ namespace SoowGoodWeb.Services
                         break;
                     }
                     //DateTime? x = input.AppointmentDate;
-                    var consultencyType = (input.ConsultancyType > 0 ? (ConsultancyType)input.ConsultancyType : 0).ToString();
+                    consultencyType = (input.ConsultancyType > 0 ? (ConsultancyType)input.ConsultancyType : 0).ToString();
+                    input.AppointmentSerial = (lastSerial + 1).ToString();
+                    input.AppointmentCode = input.DoctorCode + input.AppointmentDate?.ToString("yyyyMMdd") + consultencyType + "SL00" + input.AppointmentSerial;
+                }
+                else
+                {
+                    input.ConsultancyType=ConsultancyType.OnlineRT;
+                    input.AppointmentDate=DateTime.Now;
+                    input.AppointmentTime = DateTime.Now.ToString("HH:mm");
+                    input.AppointmentType = AppointmentType.New;
+                    lastSerial = await GetAppCountByRealTimeConsultancyAsync(input.AppointmentDate);
+                    consultencyType = ConsultancyType.OnlineRT.ToString();
                     input.AppointmentSerial = (lastSerial + 1).ToString();
                     input.AppointmentCode = input.DoctorCode + input.AppointmentDate?.ToString("yyyyMMdd") + consultencyType + "SL00" + input.AppointmentSerial;
                 }
@@ -171,9 +185,9 @@ namespace SoowGoodWeb.Services
         public async Task<List<AppointmentDto>> GetAppointmentListForDoctorWithSearchFilterAsync(long doctorId, DataFilterModel? dataFilter, FilterModel filterModel)
         {
             CultureInfo provider = CultureInfo.InvariantCulture;
-            try 
+            try
             {
-                if(dataFilter?.toDate == "Invalid Date")
+                if (dataFilter?.toDate == "Invalid Date")
                 {
                     dataFilter.toDate = dataFilter.fromDate;
                 }
@@ -188,7 +202,7 @@ namespace SoowGoodWeb.Services
                 if (dataFilter.consultancyType > 0 || dataFilter.appointmentStatus > 0
                     || (!string.IsNullOrEmpty(dataFilter.fromDate) && !string.IsNullOrEmpty(dataFilter.toDate)))
                 {
-                    appointments = appointments.Where(p =>  p.ConsultancyType == dataFilter.consultancyType
+                    appointments = appointments.Where(p => p.ConsultancyType == dataFilter.consultancyType
                                                             || p.AppointmentStatus == dataFilter.appointmentStatus
                                                             || (p.AppointmentDate.Value.Date >= DateTime.ParseExact(dataFilter.fromDate, "MM/dd/yyyy", provider, DateTimeStyles.None)
                                                             && p.AppointmentDate.Value.Date <= DateTime.ParseExact(dataFilter.toDate, "MM/dd/yyyy", provider, DateTimeStyles.None))).ToList();
@@ -199,11 +213,11 @@ namespace SoowGoodWeb.Services
 
                 return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return null;
             }
-            
+
         }
         public async Task<int> GetAppointmentCountForDoctorWithSearchFilterAsync(long doctorId, DataFilterModel? dataFilter)
         {
@@ -251,7 +265,7 @@ namespace SoowGoodWeb.Services
         public async Task<List<AppointmentDto>> GetAppointmentListForPatientWithSearchFilterAsync(long patientId, DataFilterModel? dataFilter, FilterModel filterModel)
         {
             CultureInfo provider = CultureInfo.InvariantCulture;
-            try 
+            try
             {
                 if (dataFilter?.toDate == "Invalid Date")
                 {
@@ -278,11 +292,11 @@ namespace SoowGoodWeb.Services
 
                 return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return null;
             }
-            
+
         }
         public async Task<int> GetAppointmentCountForPatientWithSearchFilterAsync(long patientId, DataFilterModel? dataFilter)
         {
@@ -514,5 +528,12 @@ namespace SoowGoodWeb.Services
 
         }
 
-    }    
+        public async Task<int> GetAppCountByRealTimeConsultancyAsync(DateTime? aptDate)
+        {
+            var appointments = await _appointmentRepository.GetListAsync(a => a.AppointmentDate == aptDate && a.ConsultancyType == ConsultancyType.OnlineRT);
+            var appCount = appointments.Count();
+            return appCount;
+        }
+
+    }
 }
