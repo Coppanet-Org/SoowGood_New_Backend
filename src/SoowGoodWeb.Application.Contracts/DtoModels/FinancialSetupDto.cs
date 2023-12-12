@@ -14,6 +14,7 @@ namespace SoowGoodWeb.DtoModels
         public decimal? Amount { get; set; }
         public string? ExternalAmountIn { get; set; }
         public decimal? ExternalAmount { get; set; }
+        public decimal? ProviderAmount { get; set; }
         public bool? IsActivie { get; set; }
     }
 }
