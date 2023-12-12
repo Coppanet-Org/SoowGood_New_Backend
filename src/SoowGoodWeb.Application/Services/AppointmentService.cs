@@ -91,7 +91,7 @@ namespace SoowGoodWeb.Services
                     consultencyType = (input.ConsultancyType > 0 ? (ConsultancyType)input.ConsultancyType : 0).ToString();
                     input.AppointmentSerial = (lastSerial + 1).ToString();
                     input.AppointmentCode = input.DoctorCode + input.AppointmentDate?.ToString("yyyyMMdd") + consultencyType + "SL00" + input.AppointmentSerial;
-                }
+                } 
                 else
                 {
                     input.ConsultancyType = ConsultancyType.OnlineRT;
