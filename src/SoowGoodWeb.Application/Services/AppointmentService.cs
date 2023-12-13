@@ -79,7 +79,7 @@ namespace SoowGoodWeb.Services
                         slots = list.ToArray();
                     }
 
-                    lastSerial =  await GetAppCountByScheduleIdSessionIdAsync(input.DoctorScheduleId, input.DoctorScheduleDaySessionId);
+                    lastSerial = await GetAppCountByScheduleIdSessionIdAsync(input.DoctorScheduleId, input.DoctorScheduleDaySessionId);
 
 
                     for (long i = lastSerial; i < mainSession.NoOfPatients; ++i)
@@ -91,11 +91,11 @@ namespace SoowGoodWeb.Services
                     consultencyType = (input.ConsultancyType > 0 ? (ConsultancyType)input.ConsultancyType : 0).ToString();
                     input.AppointmentSerial = (lastSerial + 1).ToString();
                     input.AppointmentCode = input.DoctorCode + input.AppointmentDate?.ToString("yyyyMMdd") + consultencyType + "SL00" + input.AppointmentSerial;
-                }
+                } 
                 else
                 {
-                    input.ConsultancyType=ConsultancyType.OnlineRT;
-                    input.AppointmentDate=DateTime.Today;
+                    input.ConsultancyType = ConsultancyType.OnlineRT;
+                    input.AppointmentDate = DateTime.Today;
                     input.AppointmentTime = DateTime.Now.ToString("HH:mm");
                     input.AppointmentType = AppointmentType.New;
                     lastSerial = await GetAppCountByRealTimeConsultancyAsync(input.AppointmentDate);
@@ -370,7 +370,7 @@ namespace SoowGoodWeb.Services
                     ConsultancyType = item.ConsultancyType,
                     ConsultancyTypeName = item.ConsultancyType > 0 ? ((ConsultancyType)item.ConsultancyType).ToString() : "n/a",
                     DoctorChamberId = item.DoctorChamberId,
-                    DoctorChamberName = item.DoctorSchedule.DoctorChamber.ChamberName,
+                    DoctorChamberName = item.DoctorChamberId > 0 ? item.DoctorSchedule.DoctorChamber.ChamberName : "n/a",
                     DoctorFee = item.DoctorFee,
                     PatientLocation = patientDetails?.City?.ToString(),
                     DoctorScheduleDaySessionId = item.DoctorScheduleDaySessionId,

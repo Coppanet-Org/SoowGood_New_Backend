@@ -10,6 +10,10 @@ namespace SoowGoodWeb.Models
 {
     public class AgentProfile : FullAuditedEntity<long>
     {
+        public long? AgentMasterId { get; set; }
+        public AgentMaster? AgentMaster { get; set; }
+        public long? AgentSupervisorId { get; set; }
+        public AgentSupervisor? AgentSupervisor { get; set; }
         public string? FullName { get; set; }
         public string? AgentCode { get; set; }
         public string? OrganizationName { get; set; }
@@ -23,6 +27,8 @@ namespace SoowGoodWeb.Models
         public Guid? UserId { get; set; }
         public int? profileStep { get; set;}
         public string? createFrom { get; set; }
+        public string? AgentDocNumber { get; set; } //BIN, TIN, TL Etc
+        public DateTime? AgentDocExpireDate { get; set; }
 
     }
 }
