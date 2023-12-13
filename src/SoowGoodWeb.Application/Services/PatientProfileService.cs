@@ -117,7 +117,7 @@ namespace SoowGoodWeb.Services
 
                 }); ;
             }
-            return result;
+            return result.OrderByDescending(dto => dto.Id).ToList();
         }
         public async Task<PatientProfileDto> GetByUserIdAsync(Guid userId)
         {

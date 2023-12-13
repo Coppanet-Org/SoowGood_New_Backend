@@ -505,8 +505,9 @@ namespace SoowGoodWeb.Services
                     IsActive = item.IsActive,
 
                 });
-            }
-            return result;
+               
+            };
+            return result.OrderByDescending(dto => dto.Id).ToList();
         }
 
         public async Task<DoctorProfileDto> UpdateActiveStatusByAdmin(int Id, bool activeStatus)

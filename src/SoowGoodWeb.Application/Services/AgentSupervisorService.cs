@@ -90,7 +90,7 @@ namespace SoowGoodWeb.Services
                     IsDeleted = item.IsDeleted,
                 }) ; 
             }
-            return result;
+            return result.OrderByDescending(dto=>dto.Id).ToList();
             //return ObjectMapper.Map<List<AgentSupervisor>, List<AgentSupervisorDto>>(agentSupervisors);
         }
 

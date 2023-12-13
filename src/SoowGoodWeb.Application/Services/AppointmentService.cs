@@ -296,7 +296,7 @@ namespace SoowGoodWeb.Services
                     PaymentTransactionId = item.PaymentTransactionId,
                 });
             }
-            return result;
+            return result.OrderByDescending(dto => dto.Id).ToList();
         }
 
         public async Task<int> GetAppCountByScheduleIdSessionIdAsync(long? scheduleId, long? sessionId)
