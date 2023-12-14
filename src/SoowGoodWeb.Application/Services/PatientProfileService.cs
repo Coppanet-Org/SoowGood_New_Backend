@@ -1,4 +1,5 @@
-﻿using SoowGoodWeb.DtoModels;
+﻿using Microsoft.IdentityModel.Tokens;
+using SoowGoodWeb.DtoModels;
 using SoowGoodWeb.Enums;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
@@ -130,25 +131,21 @@ namespace SoowGoodWeb.Services
             {
                 var itemPatient = await _patientRepository.FindAsync(input.Id);
                 itemPatient.IsSelf = input.IsSelf;
-                itemPatient.PatientName = input.PatientName;
-                itemPatient.PatientEmail = input.PatientEmail;
-                itemPatient.PatientMobileNo = input.PatientMobileNo;
-
-                //input.FullName = itemPatient.FullName;
-                //input.DateOfBirth = itemPatient.DateOfBirth;
-                //input.Gender = itemPatient.Gender;
-                //input.Age = itemPatient.Age;
-                //input.Email = itemPatient.Email;
-                //input.Address = itemPatient.Address;
-                //input.MobileNo = itemPatient.MobileNo;
-                //input.BloodGroup = itemPatient.BloodGroup;
-                //input.City = itemPatient.City;
-                //input.Country = itemPatient.Country;
-                //input.ZipCode = itemPatient.ZipCode;
+                itemPatient.FullName = !string.IsNullOrEmpty(itemPatient.FullName) ? itemPatient.FullName : input.FullName;
+                itemPatient.PatientName = !string.IsNullOrEmpty(itemPatient.PatientName) ? itemPatient.PatientName : input.PatientName;
+                itemPatient.PatientEmail = !string.IsNullOrEmpty(itemPatient.PatientEmail) ? itemPatient.PatientEmail : input.PatientEmail;
+                itemPatient.PatientMobileNo = !string.IsNullOrEmpty(itemPatient.PatientMobileNo) ? itemPatient.PatientMobileNo : input.PatientMobileNo;
+                itemPatient.BloodGroup = !string.IsNullOrEmpty(itemPatient.BloodGroup) ? itemPatient.BloodGroup : input.BloodGroup;
+                itemPatient.Age = itemPatient.Age > 0 ? itemPatient.Age : input.Age;
+                itemPatient.DateOfBirth = !string.IsNullOrEmpty(itemPatient.DateOfBirth.ToString()) ? itemPatient.DateOfBirth : input.DateOfBirth;
+                itemPatient.Gender = itemPatient.Gender > 0 ? itemPatient.Gender : input.Gender;                
+                itemPatient.City = !string.IsNullOrEmpty(itemPatient.City) ? itemPatient.City : input.City;
+                itemPatient.Country = !string.IsNullOrEmpty(itemPatient.Country) ? itemPatient.Country : input.Country;
+                itemPatient.ZipCode = !string.IsNullOrEmpty(itemPatient.ZipCode) ? itemPatient.ZipCode : input.ZipCode;
                 //input.CreatedBy = itemPatient.CreatedBy;
                 //input.CratorCode = itemPatient.CratorCode;
                 //input.CreatorEntityId = itemPatient.CreatorEntityId;
-                //input.PatientCode = itemPatient.PatientCode;
+                itemPatient.PatientCode = !string.IsNullOrEmpty(itemPatient.ZipCode) ? itemPatient.ZipCode : input.PatientCode;
 
                 //var updateItem = ObjectMapper.Map<PatientProfileInputDto, PatientProfile>(input);
 
@@ -180,7 +177,7 @@ namespace SoowGoodWeb.Services
                 return result;
             }
             result = new List<PatientProfileDto>();
-    
+
             if (!string.IsNullOrEmpty(patientFilterModel?.name))
             {
                 profiles = profiles.Where(p => p.FullName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())).ToList();
@@ -213,7 +210,7 @@ namespace SoowGoodWeb.Services
         {
             List<PatientProfileDto> result = null;
             var profileWithDetails = await _patientProfileRepository.WithDetailsAsync();
-            var profiles = profileWithDetails.Where(c=>c.CreatorEntityId == profileId).ToList();
+            var profiles = profileWithDetails.Where(c => c.CreatorEntityId == profileId).ToList();
             var schedules = await _patientProfileRepository.WithDetailsAsync();
             //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
             if (!profileWithDetails.Any())

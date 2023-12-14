@@ -567,8 +567,8 @@ namespace SoowGoodWeb.Services
                         {
                             var alldegrees = await _doctorDegreeRepository.WithDetailsAsync();
                             var existingDegree = alldegrees.FirstOrDefault(e => e.DegreeId == d.DegreeId && e.DoctorProfileId == d.DoctorProfileId);
-                            var exDegRes= ObjectMapper.Map<DoctorDegree, DoctorDegreeDto>(existingDegree);
-                            if (exDegRes == null)
+                            //var exDegRes= ObjectMapper.Map<DoctorDegree, DoctorDegreeDto>(existingDegree);
+                            if (existingDegree == null)
                             {
                                 var degree = new DoctorDegreeInputDto
                                 {
@@ -590,20 +590,27 @@ namespace SoowGoodWeb.Services
                             }
                             else
                             {
-                                var degree = new DoctorDegreeInputDto
-                                {
-                                    Id = exDegRes.Id,
-                                    DoctorProfileId = d.DoctorProfileId,
-                                    DegreeId = d.DegreeId,
-                                    Duration = d.Duration,
-                                    PassingYear = d.PassingYear,
-                                    InstituteName = d.InstituteName,
-                                    InstituteCity = d.InstituteCity,
-                                    InstituteCountry = d.InstituteCountry
-                                };
-                                var updatedDegree = ObjectMapper.Map<DoctorDegreeInputDto, DoctorDegree>(degree);
+                                //var degree = new DoctorDegreeInputDto
+                                //{
+                                //    Id = exDegRes.Id,
+                                //    DoctorProfileId = d.DoctorProfileId,
+                                //    DegreeId = d.DegreeId,
+                                //    //Duration = d.Duration,
+                                //    PassingYear = d.PassingYear,
+                                //    InstituteName = d.InstituteName,
+                                //    InstituteCity = d.InstituteCity,
+                                //    InstituteCountry = d.InstituteCountry
+                                //};
 
-                                var doctorDegree = await _doctorDegreeRepository.UpdateAsync(updatedDegree);
+                                existingDegree.DegreeId = d.DegreeId;
+                                existingDegree.Duration = d.Duration;
+                                existingDegree.PassingYear = d.PassingYear;
+                                existingDegree.InstituteName = d.InstituteName;
+                                existingDegree.InstituteCity = d.InstituteCity;
+                                existingDegree.InstituteCountry = d.InstituteCountry;
+                                //var updatedDegree = ObjectMapper.Map<DoctorDegreeDto, DoctorDegree>(exDegRes);
+
+                                var doctorDegree = await _doctorDegreeRepository.UpdateAsync(existingDegree);
 
                                 await _unitOfWorkManager.Current.SaveChangesAsync();
 
@@ -618,8 +625,8 @@ namespace SoowGoodWeb.Services
                         {
                             var allExperties = await _doctorSpecializationRepository.WithDetailsAsync();
                             var existingSpecializations = allExperties.FirstOrDefault(e => e.SpecializationId == s.SpecializationId && e.DoctorProfileId == s.DoctorProfileId);
-                            var exSpRes = ObjectMapper.Map<DoctorSpecialization, DoctorSpecializationDto>(existingSpecializations);
-                            if (exSpRes == null)
+                            //var exSpRes = ObjectMapper.Map<DoctorSpecialization, DoctorSpecializationDto>(existingSpecializations);
+                            if (existingSpecializations == null)
                             {
                                 var specialization = new DoctorSpecializationInputDto
                                 {
@@ -638,17 +645,19 @@ namespace SoowGoodWeb.Services
                             }
                             else
                             {
-                                var specialization = new DoctorSpecializationInputDto
-                                {
-                                    Id = exSpRes.Id,
-                                    DoctorProfileId = s.DoctorProfileId,
-                                    SpecialityId = existingSpecializations.SpecialityId,
-                                    SpecializationId = s.SpecializationId,
-                                    DocumentName = s.DocumentName,
-                                };
-                                var updatedSpcializations = ObjectMapper.Map<DoctorSpecializationInputDto, DoctorSpecialization>(specialization);
+                                //var specialization = new DoctorSpecializationInputDto
+                                //{
+                                //    Id = exSpRes.Id,
+                                //    DoctorProfileId = s.DoctorProfileId,
+                                //    SpecialityId = existingSpecializations.SpecialityId,
+                                //    SpecializationId = s.SpecializationId,
+                                //    DocumentName = s.DocumentName,
+                                //};
+                                existingSpecializations.SpecializationId = s.SpecializationId;
+                                existingSpecializations.DocumentName = s.DocumentName;
+                                //var updatedSpcializations = ObjectMapper.Map<DoctorSpecializationDto, DoctorSpecialization>(exSpRes);
 
-                                var doctorSpecialization = await _doctorSpecializationRepository.UpdateAsync(updatedSpcializations);
+                                var doctorSpecialization = await _doctorSpecializationRepository.UpdateAsync(existingSpecializations);
 
                                 await _unitOfWorkManager.Current.SaveChangesAsync();
 
