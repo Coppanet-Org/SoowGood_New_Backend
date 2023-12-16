@@ -30,7 +30,7 @@ namespace SoowGoodWeb.Services
         {
             var totalAgentMaters = await _agentMasterRepository.GetListAsync();
             var count = totalAgentMaters.Count();
-            input.AgentMasterCode = "SG-AM-" + (count + 1);
+            input.AgentMasterCode = "SGAM00" + (count + 1);
             var newEntity = ObjectMapper.Map<AgentMasterInputDto, AgentMaster>(input);
 
             var agentMaster = await _agentMasterRepository.InsertAsync(newEntity);
@@ -64,6 +64,25 @@ namespace SoowGoodWeb.Services
             var item = await _agentMasterRepository.UpdateAsync(updateItem);
             await _unitOfWorkManager.Current.SaveChangesAsync();
             return ObjectMapper.Map<AgentMaster, AgentMasterDto>(item);
+        }
+
+        public async Task<List<AgentMasterDto>> GetAllAgentMasterListAsync()
+        {
+            //var agentSupervisors = await _agentSupervisorRepository.GetListAsync();
+            var result = new List<AgentMasterDto>();
+            var agentMasters = await _agentMasterRepository.GetListAsync();
+            foreach (var item in agentMasters)
+            {
+                result.Add(new AgentMasterDto()
+                {
+                    Id = item.Id,
+                    AgentMasterOrgName = item.AgentMasterOrgName,
+                    DisplayName = item.AgentMasterCode + "-" + item.AgentMasterOrgName
+
+                });
+            }
+            return result;
+            //return ObjectMapper.Map<List<AgentSupervisor>, List<AgentSupervisorDto>>(agentSupervisors);
         }
         //public async Task<AgentProfileDto> CreateAsync(AgentProfileInputDto input)
         //{

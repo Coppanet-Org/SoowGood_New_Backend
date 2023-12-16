@@ -31,7 +31,7 @@ namespace SoowGoodWeb.Services
         {
             var totalAgentSupervisors = await _agentSupervisorRepository.GetListAsync();
             var count = totalAgentSupervisors.Count();
-            input.AgentSupervisorCode = "SG-AS-" + (count + 1);
+            input.AgentSupervisorCode = "SGAS00" + (count + 1);
             var newEntity = ObjectMapper.Map<AgentSupervisorInputDto, AgentSupervisor>(input);
 
             var agentSupervisor = await _agentSupervisorRepository.InsertAsync(newEntity);
@@ -53,6 +53,15 @@ namespace SoowGoodWeb.Services
             return result;
         }
 
+        public async Task<AgentSupervisorDto> UpdateAsync(AgentSupervisorInputDto input)
+        {
+            var updateItem = ObjectMapper.Map<AgentSupervisorInputDto, AgentSupervisor>(input);
+
+            var item = await _agentSupervisorRepository.UpdateAsync(updateItem);
+            await _unitOfWorkManager.Current.SaveChangesAsync();
+
+            return ObjectMapper.Map<AgentSupervisor, AgentSupervisorDto>(item);
+        }
         public async Task<List<AgentSupervisorDto>> GetListAsync()
         {
             //var agentSupervisors = await _agentSupervisorRepository.GetListAsync();
@@ -87,68 +96,35 @@ namespace SoowGoodWeb.Services
                     AgentSupervisorDocNumber = item.AgentSupervisorDocNumber,
                     AgentSupervisorDocExpireDate = item.AgentSupervisorDocExpireDate,
                     IsActive = item.IsActive,
-                    IsDeleted = item.IsDeleted,
+                    DisplayName= item.AgentSupervisorCode + "-" + item.AgentSupervisorOrgName + "-" + item.SupervisorName
                 }) ; 
             }
             return result;
             //return ObjectMapper.Map<List<AgentSupervisor>, List<AgentSupervisorDto>>(agentSupervisors);
         }
 
-        public async Task<AgentSupervisorDto> UpdateAsync(AgentSupervisorInputDto input)
+        public async Task<List<AgentSupervisorDto>> GetAgentSupervisorsByAgentMasterListAsync(long agentMasterId)
         {
-            var updateItem = ObjectMapper.Map<AgentSupervisorInputDto, AgentSupervisor>(input);
+            List<AgentSupervisorDto>? result = null;
+            var allsupervisorwithDetails = await _agentSupervisorRepository.WithDetailsAsync(s => s.AgentMaster);
+            var allsupervisors = await _agentSupervisorRepository.GetListAsync(s => s.AgentMasterId==agentMasterId);
 
-            var item = await _agentSupervisorRepository.UpdateAsync(updateItem);
-            await _unitOfWorkManager.Current.SaveChangesAsync();
+            if (!allsupervisorwithDetails.Any())
+            {
+                return result;
+            }
+            result = new List<AgentSupervisorDto>();
+            foreach (var item in allsupervisors)
+            {
+                result.Add(new AgentSupervisorDto()
+                {
+                    Id = item.Id,
+                    SupervisorName = item.SupervisorName,
+                    DisplayName = item.AgentSupervisorCode + "-" + item.AgentSupervisorOrgName + "-" + item.SupervisorName
 
-            return ObjectMapper.Map<AgentSupervisor, AgentSupervisorDto>(item);
+                });
+            }
+            return result;
         }
-
-        //public async Task<AgentProfileDto> GetAsync(int id)
-        //{
-        //    var item = await _agentProfileRepository.GetAsync(x => x.Id == id);
-
-        //    return ObjectMapper.Map<AgentProfile, AgentProfileDto>(item);
-
-        //    //var item = await _agentProfileRepository.WithDetailsAsync();
-        //    //var profile = item.FirstOrDefault(item => item.Id == id);
-        //    //var result = profile != null ? ObjectMapper.Map<AgentProfile, AgentProfileDto>(profile) : null;
-
-        //    //return result;
-        //}
-
-        //public async Task<AgentProfileDto> GetByUserNameAsync(string userName)
-        //{
-        //    var item = await _agentProfileRepository.GetAsync(x => x.MobileNo == userName);
-
-        //    return ObjectMapper.Map<AgentProfile, AgentProfileDto>(item);
-        //}
-        //public async Task<List<AgentProfileDto>> GetListAsync()
-        //{
-        //    var profiles = await _agentProfileRepository.GetListAsync();
-        //    return ObjectMapper.Map<List<AgentProfile>, List<AgentProfileDto>>(profiles);
-        //}
-        //public async Task<AgentProfileDto> GetByUserIdAsync(Guid userId)
-        //{
-        //    var item = await _agentProfileRepository.GetAsync(x => x.UserId == userId);
-        //    return ObjectMapper.Map<AgentProfile, AgentProfileDto>(item);
-        //}
-
-        //public async Task<AgentProfileDto> UpdateAsync(AgentProfileInputDto input)
-        //{
-        //    var updateItem = ObjectMapper.Map<AgentProfileInputDto, AgentProfile>(input);
-
-        //    var item = await _agentProfileRepository.UpdateAsync(updateItem);
-        //    await _unitOfWorkManager.Current.SaveChangesAsync();                        
-        //    return ObjectMapper.Map<AgentProfile, AgentProfileDto>(item);
-        //}
-
-        //public async Task<AgentProfileDto> GetlByUserNameAsync(string userName)
-        //{
-        //    var item = await _agentProfileRepository.GetAsync(x => x.MobileNo == userName);
-
-        //    return ObjectMapper.Map<AgentProfile, AgentProfileDto>(item);
-        //}
-
     }
 }

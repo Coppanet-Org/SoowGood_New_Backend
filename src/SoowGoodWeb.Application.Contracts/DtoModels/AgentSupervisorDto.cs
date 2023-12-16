@@ -27,5 +27,6 @@ namespace SoowGoodWeb.DtoModels
         public DateTime? AgentSupervisorDocExpireDate { get; set; }
         public bool? IsActive { get; set; }
         public Guid? UserId { get; set; }
+        public string? DisplayName { get;set; }
     }
 }
