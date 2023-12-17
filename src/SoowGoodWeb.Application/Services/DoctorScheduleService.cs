@@ -43,11 +43,11 @@ namespace SoowGoodWeb.Services
                 if (input.ConsultancyType == ConsultancyType.Chamber && input.DoctorChamberId > 0)
                 {
 
-                    isExistSchedule = doctorSchedules.Where(s => s.ConsultancyType == input.ConsultancyType && s.DoctorChamberId == input.DoctorChamberId).FirstOrDefault();
+                    isExistSchedule = doctorSchedules.Where(s => s.DoctorProfileId == input.DoctorProfileId && s.ConsultancyType == input.ConsultancyType && s.DoctorChamberId == input.DoctorChamberId).FirstOrDefault();
                 }
                 else
                 {
-                    isExistSchedule = doctorSchedules.Where(s => s.ConsultancyType == input.ConsultancyType).FirstOrDefault();
+                    isExistSchedule = doctorSchedules.Where(s => s.DoctorProfileId == input.DoctorProfileId && s.ConsultancyType == input.ConsultancyType).FirstOrDefault();
                 }
                 if (isExistSchedule == null)
                 {
@@ -155,11 +155,11 @@ namespace SoowGoodWeb.Services
                 if (input.ConsultancyType == ConsultancyType.Chamber && input.DoctorChamberId > 0)
                 {
 
-                    isExistSchedule = doctorSchedules.Where(s => s.ConsultancyType == input.ConsultancyType && s.DoctorChamberId == input.DoctorChamberId).FirstOrDefault();
+                    isExistSchedule = doctorSchedules.Where(s => s.DoctorProfileId == input.DoctorProfileId && s.ConsultancyType == input.ConsultancyType && s.DoctorChamberId == input.DoctorChamberId).FirstOrDefault();
                 }
                 else
                 {
-                    isExistSchedule = doctorSchedules.Where(s => s.ConsultancyType == input.ConsultancyType).FirstOrDefault();
+                    isExistSchedule = doctorSchedules.Where(s => s.DoctorProfileId == input.DoctorProfileId && s.ConsultancyType == input.ConsultancyType).FirstOrDefault();
                 }
                 if (isExistSchedule == null)
                 {

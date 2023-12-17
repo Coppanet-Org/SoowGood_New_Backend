@@ -62,6 +62,31 @@ namespace SoowGoodWeb.DtoModels
     //    public string? Massage { get; set; }
     //}
 
+    //public class UserRegInfoDto
+    //{
+    //    public string UserName { get; set; }
+    //    public string Name { get; set; }
+    //    public string Surname { get; set; }
+    //    public string Email { get; set; }
+    //    public string PhoneNumber { get; set; }
+    //    public bool IsActive { get; set; }
+    //    public bool lockoutEnabled { get; set; }
+    //    public IList<string> RoleNames { get; set; }
+    //    public string Password { get; set; }
+    //}
+    public class ResetPasswordInputDto
+    {
+        public string UserId { get; set; }
+        public string NewPassword { get; set; }
+    }
+
+    public class ResetPasswordResponseDto
+    {
+        public string? UserName { get; set; }
+        public string? Name { get; set; }        
+        public bool? Success { get; set; }
+        public string? Message { get;set; }
+    }
     public class UserRegInfoDto
     {
         public string? UserName { get; set; }

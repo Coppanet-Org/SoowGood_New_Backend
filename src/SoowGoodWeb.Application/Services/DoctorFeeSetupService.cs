@@ -14,12 +14,14 @@ namespace SoowGoodWeb.Services
     public class DoctorFeeSetupService : SoowGoodWebAppService, IDoctorFeeSetupService
     {
         private readonly IRepository<DoctorFeesSetup> _doctorFeeRepository;
+        private readonly IRepository<DoctorSchedule> _doctorScheduleRepository;
         //private readonly IRepository<DoctorScheduleDaySession> _doctorScheduleSessionRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
 
-        public DoctorFeeSetupService(IRepository<DoctorFeesSetup> doctorFeeRepository, IUnitOfWorkManager unitOfWorkManager)
+        public DoctorFeeSetupService(IRepository<DoctorFeesSetup> doctorFeeRepository, IRepository<DoctorSchedule> doctorScheduleRepository, IUnitOfWorkManager unitOfWorkManager)
         {
             _doctorFeeRepository = doctorFeeRepository;
+            _doctorScheduleRepository = doctorScheduleRepository;
             _unitOfWorkManager = unitOfWorkManager;
         }
 
@@ -115,14 +117,20 @@ namespace SoowGoodWeb.Services
             var result = new DoctorFeesSetupDto();
             try
             {
-                var isFeesExist = await _doctorFeeRepository.GetAsync(f => f.AppointmentType == input.AppointmentType && f.DoctorScheduleId == input.DoctorScheduleId);
+                //var isFeesExist = await _doctorFeeRepository.GetAsync(f => f.AppointmentType == input.AppointmentType && f.DoctorScheduleId == input.DoctorScheduleId);
+                var schedules = await _doctorScheduleRepository.WithDetailsAsync(c => c.DoctorChamber);
+                var schedule = schedules.Where(s=>s.Id == input.DoctorScheduleId).FirstOrDefault();
+                var allFees = await _doctorFeeRepository.WithDetailsAsync();
+                var isFeesExist = allFees.Where(f => f.AppointmentType == input.AppointmentType && f.DoctorScheduleId == input.DoctorScheduleId).FirstOrDefault();
                 if (isFeesExist == null)
                 {
                     var newEntity = ObjectMapper.Map<DoctorFeesSetupInputDto, DoctorFeesSetup>(input);
 
                     var doctorSchedule = await _doctorFeeRepository.InsertAsync(newEntity);
+                    
                     await _unitOfWorkManager.Current.SaveChangesAsync();
                     result = ObjectMapper.Map<DoctorFeesSetup, DoctorFeesSetupDto>(doctorSchedule);
+                    result.DoctorSchedule = ((ConsultancyType)schedule?.ConsultancyType!).ToString() + '_' +  schedule?.DoctorChamber.ChamberName;
                     result.ResponseSuccess = true;
                     result.ResponseMessage = "Fee successfully inserted.";
                     return result;

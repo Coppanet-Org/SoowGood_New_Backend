@@ -29,6 +29,14 @@
     <Compile Remove="Migrations\20231010063015_Prescription_DrugDetails_table_Drugdetails_col_updated.Designer.cs" />
     <Compile Remove="Migrations\20231010110309_AllDrugsAndPrescriptonDatabase_create.cs" />
     <Compile Remove="Migrations\20231010110309_AllDrugsAndPrescriptonDatabase_create.Designer.cs" />
+    <Compile Remove="Migrations\20231017114614_presc_drug_disease_table_constraint_removed.cs" />
+    <Compile Remove="Migrations\20231017114614_presc_drug_disease_table_constraint_removed.Designer.cs" />
+    <Compile Remove="Migrations\20231018075700_appointment_table_correction_with_Prescription_master.cs" />
+    <Compile Remove="Migrations\20231018075700_appointment_table_correction_with_Prescription_master.Designer.cs" />
+    <Compile Remove="Migrations\20231018080943_prescription_master_appcode.cs" />
+    <Compile Remove="Migrations\20231018080943_prescription_master_appcode.Designer.cs" />
+    <Compile Remove="Migrations\20231018101207_prescription_master_updated_with_Patient_info.cs" />
+    <Compile Remove="Migrations\20231018101207_prescription_master_updated_with_Patient_info.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

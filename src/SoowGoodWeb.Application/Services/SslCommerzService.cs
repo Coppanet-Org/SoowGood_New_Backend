@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Uow;
 using SoowGoodWeb.Enums;
+using System.Transactions;
 
 namespace SoowGoodWeb.Services
 {
@@ -332,8 +333,10 @@ namespace SoowGoodWeb.Services
         {
             try
             {
-                var appointment = await _appointmentRepository.GetAsync(a => a.AppointmentCode == appCode);
-                var transactions = await _paymentHistoryRepository.GetAsync(p=>p.application_code == appCode);
+                var allAppointment = await _appointmentRepository.WithDetailsAsync();
+                var appointment = allAppointment.Where(a => a.AppointmentCode == appCode).FirstOrDefault();
+                var allTransactions = await _paymentHistoryRepository.WithDetailsAsync();
+                var transactions = allTransactions.Where(p => p.application_code == appCode).FirstOrDefault();
                 if (appointment != null && appointment.AppointmentStatus != AppointmentStatus.Confirmed) //&& app.AppointmentStatus != AppointmentStatus.Confirmed)
                 {
                     appointment.AppointmentStatus = AppointmentStatus.Confirmed;

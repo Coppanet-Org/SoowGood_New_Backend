@@ -24,6 +24,100 @@ namespace SoowGoodWeb.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("SoowGoodWeb.Models.AgentMaster", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AgentMasterCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("AgentMasterDocExpireDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("AgentMasterDocNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AgentMasterOrgName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ContactPerson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ContactPersonIdentityNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ContactPersonOfficeId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ContactPersongMobileNo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmergencyContact")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("PhoneNo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ZipCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SgAgentMasters");
+                });
+
             modelBuilder.Entity("SoowGoodWeb.Models.AgentProfile", b =>
                 {
                     b.Property<long>("Id")
@@ -37,6 +131,18 @@ namespace SoowGoodWeb.Migrations
 
                     b.Property<string>("AgentCode")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("AgentDocExpireDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("AgentDocNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("AgentMasterId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("AgentSupervisorId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("City")
                         .HasColumnType("nvarchar(max)");
@@ -103,7 +209,107 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgAgentProfiles", (string)null);
+                    b.HasIndex("AgentMasterId");
+
+                    b.HasIndex("AgentSupervisorId");
+
+                    b.ToTable("SgAgentProfiles");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.AgentSupervisor", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("AgentMasterId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("AgentSupervisorCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("AgentSupervisorDocExpireDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("AgentSupervisorDocNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AgentSupervisorOrgName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmergencyContact")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("PhoneNo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SupervisorIdentityNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SupervisorMobileNo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SupervisorName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ZipCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgentMasterId");
+
+                    b.ToTable("SgAgentSupervisors");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Appointment", b =>
@@ -232,7 +438,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("DoctorScheduleId");
 
-                    b.ToTable("SgAppointments", (string)null);
+                    b.ToTable("SgAppointments");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.CommonDisease", b =>
@@ -284,7 +490,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgCommonDiseases", (string)null);
+                    b.ToTable("SgCommonDiseases");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Degree", b =>
@@ -333,7 +539,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgDegrees", (string)null);
+                    b.ToTable("SgDegrees");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorChamber", b =>
@@ -396,7 +602,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("DoctorProfileId");
 
-                    b.ToTable("SgDoctorChambers", (string)null);
+                    b.ToTable("SgDoctorChambers");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorDegree", b =>
@@ -470,7 +676,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("DoctorProfileId");
 
-                    b.ToTable("SgDoctorDegrees", (string)null);
+                    b.ToTable("SgDoctorDegrees");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorFeesSetup", b =>
@@ -551,7 +757,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("DoctorScheduleId");
 
-                    b.ToTable("SgDoctorFees", (string)null);
+                    b.ToTable("SgDoctorFees");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorProfile", b =>
@@ -671,7 +877,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("SpecialityId");
 
-                    b.ToTable("SgDoctorProfiles", (string)null);
+                    b.ToTable("SgDoctorProfiles");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorSchedule", b =>
@@ -742,7 +948,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("DoctorProfileId");
 
-                    b.ToTable("SgDoctorSchedules", (string)null);
+                    b.ToTable("SgDoctorSchedules");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorScheduleDaySession", b =>
@@ -805,7 +1011,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("DoctorScheduleId");
 
-                    b.ToTable("SgDoctorScheduleDaySessions", (string)null);
+                    b.ToTable("SgDoctorScheduleDaySessions");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorScheduledDayOff", b =>
@@ -859,7 +1065,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("DoctorScheduleId");
 
-                    b.ToTable("SgDoctorScheduledDayOffs", (string)null);
+                    b.ToTable("SgDoctorScheduledDayOffs");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorSpecialization", b =>
@@ -920,7 +1126,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("SpecializationId");
 
-                    b.ToTable("SgDoctorSpecializations", (string)null);
+                    b.ToTable("SgDoctorSpecializations");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DocumentsAttachment", b =>
@@ -984,7 +1190,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgDocumentsAttachments", (string)null);
+                    b.ToTable("SgDocumentsAttachments");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DrugRx", b =>
@@ -1066,7 +1272,73 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgDrugRx", (string)null);
+                    b.ToTable("SgDrugRx");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.FinancialSetup", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal?>("Amount")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<string>("AmountIn")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<decimal?>("ExternalAmount")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<string>("ExternalAmountIn")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("IsActivie")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<long?>("PlatformFacilityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal?>("ProviderAmount")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlatformFacilityId");
+
+                    b.ToTable("SgFinancialSetups");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Otp", b =>
@@ -1124,7 +1396,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgOtps", (string)null);
+                    b.ToTable("SgOtps");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.PatientProfile", b =>
@@ -1227,7 +1499,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgPatientProfiles", (string)null);
+                    b.ToTable("SgPatientProfiles");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.PaymentHistory", b =>
@@ -1384,7 +1656,56 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgPaymentHistory", (string)null);
+                    b.ToTable("SgPaymentHistory");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.PlatformFacility", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("ServiceName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SgPlatformFacilities");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.PrescriptionDrugDetails", b =>
@@ -1453,7 +1774,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("PrescriptionMasterId");
 
-                    b.ToTable("SgPrescriptionDrugDetails", (string)null);
+                    b.ToTable("SgPrescriptionDrugDetails");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.PrescriptionFindingsObservations", b =>
@@ -1507,7 +1828,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("PrescriptionMasterId");
 
-                    b.ToTable("SgPrescriptionFindingsObservations", (string)null);
+                    b.ToTable("SgPrescriptionFindingsObservations");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.PrescriptionMainComplaint", b =>
@@ -1570,7 +1891,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("PrescriptionMasterId");
 
-                    b.ToTable("SgPrescriptionMainComplaints", (string)null);
+                    b.ToTable("SgPrescriptionMainComplaints");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.PrescriptionMaster", b =>
@@ -1672,7 +1993,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("AppointmentId");
 
-                    b.ToTable("SgPrescriptionMaster", (string)null);
+                    b.ToTable("SgPrescriptionMaster");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.PrescriptionMedicalCheckups", b =>
@@ -1726,7 +2047,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("PrescriptionMasterId");
 
-                    b.ToTable("SgPrescriptionMedicalCheckups", (string)null);
+                    b.ToTable("SgPrescriptionMedicalCheckups");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.PrescriptionPatientDiseaseHistory", b =>
@@ -1783,7 +2104,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("PrescriptionMasterId");
 
-                    b.ToTable("SgPrescriptionPatientDiseaseHistory", (string)null);
+                    b.ToTable("SgPrescriptionPatientDiseaseHistory");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Speciality", b =>
@@ -1832,7 +2153,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgSpecialities", (string)null);
+                    b.ToTable("SgSpecialities");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Specialization", b =>
@@ -1886,7 +2207,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("SpecialityId");
 
-                    b.ToTable("SgSpecializations", (string)null);
+                    b.ToTable("SgSpecializations");
                 });
 
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLog", b =>
@@ -3545,6 +3866,30 @@ namespace SoowGoodWeb.Migrations
                     b.ToTable("AbpTenantConnectionStrings", (string)null);
                 });
 
+            modelBuilder.Entity("SoowGoodWeb.Models.AgentProfile", b =>
+                {
+                    b.HasOne("SoowGoodWeb.Models.AgentMaster", "AgentMaster")
+                        .WithMany()
+                        .HasForeignKey("AgentMasterId");
+
+                    b.HasOne("SoowGoodWeb.Models.AgentSupervisor", "AgentSupervisor")
+                        .WithMany()
+                        .HasForeignKey("AgentSupervisorId");
+
+                    b.Navigation("AgentMaster");
+
+                    b.Navigation("AgentSupervisor");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.AgentSupervisor", b =>
+                {
+                    b.HasOne("SoowGoodWeb.Models.AgentMaster", "AgentMaster")
+                        .WithMany()
+                        .HasForeignKey("AgentMasterId");
+
+                    b.Navigation("AgentMaster");
+                });
+
             modelBuilder.Entity("SoowGoodWeb.Models.Appointment", b =>
                 {
                     b.HasOne("SoowGoodWeb.Models.DoctorSchedule", "DoctorSchedule")
@@ -3648,6 +3993,15 @@ namespace SoowGoodWeb.Migrations
                     b.Navigation("Speciality");
 
                     b.Navigation("Specialization");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.FinancialSetup", b =>
+                {
+                    b.HasOne("SoowGoodWeb.Models.PlatformFacility", "PlatformFacility")
+                        .WithMany()
+                        .HasForeignKey("PlatformFacilityId");
+
+                    b.Navigation("PlatformFacility");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.PrescriptionDrugDetails", b =>
