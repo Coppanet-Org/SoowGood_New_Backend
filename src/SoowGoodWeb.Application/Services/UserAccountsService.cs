@@ -135,8 +135,7 @@ namespace SoowGoodWeb.Services
                         UserName = newUser?.UserName,
                         RoleName = newUser?.RoleName,
                         Success = newUser.Success,
-                        Message = newUser.Message,
-
+                        Message = newUser.Message
                     };
                     return result;
                 }
