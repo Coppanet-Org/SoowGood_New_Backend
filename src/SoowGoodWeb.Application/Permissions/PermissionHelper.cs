@@ -17,8 +17,11 @@ namespace SoowGoodWeb
         //public string _clientSecret => _appConfiguration["ClientCredentials:ClientSecret"];
         //public string _scope => _appConfiguration["ClientCredentials:Scope"];
 
-        public static readonly string _authority = "https://198.38.92.117";
-        public static readonly string _identityClientUrl = "https://198.38.92.117:8443";
+        public static readonly string _authority = "https://192.168.1.105";
+        public static readonly string _identityClientUrl = "https://192.168.1.105:8443";
+
+        //public static readonly string _authority = "https://198.38.92.117";
+        //public static readonly string _identityClientUrl = "https://198.38.92.117:8443";
         //public static readonly string _authority = "https://localhost:44380";
         //public static readonly string _identityClientUrl = "https://localhost:44392";// http://idapi.mis1pwd.com";
         //public static readonly string _identityClientUrlDev = "https://localhost:44392";
