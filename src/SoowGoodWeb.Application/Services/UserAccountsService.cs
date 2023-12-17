@@ -32,7 +32,9 @@ namespace SoowGoodWeb.Services
         private readonly IdentityUserManager _userManager;
         //private readonly IdentityRoleManager _roleManager;
         //private readonly SignInManager<IdentityUser> _signInManager;
-        //private readonly IRepository<DoctorProfile> _doctorProfileRepository;
+        private readonly IRepository<DoctorProfile> _doctorProfileRepository;
+        private readonly IRepository<PatientProfile> _patientProfileRepository;
+        private readonly IRepository<AgentProfile> _agentProfileRepository;
 
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         //private readonly DoctorProfileService _doctorProfileservice;
@@ -42,14 +44,18 @@ namespace SoowGoodWeb.Services
         public UserAccountsService(IdentityUserManager userManager,
                                    //IdentityRoleManager roleManager,
                                    //SignInManager<IdentityUser> signInManager,
-                                   //IRepository<DoctorProfile> doctorProfileRepository,
+                                   IRepository<DoctorProfile> doctorProfileRepository,
+                                   IRepository<PatientProfile> patientProfileRepository,
+                                   IRepository<AgentProfile> agentProfileRepository,
                                    IUnitOfWorkManager unitOfWorkManager,
                                    IEmailSender emailSender)
         {
             _userManager = userManager;
             //_roleManager = roleManager;
             //_signInManager = signInManager;
-            //_doctorProfileRepository = doctorProfileRepository;
+            _doctorProfileRepository = doctorProfileRepository;
+            _patientProfileRepository = patientProfileRepository;
+            _agentProfileRepository = agentProfileRepository;
             _unitOfWorkManager = unitOfWorkManager;
             _emailSender = emailSender;
             //_doctorProfileservice = new DoctorProfileService(_doctorProfileRepository, _unitOfWorkManager);
@@ -64,80 +70,6 @@ namespace SoowGoodWeb.Services
             {
                 //return null;
             }
-        // POST /api/account/reset-password
-        public async Task<ResetPasswordResponseDto> ResetPassword(ResetPasswordInputDto inputDto)
-        {
-            ResetPasswordResponseDto result = new ResetPasswordResponseDto();
-            try
-            {
-                var mainUser = await _userManager.FindByNameAsync(inputDto.UserId);
-                if (mainUser != null)
-                {
-                    string userId = mainUser.Id.ToString();
-                    if (!string.IsNullOrEmpty(userId))
-                    {
-                        var user = await _userManager.FindByIdAsync(userId);
-                        if (user != null)
-                        {
-                            var removePwd = await _userManager.RemovePasswordAsync(user);
-                            if (removePwd.Succeeded)
-                            {
-                                var addnewPwd = await _userManager.AddPasswordAsync(user, inputDto.NewPassword);
-                                if (addnewPwd.Succeeded)
-                                {
-                                    var updateUser = await _userManager.UpdateAsync(user);
-                                    if (updateUser.Succeeded)
-                                    {
-                                        result.UserName = inputDto.UserId.ToString();
-                                        result.Name = user.Name;
-                                        result.Success = true;
-                                        result.Message = "Dear Mr. " + user.Name + ",Your Password Updated Successfully at SoowGood.com. You can login now with your new password.";
-
-                                    }
-                                    else // if (updateUser.Errors.Count() > 0)
-                                    {
-
-                                        result.Success = false;
-                                        foreach (var error in updateUser.Errors)
-                                        {
-                                            result.Message = "Password Reset Failed for. " + error;
-                                        }
-                                    }
-                                }
-                                else //if (addnewPwd.Errors.Count() > 0)
-                                {
-
-                                    result.Success = false;
-                                    foreach (var error in addnewPwd.Errors)
-                                    {
-                                        result.Message = "Password Reset Failed for. " + error;
-                                    }
-                                }
-                            }
-                            else //if (removePwd.Errors.Count() > 0)
-                            {
-
-                                result.Success = false;
-                                foreach (var error in removePwd.Errors)
-                                {
-                                    result.Message = "Password Reset Failed for. " + error;
-                                }
-                            }
-                        }
-                        else //if (removePwd.Errors.Count() > 0)
-                        {
-                            result.Success = false;
-                            result.Message = "User not found !!!";
-                        }
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                throw new UserFriendlyException("Password reset not successfull.");
-            }
-            return result;
-        }
 
             // Request Token
             var tokenResponse = await authority.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
@@ -288,23 +220,121 @@ namespace SoowGoodWeb.Services
                 }
             }
             return result;
-        }        
+        }
 
+        //[AllowAnonymous]
+        public virtual async Task<ResetPasswordResponseDto> ResetPassword(ResetPasswordInputDto inputDto)
+        {
+            ResetPasswordResponseDto result = new ResetPasswordResponseDto();
+            using (var client = new HttpClient())
+            {
+                var tokenResponse = await GetToken();
+                client.BaseAddress = new Uri(authClientUrl);
+                client.SetBearerToken(tokenResponse.AccessToken);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                //GET Method
 
-        //            }
-        //            else
-        //            {
-        //                Console.WriteLine("Internal server Error");
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            Console.WriteLine(ex.Message);
-        //        }
-        //    }
-        //    return null;
-        //}
+                var update = JsonSerializer.Serialize(inputDto);
+                var requestContent = new StringContent(update, Encoding.UTF8, "application/json");
+                HttpResponseMessage response =
+                    await client.PostAsync(($"api/app/account/reset-password"), requestContent);
+                if (response.IsSuccessStatusCode)
+                {
+                    var newUserString = await response.Content.ReadAsStringAsync();
+                    var newUser = JsonConvert.DeserializeObject<ResetPasswordResponseDto>(newUserString);
 
+                    result = new ResetPasswordResponseDto()
+                    {
+                        //UserId = newUser?.UserId,
+                        UserName = newUser?.UserName,
+                        Name = newUser?.Name,
+                        //Email = newUser?.Email,
+                        //PhoneNumber = newUser?.PhoneNumber,
+                        Success = newUser?.Success,
+                        Message = newUser?.Message//.ToList(),
+
+                    };
+                    return result;
+
+                }
+            }
+            return result;
+        }
+        // POST /api/account/reset-password
+        public async Task<ResetPasswordResponseDto> ResetPassword_App(ResetPasswordInputDto inputDto)
+        {
+            ResetPasswordResponseDto result = new ResetPasswordResponseDto();
+            try
+            {
+                var mainUser = await _userManager.FindByNameAsync(inputDto.UserId);
+                if (mainUser != null)
+                {
+                    string userId = mainUser.Id.ToString();
+                    if (!string.IsNullOrEmpty(userId))
+                    {
+                        var user = await _userManager.FindByIdAsync(userId);
+                        if (user != null)
+                        {
+                            var removePwd = await _userManager.RemovePasswordAsync(user);
+                            if (removePwd.Succeeded)
+                            {
+                                var addnewPwd = await _userManager.AddPasswordAsync(user, inputDto.NewPassword);
+                                if (addnewPwd.Succeeded)
+                                {
+                                    var updateUser = await _userManager.UpdateAsync(user);
+                                    if (updateUser.Succeeded)
+                                    {
+                                        result.UserName = inputDto.UserId.ToString();
+                                        result.Name = user.Name;
+                                        result.Success = true;
+                                        result.Message = "Dear Mr. " + user.Name + ",Your Password Updated Successfully at SoowGood.com. You can login now with your new password.";
+
+                                    }
+                                    else // if (updateUser.Errors.Count() > 0)
+                                    {
+
+                                        result.Success = false;
+                                        foreach (var error in updateUser.Errors)
+                                        {
+                                            result.Message = "Password Reset Failed for. " + error;
+                                        }
+                                    }
+                                }
+                                else //if (addnewPwd.Errors.Count() > 0)
+                                {
+
+                                    result.Success = false;
+                                    foreach (var error in addnewPwd.Errors)
+                                    {
+                                        result.Message = "Password Reset Failed for. " + error;
+                                    }
+                                }
+                            }
+                            else //if (removePwd.Errors.Count() > 0)
+                            {
+
+                                result.Success = false;
+                                foreach (var error in removePwd.Errors)
+                                {
+                                    result.Message = "Password Reset Failed for. " + error;
+                                }
+                            }
+                        }
+                        else //if (removePwd.Errors.Count() > 0)
+                        {
+                            result.Success = false;
+                            result.Message = "User not found !!!";
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw new UserFriendlyException("Password reset not successfull.");
+            }
+            return result;
+        }
         public async Task<bool> IsUserExists(string userName)
         {
 
