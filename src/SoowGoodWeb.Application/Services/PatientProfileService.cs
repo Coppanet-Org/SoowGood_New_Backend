@@ -137,11 +137,11 @@ namespace SoowGoodWeb.Services
                 //input.FullName = itemPatient.FullName;
                 //input.DateOfBirth = itemPatient.DateOfBirth;
                 //input.Gender = itemPatient.Gender;
-                //input.Age = itemPatient.Age;
+                input.Age = itemPatient.Age;
                 //input.Email = itemPatient.Email;
                 //input.Address = itemPatient.Address;
                 //input.MobileNo = itemPatient.MobileNo;
-                //input.BloodGroup = itemPatient.BloodGroup;
+                input.BloodGroup = itemPatient.BloodGroup;
                 //input.City = itemPatient.City;
                 //input.Country = itemPatient.Country;
                 //input.ZipCode = itemPatient.ZipCode;
