@@ -79,7 +79,7 @@ namespace SoowGoodWeb.Services
                         slots = list.ToArray();
                     }
 
-                    lastSerial =  await GetAppCountByScheduleIdSessionIdAsync(input.DoctorScheduleId, input.DoctorScheduleDaySessionId);
+                    lastSerial = await GetAppCountByScheduleIdSessionIdAsync(input.DoctorScheduleId, input.DoctorScheduleDaySessionId);
 
 
                     for (long i = lastSerial; i < mainSession.NoOfPatients; ++i)
@@ -91,11 +91,11 @@ namespace SoowGoodWeb.Services
                     consultencyType = (input.ConsultancyType > 0 ? (ConsultancyType)input.ConsultancyType : 0).ToString();
                     input.AppointmentSerial = (lastSerial + 1).ToString();
                     input.AppointmentCode = input.DoctorCode + input.AppointmentDate?.ToString("yyyyMMdd") + consultencyType + "SL00" + input.AppointmentSerial;
-                }
+                } 
                 else
                 {
-                    input.ConsultancyType=ConsultancyType.OnlineRT;
-                    input.AppointmentDate=DateTime.Today;
+                    input.ConsultancyType = ConsultancyType.OnlineRT;
+                    input.AppointmentDate = DateTime.Today;
                     input.AppointmentTime = DateTime.Now.ToString("HH:mm");
                     input.AppointmentType = AppointmentType.New;
                     lastSerial = await GetAppCountByRealTimeConsultancyAsync(input.AppointmentDate);
@@ -187,7 +187,7 @@ namespace SoowGoodWeb.Services
             CultureInfo provider = CultureInfo.InvariantCulture;
             try
             {
-                if (dataFilter?.toDate == "Invalid Date")
+                if (dataFilter?.toDate == null || dataFilter?.toDate == "Invalid Date")
                 {
                     dataFilter.toDate = dataFilter.fromDate;
                 }
@@ -196,7 +196,7 @@ namespace SoowGoodWeb.Services
 
                 if (!string.IsNullOrEmpty(dataFilter.name))
                 {
-                    appointments = appointments.Where(p => p.PatientName.Contains(dataFilter.name)).ToList();
+                    appointments = appointments.Where(p => p.PatientName.ToLower().Contains(dataFilter.name.ToLower().Trim())).ToList();
                 }
 
                 if (dataFilter.consultancyType > 0 || dataFilter.appointmentStatus > 0
@@ -276,7 +276,8 @@ namespace SoowGoodWeb.Services
 
                 if (!string.IsNullOrEmpty(dataFilter.name))
                 {
-                    appointments = appointments.Where(p => p.DoctorName.Contains(dataFilter.name)).ToList();
+                    //appointments = appointments.Where(p => p.DoctorName.Contains(dataFilter.name)).ToList();
+                    appointments = appointments.Where(p => p.DoctorName.ToLower().Contains(dataFilter.name.ToLower().Trim())).ToList();
                 }
                 if (dataFilter.consultancyType > 0 || dataFilter.appointmentStatus > 0
                     || (!string.IsNullOrEmpty(dataFilter.fromDate) && !string.IsNullOrEmpty(dataFilter.toDate)))
@@ -370,7 +371,7 @@ namespace SoowGoodWeb.Services
                     ConsultancyType = item.ConsultancyType,
                     ConsultancyTypeName = item.ConsultancyType > 0 ? ((ConsultancyType)item.ConsultancyType).ToString() : "n/a",
                     DoctorChamberId = item.DoctorChamberId,
-                    DoctorChamberName = item.DoctorSchedule.DoctorChamber.ChamberName,
+                    DoctorChamberName = item.DoctorChamberId > 0 ? item.DoctorSchedule.DoctorChamber.ChamberName : "n/a",
                     DoctorFee = item.DoctorFee,
                     PatientLocation = patientDetails?.City?.ToString(),
                     DoctorScheduleDaySessionId = item.DoctorScheduleDaySessionId,

@@ -27,6 +27,9 @@ namespace SoowGoodWeb.Services
         }
         public async Task<AgentProfileDto> CreateAsync(AgentProfileInputDto input)
         {
+            var totalAgentMaters = await _agentProfileRepository.GetListAsync();
+            var count = totalAgentMaters.Count();
+            input.AgentCode = "SGAG00" + (count + 1);
             var newEntity = ObjectMapper.Map<AgentProfileInputDto, AgentProfile>(input);
 
             var agentProfile = await _agentProfileRepository.InsertAsync(newEntity);

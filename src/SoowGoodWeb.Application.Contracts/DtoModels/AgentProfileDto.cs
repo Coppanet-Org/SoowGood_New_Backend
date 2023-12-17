@@ -8,6 +8,10 @@ namespace SoowGoodWeb.DtoModels
 {
     public class AgentProfileDto : FullAuditedEntityDto<long>
     {
+        public long? AgentMasterId { get; set; }
+        public string? AgentMasterName { get; set; }
+        public long? AgentSupervisorId { get; set; }
+        public string? AgentSupervisorName { get; set; }
         public string? FullName { get; set; }
         public string? AgentCode { get; set; }
         public string? OrganizationName { get; set; }
@@ -21,5 +25,8 @@ namespace SoowGoodWeb.DtoModels
         public Guid? UserId { get; set; }
         public int? profileStep { get; set; }
         public string? createFrom { get; set; }
+
+        public string? AgentDocNumber { get; set; } //BIN, TIN, TL Etc
+        public DateTime? AgentDocExpireDate { get; set; }
     }
 }
