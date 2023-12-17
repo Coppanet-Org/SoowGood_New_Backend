@@ -187,7 +187,7 @@ namespace SoowGoodWeb.Services
             CultureInfo provider = CultureInfo.InvariantCulture;
             try
             {
-                if (dataFilter?.toDate == "Invalid Date")
+                if (dataFilter?.toDate == null || dataFilter?.toDate == "Invalid Date")
                 {
                     dataFilter.toDate = dataFilter.fromDate;
                 }
@@ -196,7 +196,7 @@ namespace SoowGoodWeb.Services
 
                 if (!string.IsNullOrEmpty(dataFilter.name))
                 {
-                    appointments = appointments.Where(p => p.PatientName.Contains(dataFilter.name)).ToList();
+                    appointments = appointments.Where(p => p.PatientName.ToLower().Contains(dataFilter.name.ToLower().Trim())).ToList();
                 }
 
                 if (dataFilter.consultancyType > 0 || dataFilter.appointmentStatus > 0
@@ -276,7 +276,8 @@ namespace SoowGoodWeb.Services
 
                 if (!string.IsNullOrEmpty(dataFilter.name))
                 {
-                    appointments = appointments.Where(p => p.DoctorName.Contains(dataFilter.name)).ToList();
+                    //appointments = appointments.Where(p => p.DoctorName.Contains(dataFilter.name)).ToList();
+                    appointments = appointments.Where(p => p.DoctorName.ToLower().Contains(dataFilter.name.ToLower().Trim())).ToList();
                 }
                 if (dataFilter.consultancyType > 0 || dataFilter.appointmentStatus > 0
                     || (!string.IsNullOrEmpty(dataFilter.fromDate) && !string.IsNullOrEmpty(dataFilter.toDate)))
