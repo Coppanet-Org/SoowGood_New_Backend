@@ -130,7 +130,7 @@ namespace SoowGoodWeb.Services
             try
             {
                 var itemPatient = await _patientRepository.FindAsync(input.Id);
-                itemPatient.IsSelf = input.IsSelf;
+               // itemPatient.IsSelf = input.IsSelf;
                 itemPatient.FullName = !string.IsNullOrEmpty(itemPatient.FullName) ? itemPatient.FullName : input.FullName;
                 itemPatient.PatientName = !string.IsNullOrEmpty(itemPatient.PatientName) ? itemPatient.PatientName : input.PatientName;
                 itemPatient.PatientEmail = !string.IsNullOrEmpty(itemPatient.PatientEmail) ? itemPatient.PatientEmail : input.PatientEmail;
