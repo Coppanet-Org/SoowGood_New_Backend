@@ -15,7 +15,7 @@ namespace SoowGoodWeb
 
         //public string _clientId => _appConfiguration["ClientCredentials:ClientId"]; 
         //public string _clientSecret => _appConfiguration["ClientCredentials:ClientSecret"];
-        //public string _scope => _appConfiguration["ClientCredentials:Scope"];
+        //public string _scope => _appConfiguration["ClientCredentials:Scope"]; 
 
         public static readonly string _authority = "https://192.168.1.105";
         public static readonly string _identityClientUrl = "https://192.168.1.105:8443";
