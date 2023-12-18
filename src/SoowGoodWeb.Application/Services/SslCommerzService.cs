@@ -70,15 +70,15 @@ namespace SoowGoodWeb.Services
             });
         }
 
-        public async Task InitPaymentHistoryFromMobile(SslCommerzInputDto input, SSLCommerzInitResponse initResponse)
+        public async Task InitPaymentHistoryFromMobile(PaymentHistoryMobileInputDto input)
         {
             await _paymentHistoryService.CreateAsync(new PaymentHistoryInputDto
             {
                 amount = input.TotalAmount,
-                status = initResponse.status,
+                status = input.Status,
                 tran_id = input.TransactionId,
-                sessionkey = initResponse.sessionkey,
-                failedreason = initResponse.failedreason,
+                sessionkey = input.SessionKey,
+                failedreason = input.FailedReason,
                 application_code = input.ApplicationCode
             });
         }
