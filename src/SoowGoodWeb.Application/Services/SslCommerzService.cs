@@ -70,6 +70,19 @@ namespace SoowGoodWeb.Services
             });
         }
 
+        public async Task InitPaymentHistoryFromMobile(PaymentHistoryMobileInputDto input)
+        {
+            await _paymentHistoryService.CreateAsync(new PaymentHistoryInputDto
+            {
+                amount = input.TotalAmount,
+                status = input.Status,
+                tran_id = input.TransactionId,
+                sessionkey = input.SessionKey,
+                failedreason = input.FailedReason,
+                application_code = input.ApplicationCode
+            });
+        }
+
         //[HttpGet]
         public async Task<TransactionValidationDto> ValidateTransactionAsync(Dictionary<string, string> responseDic)
         {
