@@ -53,7 +53,7 @@ namespace SoowGoodWeb.Enums
         DoctIdentityDoc = 3,
         DoctorSpecialityDoc = 4,
         Prescription = 5,
-        PatientLabreport = 6,
+        PatientPreviousDocuments = 6,
     }
 
     public enum ScheduleType
