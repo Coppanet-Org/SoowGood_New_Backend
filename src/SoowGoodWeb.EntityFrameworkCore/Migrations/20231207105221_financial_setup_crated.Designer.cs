@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231207105221_financial_setup_crated")]
+    partial class financial_setup_crated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1328,11 +1331,11 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<long?>("PlatformFacilityId")
+                    b.Property<long?>("PlatformFacilitiesId")
                         .HasColumnType("bigint");
 
-                    b.Property<decimal?>("ProviderAmount")
-                        .HasColumnType("decimal(18, 2)");
+                    b.Property<long?>("PlatformFacilityId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 

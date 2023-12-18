@@ -173,12 +173,12 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<AgentSupervisorDto, AgentSupervisor>();
         CreateMap<AgentSupervisorInputDto, AgentSupervisor>();
 
-        CreateMap<PlatformService, PlatformServiceDto>();
-        CreateMap<PlatformServiceDto, PlatformService>();
-        CreateMap <PlatformServiceInputDto, PlatformService>();
+        CreateMap<PlatformFacility, PlatformFacilityDto>();
+        CreateMap<PlatformFacilityDto, PlatformFacility>();
+        CreateMap<PlatformFacilityInputDto, PlatformFacility>();
 
-        CreateMap<PlatformFinancialSetup, PlatformFinancialSetupDto>();
-        CreateMap<PlatformFinancialSetupDto, PlatformFinancialSetup>();
-        CreateMap<PlatformFinancialSetupInputDto, PlatformFinancialSetup>();
+        CreateMap<FinancialSetup, FinancialSetupDto>();
+        CreateMap<FinancialSetupDto, FinancialSetup>();
+        CreateMap<FinancialSetupInputDto, FinancialSetup>();
     }
 }

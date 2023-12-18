@@ -26,5 +26,6 @@ namespace SoowGoodWeb.DtoModels
         public AppointmentStatus? appointmentStatus { get; set; }
         public string? fromDate { get; set; }
         public string? toDate { get; set; }
+        public bool? isCurrentOnline { get; set; }
     }
 }
