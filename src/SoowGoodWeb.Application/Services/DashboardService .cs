@@ -445,12 +445,12 @@ namespace SoowGoodWeb.Services
         //    var appCount = appointments.Count();
         //    return appCount;
         //}
-        public async Task<DashboardDto> GetDashboadDataForDoctorAsync(long patientId)
+        public async Task<DashboardDto> GetDashboadDataForDoctorAsync(long doctorid)
         {
             var result=new DashboardDto();
             decimal? totalFees = 0;
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-            var appointments = item.Where(d => d.DoctorProfileId == patientId).ToList();
+            var appointments = item.Where(d => d.DoctorProfileId == doctorid).ToList();
             var patients = (from t1 in appointments
                               select t1.PatientProfileId).Distinct().ToList();
             result.totalAppointment = appointments.Count;
@@ -487,6 +487,12 @@ namespace SoowGoodWeb.Services
                     appointments = appointments.Where(p => (p.AppointmentDate.Value.Date < DateTime.Now.Date)).ToList();
                 }
 
+                else if (day == "Upcomming")
+                {
+                    appointments = appointments.Where(p => (p.AppointmentDate.Value.Date > DateTime.Now.Date)).ToList();
+                }
+
+
                 return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
             }
             catch (Exception ex)
@@ -496,12 +502,12 @@ namespace SoowGoodWeb.Services
 
         }
 
-        public async Task<DashboardDto> GetDashboadDataForPatientAsync(long doctorId)
+        public async Task<DashboardDto> GetDashboadDataForPatientAsync(long patientId)
         {
             var result = new DashboardDto();
             decimal? totalFees = 0;
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-            var appointments = item.Where(d => d.DoctorProfileId == doctorId).ToList();
+            var appointments = item.Where(d => d.PatientProfileId == patientId).ToList();
             var patients = (from t1 in appointments
                             select t1.PatientProfileId).Distinct().ToList();
             result.totalAppointment = appointments.Count;
@@ -514,7 +520,7 @@ namespace SoowGoodWeb.Services
             return result;
         }
 
-        public async Task<List<AppointmentDto>> GetDashboardAppointmentListForPatientAsync(long doctorId, string day)
+        public async Task<List<AppointmentDto>> GetDashboardAppointmentListForPatientAsync(long patientId, string day)
         {
             CultureInfo provider = CultureInfo.InvariantCulture;
             try
@@ -524,7 +530,7 @@ namespace SoowGoodWeb.Services
                 //    dataFilter.toDate = dataFilter.fromDate;
                 //}
                 var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-                var appointments = item.Where(d => d.DoctorProfileId == doctorId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+                var appointments = item.Where(d => d.PatientProfileId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
 
 
 
