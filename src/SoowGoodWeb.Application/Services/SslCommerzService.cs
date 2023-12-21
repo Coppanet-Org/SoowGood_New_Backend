@@ -346,28 +346,42 @@ namespace SoowGoodWeb.Services
             };
         }
 
-        public async Task UpdateAppointmentPaymentStatusAsync(string appCode)
+        public async Task<string> UpdateAppointmentPaymentStatusAsync(string appCode, int sts)
         {
+            var result = "";
             try
             {
                 var allAppointment = await _appointmentRepository.WithDetailsAsync();
                 var appointment = allAppointment.Where(a => a.AppointmentCode == appCode).FirstOrDefault();
                 var allTransactions = await _paymentHistoryRepository.WithDetailsAsync();
                 var transactions = allTransactions.Where(p => p.application_code == appCode).FirstOrDefault();
+                
                 if (appointment != null && appointment.AppointmentStatus != AppointmentStatus.Confirmed) //&& app.AppointmentStatus != AppointmentStatus.Confirmed)
                 {
+                    if(sts ==1)
+                    { 
                     appointment.AppointmentStatus = AppointmentStatus.Confirmed;
                     appointment.PaymentTransactionId = transactions.tran_id;
                     appointment.AppointmentPaymentStatus = AppointmentPaymentStatus.Paid;
                     //app.FeePaid = string.IsNullOrWhiteSpace(paid_amount) ? 0 : double.Parse(paid_amount);
 
+                    }
+                    else
+                    {
+                        appointment.AppointmentStatus = AppointmentStatus.Failed;
+                        appointment.PaymentTransactionId = transactions.tran_id;
+                        appointment.AppointmentPaymentStatus = AppointmentPaymentStatus.FailedOrCancelled;
+
+                        //app.FeePaid = string.IsNullOrWhiteSpace(paid_amount) ? 0 : double.Parse(paid_amount);                    
+                    }
                     await _appointmentRepository.UpdateAsync(appointment);
 
+                    result = "Appointmnet and Payment Operation Completed.";
                     //await SendNotification(application_code, applicant.Applicant.Mobile);
                 }
             }
             catch (Exception ex) { }
-
+            return result;
         }
     }
 }
