@@ -12,6 +12,7 @@ using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Uow;
 using SoowGoodWeb.Enums;
 using System.Transactions;
+using Volo.Abp.ObjectMapping;
 
 namespace SoowGoodWeb.Services
 {
@@ -70,17 +71,20 @@ namespace SoowGoodWeb.Services
             });
         }
 
-        public async Task InitPaymentHistoryFromMobile(PaymentHistoryMobileInputDto input)
+        public async Task<PaymentHistoryDto> InitPaymentHistoryFromMobile(PaymentHistoryMobileInputDto input)
         {
-            await _paymentHistoryService.CreateAsync(new PaymentHistoryInputDto
-            {
-                amount = input.TotalAmount,
-                status = input.Status,
-                tran_id = input.TransactionId,
-                sessionkey = input.SessionKey,
-                failedreason = input.FailedReason,
-                application_code = input.ApplicationCode
-            });
+            var inputPh = new PaymentHistoryInputDto();
+            inputPh.application_code = input.ApplicationCode;
+            inputPh.tran_id = input.TransactionId;
+            inputPh.amount=input.TotalAmount;
+            inputPh.status = input.Status;
+            inputPh.sessionkey = input.SessionKey;
+            inputPh.failedreason = input.FailedReason;
+            var newEntity = ObjectMapper.Map<PaymentHistoryInputDto, PaymentHistory>(inputPh);
+
+            var paymentHistory = await _paymentHistoryRepository.InsertAsync(newEntity);
+
+            return ObjectMapper.Map<PaymentHistory, PaymentHistoryDto>(paymentHistory);
         }
 
         //[HttpGet]
