@@ -536,5 +536,36 @@ namespace SoowGoodWeb.Services
             return appCount;
         }
 
+        public async Task<ResponseDto> CancellAppointmentAsync(long appId, long cancelByid, string cancelByRole)
+        {
+            var response = new ResponseDto();
+            try
+            {
+                var itemAppointment = await _appointmentRepository.GetAsync(a => a.Id == appId);//.FindAsync(input.Id);
+                itemAppointment.AppointmentStatus = AppointmentStatus.Cancelled;
+                itemAppointment.CancelledByEntityId = cancelByid;
+                itemAppointment.CancelledByRole = cancelByRole;
+
+
+
+                var item = await _appointmentRepository.UpdateAsync(itemAppointment);
+                //await _unitOfWorkManager.Current.SaveChangesAsync();
+                var result = ObjectMapper.Map<Appointment, AppointmentDto>(item);
+                if (result != null)
+                {
+                    response.Id = result.Id;
+                    response.Value = "";
+                    response.Success = true;
+                    response.Message = "Consultation complete";
+                }
+                return response;//ObjectMapper.Map<Appointment, AppointmentDto>(item);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            return response;
+        }
+
     }
 }
