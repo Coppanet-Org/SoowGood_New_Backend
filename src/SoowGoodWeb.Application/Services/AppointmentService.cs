@@ -272,7 +272,7 @@ namespace SoowGoodWeb.Services
                     dataFilter.toDate = dataFilter.fromDate; ;
                 }
                 var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-                var appointments = item.Where(d => d.DoctorProfileId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+                var appointments = item.Where(d => d.AppointmentCreatorId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
 
                 if (!string.IsNullOrEmpty(dataFilter.name))
                 {
@@ -309,7 +309,7 @@ namespace SoowGoodWeb.Services
                     dataFilter.toDate = dataFilter.fromDate; ;
                 }
                 var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-                var appointments = item.Where(d => d.DoctorProfileId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+                var appointments = item.Where(d => d.AppointmentCreatorId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
 
                 if (!string.IsNullOrEmpty(dataFilter.name))
                 {
