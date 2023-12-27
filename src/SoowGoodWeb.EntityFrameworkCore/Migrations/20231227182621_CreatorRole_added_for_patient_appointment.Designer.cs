@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231227182621_CreatorRole_added_for_patient_appointment")]
+    partial class CreatorRole_added_for_patient_appointment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -326,14 +329,14 @@ namespace SoowGoodWeb.Migrations
                     b.Property<string>("AppointmentCode")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("AppointmentCreatorCode")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<long?>("AppointmentCreatorCode")
+                        .HasColumnType("bigint");
 
                     b.Property<long?>("AppointmentCreatorId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("AppointmentCreatorRole")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<long?>("AppointmentCreatorRole")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("AppointmentDate")
                         .HasColumnType("datetime2");

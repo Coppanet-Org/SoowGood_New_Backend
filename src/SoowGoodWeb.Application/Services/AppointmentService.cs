@@ -255,14 +255,14 @@ namespace SoowGoodWeb.Services
 
         }
 
-        public async Task<List<AppointmentDto>> GetAppointmentListByPatientIdAsync(long patientId)
+        public async Task<List<AppointmentDto>> GetAppointmentListByPatientIdAsync(long patientId, string role)
         {
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-            var appointments = item.Where(d => d.AppointmentCreatorId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+            var appointments = item.Where(d => d.AppointmentCreatorId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed) && d.AppointmentCreatorRole == role).ToList();
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
 
-        public async Task<List<AppointmentDto>> GetAppointmentListForPatientWithSearchFilterAsync(long patientId, DataFilterModel? dataFilter, FilterModel filterModel)
+        public async Task<List<AppointmentDto>> GetAppointmentListForPatientWithSearchFilterAsync(long patientId, string role, DataFilterModel? dataFilter, FilterModel filterModel)
         {
             CultureInfo provider = CultureInfo.InvariantCulture;
             try
@@ -272,7 +272,7 @@ namespace SoowGoodWeb.Services
                     dataFilter.toDate = dataFilter.fromDate; ;
                 }
                 var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-                var appointments = item.Where(d => d.AppointmentCreatorId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+                var appointments = item.Where(d => d.AppointmentCreatorId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed) && d.AppointmentCreatorRole==role).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
 
                 if (!string.IsNullOrEmpty(dataFilter.name))
                 {
@@ -299,7 +299,7 @@ namespace SoowGoodWeb.Services
             }
 
         }
-        public async Task<int> GetAppointmentCountForPatientWithSearchFilterAsync(long patientId, DataFilterModel? dataFilter)
+        public async Task<int> GetAppointmentCountForPatientWithSearchFilterAsync(long patientId, string role, DataFilterModel? dataFilter)
         {
             CultureInfo provider = CultureInfo.InvariantCulture;
             try
@@ -309,7 +309,7 @@ namespace SoowGoodWeb.Services
                     dataFilter.toDate = dataFilter.fromDate; ;
                 }
                 var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-                var appointments = item.Where(d => d.AppointmentCreatorId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+                var appointments = item.Where(d => d.AppointmentCreatorId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed) && d.AppointmentCreatorRole == role).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
 
                 if (!string.IsNullOrEmpty(dataFilter.name))
                 {

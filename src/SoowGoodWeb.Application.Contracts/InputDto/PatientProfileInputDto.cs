@@ -25,7 +25,8 @@ namespace SoowGoodWeb.InputDto
         public string? Email { get; set; }
         public string? PatientEmail { get; set; }
         public string? CreatedBy { get; set; }
-        public string? CratorCode { get; set; }
+        public string? CreatorCode { get; set; }
+        public string? CreatorRole { get; set; }
         public long? CreatorEntityId { get; set; }
         public Guid? UserId { get; set; }
     }
