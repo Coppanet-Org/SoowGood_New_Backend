@@ -145,7 +145,7 @@ namespace SoowGoodWeb.Services
                 //input.CreatedBy = itemPatient.CreatedBy;
                 //input.CratorCode = itemPatient.CratorCode;
                 //input.CreatorEntityId = itemPatient.CreatorEntityId;
-                itemPatient.PatientCode = !string.IsNullOrEmpty(itemPatient.ZipCode) ? itemPatient.ZipCode : input.PatientCode;
+                itemPatient.PatientCode = !string.IsNullOrEmpty(itemPatient.PatientCode) ? itemPatient.PatientCode : input.PatientCode;
 
                 //var updateItem = ObjectMapper.Map<PatientProfileInputDto, PatientProfile>(input);
 

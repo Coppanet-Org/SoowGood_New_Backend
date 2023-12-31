@@ -487,7 +487,7 @@ namespace SoowGoodWeb.Services
                     appointments = appointments.Where(p => (p.AppointmentDate.Value.Date < DateTime.Now.Date)).ToList();
                 }
 
-                else if (day == "Upcomming")
+                else if (day == "Upcoming")
                 {
                     appointments = appointments.Where(p => (p.AppointmentDate.Value.Date > DateTime.Now.Date)).ToList();
                 }
