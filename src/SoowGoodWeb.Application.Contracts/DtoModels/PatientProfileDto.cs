@@ -27,6 +27,7 @@ namespace SoowGoodWeb.DtoModels
         public string? PatientEmail { get; set; }
         public string? CreatedBy { get; set; }
         public string? CratorCode { get; set; }
+        public string? CreatorRole { get; set; }
         public long? CreatorEntityId { get; set; }
         public Guid? UserId { get; set; }
         public string? ProfileRole { get; set;}

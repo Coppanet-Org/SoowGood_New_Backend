@@ -86,12 +86,15 @@ namespace SoowGoodWeb.Enums
         Confirmed = 2,
         InProgress = 3,
         Completed = 4,
-        Cancelled = 5
+        Cancelled = 5,
+        Failed = 6
     }
     public enum AppointmentPaymentStatus
     {
         Paid = 1,
-        Due = 2
+        Due = 2,
+        FailedOrCancelled=3
+
     }
 
 
