@@ -182,6 +182,7 @@ namespace SoowGoodWeb.Services
             }
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
+        
         public async Task<List<AppointmentDto>> GetAppointmentListForDoctorWithSearchFilterAsync(long doctorId, DataFilterModel? dataFilter, FilterModel filterModel)
         {
             CultureInfo provider = CultureInfo.InvariantCulture;
@@ -219,6 +220,7 @@ namespace SoowGoodWeb.Services
             }
 
         }
+        
         public async Task<int> GetAppointmentCountForDoctorWithSearchFilterAsync(long doctorId, DataFilterModel? dataFilter)
         {
             CultureInfo provider = CultureInfo.InvariantCulture;
@@ -299,6 +301,7 @@ namespace SoowGoodWeb.Services
             }
 
         }
+        
         public async Task<int> GetAppointmentCountForPatientWithSearchFilterAsync(long patientId, string role, DataFilterModel? dataFilter)
         {
             CultureInfo provider = CultureInfo.InvariantCulture;
@@ -389,6 +392,7 @@ namespace SoowGoodWeb.Services
             var appCount = appointments.Count();
             return appCount;
         }
+        
         public async Task<int> GetLeftBookingCount(long sessionId, long scheduleId)
         {
             int resultNp = 0;
