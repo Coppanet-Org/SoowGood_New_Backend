@@ -468,28 +468,25 @@ namespace SoowGoodWeb.Services
             CultureInfo provider = CultureInfo.InvariantCulture;
             try
             {
-                //if (dataFilter?.toDate == null || dataFilter?.toDate == "Invalid Date")
-                //{
-                //    dataFilter.toDate = dataFilter.fromDate;
-                //}
                 var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-                var appointments = item.Where(d => d.DoctorProfileId == doctorId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+                //var appointments = item.Where(d => d.DoctorProfileId == doctorId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+                var appointments = new List<Appointment>();
 
 
-
-                if (day == "Today")
+                if (day == "All")
                 {
-                    appointments = appointments.Where(p => (p.AppointmentDate.Value.Date == DateTime.Now.Date)).ToList();
-                    //DateTime.ParseExact(DateTime.Today, "MM/dd/yyyy", provider, DateTimeStyles.None))).ToList();
+                    appointments = item.Where(d => d.DoctorProfileId == doctorId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+                                                                                                                                                                                                         //appointments.Where(p => (p.AppointmentDate.Value.Date == DateTime.Now.Date)).ToList();
+                                                                                                                                                                                                         //DateTime.ParseExact(DateTime.Today, "MM/dd/yyyy", provider, DateTimeStyles.None))).ToList();
                 }
-                else if (day == "Passed")
+                else if (day == "Confirmed")
                 {
-                    appointments = appointments.Where(p => (p.AppointmentDate.Value.Date < DateTime.Now.Date)).ToList();
+                    appointments = item.Where(p => p.DoctorProfileId == doctorId && (p.AppointmentStatus == AppointmentStatus.Confirmed)).ToList();
                 }
 
-                else if (day == "Upcoming")
+                else if (day == "Completed")
                 {
-                    appointments = appointments.Where(p => (p.AppointmentDate.Value.Date > DateTime.Now.Date)).ToList();
+                    appointments = item.Where(p => p.DoctorProfileId == doctorId && (p.AppointmentStatus == AppointmentStatus.Completed)).ToList();
                 }
 
 
@@ -525,27 +522,22 @@ namespace SoowGoodWeb.Services
             CultureInfo provider = CultureInfo.InvariantCulture;
             try
             {
-                //if (dataFilter?.toDate == null || dataFilter?.toDate == "Invalid Date")
-                //{
-                //    dataFilter.toDate = dataFilter.fromDate;
-                //}
                 var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-                var appointments = item.Where(d => d.AppointmentCreatorId == patientId && d.AppointmentCreatorRole==role && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+                //var appointments = item.Where(d => d.AppointmentCreatorId == patientId && d.AppointmentCreatorRole==role && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+                var appointments = new List<Appointment>();
 
 
-
-                if (day == "Today")
+                if (day == "All")
                 {
-                    appointments = appointments.Where(p => (p.AppointmentDate.Value.Date == DateTime.Now.Date)).ToList();
-                    //DateTime.ParseExact(DateTime.Today, "MM/dd/yyyy", provider, DateTimeStyles.None))).ToList();
+                    appointments = item.Where(d => d.AppointmentCreatorId == patientId && d.AppointmentCreatorRole == role && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
                 }
-                else if (day == "Passed")
+                else if (day == "Confirmed")
                 {
-                    appointments = appointments.Where(p => (p.AppointmentDate.Value.Date < DateTime.Now.Date)).ToList();
+                    appointments = item.Where(p => p.AppointmentCreatorId == patientId && p.AppointmentCreatorRole == role && (p.AppointmentStatus == AppointmentStatus.Confirmed)).ToList();
                 }
-                else if (day == "Upcomming")
+                else if (day == "Completed")
                 {
-                    appointments = appointments.Where(p => (p.AppointmentDate.Value.Date > DateTime.Now.Date)).ToList();
+                    appointments = item.Where(p => p.AppointmentCreatorId == patientId && p.AppointmentCreatorRole == role && (p.AppointmentStatus == AppointmentStatus.Completed)).ToList();
                 }
 
                 return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
