@@ -22,14 +22,15 @@ namespace SoowGoodWeb.Services
         //private readonly IRepository<AgentDegree> _agentDegreeRepository;
         //private readonly IRepository<AgentSpecialization> _agentSpecializationRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
-        public PatientProfileService(IRepository<PatientProfile> patientProfileRepository, IRepository<PatientProfile, long> patientRepository
-
-                                    , IUnitOfWorkManager unitOfWorkManager)
+        public PatientProfileService(IRepository<PatientProfile> patientProfileRepository, 
+            IRepository<PatientProfile, long> patientRepository, 
+            IUnitOfWorkManager unitOfWorkManager)
         {
             _patientProfileRepository = patientProfileRepository;
             _patientRepository = patientRepository;
             _unitOfWorkManager = unitOfWorkManager;
         }
+        
         public async Task<PatientProfileDto> CreateAsync(PatientProfileInputDto input)
         {
             var result = new PatientProfileDto();
@@ -66,6 +67,7 @@ namespace SoowGoodWeb.Services
 
             //return result;
         }
+        
         public async Task<PatientProfileDto> GetByPhoneAndCodeAsync(string pCode, string pPhone)
         {
             var item = await _patientProfileRepository.GetAsync(x => x.PatientCode == pCode && x.PatientMobileNo == pPhone);//.WithDetailsAsync();
@@ -79,17 +81,20 @@ namespace SoowGoodWeb.Services
 
             //return null;
         }
+        
         public async Task<PatientProfileDto> GetByUserNameAsync(string userName)
         {
             var item = await _patientProfileRepository.GetAsync(x => x.MobileNo == userName);
 
             return ObjectMapper.Map<PatientProfile, PatientProfileDto>(item);
         }
+        
         public async Task<List<PatientProfileDto>> GetListAsync()
         {
             var profiles = await _patientProfileRepository.GetListAsync();
             return ObjectMapper.Map<List<PatientProfile>, List<PatientProfileDto>>(profiles);
         }
+        
         public async Task<List<PatientProfileDto>> GetListPatientListByAdminAsync()
         {
             List<PatientProfileDto>? result = null;
@@ -120,11 +125,13 @@ namespace SoowGoodWeb.Services
             }
             return result;
         }
+        
         public async Task<PatientProfileDto> GetByUserIdAsync(Guid userId)
         {
             var item = await _patientProfileRepository.GetAsync(x => x.UserId == userId);
             return ObjectMapper.Map<PatientProfile, PatientProfileDto>(item);
         }
+        
         public async Task<PatientProfileDto> UpdateAsync(PatientProfileInputDto input)
         {
             try
@@ -159,6 +166,7 @@ namespace SoowGoodWeb.Services
             }
 
         }
+        
         public async Task<List<PatientProfileDto>> GetPatientListByUserProfileIdAsync(long profileId)
         {
             var profiles = await _patientProfileRepository.GetListAsync(p => p.CreatorEntityId == profileId);

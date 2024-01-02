@@ -520,7 +520,7 @@ namespace SoowGoodWeb.Services
             return result;
         }
 
-        public async Task<List<AppointmentDto>> GetDashboardAppointmentListForPatientAsync(long patientId, string day)
+        public async Task<List<AppointmentDto>> GetDashboardAppointmentListForPatientAsync(long patientId, string role, string day)
         {
             CultureInfo provider = CultureInfo.InvariantCulture;
             try
@@ -530,7 +530,7 @@ namespace SoowGoodWeb.Services
                 //    dataFilter.toDate = dataFilter.fromDate;
                 //}
                 var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-                var appointments = item.Where(d => d.PatientProfileId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+                var appointments = item.Where(d => d.AppointmentCreatorId == patientId && d.AppointmentCreatorRole==role && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
 
 
 
@@ -555,8 +555,7 @@ namespace SoowGoodWeb.Services
                 return null;
             }
 
-        }
-
+        }   
 
     }
 }
