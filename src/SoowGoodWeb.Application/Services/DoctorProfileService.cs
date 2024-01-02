@@ -555,7 +555,6 @@ namespace SoowGoodWeb.Services
             try
             {
                 var updateItem = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(input);
-
                 var item = await _doctorProfileRepository.UpdateAsync(updateItem);
                 await _unitOfWorkManager.Current.SaveChangesAsync();
                 result = ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
@@ -749,6 +748,35 @@ namespace SoowGoodWeb.Services
             return result;
         }
 
+        public async Task<DoctorProfileDto> UpdateDocotrProfileAsync(DoctorProfileInputDto input)
+        {
+            var result = new DoctorProfileDto();
+            try
+            {
+                var itemDoctor = await _doctorProfileRepository.GetAsync(d => d.Id == input.Id);
+                itemDoctor.FullName = input.FullName;
+                itemDoctor.DoctorTitle = input.DoctorTitle;
+                itemDoctor.Email = input.Email;
+                itemDoctor.Gender = input.Gender;
+                itemDoctor.DateOfBirth = input.DateOfBirth;
+                itemDoctor.BMDCRegNo = input.BMDCRegNo;
+                itemDoctor.BMDCRegExpiryDate = input.BMDCRegExpiryDate;
+                itemDoctor.Address = input.Address;
+                itemDoctor.City = input.City;
+                itemDoctor.Country = input.Country;
+                itemDoctor.ZipCode = input.ZipCode;
+                itemDoctor.IdentityNumber = input.IdentityNumber;
+                itemDoctor.SpecialityId = input.SpecialityId;
+
+                var item = await _doctorProfileRepository.UpdateAsync(itemDoctor);
+                await _unitOfWorkManager.Current.SaveChangesAsync();
+                result = ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+            }
+            catch (Exception ex)
+            {
+            }
+            return result;//ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+        }
         //public async Task<List<DoctorProfileDto>> GetListAsync()
         //{
         //    List<DoctorProfileDto> list = null;
