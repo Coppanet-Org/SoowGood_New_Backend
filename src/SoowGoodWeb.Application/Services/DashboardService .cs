@@ -447,15 +447,15 @@ namespace SoowGoodWeb.Services
         //}
         public async Task<DashboardDto> GetDashboadDataForDoctorAsync(long doctorid)
         {
-            var result=new DashboardDto();
+            var result = new DashboardDto();
             decimal? totalFees = 0;
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
             var appointments = item.Where(d => d.DoctorProfileId == doctorid).ToList();
             var patients = (from t1 in appointments
-                              select t1.PatientProfileId).Distinct().ToList();
+                            select t1.PatientProfileId).Distinct().ToList();
             result.totalAppointment = appointments.Count;
             result.totalPatient = patients.Count;
-            foreach(var app in appointments)
+            foreach (var app in appointments)
             {
                 totalFees = totalFees + app.DoctorFee;
             }
@@ -475,14 +475,14 @@ namespace SoowGoodWeb.Services
                 var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
                 var appointments = item.Where(d => d.DoctorProfileId == doctorId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
 
-                
+
 
                 if (day == "Today")
                 {
                     appointments = appointments.Where(p => (p.AppointmentDate.Value.Date == DateTime.Now.Date)).ToList();
                     //DateTime.ParseExact(DateTime.Today, "MM/dd/yyyy", provider, DateTimeStyles.None))).ToList();
                 }
-                else if(day == "Passed")
+                else if (day == "Passed")
                 {
                     appointments = appointments.Where(p => (p.AppointmentDate.Value.Date < DateTime.Now.Date)).ToList();
                 }
@@ -502,12 +502,12 @@ namespace SoowGoodWeb.Services
 
         }
 
-        public async Task<DashboardDto> GetDashboadDataForPatientAsync(long patientId)
+        public async Task<DashboardDto> GetDashboadDataForPatientAsync(long patientId, string role)
         {
             var result = new DashboardDto();
             decimal? totalFees = 0;
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-            var appointments = item.Where(d => d.PatientProfileId == patientId).ToList();
+            var appointments = item.Where(d => d.AppointmentCreatorId == patientId && d.AppointmentCreatorRole==role).ToList();
             var patients = (from t1 in appointments
                             select t1.PatientProfileId).Distinct().ToList();
             result.totalAppointment = appointments.Count;
@@ -555,7 +555,7 @@ namespace SoowGoodWeb.Services
                 return null;
             }
 
-        }   
+        }
 
     }
 }
