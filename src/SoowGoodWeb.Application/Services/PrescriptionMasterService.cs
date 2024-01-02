@@ -254,6 +254,7 @@ namespace SoowGoodWeb.Services
         {
             var detailsPrescription = await _prescriptionMasterRepository.WithDetailsAsync(a => a.Appointment
                                                                                               , doc => doc.Appointment.DoctorSchedule.DoctorProfile
+                                                                                              , sp => sp.Appointment.DoctorSchedule.DoctorProfile.Speciality
                                                                                               , d => d.PrescriptionDrugDetails
                                                                                               , cd => cd.PrescriptionPatientDiseaseHistory
                                                                                               , c => c.prescriptionMainComplaints
@@ -293,6 +294,8 @@ namespace SoowGoodWeb.Services
                 result.DoctorProfileId = prescription.Appointment?.DoctorProfileId;
                 result.DoctorName = prescription.Appointment?.DoctorName;
                 result.DoctorCode = prescription.Appointment?.DoctorCode;
+                result.SpecialityId = prescription.Appointment?.DoctorSchedule?.DoctorProfile?.SpecialityId;
+                result.DoctorSpecilityName = prescription.Appointment?.DoctorSchedule?.DoctorProfile?.Speciality?.SpecialityName;
                 result.PatientProfileId = prescription.PatientProfileId;
                 result.PatientName = patientDetails?.PatientName;
                 result.PatientCode = patientDetails?.PatientCode;
