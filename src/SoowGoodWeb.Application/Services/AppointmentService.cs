@@ -571,5 +571,43 @@ namespace SoowGoodWeb.Services
             return response;
         }
 
+        public async Task<List<AppointmentDto>> GetSearchedPatientListByDoctorIdAsync(long doctorId, string name)
+        {
+            var restultPatientList = new List<AppointmentDto>();
+            try
+            {
+                var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
+                //var appointments = await item.Where(d=> d.DoctorProfileId == doctorId && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
+                var appointments = item.Where(d => d.DoctorProfileId == doctorId);// && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
+                var patientIds = (from app in appointments
+                                  select app.PatientProfileId).Distinct();
+                foreach (var appointment in patientIds)
+                {
+                    var patient = await _patientProfileRepository.GetAsync(p => p.Id == appointment);
+                    restultPatientList.Add(new AppointmentDto()
+                    {
+                        DoctorProfileId = doctorId,
+                        PatientProfileId = patient.Id,
+                        PatientCode = patient.PatientCode,
+                        PatientName = patient.PatientName,
+                        PatientMobileNo = patient.PatientMobileNo,
+                        PatientEmail = patient.PatientEmail,
+                        PatientLocation = patient.City
+                    });
+                }
+
+                if(!string.IsNullOrEmpty(name))
+                {
+                    restultPatientList = restultPatientList.Where(p=> p.PatientName.Contains(name)).ToList();
+                }
+
+                return restultPatientList;//ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
+            }
+            catch (Exception ex)
+            {
+                return restultPatientList;
+            }
+
+        }
     }
 }
