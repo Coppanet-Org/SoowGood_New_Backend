@@ -205,6 +205,16 @@ namespace SoowGoodWeb.Services
             var doctDegrees = await _prescriptionMasterRepository.GetListAsync(dd => dd.PatientProfileId == patientId);
             return ObjectMapper.Map<List<PrescriptionMaster>, List<PrescriptionMasterDto>>(doctDegrees);
         }
+
+        public async Task<List<PrescriptionMasterDto>> GetPrescriptionListByAppointmentCreatorIdAsync(int patientId)
+        {
+            var prescriptionMaster = await _prescriptionMasterRepository.WithDetailsAsync(a => a.Appointment);
+            var item = prescriptionMaster.Where(p => p.Appointment.AppointmentCreatorId == patientId).ToList();
+
+            //var doctDegrees = await _prescriptionMasterRepository.GetListAsync(dd => dd.PatientProfileId == patientId);
+            return ObjectMapper.Map<List<PrescriptionMaster>, List<PrescriptionMasterDto>>(item);
+        }
+
         public async Task<PrescriptionMasterDto> UpdateAsync(PrescriptionMasterInputDto input)
         {
             var updateItem = ObjectMapper.Map<PrescriptionMasterInputDto, PrescriptionMaster>(input);
@@ -244,6 +254,7 @@ namespace SoowGoodWeb.Services
         {
             var detailsPrescription = await _prescriptionMasterRepository.WithDetailsAsync(a => a.Appointment
                                                                                               , doc => doc.Appointment.DoctorSchedule.DoctorProfile
+                                                                                              , sp => sp.Appointment.DoctorSchedule.DoctorProfile.Speciality
                                                                                               , d => d.PrescriptionDrugDetails
                                                                                               , cd => cd.PrescriptionPatientDiseaseHistory
                                                                                               , c => c.prescriptionMainComplaints
@@ -283,6 +294,9 @@ namespace SoowGoodWeb.Services
                 result.DoctorProfileId = prescription.Appointment?.DoctorProfileId;
                 result.DoctorName = prescription.Appointment?.DoctorName;
                 result.DoctorCode = prescription.Appointment?.DoctorCode;
+                result.DoctorBmdcRegNo = prescription.Appointment?.DoctorSchedule?.DoctorProfile?.BMDCRegNo;
+                result.SpecialityId = prescription.Appointment?.DoctorSchedule?.DoctorProfile?.SpecialityId;
+                result.DoctorSpecilityName = prescription.Appointment?.DoctorSchedule?.DoctorProfile?.Speciality?.SpecialityName;
                 result.PatientProfileId = prescription.PatientProfileId;
                 result.PatientName = patientDetails?.PatientName;
                 result.PatientCode = patientDetails?.PatientCode;

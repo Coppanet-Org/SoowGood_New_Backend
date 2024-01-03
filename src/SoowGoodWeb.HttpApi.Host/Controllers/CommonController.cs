@@ -76,22 +76,41 @@ namespace SoowGoodWeb.Controllers
                             file.CopyTo(stream);
                         }
                         // save attachment
-                        var attchmentId = await GetDocumentAsync(entityType, entityId, attachmentType,fileName);
-
-                        if (attchmentId > 0)
+                        if (entityType != EntityType.Patient.ToString() && entityType != AttachmentType.PatientPreviousDocuments.ToString())
                         {
-                            var deletResult = await DeleteDocAsync(attchmentId); //await UpdateUploadAsync(attachementDto);
-                            if (deletResult == true)
+                            var attchmentId = await GetDocumentAsync(entityType, entityId, attachmentType, fileName);
+
+                            if (attchmentId > 0)
                             {
-                                var attachement2 = new DocumentsAttachment();
-                                attachement2.FileName = idStr + "_" + fileName;
-                                attachement2.OriginalFileName = fileName;
-                                attachement2.Path = dbPath;
-                                attachement2.EntityType = (EntityType)Enum.Parse(typeof(EntityType), entityType);
-                                attachement2.EntityId = entityId;
-                                attachement2.AttachmentType = (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType);
-                                attachement2.RelatedEntityid = relatedEntityid > 0 ? relatedEntityid : null;
-                                var attachmentResult = await _attachmentRepository.InsertAsync(attachement2, autoSave: true);
+                                var deletResult = await DeleteDocAsync(attchmentId); //await UpdateUploadAsync(attachementDto);
+                                if (deletResult == true)
+                                {
+                                    var attachement2 = new DocumentsAttachment();
+                                    attachement2.FileName = idStr + "_" + fileName;
+                                    attachement2.OriginalFileName = fileName;
+                                    attachement2.Path = dbPath;
+                                    attachement2.EntityType = (EntityType)Enum.Parse(typeof(EntityType), entityType);
+                                    attachement2.EntityId = entityId;
+                                    attachement2.AttachmentType = (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType);
+                                    attachement2.RelatedEntityid = relatedEntityid > 0 ? relatedEntityid : null;
+                                    var attachmentResult = await _attachmentRepository.InsertAsync(attachement2, autoSave: true);
+                                    if (attachmentResult != null)//  == 0)
+                                    {
+                                        insertCount += 1;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                var attachement = new DocumentsAttachment();
+                                attachement.FileName = idStr + "_" + fileName;
+                                attachement.OriginalFileName = fileName;
+                                attachement.Path = dbPath;
+                                attachement.EntityType = (EntityType)Enum.Parse(typeof(EntityType), entityType);
+                                attachement.EntityId = entityId;
+                                attachement.AttachmentType = (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType);
+                                attachement.RelatedEntityid = relatedEntityid > 0 ? relatedEntityid : null;
+                                var attachmentResult = await _attachmentRepository.InsertAsync(attachement, autoSave: true);
                                 if (attachmentResult != null)//  == 0)
                                 {
                                     insertCount += 1;
@@ -114,6 +133,7 @@ namespace SoowGoodWeb.Controllers
                                 insertCount += 1;
                             }
                         }
+
                         dbPath = dbPath.Replace(@"wwwroot\", string.Empty);
                     }
                     if (insertCount > 0)

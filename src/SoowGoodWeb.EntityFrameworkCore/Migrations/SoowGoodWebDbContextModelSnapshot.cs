@@ -326,8 +326,14 @@ namespace SoowGoodWeb.Migrations
                     b.Property<string>("AppointmentCode")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("AppointmentCreatorCode")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<long?>("AppointmentCreatorId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("AppointmentCreatorRole")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("AppointmentDate")
                         .HasColumnType("datetime2");
@@ -1422,9 +1428,6 @@ namespace SoowGoodWeb.Migrations
                     b.Property<string>("Country")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CratorCode")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -1432,12 +1435,18 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("CreationTime");
 
+                    b.Property<string>("CreatorCode")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<long?>("CreatorEntityId")
                         .HasColumnType("bigint");
 
                     b.Property<Guid?>("CreatorId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("CreatorId");
+
+                    b.Property<string>("CreatorRole")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("DateOfBirth")
                         .HasColumnType("datetime2");
