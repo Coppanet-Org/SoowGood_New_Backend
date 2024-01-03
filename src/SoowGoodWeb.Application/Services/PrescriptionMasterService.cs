@@ -294,6 +294,7 @@ namespace SoowGoodWeb.Services
                 result.DoctorProfileId = prescription.Appointment?.DoctorProfileId;
                 result.DoctorName = prescription.Appointment?.DoctorName;
                 result.DoctorCode = prescription.Appointment?.DoctorCode;
+                result.DoctorBmdcRegNo = prescription.Appointment?.DoctorSchedule?.DoctorProfile?.BMDCRegNo;
                 result.SpecialityId = prescription.Appointment?.DoctorSchedule?.DoctorProfile?.SpecialityId;
                 result.DoctorSpecilityName = prescription.Appointment?.DoctorSchedule?.DoctorProfile?.Speciality?.SpecialityName;
                 result.PatientProfileId = prescription.PatientProfileId;
