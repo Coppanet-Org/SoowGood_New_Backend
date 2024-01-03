@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.ObjectMapping;
 using Volo.Abp.Uow;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SoowGoodWeb.Services
 {
@@ -202,8 +203,71 @@ namespace SoowGoodWeb.Services
 
         public async Task<List<PrescriptionMasterDto>> GetPrescriptionMasterListByPatientIdAsync(int patientId)
         {
-            var doctDegrees = await _prescriptionMasterRepository.GetListAsync(dd => dd.PatientProfileId == patientId);
-            return ObjectMapper.Map<List<PrescriptionMaster>, List<PrescriptionMasterDto>>(doctDegrees);
+            var detailsPrescription = await _prescriptionMasterRepository.WithDetailsAsync(a => a.Appointment
+                                                                                              , doc => doc.Appointment.DoctorSchedule.DoctorProfile
+                                                                                              , sp => sp.Appointment.DoctorSchedule.DoctorProfile.Speciality);
+
+            var prescription = detailsPrescription.Where(dd => dd.PatientProfileId == patientId).ToList();
+
+            var result = new List<PrescriptionMasterDto>();
+            if (prescription.Count > 0)// != null)
+            {
+                foreach (var item in prescription)
+                {
+
+                    var diseaseHistory = await _prescriptionPatientDiseaseHistory.GetListAsync(h => h.PrescriptionMasterId == item.Id);
+                    var patientDiseaseHistories = ObjectMapper.Map<List<PrescriptionPatientDiseaseHistory>, List<PrescriptionPatientDiseaseHistoryDto>>(diseaseHistory);
+                    var mainComplaints = await _prescriptionMainComplaint.GetListAsync(c => c.PrescriptionMasterId == item.Id);
+                    var patientMainComplaints = ObjectMapper.Map<List<PrescriptionMainComplaint>, List<PrescriptionMainComplaintDto>>(mainComplaints);
+                    var findingObservations = await _prescriptionFindingsObservations.GetListAsync(f => f.PrescriptionMasterId == item.Id);
+                    var findings = ObjectMapper.Map<List<PrescriptionFindingsObservations>, List<PrescriptionFindingsObservationsDto>>(findingObservations);
+                    var drugDetails = await _prescriptionDrugDetails.GetListAsync(m => m.PrescriptionMasterId == item.Id);
+                    var medicnes = ObjectMapper.Map<List<PrescriptionDrugDetails>, List<PrescriptionDrugDetailsDto>>(drugDetails);
+                    var diagnosisTests = await _prescriptionMedicalCheckups.GetListAsync(t => t.PrescriptionMasterId == item.Id);
+                    var tests = ObjectMapper.Map<List<PrescriptionMedicalCheckups>, List<PrescriptionMedicalCheckupsDto>>(diagnosisTests);
+
+                    var patientDetails = await _patientDetails.GetAsync(p => p.Id == item.PatientProfileId);
+                    result.Add(new PrescriptionMasterDto()
+                    {
+                        Id = item.Id,
+                        RefferenceCode = item.RefferenceCode,
+                        AppointmentId = item.AppointmentId,
+                        AppointmentSerial = item.Appointment?.AppointmentSerial,
+                        DoctorProfileId = item.Appointment?.DoctorProfileId,
+                        DoctorName = item.Appointment?.DoctorName,
+                        DoctorCode = item.Appointment?.DoctorCode,
+                        DoctorBmdcRegNo = item.Appointment?.DoctorSchedule?.DoctorProfile?.BMDCRegNo,
+                        SpecialityId = item.Appointment?.DoctorSchedule?.DoctorProfile?.SpecialityId,
+                        DoctorSpecilityName = item.Appointment?.DoctorSchedule?.DoctorProfile?.Speciality?.SpecialityName,
+                        PatientProfileId = item.PatientProfileId,
+                        PatientName = patientDetails?.PatientName,
+                        PatientCode = patientDetails?.PatientCode,
+                        PatientAge = patientDetails?.Age,
+                        PatientBloodGroup = patientDetails?.BloodGroup,
+                        PatientAdditionalInfo = item.PatientAdditionalInfo,
+                        ConsultancyType = item.ConsultancyType,
+                        ConsultancyTypeName = item.Appointment?.ConsultancyType > 0
+                                                ? ((ConsultancyType)item.Appointment.ConsultancyType).ToString()
+                                                : "N/A",
+                        AppointmentType = item.AppointmentType,
+                        AppointmentTypeName = item.Appointment?.AppointmentType > 0
+                                                ? ((AppointmentType)item.Appointment.AppointmentType).ToString()
+                                                : "N/A",
+                        AppointmentDate = item.AppointmentDate,
+                        PrescriptionDate = item.PrescriptionDate,
+                        PatientLifeStyle = item.PatientLifeStyle,
+                        ReportShowDate = item.ReportShowDate,
+                        FollowupDate = item.FollowupDate,
+                        Advice = item.Advice,
+                        PrescriptionPatientDiseaseHistory = patientDiseaseHistories,
+                        prescriptionMainComplaints = patientMainComplaints,
+                        PrescriptionFindingsObservations = findings,
+                        PrescriptionDrugDetails = medicnes,
+                        PrescriptionMedicalCheckups = tests
+                    });
+                }
+            }
+            return result; // ObjectMapper.Map<List<PrescriptionMaster>, List<PrescriptionMasterDto>>(doctDegrees);
         }
 
         public async Task<List<PrescriptionMasterDto>> GetPrescriptionListByAppointmentCreatorIdAsync(int patientId)
@@ -232,20 +296,6 @@ namespace SoowGoodWeb.Services
             var patientPrescription = prescriptionMaster.Where(p => p.PatientProfileId == patientId).OrderByDescending(d => d.Id).FirstOrDefault();
             var item = await _prescriptionPatientDiseaseHistory.GetListAsync(p => p.PatientProfileId == patientId
                                                                             && p.PrescriptionMasterId == patientPrescription.Id);
-            //var diseaseItem = item.OrderByDescending(d => d.PrescriptionMasterId).FirstOrDefault();
-
-            //result = new List<PrescriptionPatientDiseaseHistoryDto>();
-            //foreach (var disease in item)
-            //{
-            //    result.Add(new PrescriptionPatientDiseaseHistoryDto()
-            //    {
-            //        Id = disease.CommonDisease.Id,
-            //        DiseaseName = disease. //drug.DosageForm + " " + drug.BrandName
-
-            //    });
-            //}
-            //return result;
-
 
             return ObjectMapper.Map<List<PrescriptionPatientDiseaseHistory>, List<PrescriptionPatientDiseaseHistoryDto>>(item);
         }
@@ -260,7 +310,6 @@ namespace SoowGoodWeb.Services
                                                                                               , c => c.prescriptionMainComplaints
                                                                                               , o => o.PrescriptionFindingsObservations
                                                                                               , mc => mc.PrescriptionMedicalCheckups);
-            //var appprescription = detailsPrescription.Where(p=>p.AppointmentId == appointmentId).FirstOrDefault();
 
             var prescription = detailsPrescription.Where(p => p.AppointmentId == appointmentId).FirstOrDefault();
             if (prescription == null)
@@ -278,9 +327,6 @@ namespace SoowGoodWeb.Services
             var diagnosisTests = await _prescriptionMedicalCheckups.GetListAsync(t => t.PrescriptionMasterId == prescription.Id);
             var tests = ObjectMapper.Map<List<PrescriptionMedicalCheckups>, List<PrescriptionMedicalCheckupsDto>>(diagnosisTests);
 
-
-
-            //var doctorDetails = await _doctorDetails.WithDetailsAsync(d => d.Id == prescription.DoctorProfileId);
             var patientDetails = await _patientDetails.GetAsync(p => p.Id == prescription.PatientProfileId);
 
             var result = new PrescriptionMasterDto();
@@ -290,7 +336,6 @@ namespace SoowGoodWeb.Services
                 result.RefferenceCode = prescription.RefferenceCode;
                 result.AppointmentId = prescription.AppointmentId;
                 result.AppointmentSerial = prescription.Appointment?.AppointmentSerial;
-                result.AppointmentType = prescription.Appointment?.AppointmentType;
                 result.DoctorProfileId = prescription.Appointment?.DoctorProfileId;
                 result.DoctorName = prescription.Appointment?.DoctorName;
                 result.DoctorCode = prescription.Appointment?.DoctorCode;
@@ -322,38 +367,8 @@ namespace SoowGoodWeb.Services
                 result.PrescriptionFindingsObservations = findings;
                 result.PrescriptionDrugDetails = medicnes;
                 result.PrescriptionMedicalCheckups = tests;
-
-                ////result.PrescriptionPatientDiseaseHistory = new List<PrescriptionPatientDiseaseHistoryDto>(); //prescription.PrescriptionPatientDiseaseHistory
-                //if (prescription?.PrescriptionPatientDiseaseHistory?.Count > 0)
-                //{
-                //    foreach (var history in prescription.PrescriptionPatientDiseaseHistory)
-                //    {
-                //        var diseaseHistory = ObjectMapper.Map<PrescriptionPatientDiseaseHistory, PrescriptionPatientDiseaseHistoryDto>(history);
-                //        result.PrescriptionPatientDiseaseHistory?.Add(diseaseHistory);
-                //    }
-                //}
-                //if (prescription?.prescriptionMainComplaints?.Count > 0)
-                //{
-                //    foreach (var history in prescription.prescriptionMainComplaints)
-                //    {
-                //        var mainComplaints = ObjectMapper.Map<PrescriptionMainComplaint, PrescriptionMainComplaintDto>(history);
-                //        result.prescriptionMainComplaints?.Add(mainComplaints);
-                //    }
-                //}
-                //if (prescription?.PrescriptionFindingsObservations?.Count > 0)
-                //{
-                //    foreach (var history in prescription.PrescriptionFindingsObservations)
-                //    {
-                //        var findings = ObjectMapper.Map<PrescriptionFindingsObservations, PrescriptionFindingsObservationsDto>(history);
-                //        result.PrescriptionFindingsObservations?.Add(findings);
-                //    }
-                //}
             }
-
-
-            //var item = detailsPrescription.Where(x => x.Id == id);
-
-            return result; //ObjectMapper.Map<PrescriptionMaster, PrescriptionMasterDto>(prescription);
+            return result;
         }
     }
 }
