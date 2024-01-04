@@ -1,4 +1,5 @@
-﻿using SoowGoodWeb.DtoModels;
+﻿using agora.rtc;
+using SoowGoodWeb.DtoModels;
 using SoowGoodWeb.Enums;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
@@ -227,6 +228,10 @@ namespace SoowGoodWeb.Services
                     var tests = ObjectMapper.Map<List<PrescriptionMedicalCheckups>, List<PrescriptionMedicalCheckupsDto>>(diagnosisTests);
 
                     var patientDetails = await _patientDetails.GetAsync(p => p.Id == item.PatientProfileId);
+
+                    var doctorDetails = await _doctorDetails.WithDetailsAsync(s => s.Speciality);
+                    var doctorInfo = doctorDetails.Where(d => d.Id == item.DoctorProfileId).FirstOrDefault();
+
                     result.Add(new PrescriptionMasterDto()
                     {
                         Id = item.Id,
@@ -236,9 +241,9 @@ namespace SoowGoodWeb.Services
                         DoctorProfileId = item.Appointment?.DoctorProfileId,
                         DoctorName = item.Appointment?.DoctorName,
                         DoctorCode = item.Appointment?.DoctorCode,
-                        DoctorBmdcRegNo = item.Appointment?.DoctorSchedule?.DoctorProfile?.BMDCRegNo,
-                        SpecialityId = item.Appointment?.DoctorSchedule?.DoctorProfile?.SpecialityId,
-                        DoctorSpecilityName = item.Appointment?.DoctorSchedule?.DoctorProfile?.Speciality?.SpecialityName,
+                        DoctorBmdcRegNo = doctorInfo?.BMDCRegNo,
+                        SpecialityId = doctorInfo?.SpecialityId,
+                        DoctorSpecilityName = doctorInfo?.Speciality?.SpecialityName,
                         PatientProfileId = item.PatientProfileId,
                         PatientName = patientDetails?.PatientName,
                         PatientCode = patientDetails?.PatientCode,
@@ -327,7 +332,12 @@ namespace SoowGoodWeb.Services
             var diagnosisTests = await _prescriptionMedicalCheckups.GetListAsync(t => t.PrescriptionMasterId == prescription.Id);
             var tests = ObjectMapper.Map<List<PrescriptionMedicalCheckups>, List<PrescriptionMedicalCheckupsDto>>(diagnosisTests);
 
+            var doctorDetails = await _doctorDetails.WithDetailsAsync(s => s.Speciality);
+            var doctorInfo = doctorDetails.Where(d=>d.Id == prescription.DoctorProfileId).FirstOrDefault();
+
             var patientDetails = await _patientDetails.GetAsync(p => p.Id == prescription.PatientProfileId);
+
+
 
             var result = new PrescriptionMasterDto();
             if (prescription != null)
@@ -339,9 +349,9 @@ namespace SoowGoodWeb.Services
                 result.DoctorProfileId = prescription.Appointment?.DoctorProfileId;
                 result.DoctorName = prescription.Appointment?.DoctorName;
                 result.DoctorCode = prescription.Appointment?.DoctorCode;
-                result.DoctorBmdcRegNo = prescription.Appointment?.DoctorSchedule?.DoctorProfile?.BMDCRegNo;
-                result.SpecialityId = prescription.Appointment?.DoctorSchedule?.DoctorProfile?.SpecialityId;
-                result.DoctorSpecilityName = prescription.Appointment?.DoctorSchedule?.DoctorProfile?.Speciality?.SpecialityName;
+                result.DoctorBmdcRegNo = doctorInfo?.BMDCRegNo;
+                result.SpecialityId = doctorInfo?.SpecialityId;
+                result.DoctorSpecilityName = doctorInfo?.Speciality?.SpecialityName;
                 result.PatientProfileId = prescription.PatientProfileId;
                 result.PatientName = patientDetails?.PatientName;
                 result.PatientCode = patientDetails?.PatientCode;

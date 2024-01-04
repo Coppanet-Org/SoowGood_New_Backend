@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using AutoMapper;
+using Microsoft.IdentityModel.Tokens;
 using SoowGoodWeb.DtoModels;
 using SoowGoodWeb.Enums;
 using SoowGoodWeb.InputDto;
@@ -72,7 +73,7 @@ namespace SoowGoodWeb.Services
 
             //return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
 
-            var item = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, d => d.DoctorSpecialization);
+            var item = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, sp=>sp.Speciality, d => d.DoctorSpecialization);
 
             var profile = item.FirstOrDefault(item => item.Id == id);
 
@@ -545,8 +546,10 @@ namespace SoowGoodWeb.Services
 
         public async Task<DoctorProfileDto> GetByUserIdAsync(Guid userId)
         {
-            var item = await _doctorProfileRepository.GetAsync(x => x.UserId == userId);
-            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+            var doctorProfiles = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, sp => sp.Speciality, d => d.DoctorSpecialization);
+            var item = doctorProfiles.FirstOrDefault(x => x.UserId == userId);
+            var result = item != null ? ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item) : null;
+            return result;//ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
         }
 
         public async Task<DoctorProfileDto> UpdateAsync(DoctorProfileInputDto input)
