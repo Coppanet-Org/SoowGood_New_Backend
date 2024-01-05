@@ -3,6 +3,7 @@ using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.ObjectMapping;
@@ -39,20 +40,20 @@ namespace SoowGoodWeb.Services
         }
         public async Task<List<SpecializationDto>> GetListAsync()
         {
-            var specialization = await _specializationRepository.GetListAsync();
+            var allsPecialization = await _specializationRepository.WithDetailsAsync(s => s.Speciality);
+            var specialization = allsPecialization.ToList();
             return ObjectMapper.Map<List<Specialization>, List<SpecializationDto>>(specialization);
         }
         public async Task<List<SpecializationDto>> GetListBySpecialtyIdAsync(long specialityId)
         {
-            //var specialization = await _specializationRepository.WithDetailsAsync(s=>s.SpecialityId);
-            var specialization = await _specializationRepository.GetListAsync(s=>s.SpecialityId == specialityId );
-            //var listBySpecialtyId  = specialization.Where(x => x.SpecialityId == specialityId);
-            //listBySpecialtyId.ToList(); //
+            var specializations = await _specializationRepository.WithDetailsAsync(s=>s.Speciality);
+            var specialization = specializations.Where(s=>s.SpecialityId == specialityId ).ToList();
             return ObjectMapper.Map<List<Specialization>, List<SpecializationDto>>(specialization);
         }
         public async Task<SpecializationDto> GetBySpecialityIdAsync(int specialityId)
         {
-            var item = await _specializationRepository.GetAsync(x => x.SpecialityId == specialityId);
+            var allsPecialization = await _specializationRepository.WithDetailsAsync(s => s.Speciality);
+            var item = allsPecialization.FirstOrDefault(x => x.SpecialityId == specialityId);
 
             return ObjectMapper.Map<Specialization, SpecializationDto>(item);
         }

@@ -10,7 +10,7 @@ namespace SoowGoodWeb.DtoModels
     {
         public long? DoctorScheduleId { get; set; }
         //public DoctorSchedule? DoctorSchedule { get; set; }
-        public string? DoctorSchedule { get; set; }
+        public string? DoctorScheduleName { get; set; }
         public AppointmentType? AppointmentType { get; set; }
         public string? AppointmentTypeName { get; set; }
         public decimal? CurrentFee { get; set; }
