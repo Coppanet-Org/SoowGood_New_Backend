@@ -22,15 +22,15 @@ namespace SoowGoodWeb.Services
         //private readonly IRepository<AgentDegree> _agentDegreeRepository;
         //private readonly IRepository<AgentSpecialization> _agentSpecializationRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
-        public PatientProfileService(IRepository<PatientProfile> patientProfileRepository, 
-            IRepository<PatientProfile, long> patientRepository, 
+        public PatientProfileService(IRepository<PatientProfile> patientProfileRepository,
+            IRepository<PatientProfile, long> patientRepository,
             IUnitOfWorkManager unitOfWorkManager)
         {
             _patientProfileRepository = patientProfileRepository;
             _patientRepository = patientRepository;
             _unitOfWorkManager = unitOfWorkManager;
         }
-        
+
         public async Task<PatientProfileDto> CreateAsync(PatientProfileInputDto input)
         {
             var result = new PatientProfileDto();
@@ -67,7 +67,7 @@ namespace SoowGoodWeb.Services
 
             //return result;
         }
-        
+
         public async Task<PatientProfileDto> GetByPhoneAndCodeAsync(string pCode, string pPhone)
         {
             var item = await _patientProfileRepository.GetAsync(x => x.PatientCode == pCode && x.PatientMobileNo == pPhone);//.WithDetailsAsync();
@@ -81,20 +81,20 @@ namespace SoowGoodWeb.Services
 
             //return null;
         }
-        
+
         public async Task<PatientProfileDto> GetByUserNameAsync(string userName)
         {
             var item = await _patientProfileRepository.GetAsync(x => x.MobileNo == userName);
 
             return ObjectMapper.Map<PatientProfile, PatientProfileDto>(item);
         }
-        
+
         public async Task<List<PatientProfileDto>> GetListAsync()
         {
             var profiles = await _patientProfileRepository.GetListAsync();
             return ObjectMapper.Map<List<PatientProfile>, List<PatientProfileDto>>(profiles);
         }
-        
+
         public async Task<List<PatientProfileDto>> GetListPatientListByAdminAsync()
         {
             List<PatientProfileDto>? result = null;
@@ -125,19 +125,19 @@ namespace SoowGoodWeb.Services
             }
             return result;
         }
-        
+
         public async Task<PatientProfileDto> GetByUserIdAsync(Guid userId)
         {
             var item = await _patientProfileRepository.GetAsync(x => x.UserId == userId);
             return ObjectMapper.Map<PatientProfile, PatientProfileDto>(item);
         }
-        
+
         public async Task<PatientProfileDto> UpdateAsync(PatientProfileInputDto input)
         {
             try
             {
                 var itemPatient = await _patientRepository.FindAsync(input.Id);
-               // itemPatient.IsSelf = input.IsSelf;
+                // itemPatient.IsSelf = input.IsSelf;
                 itemPatient.FullName = !string.IsNullOrEmpty(itemPatient.FullName) ? itemPatient.FullName : input.FullName;
                 itemPatient.PatientName = !string.IsNullOrEmpty(itemPatient.PatientName) ? itemPatient.PatientName : input.PatientName;
                 itemPatient.PatientEmail = !string.IsNullOrEmpty(itemPatient.PatientEmail) ? itemPatient.PatientEmail : input.PatientEmail;
@@ -145,7 +145,7 @@ namespace SoowGoodWeb.Services
                 itemPatient.BloodGroup = !string.IsNullOrEmpty(itemPatient.BloodGroup) ? itemPatient.BloodGroup : input.BloodGroup;
                 itemPatient.Age = itemPatient.Age > 0 ? itemPatient.Age : input.Age;
                 itemPatient.DateOfBirth = !string.IsNullOrEmpty(itemPatient.DateOfBirth.ToString()) ? itemPatient.DateOfBirth : input.DateOfBirth;
-                itemPatient.Gender = itemPatient.Gender > 0 ? itemPatient.Gender : input.Gender;                
+                itemPatient.Gender = itemPatient.Gender > 0 ? itemPatient.Gender : input.Gender;
                 itemPatient.City = !string.IsNullOrEmpty(itemPatient.City) ? itemPatient.City : input.City;
                 itemPatient.Country = !string.IsNullOrEmpty(itemPatient.Country) ? itemPatient.Country : input.Country;
                 itemPatient.ZipCode = !string.IsNullOrEmpty(itemPatient.ZipCode) ? itemPatient.ZipCode : input.ZipCode;
@@ -166,10 +166,10 @@ namespace SoowGoodWeb.Services
             }
 
         }
-        
-        public async Task<List<PatientProfileDto>> GetPatientListByUserProfileIdAsync(long profileId)
+
+        public async Task<List<PatientProfileDto>> GetPatientListByUserProfileIdAsync(long profileId, string role)
         {
-            var profiles = await _patientProfileRepository.GetListAsync(p => p.CreatorEntityId == profileId);
+            var profiles = await _patientProfileRepository.GetListAsync(p => p.CreatorEntityId == profileId && p.CreatorRole == role);
             return ObjectMapper.Map<List<PatientProfile>, List<PatientProfileDto>>(profiles);
         }
 
@@ -253,6 +253,16 @@ namespace SoowGoodWeb.Services
                 });
             }
             return result;
+        }
+
+        public async Task<List<PatientProfileDto>> GetPatientListBySearchUserProfileIdAsync(long profileId, string role, string name)
+        {
+            var profiles = await _patientProfileRepository.GetListAsync(p => p.CreatorEntityId == profileId && p.CreatorRole == role);
+            if(!string.IsNullOrEmpty(name))
+            {
+                profiles = profiles.Where(p => p.FullName.Contains(name)).ToList();
+            }
+            return ObjectMapper.Map<List<PatientProfile>, List<PatientProfileDto>>(profiles);
         }
     }
 }
