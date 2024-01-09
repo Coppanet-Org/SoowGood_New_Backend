@@ -10,8 +10,11 @@
 
   <ItemGroup>
     <Compile Remove="PaymentsModels\SslCommerz\Dtos\**" />
+    <Compile Remove="QueryExecutor\**" />
     <EmbeddedResource Remove="PaymentsModels\SslCommerz\Dtos\**" />
+    <EmbeddedResource Remove="QueryExecutor\**" />
     <None Remove="PaymentsModels\SslCommerz\Dtos\**" />
+    <None Remove="QueryExecutor\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,10 +34,6 @@
     <PackageReference Include="Volo.Abp.SettingManagement.Domain" Version="7.2.3" />
     <PackageReference Include="Volo.Abp.OpenIddict.Domain" Version="7.2.3" />
     <PackageReference Include="Volo.Abp.PermissionManagement.Domain.OpenIddict" Version="7.2.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="QueryExecutor\" />
   </ItemGroup>
 
 </Project>

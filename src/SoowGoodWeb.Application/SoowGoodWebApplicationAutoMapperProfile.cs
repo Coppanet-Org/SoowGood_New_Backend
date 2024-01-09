@@ -132,6 +132,7 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<PaymentHistory, PaymentHistoryDto>();
         CreateMap<PaymentHistoryDto, PaymentHistory>();
         CreateMap<PaymentHistoryInputDto, PaymentHistory>();
+        CreateMap<PaymentHistoryMobileInputDto, PaymentHistory>();
 
         CreateMap<DrugRx, DrugRxDto>();
         CreateMap<DrugRxDto, DrugRx>();

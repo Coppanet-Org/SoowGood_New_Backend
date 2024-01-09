@@ -16,6 +16,9 @@ namespace SoowGoodWeb.DtoModels
         public long? DoctorProfileId { get; set; }
         public string? DoctorName { get; set; }
         public string? DoctorCode { get; set; }
+        public string? DoctorBmdcRegNo { get; set; }
+        public long? SpecialityId { get; set; }
+        public string? DoctorSpecilityName { get; set; }
         public long? PatientProfileId { get; set; }
         public string? PatientName { get; set; }
         public string? PatientCode { get; set; }

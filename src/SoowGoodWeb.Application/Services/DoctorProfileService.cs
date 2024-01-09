@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using AutoMapper;
+using Microsoft.IdentityModel.Tokens;
 using SoowGoodWeb.DtoModels;
 using SoowGoodWeb.Enums;
 using SoowGoodWeb.InputDto;
@@ -72,7 +73,7 @@ namespace SoowGoodWeb.Services
 
             //return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
 
-            var item = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, d => d.DoctorSpecialization);
+            var item = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, sp=>sp.Speciality, d => d.DoctorSpecialization);
 
             var profile = item.FirstOrDefault(item => item.Id == id);
 
@@ -545,8 +546,10 @@ namespace SoowGoodWeb.Services
 
         public async Task<DoctorProfileDto> GetByUserIdAsync(Guid userId)
         {
-            var item = await _doctorProfileRepository.GetAsync(x => x.UserId == userId);
-            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+            var doctorProfiles = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, sp => sp.Speciality, d => d.DoctorSpecialization);
+            var item = doctorProfiles.FirstOrDefault(x => x.UserId == userId);
+            var result = item != null ? ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item) : null;
+            return result;//ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
         }
 
         public async Task<DoctorProfileDto> UpdateAsync(DoctorProfileInputDto input)
@@ -555,7 +558,6 @@ namespace SoowGoodWeb.Services
             try
             {
                 var updateItem = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(input);
-
                 var item = await _doctorProfileRepository.UpdateAsync(updateItem);
                 await _unitOfWorkManager.Current.SaveChangesAsync();
                 result = ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
@@ -749,6 +751,35 @@ namespace SoowGoodWeb.Services
             return result;
         }
 
+        public async Task<DoctorProfileDto> UpdateDocotrProfileAsync(DoctorProfileInputDto input)
+        {
+            var result = new DoctorProfileDto();
+            try
+            {
+                var itemDoctor = await _doctorProfileRepository.GetAsync(d => d.Id == input.Id);
+                itemDoctor.FullName = input.FullName;
+                itemDoctor.DoctorTitle = input.DoctorTitle;
+                itemDoctor.Email = input.Email;
+                itemDoctor.Gender = input.Gender;
+                itemDoctor.DateOfBirth = input.DateOfBirth;
+                itemDoctor.BMDCRegNo = input.BMDCRegNo;
+                itemDoctor.BMDCRegExpiryDate = input.BMDCRegExpiryDate;
+                itemDoctor.Address = input.Address;
+                itemDoctor.City = input.City;
+                itemDoctor.Country = input.Country;
+                itemDoctor.ZipCode = input.ZipCode;
+                itemDoctor.IdentityNumber = input.IdentityNumber;
+                itemDoctor.SpecialityId = input.SpecialityId;
+
+                var item = await _doctorProfileRepository.UpdateAsync(itemDoctor);
+                await _unitOfWorkManager.Current.SaveChangesAsync();
+                result = ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+            }
+            catch (Exception ex)
+            {
+            }
+            return result;//ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+        }
         //public async Task<List<DoctorProfileDto>> GetListAsync()
         //{
         //    List<DoctorProfileDto> list = null;
