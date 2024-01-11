@@ -44,18 +44,18 @@ namespace SoowGoodWeb.Services
         //[HttpPost]
         public async Task<SslCommerzInitDto> InitiatePaymentAsync(SslCommerzInputDto input)
         {
-            return new SslCommerzInitDto();
+            //return new SslCommerzInitDto();
             input.TransactionId = GenerateTransactionId(16);
 
-            //var applicantData = await GetApplicantDetails(input);
+            var applicantData = await GetApplicantDetails(input);
 
-            //var postData = _sslCommerzGatewayManager.CreatePostData(applicantData);
+            var postData = _sslCommerzGatewayManager.CreatePostData(applicantData);
 
-            //var initResponse = await _sslCommerzGatewayManager.InitiatePaymentAsync(postData);
+            var initResponse = await _sslCommerzGatewayManager.InitiatePaymentAsync(postData);
 
-            //await InitPaymentHistory(input, initResponse);
+            await InitPaymentHistory(input, initResponse);
 
-            //return GetInitPaymentResponse(initResponse);
+            return GetInitPaymentResponse(initResponse);
         }
 
         private async Task InitPaymentHistory(SslCommerzInputDto input, SSLCommerzInitResponse initResponse)
