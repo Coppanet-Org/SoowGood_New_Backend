@@ -30,13 +30,15 @@ namespace SoowGoodWeb.Services
         private readonly IRepository<DoctorSpecialization> _doctorSpecializationRepository;
         private readonly IRepository<DoctorSchedule> _doctorScheduleRepository;
         private readonly IRepository<DocumentsAttachment> _documentsAttachment;
+        private readonly IRepository<FinancialSetup> _financialSetup;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         public DoctorProfileService(IRepository<DoctorProfile> doctorProfileRepository
                                     , IUnitOfWorkManager unitOfWorkManager
                                     , IRepository<DoctorDegree> doctorDegreeRepository
                                     , IRepository<DoctorSpecialization> doctorSpecializationRepository
                                     , IRepository<DoctorSchedule> doctorScheduleRepository
-                                    , IRepository<DocumentsAttachment> documentsAttachment)
+                                    , IRepository<DocumentsAttachment> documentsAttachment
+                                    , IRepository<FinancialSetup> financialSetup)
         {
             _doctorProfileRepository = doctorProfileRepository;
             _unitOfWorkManager = unitOfWorkManager;
@@ -44,6 +46,7 @@ namespace SoowGoodWeb.Services
             _doctorSpecializationRepository = doctorSpecializationRepository;
             _doctorScheduleRepository = doctorScheduleRepository;
             _documentsAttachment = documentsAttachment;
+            _financialSetup = financialSetup;
         }
         public async Task<DoctorProfileDto> CreateAsync(DoctorProfileInputDto input)
         {
@@ -251,6 +254,9 @@ namespace SoowGoodWeb.Services
 
             var attachedItems = await _documentsAttachment.WithDetailsAsync();
 
+            var financialSetups = await _financialSetup.WithDetailsAsync();
+            var fees = financialSetups.OrderBy(p => p.ProviderAmount).Where(a=>a.ProviderAmount!=null).ToList();
+
             if (!string.IsNullOrEmpty(doctorFilterModel?.name))
             {
                 profiles = profiles.Where(p => p.FullName.ToLower().Contains(doctorFilterModel.name.ToLower().Trim())).ToList();
@@ -289,6 +295,11 @@ namespace SoowGoodWeb.Services
                                                                 && x.EntityId == item.Id
                                                                 && x.AttachmentType == AttachmentType.ProfilePicture
                                                                 && x.IsDeleted == false).FirstOrDefault();
+                decimal? fee = 0;
+                if(item.IsOnline==true)
+                {
+                    fee = fees.FirstOrDefault().ProviderAmount;
+                }
                 var degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.Id).ToList();
                 string degStr = string.Empty;
                 foreach (var d in degrees)
@@ -340,7 +351,8 @@ namespace SoowGoodWeb.Services
                     profileStep = item.profileStep,
                     createFrom = item.createFrom,
                     DoctorCode = item.DoctorCode,
-                    ProfilePic = profilePics?.Path
+                    ProfilePic = profilePics?.Path,
+                    DisplayFee = fee
                 });
             }
 
@@ -512,12 +524,22 @@ namespace SoowGoodWeb.Services
 
             var attachedItems = await _documentsAttachment.WithDetailsAsync();
 
+            var financialSetups = await _financialSetup.WithDetailsAsync();
+            var fees = financialSetups.OrderBy(p => p.ProviderAmount).Where(a => a.ProviderAmount != null).ToList();
+
             foreach (var item in profiles)
             {
                 var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
                                                                 && x.EntityId == item.Id
                                                                 && x.AttachmentType == AttachmentType.ProfilePicture
                                                                 && x.IsDeleted == false).FirstOrDefault();
+
+                decimal? fee = 0;
+                if (item.IsOnline == true)
+                {
+                    fee = fees.FirstOrDefault().ProviderAmount;
+                }
+
                 var degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.Id).ToList();
                 string degStr = string.Empty;
                 foreach (var d in degrees)
@@ -569,7 +591,8 @@ namespace SoowGoodWeb.Services
                     profileStep = item.profileStep,
                     createFrom = item.createFrom,
                     DoctorCode = item.DoctorCode,
-                    ProfilePic = profilePics?.Path
+                    ProfilePic = profilePics?.Path,
+                    DisplayFee = fee
                 });
             }
 
