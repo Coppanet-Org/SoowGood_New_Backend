@@ -239,19 +239,20 @@ namespace SoowGoodWeb.Services
         {
             List<DoctorProfileDto> result = null;
             var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
-            var profiles = profileWithDetails.ToList();
-            var schedules = await _doctorScheduleRepository.WithDetailsAsync(d=>d.DoctorProfile);
 
-            
-
-            profiles = (from doctors in profiles
-                        join schedule in schedules on doctors.Id equals schedule.DoctorProfileId
-                        select doctors).Distinct().ToList();
             //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
             if (!profileWithDetails.Any())
             {
                 return result;
             }
+
+            var schedules = await _doctorScheduleRepository.WithDetailsAsync(d=>d.DoctorProfile);
+            var profiles = profileWithDetails.ToList();
+
+            profiles = (from doctors in profiles
+                        join schedule in schedules on doctors.Id equals schedule.DoctorProfileId
+                        select doctors).Distinct().ToList();
+
             result = new List<DoctorProfileDto>();
             var medicaldegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
 
@@ -379,13 +380,16 @@ namespace SoowGoodWeb.Services
         public async Task<int> GetDoctorsCountByFiltersAsync(DataFilterModel? doctorFilterModel)
         {
             var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
-            var profiles = profileWithDetails.ToList();
-            var schedules = await _doctorScheduleRepository.WithDetailsAsync();
-            //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
             if (!profileWithDetails.Any())
             {
                 return 0;
             }
+            var schedules = await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile);
+            var profiles = profileWithDetails.ToList();
+
+            profiles = (from doctors in profiles
+                        join schedule in schedules on doctors.Id equals schedule.DoctorProfileId
+                        select doctors).Distinct().ToList();
             var medicaldegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
             var doctorDegrees = ObjectMapper.Map<List<DoctorDegree>, List<DoctorDegreeDto>>(medicaldegrees.ToList());
 
@@ -525,19 +529,20 @@ namespace SoowGoodWeb.Services
             List<DoctorProfileDto> result = null;
             var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
 
-            var schedules = await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile);
-
             
-            var profiles = profileWithDetails.ToList();
-
-            profiles = (from doctors in profiles join schedule in schedules on doctors.Id equals schedule.DoctorProfileId
-                        select doctors).Distinct().ToList();
-
-            //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
+            
             if (!profileWithDetails.Any())
             {
                 return result;
             }
+            var profiles = profileWithDetails.ToList();
+
+            var schedules = await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile);
+
+            profiles = (from doctors in profiles
+                        join schedule in schedules on doctors.Id equals schedule.DoctorProfileId
+                        select doctors).Distinct().ToList();
+
             result = new List<DoctorProfileDto>();
             var medicaldegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
 
