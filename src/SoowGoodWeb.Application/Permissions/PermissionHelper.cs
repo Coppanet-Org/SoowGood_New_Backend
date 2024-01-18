@@ -20,7 +20,7 @@ namespace SoowGoodWeb
         //public static readonly string _authority = "https://103.125.253.240";
         //public static readonly string _identityClientUrl = "https://103.125.253.240:8443";
 
-
+         
 
         public static readonly string _authority = "https://192.168.1.105";
         public static readonly string _identityClientUrl = "https://192.168.1.105:8443";
