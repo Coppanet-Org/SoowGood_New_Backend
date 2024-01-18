@@ -16,6 +16,7 @@ namespace SoowGoodWeb.Models
         public Speciality? Speciality { get; set; }
         public long? SpecializationId { get; set; }
         public Specialization? Specialization { get; set; }
+        public string? ServiceDetails { get; set; }
         public string? DocumentName { get; set; }
     }
 }
