@@ -91,7 +91,7 @@ namespace SoowGoodWeb.Services
                     consultencyType = (input.ConsultancyType > 0 ? (ConsultancyType)input.ConsultancyType : 0).ToString();
                     input.AppointmentSerial = (lastSerial + 1).ToString();
                     input.AppointmentCode = input.DoctorCode + input.AppointmentDate?.ToString("yyyyMMdd") + consultencyType + "SL00" + input.AppointmentSerial;
-                } 
+                }
                 else
                 {
                     input.ConsultancyType = ConsultancyType.OnlineRT;
@@ -182,6 +182,7 @@ namespace SoowGoodWeb.Services
             }
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
+
         public async Task<List<AppointmentDto>> GetAppointmentListForDoctorWithSearchFilterAsync(long doctorId, DataFilterModel? dataFilter, FilterModel filterModel)
         {
             CultureInfo provider = CultureInfo.InvariantCulture;
@@ -219,6 +220,7 @@ namespace SoowGoodWeb.Services
             }
 
         }
+
         public async Task<int> GetAppointmentCountForDoctorWithSearchFilterAsync(long doctorId, DataFilterModel? dataFilter)
         {
             CultureInfo provider = CultureInfo.InvariantCulture;
@@ -255,14 +257,14 @@ namespace SoowGoodWeb.Services
 
         }
 
-        public async Task<List<AppointmentDto>> GetAppointmentListByPatientIdAsync(long patientId)
+        public async Task<List<AppointmentDto>> GetAppointmentListByPatientIdAsync(long patientId, string role)
         {
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-            var appointments = item.Where(d => d.AppointmentCreatorId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+            var appointments = item.Where(d => d.AppointmentCreatorId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed) && d.AppointmentCreatorRole == role).ToList();
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
 
-        public async Task<List<AppointmentDto>> GetAppointmentListForPatientWithSearchFilterAsync(long patientId, DataFilterModel? dataFilter, FilterModel filterModel)
+        public async Task<List<AppointmentDto>> GetAppointmentListForPatientWithSearchFilterAsync(long patientId, string role, DataFilterModel? dataFilter, FilterModel filterModel)
         {
             CultureInfo provider = CultureInfo.InvariantCulture;
             try
@@ -272,7 +274,7 @@ namespace SoowGoodWeb.Services
                     dataFilter.toDate = dataFilter.fromDate; ;
                 }
                 var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-                var appointments = item.Where(d => d.DoctorProfileId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+                var appointments = item.Where(d => d.AppointmentCreatorId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed) && d.AppointmentCreatorRole == role).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
 
                 if (!string.IsNullOrEmpty(dataFilter.name))
                 {
@@ -299,7 +301,8 @@ namespace SoowGoodWeb.Services
             }
 
         }
-        public async Task<int> GetAppointmentCountForPatientWithSearchFilterAsync(long patientId, DataFilterModel? dataFilter)
+
+        public async Task<int> GetAppointmentCountForPatientWithSearchFilterAsync(long patientId, string role, DataFilterModel? dataFilter)
         {
             CultureInfo provider = CultureInfo.InvariantCulture;
             try
@@ -309,7 +312,7 @@ namespace SoowGoodWeb.Services
                     dataFilter.toDate = dataFilter.fromDate; ;
                 }
                 var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-                var appointments = item.Where(d => d.DoctorProfileId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+                var appointments = item.Where(d => d.AppointmentCreatorId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed) && d.AppointmentCreatorRole == role).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
 
                 if (!string.IsNullOrEmpty(dataFilter.name))
                 {
@@ -336,6 +339,7 @@ namespace SoowGoodWeb.Services
         public async Task<List<AppointmentDto>> GetListAppointmentListByAdminAsync()
         {
             List<AppointmentDto>? result = null;
+            DoctorScheduleDaySession? weekDayName = null;
             var allAppoinment = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule, c => c.DoctorSchedule.DoctorChamber);
             //var  = await _appointmentRepository.GetListAsync();
             if (!allAppoinment.Any())
@@ -347,7 +351,10 @@ namespace SoowGoodWeb.Services
             foreach (var item in allAppoinment)
             {
                 var patientDetails = await _patientProfileRepository.GetAsync(p => p.Id == item.PatientProfileId);
-                var weekDayName = await _doctorScheduleSessionRepository.GetAsync(p => p.Id == item.DoctorScheduleDaySessionId);
+                if (item.DoctorScheduleDaySessionId > 0)
+                {
+                    weekDayName = await _doctorScheduleSessionRepository.GetAsync(p => p.Id == item.DoctorScheduleDaySessionId);
+                }
                 result.Add(new AppointmentDto()
                 {
                     Id = item.Id,
@@ -358,7 +365,7 @@ namespace SoowGoodWeb.Services
                     AppointmentTypeName = item.AppointmentType > 0 ? ((AppointmentType)item.AppointmentType).ToString() : "n/a",
                     DoctorName = item.DoctorName,
                     DoctorScheduleId = item.DoctorScheduleId,
-                    DoctorScheduleName = item.DoctorSchedule.ScheduleName,
+                    DoctorScheduleName = item.DoctorScheduleId > 0 ? item.DoctorSchedule?.ScheduleName : "n/a",
                     AppointmentCode = item.AppointmentCode,
                     AppointmentStatus = item.AppointmentStatus,
                     DoctorCode = item.DoctorCode,
@@ -371,7 +378,7 @@ namespace SoowGoodWeb.Services
                     ConsultancyType = item.ConsultancyType,
                     ConsultancyTypeName = item.ConsultancyType > 0 ? ((ConsultancyType)item.ConsultancyType).ToString() : "n/a",
                     DoctorChamberId = item.DoctorChamberId,
-                    DoctorChamberName = item.DoctorChamberId > 0 ? item.DoctorSchedule.DoctorChamber.ChamberName : "n/a",
+                    DoctorChamberName = item.DoctorChamberId > 0 ? item.DoctorSchedule?.DoctorChamber?.ChamberName : "n/a",
                     DoctorFee = item.DoctorFee,
                     PatientLocation = patientDetails?.City?.ToString(),
                     DoctorScheduleDaySessionId = item.DoctorScheduleDaySessionId,
@@ -389,6 +396,7 @@ namespace SoowGoodWeb.Services
             var appCount = appointments.Count();
             return appCount;
         }
+
         public async Task<int> GetLeftBookingCount(long sessionId, long scheduleId)
         {
             int resultNp = 0;
@@ -536,5 +544,74 @@ namespace SoowGoodWeb.Services
             return appCount;
         }
 
+        public async Task<ResponseDto> CancellAppointmentAsync(long appId, long cancelByid, string cancelByRole)
+        {
+            var response = new ResponseDto();
+            try
+            {
+                var itemAppointment = await _appointmentRepository.GetAsync(a => a.Id == appId);//.FindAsync(input.Id);
+                itemAppointment.AppointmentStatus = AppointmentStatus.Cancelled;
+                itemAppointment.CancelledByEntityId = cancelByid;
+                itemAppointment.CancelledByRole = cancelByRole;
+
+
+
+                var item = await _appointmentRepository.UpdateAsync(itemAppointment);
+                //await _unitOfWorkManager.Current.SaveChangesAsync();
+                var result = ObjectMapper.Map<Appointment, AppointmentDto>(item);
+                if (result != null)
+                {
+                    response.Id = result.Id;
+                    response.Value = "";
+                    response.Success = true;
+                    response.Message = "Consultation complete";
+                }
+                return response;//ObjectMapper.Map<Appointment, AppointmentDto>(item);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            return response;
+        }
+
+        public async Task<List<AppointmentDto>> GetSearchedPatientListByDoctorIdAsync(long doctorId, string name)
+        {
+            var restultPatientList = new List<AppointmentDto>();
+            try
+            {
+                var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
+                //var appointments = await item.Where(d=> d.DoctorProfileId == doctorId && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
+                var appointments = item.Where(d => d.DoctorProfileId == doctorId);// && d.AppointmentStatus == AppointmentStatus.Confirmed).ToList();
+                var patientIds = (from app in appointments
+                                  select app.PatientProfileId).Distinct();
+                foreach (var appointment in patientIds)
+                {
+                    var patient = await _patientProfileRepository.GetAsync(p => p.Id == appointment);
+                    restultPatientList.Add(new AppointmentDto()
+                    {
+                        DoctorProfileId = doctorId,
+                        PatientProfileId = patient.Id,
+                        PatientCode = patient.PatientCode,
+                        PatientName = patient.PatientName,
+                        PatientMobileNo = patient.PatientMobileNo,
+                        PatientEmail = patient.PatientEmail,
+                        PatientLocation = patient.City
+                    });
+                }
+
+                if (!string.IsNullOrEmpty(name))
+                {
+                    restultPatientList = restultPatientList.Where(p => p.PatientName.Contains(name)).ToList();
+                }
+
+                return restultPatientList;//ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
+            }
+            catch (Exception ex)
+            {
+                return restultPatientList;
+            }
+
+        }
     }
 }

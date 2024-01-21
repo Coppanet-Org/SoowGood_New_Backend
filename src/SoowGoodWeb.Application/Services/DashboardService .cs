@@ -447,15 +447,15 @@ namespace SoowGoodWeb.Services
         //}
         public async Task<DashboardDto> GetDashboadDataForDoctorAsync(long doctorid)
         {
-            var result=new DashboardDto();
+            var result = new DashboardDto();
             decimal? totalFees = 0;
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
             var appointments = item.Where(d => d.DoctorProfileId == doctorid).ToList();
             var patients = (from t1 in appointments
-                              select t1.PatientProfileId).Distinct().ToList();
+                            select t1.PatientProfileId).Distinct().ToList();
             result.totalAppointment = appointments.Count;
             result.totalPatient = patients.Count;
-            foreach(var app in appointments)
+            foreach (var app in appointments)
             {
                 totalFees = totalFees + app.DoctorFee;
             }
@@ -468,28 +468,25 @@ namespace SoowGoodWeb.Services
             CultureInfo provider = CultureInfo.InvariantCulture;
             try
             {
-                //if (dataFilter?.toDate == null || dataFilter?.toDate == "Invalid Date")
-                //{
-                //    dataFilter.toDate = dataFilter.fromDate;
-                //}
                 var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-                var appointments = item.Where(d => d.DoctorProfileId == doctorId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+                //var appointments = item.Where(d => d.DoctorProfileId == doctorId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+                var appointments = new List<Appointment>();
 
-                
 
-                if (day == "Today")
+                if (day == "All")
                 {
-                    appointments = appointments.Where(p => (p.AppointmentDate.Value.Date == DateTime.Now.Date)).ToList();
-                    //DateTime.ParseExact(DateTime.Today, "MM/dd/yyyy", provider, DateTimeStyles.None))).ToList();
+                    appointments = item.Where(d => d.DoctorProfileId == doctorId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+                                                                                                                                                                                                         //appointments.Where(p => (p.AppointmentDate.Value.Date == DateTime.Now.Date)).ToList();
+                                                                                                                                                                                                         //DateTime.ParseExact(DateTime.Today, "MM/dd/yyyy", provider, DateTimeStyles.None))).ToList();
                 }
-                else if(day == "Passed")
+                else if (day == "Confirmed")
                 {
-                    appointments = appointments.Where(p => (p.AppointmentDate.Value.Date < DateTime.Now.Date)).ToList();
+                    appointments = item.Where(p => p.DoctorProfileId == doctorId && (p.AppointmentStatus == AppointmentStatus.Confirmed)).ToList();
                 }
 
-                else if (day == "Upcomming")
+                else if (day == "Completed")
                 {
-                    appointments = appointments.Where(p => (p.AppointmentDate.Value.Date > DateTime.Now.Date)).ToList();
+                    appointments = item.Where(p => p.DoctorProfileId == doctorId && (p.AppointmentStatus == AppointmentStatus.Completed)).ToList();
                 }
 
 
@@ -502,12 +499,12 @@ namespace SoowGoodWeb.Services
 
         }
 
-        public async Task<DashboardDto> GetDashboadDataForPatientAsync(long patientId)
+        public async Task<DashboardDto> GetDashboadDataForPatientAsync(long patientId, string role)
         {
             var result = new DashboardDto();
             decimal? totalFees = 0;
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-            var appointments = item.Where(d => d.PatientProfileId == patientId).ToList();
+            var appointments = item.Where(d => d.AppointmentCreatorId == patientId && d.AppointmentCreatorRole==role).ToList();
             var patients = (from t1 in appointments
                             select t1.PatientProfileId).Distinct().ToList();
             result.totalAppointment = appointments.Count;
@@ -520,32 +517,27 @@ namespace SoowGoodWeb.Services
             return result;
         }
 
-        public async Task<List<AppointmentDto>> GetDashboardAppointmentListForPatientAsync(long patientId, string day)
+        public async Task<List<AppointmentDto>> GetDashboardAppointmentListForPatientAsync(long patientId, string role, string day)
         {
             CultureInfo provider = CultureInfo.InvariantCulture;
             try
             {
-                //if (dataFilter?.toDate == null || dataFilter?.toDate == "Invalid Date")
-                //{
-                //    dataFilter.toDate = dataFilter.fromDate;
-                //}
                 var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-                var appointments = item.Where(d => d.PatientProfileId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+                //var appointments = item.Where(d => d.AppointmentCreatorId == patientId && d.AppointmentCreatorRole==role && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
+                var appointments = new List<Appointment>();
 
 
-
-                if (day == "Today")
+                if (day == "All")
                 {
-                    appointments = appointments.Where(p => (p.AppointmentDate.Value.Date == DateTime.Now.Date)).ToList();
-                    //DateTime.ParseExact(DateTime.Today, "MM/dd/yyyy", provider, DateTimeStyles.None))).ToList();
+                    appointments = item.Where(d => d.AppointmentCreatorId == patientId && d.AppointmentCreatorRole == role && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
                 }
-                else if (day == "Passed")
+                else if (day == "Confirmed")
                 {
-                    appointments = appointments.Where(p => (p.AppointmentDate.Value.Date < DateTime.Now.Date)).ToList();
+                    appointments = item.Where(p => p.AppointmentCreatorId == patientId && p.AppointmentCreatorRole == role && (p.AppointmentStatus == AppointmentStatus.Confirmed)).ToList();
                 }
-                else if (day == "Upcomming")
+                else if (day == "Completed")
                 {
-                    appointments = appointments.Where(p => (p.AppointmentDate.Value.Date > DateTime.Now.Date)).ToList();
+                    appointments = item.Where(p => p.AppointmentCreatorId == patientId && p.AppointmentCreatorRole == role && (p.AppointmentStatus == AppointmentStatus.Completed)).ToList();
                 }
 
                 return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
@@ -556,7 +548,6 @@ namespace SoowGoodWeb.Services
             }
 
         }
-
 
     }
 }

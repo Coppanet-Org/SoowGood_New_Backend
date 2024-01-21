@@ -29,10 +29,12 @@ namespace SoowGoodWeb.DtoModels
         public string? BMDCRegNo { get; set; }
         public DateTime? BMDCRegExpiryDate { get; set; }
         public List<DoctorDegreeDto>? Degrees { get; set; }
+        public string? Qualifications { get; set; }
         public long? SpecialityId { get; set; }
         public string? SpecialityName { get; set; }
         //public SpecialityDto? Speciality { get; set; }
         public List<DoctorSpecializationDto>? DoctorSpecialization { get; set; }
+        public string? AreaOfExperties { get; set; }
         public bool? IsIdFileUploaded { get; set; }
         public bool? IsSpecialityFileUploaded { get; set; }
         public bool? IsActive { get; set; }
@@ -41,5 +43,7 @@ namespace SoowGoodWeb.DtoModels
         public int? profileStep { get; set; }
         public string? createFrom { get; set; }
         public string? ProfileRole { get; set; }
+        public string? ProfilePic { get; set; }
+        public decimal? DisplayFee { get; set; }
     }
 }

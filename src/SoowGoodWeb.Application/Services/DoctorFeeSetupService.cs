@@ -130,7 +130,7 @@ namespace SoowGoodWeb.Services
                     
                     await _unitOfWorkManager.Current.SaveChangesAsync();
                     result = ObjectMapper.Map<DoctorFeesSetup, DoctorFeesSetupDto>(doctorSchedule);
-                    result.DoctorSchedule = ((ConsultancyType)schedule?.ConsultancyType!).ToString() + '_' +  schedule?.DoctorChamber.ChamberName;
+                    result.DoctorScheduleName = ((ConsultancyType)schedule?.ConsultancyType!).ToString() + '_' +  schedule?.DoctorChamber?.ChamberName;
                     result.ResponseSuccess = true;
                     result.ResponseMessage = "Fee successfully inserted.";
                     return result;
@@ -160,10 +160,15 @@ namespace SoowGoodWeb.Services
             var result = new DoctorFeesSetupDto();
             try
             {
+                var schedules = await _doctorScheduleRepository.WithDetailsAsync(c => c.DoctorChamber);
+                var schedule = schedules.Where(s => s.Id == input.DoctorScheduleId).FirstOrDefault();
                 var updateItem = ObjectMapper.Map<DoctorFeesSetupInputDto, DoctorFeesSetup>(input);
                 var item = await _doctorFeeRepository.UpdateAsync(updateItem);
                 await _unitOfWorkManager.Current.SaveChangesAsync();
                 result = ObjectMapper.Map<DoctorFeesSetup, DoctorFeesSetupDto>(item);
+                result.DoctorScheduleName = ((ConsultancyType)schedule?.ConsultancyType!).ToString() + '_' + schedule?.DoctorChamber?.ChamberName;
+                result.ResponseSuccess = true;
+                result.ResponseMessage = "Fee successfully updated.";
                 return result;
             }
             catch (Exception ex)
@@ -212,7 +217,7 @@ namespace SoowGoodWeb.Services
                 {
                     Id = fee.Id,
                     DoctorScheduleId = fee.DoctorScheduleId,
-                    DoctorSchedule = ((ConsultancyType)fee?.DoctorSchedule?.ConsultancyType!).ToString()
+                    DoctorScheduleName = ((ConsultancyType)fee?.DoctorSchedule?.ConsultancyType!).ToString()
                                       + (fee.DoctorSchedule?.DoctorChamberId > 0 ? "_" + fee?.DoctorSchedule.DoctorChamber?.ChamberName : ""),
                     AppointmentType = fee.AppointmentType,
                     AppointmentTypeName = ((AppointmentType)fee.AppointmentType).ToString(),
