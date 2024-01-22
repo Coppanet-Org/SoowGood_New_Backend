@@ -60,8 +60,35 @@ namespace SoowGoodWeb.Services
         }
         public async Task<List<AgentProfileDto>> GetListAsync()
         {
-            var profiles = await _agentProfileRepository.GetListAsync();
-            return ObjectMapper.Map<List<AgentProfile>, List<AgentProfileDto>>(profiles);
+            var result = new List<AgentProfileDto>();
+            try 
+            {
+                var profiles = await _agentProfileRepository.WithDetailsAsync(m => m.AgentMaster, s => s.AgentSupervisor);
+                var item = profiles.ToList();
+                if (item.Any())
+                {
+                    foreach (var profile in item)
+                    {
+                        result.Add(new AgentProfileDto()
+                        {
+                            Id = profile.Id,
+                            AgentCode = profile.AgentCode,
+                            FullName = profile.FullName,
+                            MobileNo = profile.MobileNo,
+                            Email = profile.Email,
+                            OrganizationName = profile.OrganizationName,
+                            City = profile.City,
+                            Address = profile.Address,
+                            AgentMasterName = profile?.AgentMaster?.AgentMasterOrgName,
+                            AgentSupervisorName = profile?.AgentSupervisor?.AgentSupervisorOrgName
+
+                        });
+                    }
+                }
+            }
+            catch(Exception e) { }
+
+            return result;//ObjectMapper.Map<List<AgentProfile>, List<AgentProfileDto>>(item);
         }
         public async Task<AgentProfileDto> GetByUserIdAsync(Guid userId)
         {
