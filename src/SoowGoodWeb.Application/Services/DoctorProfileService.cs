@@ -30,13 +30,17 @@ namespace SoowGoodWeb.Services
         private readonly IRepository<DoctorSpecialization> _doctorSpecializationRepository;
         private readonly IRepository<DoctorSchedule> _doctorScheduleRepository;
         private readonly IRepository<DocumentsAttachment> _documentsAttachment;
+        private readonly IRepository<FinancialSetup> _financialSetup;
+        private readonly IRepository<DoctorFeesSetup> _doctorFeesSetup;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         public DoctorProfileService(IRepository<DoctorProfile> doctorProfileRepository
                                     , IUnitOfWorkManager unitOfWorkManager
                                     , IRepository<DoctorDegree> doctorDegreeRepository
                                     , IRepository<DoctorSpecialization> doctorSpecializationRepository
                                     , IRepository<DoctorSchedule> doctorScheduleRepository
-                                    , IRepository<DocumentsAttachment> documentsAttachment)
+                                    , IRepository<DocumentsAttachment> documentsAttachment
+                                    , IRepository<FinancialSetup> financialSetup
+                                    , IRepository<DoctorFeesSetup> doctorFeesSetup)
         {
             _doctorProfileRepository = doctorProfileRepository;
             _unitOfWorkManager = unitOfWorkManager;
@@ -44,6 +48,8 @@ namespace SoowGoodWeb.Services
             _doctorSpecializationRepository = doctorSpecializationRepository;
             _doctorScheduleRepository = doctorScheduleRepository;
             _documentsAttachment = documentsAttachment;
+            _financialSetup = financialSetup;
+            _doctorFeesSetup = doctorFeesSetup;
         }
         public async Task<DoctorProfileDto> CreateAsync(DoctorProfileInputDto input)
         {
@@ -233,13 +239,20 @@ namespace SoowGoodWeb.Services
         {
             List<DoctorProfileDto> result = null;
             var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
-            var profiles = profileWithDetails.ToList();
-            var schedules = await _doctorScheduleRepository.WithDetailsAsync();
+
             //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
             if (!profileWithDetails.Any())
             {
                 return result;
             }
+
+            var schedules = await _doctorScheduleRepository.WithDetailsAsync(d=>d.DoctorProfile);
+            var profiles = profileWithDetails.ToList();
+
+            profiles = (from doctors in profiles
+                        join schedule in schedules on doctors.Id equals schedule.DoctorProfileId
+                        select doctors).Distinct().ToList();
+
             result = new List<DoctorProfileDto>();
             var medicaldegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
 
@@ -250,6 +263,11 @@ namespace SoowGoodWeb.Services
             var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medcalSpecializations.ToList());
 
             var attachedItems = await _documentsAttachment.WithDetailsAsync();
+
+            var financialSetups = await _financialSetup.WithDetailsAsync();
+            var fees = financialSetups.OrderBy(p => p.ProviderAmount).Where(a => a.ProviderAmount != null).ToList();
+
+            var doctorFees = await _doctorFeesSetup.WithDetailsAsync(d => d.DoctorSchedule.DoctorProfile);
 
             if (!string.IsNullOrEmpty(doctorFilterModel?.name))
             {
@@ -289,6 +307,17 @@ namespace SoowGoodWeb.Services
                                                                 && x.EntityId == item.Id
                                                                 && x.AttachmentType == AttachmentType.ProfilePicture
                                                                 && x.IsDeleted == false).FirstOrDefault();
+                decimal? fee = 0;
+                if (item.IsOnline == true)
+                {
+                    fee = fees.FirstOrDefault().ProviderAmount;
+                }
+                else
+                {
+                    var docfeees = doctorFees.Where(f => f.DoctorSchedule.DoctorProfile.Id == item.Id && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
+                    fee = docfeees?.FirstOrDefault()?.TotalFee;
+                }
+
                 var degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.Id).ToList();
                 string degStr = string.Empty;
                 foreach (var d in degrees)
@@ -340,7 +369,8 @@ namespace SoowGoodWeb.Services
                     profileStep = item.profileStep,
                     createFrom = item.createFrom,
                     DoctorCode = item.DoctorCode,
-                    ProfilePic = profilePics?.Path
+                    ProfilePic = profilePics?.Path,
+                    DisplayFee = fee
                 });
             }
 
@@ -350,13 +380,16 @@ namespace SoowGoodWeb.Services
         public async Task<int> GetDoctorsCountByFiltersAsync(DataFilterModel? doctorFilterModel)
         {
             var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
-            var profiles = profileWithDetails.ToList();
-            var schedules = await _doctorScheduleRepository.WithDetailsAsync();
-            //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
             if (!profileWithDetails.Any())
             {
                 return 0;
             }
+            var schedules = await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile);
+            var profiles = profileWithDetails.ToList();
+
+            profiles = (from doctors in profiles
+                        join schedule in schedules on doctors.Id equals schedule.DoctorProfileId
+                        select doctors).Distinct().ToList();
             var medicaldegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
             var doctorDegrees = ObjectMapper.Map<List<DoctorDegree>, List<DoctorDegreeDto>>(medicaldegrees.ToList());
 
@@ -495,12 +528,21 @@ namespace SoowGoodWeb.Services
         {
             List<DoctorProfileDto> result = null;
             var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
-            var profiles = profileWithDetails.ToList();
-            //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
+
+            
+            
             if (!profileWithDetails.Any())
             {
                 return result;
             }
+            var profiles = profileWithDetails.ToList();
+
+            var schedules = await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile);
+
+            profiles = (from doctors in profiles
+                        join schedule in schedules on doctors.Id equals schedule.DoctorProfileId
+                        select doctors).Distinct().ToList();
+
             result = new List<DoctorProfileDto>();
             var medicaldegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
 
@@ -512,12 +554,29 @@ namespace SoowGoodWeb.Services
 
             var attachedItems = await _documentsAttachment.WithDetailsAsync();
 
+            var financialSetups = await _financialSetup.WithDetailsAsync();
+            var fees = financialSetups.OrderBy(p => p.ProviderAmount).Where(a => a.ProviderAmount != null).ToList();
+
+            var doctorFees = await _doctorFeesSetup.WithDetailsAsync(d => d.DoctorSchedule.DoctorProfile);
+
             foreach (var item in profiles)
             {
                 var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
                                                                 && x.EntityId == item.Id
                                                                 && x.AttachmentType == AttachmentType.ProfilePicture
                                                                 && x.IsDeleted == false).FirstOrDefault();
+
+                decimal? fee = 0;
+                if (item.IsOnline == true)
+                {
+                    fee = fees?.FirstOrDefault()?.ProviderAmount;
+                }
+                else
+                {
+                    var docfeees = doctorFees.Where(f => f.DoctorSchedule.DoctorProfile.Id == item.Id && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
+                    fee = docfeees?.FirstOrDefault()?.TotalFee;
+                }
+
                 var degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.Id).ToList();
                 string degStr = string.Empty;
                 foreach (var d in degrees)
@@ -569,7 +628,8 @@ namespace SoowGoodWeb.Services
                     profileStep = item.profileStep,
                     createFrom = item.createFrom,
                     DoctorCode = item.DoctorCode,
-                    ProfilePic = profilePics?.Path
+                    ProfilePic = profilePics?.Path,
+                    DisplayFee = fee
                 });
             }
 
