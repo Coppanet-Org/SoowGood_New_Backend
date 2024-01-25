@@ -360,7 +360,7 @@ namespace SoowGoodWeb.Services
             {
                 return result;
             }
-
+             
             result = new List<AppointmentDto>();
             foreach (var item in allAppoinment)
             {
