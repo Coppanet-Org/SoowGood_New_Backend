@@ -25,7 +25,7 @@ namespace SoowGoodWeb.Services
     public class AppointmentService : SoowGoodWebAppService, IAppointmentService
     {
         private readonly IRepository<Appointment> _appointmentRepository;
-        //private readonly IRepository<DoctorChamber> _doctorChamberRepository;
+        private readonly IRepository<DoctorChamber> _doctorChamberRepository;
         private readonly IRepository<DoctorScheduleDaySession> _doctorScheduleSessionRepository;
         private readonly IRepository<PatientProfile> _patientProfileRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
@@ -34,7 +34,7 @@ namespace SoowGoodWeb.Services
 
         private uint _expireTimeInSeconds = 3600;
         public AppointmentService(IRepository<Appointment> appointmentRepository,
-            //IRepository<DoctorChamber> doctorChamberRepository,
+            IRepository<DoctorChamber> doctorChamberRepository,
             IRepository<DoctorScheduleDaySession> doctorScheduleSessionRepository,
             IRepository<PatientProfile> patientProfileRepository,
             SslCommerzGatewayManager sslCommerzGatewayManager,
@@ -42,7 +42,7 @@ namespace SoowGoodWeb.Services
         {
             _appointmentRepository = appointmentRepository;
             //_doctorScheduleRepository = doctorScheduleRepository;
-            //_doctorChamberRepository = doctorChamberRepository;
+            _doctorChamberRepository = doctorChamberRepository;
             _doctorScheduleSessionRepository = doctorScheduleSessionRepository;
             _patientProfileRepository = patientProfileRepository;
             _sslCommerzGatewayManager = sslCommerzGatewayManager;
@@ -58,6 +58,14 @@ namespace SoowGoodWeb.Services
             {
                 var consultencyType = "";
                 long lastSerial = 0;//await GetAppCountByScheduleIdSessionIdAsync(input.DoctorScheduleId, input.DoctorScheduleDaySessionId);
+                string? chamberName = "";
+                if (input.DoctorChamberId > 0)
+                
+                {
+                    var AppChamber = await _doctorChamberRepository.FirstOrDefaultAsync(c => c.Id == input.DoctorChamberId);
+                    chamberName = AppChamber.ChamberName;
+                    //input.ScheduleName = ((ConsultancyType)input?.ConsultancyType!).ToString() + '_' + chName.Result?.ChamberName?.ToString();
+                }
                 if (input.DoctorScheduleId > 0 && input.DoctorScheduleDaySessionId > 0)
                 {
                     var mainSession = await _doctorScheduleSessionRepository.GetAsync(s => s.Id == input.DoctorScheduleDaySessionId && s.DoctorScheduleId == input.DoctorScheduleId);
@@ -106,7 +114,13 @@ namespace SoowGoodWeb.Services
                 var newEntity = ObjectMapper.Map<AppointmentInputDto, Appointment>(input);
 
                 var doctorChamber = await _appointmentRepository.InsertAsync(newEntity);
+                
                 response = ObjectMapper.Map<Appointment, AppointmentDto>(doctorChamber);
+
+                response.AppointmentTypeName = response.AppointmentType.ToString();
+                response.ConsultancyTypeName = response.ConsultancyType.ToString();
+                response.DoctorChamberName = !string.IsNullOrEmpty(chamberName) ? chamberName.ToString() : "SoowGood Online";
+
             }
             catch (Exception ex)
             {

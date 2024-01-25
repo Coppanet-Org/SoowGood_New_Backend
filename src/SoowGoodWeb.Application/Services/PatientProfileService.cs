@@ -137,24 +137,27 @@ namespace SoowGoodWeb.Services
             try
             {
                 var itemPatient = await _patientRepository.FindAsync(input.Id);
-                // itemPatient.IsSelf = input.IsSelf;
                 itemPatient.FullName = !string.IsNullOrEmpty(itemPatient.FullName) ? itemPatient.FullName : input.FullName;
+                itemPatient.IsSelf = itemPatient.IsSelf != false ? itemPatient.IsSelf : input.IsSelf;
                 itemPatient.PatientName = !string.IsNullOrEmpty(itemPatient.PatientName) ? itemPatient.PatientName : input.PatientName;
-                itemPatient.PatientEmail = !string.IsNullOrEmpty(itemPatient.PatientEmail) ? itemPatient.PatientEmail : input.PatientEmail;
-                itemPatient.PatientMobileNo = !string.IsNullOrEmpty(itemPatient.PatientMobileNo) ? itemPatient.PatientMobileNo : input.PatientMobileNo;
-                itemPatient.BloodGroup = !string.IsNullOrEmpty(itemPatient.BloodGroup) ? itemPatient.BloodGroup : input.BloodGroup;
-                itemPatient.Age = itemPatient.Age > 0 ? itemPatient.Age : input.Age;
-                itemPatient.DateOfBirth = !string.IsNullOrEmpty(itemPatient.DateOfBirth.ToString()) ? itemPatient.DateOfBirth : input.DateOfBirth;
-                itemPatient.Gender = itemPatient.Gender > 0 ? itemPatient.Gender : input.Gender;
-                itemPatient.City = !string.IsNullOrEmpty(itemPatient.City) ? itemPatient.City : input.City;
-                itemPatient.Country = !string.IsNullOrEmpty(itemPatient.Country) ? itemPatient.Country : input.Country;
-                itemPatient.ZipCode = !string.IsNullOrEmpty(itemPatient.ZipCode) ? itemPatient.ZipCode : input.ZipCode;
-                //input.CreatedBy = itemPatient.CreatedBy;
-                //input.CratorCode = itemPatient.CratorCode;
-                //input.CreatorEntityId = itemPatient.CreatorEntityId;
-                itemPatient.PatientCode = !string.IsNullOrEmpty(itemPatient.PatientCode) ? itemPatient.PatientCode : input.PatientCode;
 
-                //var updateItem = ObjectMapper.Map<PatientProfileInputDto, PatientProfile>(input);
+                itemPatient.PatientCode = !string.IsNullOrEmpty(itemPatient.PatientCode) ? itemPatient.PatientCode : input.PatientName;
+                itemPatient.DateOfBirth = !string.IsNullOrEmpty(itemPatient.DateOfBirth.ToString()) ? itemPatient.DateOfBirth : input.DateOfBirth;
+                itemPatient.Age = itemPatient.Age > 0 ? itemPatient.Age : input.Age;
+                itemPatient.Gender = itemPatient.Gender > 0 ? itemPatient.Gender : input.Gender;
+                itemPatient.BloodGroup = !string.IsNullOrEmpty(itemPatient.BloodGroup) ? itemPatient.BloodGroup : input.BloodGroup;
+                itemPatient.Address = !string.IsNullOrEmpty(itemPatient.Address) ? itemPatient.Address : input.City;
+                itemPatient.City = !string.IsNullOrEmpty(itemPatient.City) ? itemPatient.City : input.City;
+                itemPatient.ZipCode = !string.IsNullOrEmpty(itemPatient.ZipCode) ? itemPatient.ZipCode : input.ZipCode;
+                itemPatient.Country = !string.IsNullOrEmpty(itemPatient.Country) ? itemPatient.Country : input.Country;
+                itemPatient.MobileNo = !string.IsNullOrEmpty(itemPatient.MobileNo) ? itemPatient.MobileNo : input.PatientMobileNo;
+                itemPatient.PatientMobileNo = !string.IsNullOrEmpty(itemPatient.PatientMobileNo) ? itemPatient.PatientMobileNo : input.PatientMobileNo;
+                itemPatient.Email = !string.IsNullOrEmpty(itemPatient.Email) ? itemPatient.Email : input.PatientEmail;
+                itemPatient.PatientEmail = !string.IsNullOrEmpty(itemPatient.PatientEmail) ? itemPatient.PatientEmail : input.PatientEmail;
+                itemPatient.CreatedBy = !string.IsNullOrEmpty(itemPatient.PatientMobileNo) ? itemPatient.PatientMobileNo : input.PatientMobileNo;
+                itemPatient.CreatorCode = !string.IsNullOrEmpty(itemPatient.CreatorCode) ? itemPatient.CreatorCode : input.CreatorCode;
+                itemPatient.CreatorEntityId = itemPatient.CreatorEntityId > 0 ? itemPatient.CreatorEntityId : input.CreatorEntityId;
+                itemPatient.UserId = itemPatient.UserId != null ? itemPatient.UserId : input.UserId;
 
                 var item = await _patientRepository.UpdateAsync(itemPatient);
                 await _unitOfWorkManager.Current.SaveChangesAsync();
@@ -258,7 +261,7 @@ namespace SoowGoodWeb.Services
         public async Task<List<PatientProfileDto>> GetPatientListBySearchUserProfileIdAsync(long profileId, string role, string name)
         {
             var profiles = await _patientProfileRepository.GetListAsync(p => p.CreatorEntityId == profileId && p.CreatorRole == role);
-            if(!string.IsNullOrEmpty(name))
+            if (!string.IsNullOrEmpty(name))
             {
                 profiles = profiles.Where(p => p.FullName.Contains(name)).ToList();
             }
