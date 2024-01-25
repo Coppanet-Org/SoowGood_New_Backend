@@ -137,27 +137,27 @@ namespace SoowGoodWeb.Services
             try
             {
                 var itemPatient = await _patientRepository.FindAsync(input.Id);
-                itemPatient.FullName = !string.IsNullOrEmpty(itemPatient.FullName) ? itemPatient.FullName : input.FullName;
-                itemPatient.IsSelf = itemPatient.IsSelf != false ? itemPatient.IsSelf : input.IsSelf;
-                itemPatient.PatientName = !string.IsNullOrEmpty(itemPatient.PatientName) ? itemPatient.PatientName : input.PatientName;
+                itemPatient.FullName = !string.IsNullOrEmpty(input.FullName) ? input.FullName : itemPatient.FullName;
+                itemPatient.IsSelf = itemPatient.IsSelf != false ? input.IsSelf : itemPatient.IsSelf;
+                itemPatient.PatientName = !string.IsNullOrEmpty(input.PatientName) ? input.PatientName : itemPatient.PatientName;
 
-                itemPatient.PatientCode = !string.IsNullOrEmpty(itemPatient.PatientCode) ? itemPatient.PatientCode : input.PatientName;
-                itemPatient.DateOfBirth = !string.IsNullOrEmpty(itemPatient.DateOfBirth.ToString()) ? itemPatient.DateOfBirth : input.DateOfBirth;
-                itemPatient.Age = itemPatient.Age > 0 ? itemPatient.Age : input.Age;
-                itemPatient.Gender = itemPatient.Gender > 0 ? itemPatient.Gender : input.Gender;
-                itemPatient.BloodGroup = !string.IsNullOrEmpty(itemPatient.BloodGroup) ? itemPatient.BloodGroup : input.BloodGroup;
-                itemPatient.Address = !string.IsNullOrEmpty(itemPatient.Address) ? itemPatient.Address : input.City;
-                itemPatient.City = !string.IsNullOrEmpty(itemPatient.City) ? itemPatient.City : input.City;
-                itemPatient.ZipCode = !string.IsNullOrEmpty(itemPatient.ZipCode) ? itemPatient.ZipCode : input.ZipCode;
-                itemPatient.Country = !string.IsNullOrEmpty(itemPatient.Country) ? itemPatient.Country : input.Country;
-                itemPatient.MobileNo = !string.IsNullOrEmpty(itemPatient.MobileNo) ? itemPatient.MobileNo : input.PatientMobileNo;
-                itemPatient.PatientMobileNo = !string.IsNullOrEmpty(itemPatient.PatientMobileNo) ? itemPatient.PatientMobileNo : input.PatientMobileNo;
-                itemPatient.Email = !string.IsNullOrEmpty(itemPatient.Email) ? itemPatient.Email : input.PatientEmail;
-                itemPatient.PatientEmail = !string.IsNullOrEmpty(itemPatient.PatientEmail) ? itemPatient.PatientEmail : input.PatientEmail;
-                itemPatient.CreatedBy = !string.IsNullOrEmpty(itemPatient.PatientMobileNo) ? itemPatient.PatientMobileNo : input.PatientMobileNo;
-                itemPatient.CreatorCode = !string.IsNullOrEmpty(itemPatient.CreatorCode) ? itemPatient.CreatorCode : input.CreatorCode;
-                itemPatient.CreatorEntityId = itemPatient.CreatorEntityId > 0 ? itemPatient.CreatorEntityId : input.CreatorEntityId;
-                itemPatient.UserId = itemPatient.UserId != null ? itemPatient.UserId : input.UserId;
+                itemPatient.PatientCode = !string.IsNullOrEmpty(input.PatientCode) ? input.PatientCode : itemPatient.PatientName;
+                itemPatient.DateOfBirth = !string.IsNullOrEmpty(input.DateOfBirth.ToString()) ? input.DateOfBirth : itemPatient.DateOfBirth;
+                itemPatient.Age = input.Age > 0 ? input.Age : itemPatient.Age;
+                itemPatient.Gender = input.Gender > 0 ? input.Gender : itemPatient.Gender;
+                itemPatient.BloodGroup = !string.IsNullOrEmpty(input.BloodGroup) ? input.BloodGroup : itemPatient.BloodGroup;
+                itemPatient.Address = !string.IsNullOrEmpty(input.Address) ? input.Address : itemPatient.City;
+                itemPatient.City = !string.IsNullOrEmpty(input.City) ? input.City : itemPatient.City;
+                itemPatient.ZipCode = !string.IsNullOrEmpty(input.ZipCode) ? input.ZipCode : itemPatient.ZipCode;
+                itemPatient.Country = !string.IsNullOrEmpty(input.Country) ? input.Country : itemPatient.Country;
+                itemPatient.MobileNo = !string.IsNullOrEmpty(input.MobileNo) ? input.MobileNo : itemPatient.PatientMobileNo;
+                itemPatient.PatientMobileNo = !string.IsNullOrEmpty(input.PatientMobileNo) ? input.PatientMobileNo : itemPatient.PatientMobileNo;
+                itemPatient.Email = !string.IsNullOrEmpty(input.Email) ? input.Email : itemPatient.PatientEmail;
+                itemPatient.PatientEmail = !string.IsNullOrEmpty(input.PatientEmail) ? input.PatientEmail : itemPatient.PatientEmail;
+                itemPatient.CreatedBy = !string.IsNullOrEmpty(input.PatientMobileNo) ? input.PatientMobileNo : itemPatient.PatientMobileNo;
+                itemPatient.CreatorCode = !string.IsNullOrEmpty(input.CreatorCode) ? input.CreatorCode : itemPatient.CreatorCode;
+                itemPatient.CreatorEntityId = input.CreatorEntityId > 0 ? input.CreatorEntityId : itemPatient.CreatorEntityId;
+                itemPatient.UserId = input.UserId != null ? input.UserId : itemPatient.UserId;
 
                 var item = await _patientRepository.UpdateAsync(itemPatient);
                 await _unitOfWorkManager.Current.SaveChangesAsync();

@@ -929,26 +929,26 @@ namespace SoowGoodWeb.Services
             try
             {
                 var itemDoctor = await _doctorProfileRepository.GetAsync(d => d.Id == input.Id);
-                itemDoctor.FullName = !string.IsNullOrEmpty(itemDoctor.FullName) ? itemDoctor.FullName : input.FullName;
-                itemDoctor.DoctorTitle = itemDoctor.DoctorTitle > 0 ? itemDoctor.DoctorTitle : input.DoctorTitle;
-                itemDoctor.DateOfBirth = itemDoctor.DateOfBirth != null ? itemDoctor.DateOfBirth : input.DateOfBirth;
-                itemDoctor.Gender = (itemDoctor.Gender > 0 || itemDoctor.Gender != null) ? itemDoctor.Gender : input.Gender;
-                itemDoctor.MaritalStatus = (itemDoctor.MaritalStatus > 0 || itemDoctor.MaritalStatus != null) ? itemDoctor.MaritalStatus : input.MaritalStatus;
-                itemDoctor.Address = !string.IsNullOrEmpty(itemDoctor.Address) ? itemDoctor.Address : input.Address;
-                itemDoctor.City = !string.IsNullOrEmpty(itemDoctor.City) ? itemDoctor.City : input.City;
-                itemDoctor.Country = !string.IsNullOrEmpty(itemDoctor.Country) ? itemDoctor.Country : input.Country;
-                itemDoctor.ZipCode = !string.IsNullOrEmpty(itemDoctor.ZipCode) ? itemDoctor.ZipCode : input.ZipCode;
-                itemDoctor.MobileNo = !string.IsNullOrEmpty(itemDoctor.MobileNo) ? itemDoctor.MobileNo : input.MobileNo;
-                itemDoctor.Email = !string.IsNullOrEmpty(itemDoctor.Email) ? itemDoctor.Email : input.Email;
-                itemDoctor.IdentityNumber = !string.IsNullOrEmpty(itemDoctor.IdentityNumber) ? itemDoctor.IdentityNumber : input.IdentityNumber;
-                itemDoctor.BMDCRegNo = !string.IsNullOrEmpty(itemDoctor.Email) ? itemDoctor.Email : input.BMDCRegNo;
-                itemDoctor.BMDCRegExpiryDate = itemDoctor.BMDCRegExpiryDate != null ? itemDoctor.BMDCRegExpiryDate : input.BMDCRegExpiryDate;
-                itemDoctor.SpecialityId = itemDoctor.SpecialityId > 0 ? itemDoctor.SpecialityId : input.SpecialityId;
-                itemDoctor.IsActive = itemDoctor.IsActive != false ? itemDoctor.IsActive : input.IsActive;
-                itemDoctor.IsOnline = itemDoctor.IsOnline != false ? itemDoctor.IsOnline : input.IsOnline;
-                itemDoctor.UserId = itemDoctor.UserId != null ? itemDoctor.UserId : input.UserId;
-                itemDoctor.profileStep = itemDoctor.profileStep > 0 ? itemDoctor.profileStep : input.profileStep;
-                itemDoctor.createFrom = !string.IsNullOrEmpty(itemDoctor.createFrom) ? itemDoctor.createFrom : input.MobileNo;
+                itemDoctor.FullName = !string.IsNullOrEmpty(input.FullName) ? input.FullName : itemDoctor.FullName;
+                itemDoctor.DoctorTitle = input.DoctorTitle > 0 ? input.DoctorTitle : itemDoctor.DoctorTitle;
+                itemDoctor.DateOfBirth = input.DateOfBirth != null ? input.DateOfBirth : itemDoctor.DateOfBirth;
+                itemDoctor.Gender = (input.Gender > 0 || input.Gender != null) ? input.Gender : itemDoctor.Gender;
+                itemDoctor.MaritalStatus = (input.MaritalStatus > 0 || input.MaritalStatus != null) ? input.MaritalStatus : itemDoctor.MaritalStatus;
+                itemDoctor.Address = !string.IsNullOrEmpty(input.Address) ? input.Address : itemDoctor.Address;
+                itemDoctor.City = !string.IsNullOrEmpty(input.City) ? input.City : itemDoctor.City;
+                itemDoctor.Country = !string.IsNullOrEmpty(input.Country) ? input.Country : itemDoctor.Country;
+                itemDoctor.ZipCode = !string.IsNullOrEmpty(input.ZipCode) ? input.ZipCode : itemDoctor.ZipCode;
+                itemDoctor.MobileNo = !string.IsNullOrEmpty(input.MobileNo) ? input.MobileNo : itemDoctor.MobileNo;
+                itemDoctor.Email = !string.IsNullOrEmpty(input.Email) ? input.Email : itemDoctor.Email;
+                itemDoctor.IdentityNumber = !string.IsNullOrEmpty(input.IdentityNumber) ? input.IdentityNumber : itemDoctor.IdentityNumber;
+                itemDoctor.BMDCRegNo = !string.IsNullOrEmpty(input.Email) ? input.Email : itemDoctor.BMDCRegNo;
+                itemDoctor.BMDCRegExpiryDate = input.BMDCRegExpiryDate != null ? input.BMDCRegExpiryDate : itemDoctor.BMDCRegExpiryDate;
+                itemDoctor.SpecialityId = input.SpecialityId > 0 ? input.SpecialityId : itemDoctor.SpecialityId;
+                itemDoctor.IsActive = input.IsActive != false ? input.IsActive : itemDoctor.IsActive;
+                itemDoctor.IsOnline = input.IsOnline != false ? input.IsOnline : itemDoctor.IsOnline;
+                itemDoctor.UserId = input.UserId != null ? input.UserId : itemDoctor.UserId;
+                itemDoctor.profileStep = input.profileStep > 0 ? input.profileStep : itemDoctor.profileStep;
+                itemDoctor.createFrom = !string.IsNullOrEmpty(input.createFrom) ? input.createFrom : itemDoctor.MobileNo;
 
                 var item = await _doctorProfileRepository.UpdateAsync(itemDoctor);
                 await _unitOfWorkManager.Current.SaveChangesAsync();
