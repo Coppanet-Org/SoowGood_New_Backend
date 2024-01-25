@@ -246,7 +246,7 @@ namespace SoowGoodWeb.Services
                 return result;
             }
 
-            var schedules = await _doctorScheduleRepository.WithDetailsAsync(d=>d.DoctorProfile);
+            var schedules = await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile);
             var profiles = profileWithDetails.ToList();
 
             profiles = (from doctors in profiles
@@ -536,8 +536,8 @@ namespace SoowGoodWeb.Services
             List<DoctorProfileDto> result = null;
             var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
 
-            
-            
+
+
             if (!profileWithDetails.Any())
             {
                 return result;
@@ -943,19 +943,26 @@ namespace SoowGoodWeb.Services
             try
             {
                 var itemDoctor = await _doctorProfileRepository.GetAsync(d => d.Id == input.Id);
-                itemDoctor.FullName = input.FullName;
-                itemDoctor.DoctorTitle = input.DoctorTitle;
-                itemDoctor.Email = input.Email;
-                itemDoctor.Gender = input.Gender;
-                itemDoctor.DateOfBirth = input.DateOfBirth;
-                itemDoctor.BMDCRegNo = input.BMDCRegNo;
-                itemDoctor.BMDCRegExpiryDate = input.BMDCRegExpiryDate;
-                itemDoctor.Address = input.Address;
-                itemDoctor.City = input.City;
-                itemDoctor.Country = input.Country;
-                itemDoctor.ZipCode = input.ZipCode;
-                itemDoctor.IdentityNumber = input.IdentityNumber;
-                itemDoctor.SpecialityId = input.SpecialityId;
+                itemDoctor.FullName = !string.IsNullOrEmpty(itemDoctor.FullName) ? itemDoctor.FullName : input.FullName;
+                itemDoctor.DoctorTitle = itemDoctor.DoctorTitle > 0 ? itemDoctor.DoctorTitle : input.DoctorTitle;
+                itemDoctor.DateOfBirth = itemDoctor.DateOfBirth != null ? itemDoctor.DateOfBirth : input.DateOfBirth;
+                itemDoctor.Gender = (itemDoctor.Gender > 0 || itemDoctor.Gender != null) ? itemDoctor.Gender : input.Gender;
+                itemDoctor.MaritalStatus = (itemDoctor.MaritalStatus > 0 || itemDoctor.MaritalStatus != null) ? itemDoctor.MaritalStatus : input.MaritalStatus;
+                itemDoctor.Address = !string.IsNullOrEmpty(itemDoctor.Address) ? itemDoctor.Address : input.Address;
+                itemDoctor.City = !string.IsNullOrEmpty(itemDoctor.City) ? itemDoctor.City : input.City;
+                itemDoctor.Country = !string.IsNullOrEmpty(itemDoctor.Country) ? itemDoctor.Country : input.Country;
+                itemDoctor.ZipCode = !string.IsNullOrEmpty(itemDoctor.ZipCode) ? itemDoctor.ZipCode : input.ZipCode;
+                itemDoctor.MobileNo = !string.IsNullOrEmpty(itemDoctor.MobileNo) ? itemDoctor.MobileNo : input.MobileNo;
+                itemDoctor.Email = !string.IsNullOrEmpty(itemDoctor.Email) ? itemDoctor.Email : input.Email;
+                itemDoctor.IdentityNumber = !string.IsNullOrEmpty(itemDoctor.IdentityNumber) ? itemDoctor.IdentityNumber : input.IdentityNumber;
+                itemDoctor.BMDCRegNo = !string.IsNullOrEmpty(itemDoctor.Email) ? itemDoctor.Email : input.BMDCRegNo;
+                itemDoctor.BMDCRegExpiryDate = itemDoctor.BMDCRegExpiryDate != null ? itemDoctor.BMDCRegExpiryDate : input.BMDCRegExpiryDate;
+                itemDoctor.SpecialityId = itemDoctor.SpecialityId > 0 ? itemDoctor.SpecialityId : input.SpecialityId;
+                itemDoctor.IsActive = itemDoctor.IsActive != false ? itemDoctor.IsActive : input.IsActive;
+                itemDoctor.IsOnline = itemDoctor.IsOnline != false ? itemDoctor.IsOnline : input.IsOnline;
+                itemDoctor.UserId = itemDoctor.UserId != null ? itemDoctor.UserId : input.UserId;
+                itemDoctor.profileStep = itemDoctor.profileStep > 0 ? itemDoctor.profileStep : input.profileStep;
+                itemDoctor.createFrom = !string.IsNullOrEmpty(itemDoctor.createFrom) ? itemDoctor.createFrom : input.MobileNo;
 
                 var item = await _doctorProfileRepository.UpdateAsync(itemDoctor);
                 await _unitOfWorkManager.Current.SaveChangesAsync();
