@@ -79,8 +79,15 @@ namespace SoowGoodWeb.Services
                             OrganizationName = profile.OrganizationName,
                             City = profile.City,
                             Address = profile.Address,
+                            AgentMasterId = profile.AgentMasterId,
+                            AgentSupervisorId= profile.AgentSupervisorId,
+                            AgentDocNumber = profile.AgentDocNumber,
+                            AgentDocExpireDate = profile.AgentDocExpireDate,
                             AgentMasterName = profile?.AgentMaster?.AgentMasterOrgName,
-                            AgentSupervisorName = profile?.AgentSupervisor?.AgentSupervisorOrgName
+                            AgentSupervisorName = profile?.AgentSupervisor?.AgentSupervisorOrgName,
+                            ZipCode = profile?.ZipCode,
+                            Country = profile?.Country,
+                            IsActive = profile?.IsActive,
 
                         });
                     }
@@ -114,7 +121,7 @@ namespace SoowGoodWeb.Services
                 itemAgent.ZipCode = !string.IsNullOrEmpty(input.ZipCode) ? input.ZipCode : itemAgent.ZipCode;
                 itemAgent.AgentMasterId = input.AgentMasterId > 0 ? input.AgentMasterId : itemAgent.AgentMasterId;
                 itemAgent.AgentSupervisorId = input.AgentSupervisorId > 0 ? input.AgentSupervisorId : itemAgent.AgentSupervisorId;
-                itemAgent.IsActive = input.IsActive != false ? input.IsActive : itemAgent.IsActive;
+                itemAgent.IsActive = input.IsActive; //itemAgent.IsActive == false ? input.IsActive : itemAgent.IsActive;
                 itemAgent.UserId = input.UserId != null ? input.UserId : itemAgent.UserId;
                 itemAgent.profileStep = input.profileStep > 0 ? input.profileStep : itemAgent.profileStep;
                 itemAgent.createFrom = !string.IsNullOrEmpty(input.createFrom) ? input.createFrom : itemAgent.Address;
