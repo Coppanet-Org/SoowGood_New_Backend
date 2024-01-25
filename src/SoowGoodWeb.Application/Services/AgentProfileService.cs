@@ -102,24 +102,24 @@ namespace SoowGoodWeb.Services
             try
             {
                 var itemAgent = await _agentProfileRepository.GetAsync(d => d.Id == input.Id);
-                itemAgent.FullName = !string.IsNullOrEmpty(itemAgent.FullName) ? itemAgent.FullName : input.FullName;
-                itemAgent.AgentCode = !string.IsNullOrEmpty(itemAgent.AgentCode) ? itemAgent.AgentCode : input.AgentCode;
-                itemAgent.OrganizationName = !string.IsNullOrEmpty(itemAgent.OrganizationName) ? itemAgent.OrganizationName : input.OrganizationName;
-                itemAgent.Email = !string.IsNullOrEmpty(itemAgent.Email) ? itemAgent.Email : input.Email;
-                itemAgent.MobileNo = !string.IsNullOrEmpty(itemAgent.MobileNo) ? itemAgent.Email : input.Email;
+                itemAgent.FullName = !string.IsNullOrEmpty(input.FullName) ? input.FullName : itemAgent.FullName;
+                itemAgent.AgentCode = !string.IsNullOrEmpty(input.AgentCode) ? input.AgentCode : itemAgent.AgentCode;
+                itemAgent.OrganizationName = !string.IsNullOrEmpty(input.OrganizationName) ? input.OrganizationName : itemAgent.OrganizationName;
+                itemAgent.Email = !string.IsNullOrEmpty(input.Email) ? input.Email : itemAgent.Email;
+                itemAgent.MobileNo = !string.IsNullOrEmpty(input.MobileNo) ? input.Email : itemAgent.Email;
 
-                itemAgent.Address = !string.IsNullOrEmpty(itemAgent.Address) ? itemAgent.Address : input.Address;
-                itemAgent.City = !string.IsNullOrEmpty(itemAgent.City) ? itemAgent.City : input.City;
-                itemAgent.Country = !string.IsNullOrEmpty(itemAgent.Country) ? itemAgent.Country : input.Country;
-                itemAgent.ZipCode = !string.IsNullOrEmpty(itemAgent.ZipCode) ? itemAgent.ZipCode : input.ZipCode;
-                itemAgent.AgentMasterId = itemAgent.AgentMasterId > 0 ? itemAgent.AgentMasterId : input.AgentMasterId;
-                itemAgent.AgentSupervisorId = itemAgent.AgentSupervisorId > 0 ? itemAgent.AgentSupervisorId : input.AgentSupervisorId;
-                itemAgent.IsActive = itemAgent.IsActive != false ? itemAgent.IsActive : input.IsActive;
-                itemAgent.UserId = itemAgent.UserId != null ? itemAgent.UserId : input.UserId;
-                itemAgent.profileStep = itemAgent.profileStep > 0 ? itemAgent.profileStep : input.profileStep;
-                itemAgent.createFrom = !string.IsNullOrEmpty(itemAgent.createFrom) ? itemAgent.createFrom : input.Address;
-                itemAgent.AgentDocNumber = !string.IsNullOrEmpty(itemAgent.AgentDocNumber) ? itemAgent.AgentDocNumber : input.Address;
-                itemAgent.AgentDocExpireDate = itemAgent.AgentDocExpireDate != null ? itemAgent.AgentDocExpireDate : input.AgentDocExpireDate;
+                itemAgent.Address = !string.IsNullOrEmpty(input.Address) ? input.Address : itemAgent.Address;
+                itemAgent.City = !string.IsNullOrEmpty(input.City) ? input.City : itemAgent.City;
+                itemAgent.Country = !string.IsNullOrEmpty(input.Country) ? input.Country : itemAgent.Country;
+                itemAgent.ZipCode = !string.IsNullOrEmpty(input.ZipCode) ? input.ZipCode : itemAgent.ZipCode;
+                itemAgent.AgentMasterId = input.AgentMasterId > 0 ? input.AgentMasterId : itemAgent.AgentMasterId;
+                itemAgent.AgentSupervisorId = input.AgentSupervisorId > 0 ? input.AgentSupervisorId : itemAgent.AgentSupervisorId;
+                itemAgent.IsActive = input.IsActive != false ? input.IsActive : itemAgent.IsActive;
+                itemAgent.UserId = input.UserId != null ? input.UserId : itemAgent.UserId;
+                itemAgent.profileStep = input.profileStep > 0 ? input.profileStep : itemAgent.profileStep;
+                itemAgent.createFrom = !string.IsNullOrEmpty(input.createFrom) ? input.createFrom : itemAgent.Address;
+                itemAgent.AgentDocNumber = !string.IsNullOrEmpty(input.AgentDocNumber) ? input.AgentDocNumber : itemAgent.Address;
+                itemAgent.AgentDocExpireDate = input.AgentDocExpireDate != null ? input.AgentDocExpireDate : itemAgent.AgentDocExpireDate;
 
                 var item = await _agentProfileRepository.UpdateAsync(itemAgent);
                 await _unitOfWorkManager.Current.SaveChangesAsync();
