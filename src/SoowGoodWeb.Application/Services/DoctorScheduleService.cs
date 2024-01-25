@@ -340,7 +340,8 @@ namespace SoowGoodWeb.Services
         public async Task<List<DoctorScheduleDto>?> GetDetailsScheduleListByDoctorIdAsync(long doctorId)
         {
             List<DoctorScheduleDto>? result = null;
-            var allSchedule = await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile, s => s.DoctorScheduleDaySession, c => c.DoctorChamber, f => f.DoctorFeesSetup, a => a.Appointments);
+            var allSchedule =
+                await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile, s => s.DoctorScheduleDaySession, c => c.DoctorChamber, f => f.DoctorFeesSetup, a => a.Appointments);
             var item = allSchedule.Where(s => s.DoctorProfileId == doctorId).ToList();
             if (!item.Any())
             {
@@ -348,42 +349,44 @@ namespace SoowGoodWeb.Services
             }
             try
             {
-                //result = ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(item);
-                result = new List<DoctorScheduleDto>();
-                foreach (var schedule in item)
-                {
-                    result.Add(new DoctorScheduleDto()
-                    {
-                        Id = schedule.Id,
-                        DoctorProfileId = schedule.DoctorProfileId,
-                        DoctorName = schedule.DoctorProfileId > 0 ? schedule.DoctorProfile?.FullName : "",
-                        ScheduleType = schedule.ScheduleType,
-                        ScheduleTypeName = schedule.ScheduleType > 0
-                            ? ((ScheduleType)schedule.ScheduleType).ToString()
-                            : "N/A",
-                        ConsultancyType = schedule.ConsultancyType,
-                        ConsultancyTypeName = schedule.ConsultancyType > 0
-                            ? ((ConsultancyType)schedule.ConsultancyType).ToString()
-                            : "N/A",
-                        DoctorChamberId = schedule.DoctorChamberId,
-                        Chamber = schedule.DoctorChamberId > 0 ? schedule.DoctorChamber?.ChamberName : "N/A",
-                        IsActive = schedule.IsActive,
-                        Status = schedule.IsActive == true ? "Open" : "Close",
-                        OffDayFrom = schedule.IsActive == false ? schedule.OffDayFrom : null,
-                        OffDayTo = schedule.IsActive == false ? schedule.OffDayTo : null,
-                        Remarks = schedule.IsActive == false
-                            ? ("Chamber is closed from " + schedule.OffDayFrom.ToString() + " to" +
-                               schedule.OffDayFrom.ToString())
-                            : "Chamber is Open"
-                    });
-                }
+                result = ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(item);
             }
             catch (Exception ex)
             {
 
             }
+            return result;
+            //return ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(item);
+            //result = new List<DoctorScheduleDto>();
+            //foreach (var schedule in item)
+            //{
+            //    result.Add(new DoctorScheduleDto()
+            //    {
+            //        Id = schedule.Id,
+            //        DoctorProfileId = schedule.DoctorProfileId,
+            //        DoctorName = schedule.DoctorProfileId > 0 ? schedule.DoctorProfile?.FullName : "",
+            //        DoctorChamberId = schedule.DoctorChamberId,
+            //        Chamber = schedule.DoctorChamberId > 0 ? schedule.DoctorChamber?.ChamberName : "N/A",
+            //        ConsultancyType = schedule.ConsultancyType,
+            //        ConsultancyTypeName = schedule.ConsultancyType > 0
+            //            ? ((ConsultancyType)schedule.ConsultancyType).ToString()
+            //            : "N/A",
+            //        ScheduleType = schedule.ScheduleType,
+            //        ScheduleTypeName = schedule.ScheduleType > 0
+            //            ? ((ScheduleType)schedule.ScheduleType).ToString()
+            //            : "N/A",
+            //        IsActive = schedule.IsActive,
+            //        Status = schedule.IsActive == true ? "Open" : "Close",
+            //        OffDayFrom = schedule.IsActive == false ? schedule.OffDayFrom : null,
+            //        OffDayTo = schedule.IsActive == false ? schedule.OffDayTo : null,
+            //        Remarks = schedule.IsActive == false
+            //            ? ("Chamber is closed from " + schedule.OffDayFrom.ToString() + " to" +
+            //               schedule.OffDayFrom.ToString())
+            //            : "Chamber is Open"
+            //    });
+            //}
 
-            return result; // ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(schedules);
+            //return result; // ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(schedules);
         }
 
         private bool IsScheduleExists(ConsultancyType cType, long? chamberId)
