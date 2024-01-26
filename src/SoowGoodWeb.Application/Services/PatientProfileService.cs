@@ -134,40 +134,35 @@ namespace SoowGoodWeb.Services
 
         public async Task<PatientProfileDto> UpdateAsync(PatientProfileInputDto input)
         {
+            var result = new PatientProfileDto();
             try
             {
                 var itemPatient = await _patientRepository.FindAsync(input.Id);
-                itemPatient.FullName = !string.IsNullOrEmpty(input.FullName) ? input.FullName : itemPatient.FullName;
-                itemPatient.IsSelf = itemPatient.IsSelf != false ? input.IsSelf : itemPatient.IsSelf;
-                itemPatient.PatientName = !string.IsNullOrEmpty(input.PatientName) ? input.PatientName : itemPatient.PatientName;
-
-                itemPatient.PatientCode = !string.IsNullOrEmpty(input.PatientCode) ? input.PatientCode : itemPatient.PatientName;
-                itemPatient.DateOfBirth = !string.IsNullOrEmpty(input.DateOfBirth.ToString()) ? input.DateOfBirth : itemPatient.DateOfBirth;
-                itemPatient.Age = input.Age > 0 ? input.Age : itemPatient.Age;
-                itemPatient.Gender = input.Gender > 0 ? input.Gender : itemPatient.Gender;
-                itemPatient.BloodGroup = !string.IsNullOrEmpty(input.BloodGroup) ? input.BloodGroup : itemPatient.BloodGroup;
-                itemPatient.Address = !string.IsNullOrEmpty(input.Address) ? input.Address : itemPatient.City;
-                itemPatient.City = !string.IsNullOrEmpty(input.City) ? input.City : itemPatient.City;
-                itemPatient.ZipCode = !string.IsNullOrEmpty(input.ZipCode) ? input.ZipCode : itemPatient.ZipCode;
-                itemPatient.Country = !string.IsNullOrEmpty(input.Country) ? input.Country : itemPatient.Country;
-                itemPatient.MobileNo = !string.IsNullOrEmpty(input.MobileNo) ? input.MobileNo : itemPatient.PatientMobileNo;
-                itemPatient.PatientMobileNo = !string.IsNullOrEmpty(input.PatientMobileNo) ? input.PatientMobileNo : itemPatient.PatientMobileNo;
-                itemPatient.Email = !string.IsNullOrEmpty(input.Email) ? input.Email : itemPatient.PatientEmail;
-                itemPatient.PatientEmail = !string.IsNullOrEmpty(input.PatientEmail) ? input.PatientEmail : itemPatient.PatientEmail;
-                itemPatient.CreatedBy = !string.IsNullOrEmpty(input.PatientMobileNo) ? input.PatientMobileNo : itemPatient.PatientMobileNo;
-                itemPatient.CreatorCode = !string.IsNullOrEmpty(input.CreatorCode) ? input.CreatorCode : itemPatient.CreatorCode;
-                itemPatient.CreatorEntityId = input.CreatorEntityId > 0 ? input.CreatorEntityId : itemPatient.CreatorEntityId;
-                itemPatient.UserId = input.UserId != null ? input.UserId : itemPatient.UserId;
-
-                var item = await _patientRepository.UpdateAsync(itemPatient);
-                await _unitOfWorkManager.Current.SaveChangesAsync();
-                return ObjectMapper.Map<PatientProfile, PatientProfileDto>(item);
+                if (itemPatient != null)
+                {
+                    itemPatient.FullName = input.FullName;
+                    itemPatient.DateOfBirth = input.DateOfBirth;
+                    itemPatient.Age = input.Age;
+                    itemPatient.Gender = input.Gender;
+                    itemPatient.BloodGroup = input.BloodGroup;
+                    itemPatient.Address = input.Address;
+                    itemPatient.City = input.City;
+                    itemPatient.ZipCode = input.ZipCode;
+                    itemPatient.Country = input.Country;
+                    itemPatient.Email = input.Email;
+                    itemPatient.PatientName = !string.IsNullOrEmpty(itemPatient.PatientName)?itemPatient.PatientName: input.PatientName;
+                    itemPatient.PatientMobileNo = !string.IsNullOrEmpty(itemPatient.PatientMobileNo) ? itemPatient.PatientMobileNo : input.PatientMobileNo;
+                    itemPatient.PatientEmail = !string.IsNullOrEmpty(itemPatient.PatientEmail) ? itemPatient.PatientEmail : input.PatientEmail;
+                    
+                    var item = await _patientRepository.UpdateAsync(itemPatient);
+                    await _unitOfWorkManager.Current.SaveChangesAsync();
+                    result = ObjectMapper.Map<PatientProfile, PatientProfileDto>(item);
+                }
             }
             catch (Exception ex)
             {
-                return null;
             }
-
+            return result;
         }
 
         public async Task<List<PatientProfileDto>> GetPatientListByUserProfileIdAsync(long profileId, string role)
