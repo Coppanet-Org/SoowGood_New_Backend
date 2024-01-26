@@ -679,7 +679,7 @@ namespace SoowGoodWeb.Services
 
                 });
             }
-            return result;
+            return result.OrderByDescending(d=>d.Id).ToList();
         }
 
         public async Task<DoctorProfileDto> UpdateActiveStatusByAdmin(int Id, bool activeStatus)
