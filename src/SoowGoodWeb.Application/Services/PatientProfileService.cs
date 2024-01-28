@@ -121,9 +121,9 @@ namespace SoowGoodWeb.Services
                     Address = item.Address,
                     ProfileRole = "Patient",
 
-                }); ;
+                });
             }
-            return result;
+            return result.OrderByDescending(d => d.Id).ToList();
         }
 
         public async Task<PatientProfileDto> GetByUserIdAsync(Guid userId)
@@ -150,10 +150,10 @@ namespace SoowGoodWeb.Services
                     itemPatient.ZipCode = input.ZipCode;
                     itemPatient.Country = input.Country;
                     itemPatient.Email = input.Email;
-                    itemPatient.PatientName = !string.IsNullOrEmpty(itemPatient.PatientName)?itemPatient.PatientName: input.PatientName;
+                    itemPatient.PatientName = !string.IsNullOrEmpty(itemPatient.PatientName) ? itemPatient.PatientName : input.PatientName;
                     itemPatient.PatientMobileNo = !string.IsNullOrEmpty(itemPatient.PatientMobileNo) ? itemPatient.PatientMobileNo : input.PatientMobileNo;
                     itemPatient.PatientEmail = !string.IsNullOrEmpty(itemPatient.PatientEmail) ? itemPatient.PatientEmail : input.PatientEmail;
-                    
+
                     var item = await _patientRepository.UpdateAsync(itemPatient);
                     await _unitOfWorkManager.Current.SaveChangesAsync();
                     result = ObjectMapper.Map<PatientProfile, PatientProfileDto>(item);
@@ -164,6 +164,7 @@ namespace SoowGoodWeb.Services
             }
             return result;
         }
+
 
         public async Task<List<PatientProfileDto>> GetPatientListByUserProfileIdAsync(long profileId, string role)
         {

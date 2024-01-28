@@ -300,86 +300,79 @@ namespace SoowGoodWeb.Services
 
             profiles = profiles.Skip(filterModel.Offset)
                                .Take(filterModel.Limit).ToList();
-            try 
+
+            foreach (var item in profiles)
             {
-                foreach (var item in profiles)
+                var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
+                                                                && x.EntityId == item.Id
+                                                                && x.AttachmentType == AttachmentType.ProfilePicture
+                                                                && x.IsDeleted == false).FirstOrDefault();
+                decimal? fee = 0;
+                if (item.IsOnline == true)
                 {
-                    var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
-                                                                    && x.EntityId == item.Id
-                                                                    && x.AttachmentType == AttachmentType.ProfilePicture
-                                                                    && x.IsDeleted == false).FirstOrDefault();
-                    decimal? fee = 0;
-                    if (item.IsOnline == true)
-                    {
-                        fee = fees.FirstOrDefault().ProviderAmount;
-                    }
-                    else
-                    {
-                        var docfeees = doctorFees.Where(f => f.DoctorSchedule.DoctorProfile.Id == item.Id && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
-                        fee = docfeees?.FirstOrDefault()?.TotalFee;
-                    }
-
-                    var degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.Id).ToList();
-                    string degStr = string.Empty;
-                    foreach (var d in degrees)
-                    {
-                        degStr = degStr + d.DegreeName + ",";
-                    }
-
-                    degStr = degStr.Remove(degStr.Length - 1);
-
-                    var experties = doctorSpecializations.Where(sp => sp.DoctorProfileId == item.Id && sp.SpecialityId == item.SpecialityId).ToList();
-                    string expStr = string.Empty;
-                    foreach (var e in experties)
-                    {
-                        expStr = expStr + e.SpecializationName + ",";
-                    }
-
-                    expStr = expStr.Remove(expStr.Length - 1);
-
-                    result.Add(new DoctorProfileDto()
-                    {
-                        Id = item.Id,
-                        Degrees = degrees,
-                        Qualifications = degStr,
-                        SpecialityId = item.SpecialityId,
-                        SpecialityName = item.SpecialityId > 0 ? item.Speciality?.SpecialityName : "n/a",
-                        DoctorSpecialization = doctorSpecializations.Where(sp => sp.DoctorProfileId == item.Id && sp.SpecialityId == item.SpecialityId).ToList(),
-                        AreaOfExperties = expStr,
-                        FullName = item.FullName,
-                        DoctorTitle = item.DoctorTitle,
-                        DoctorTitleName = item.DoctorTitle > 0 ? ((DoctorTitle)item.DoctorTitle).ToString() : "n/a",
-                        MaritalStatus = item.MaritalStatus,
-                        MaritalStatusName = item.MaritalStatus > 0 ? ((MaritalStatus)item.MaritalStatus).ToString() : "n/a",
-                        City = item.City,
-                        ZipCode = item.ZipCode,
-                        Country = item.Country,
-                        IdentityNumber = item.IdentityNumber,
-                        BMDCRegNo = item.BMDCRegNo,
-                        BMDCRegExpiryDate = item.BMDCRegExpiryDate,
-                        Email = item.Email,
-                        MobileNo = item.MobileNo,
-                        DateOfBirth = item.DateOfBirth,
-                        Gender = item.Gender,
-                        GenderName = item.Gender > 0 ? ((Gender)item.Gender).ToString() : "n/a",
-                        Address = item.Address,
-                        ProfileRole = "Doctor",
-                        IsActive = item.IsActive,
-                        UserId = item.UserId,
-                        IsOnline = item.IsOnline,
-                        profileStep = item.profileStep,
-                        createFrom = item.createFrom,
-                        DoctorCode = item.DoctorCode,
-                        ProfilePic = profilePics?.Path,
-                        DisplayFee = fee
-                    });
+                    fee = fees.FirstOrDefault().ProviderAmount;
                 }
+                else
+                {
+                    var docfeees = doctorFees.Where(f => f.DoctorSchedule.DoctorProfile.Id == item.Id && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
+                    fee = docfeees?.FirstOrDefault()?.TotalFee;
+                }
+
+                var degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.Id).ToList();
+                string degStr = string.Empty;
+                foreach (var d in degrees)
+                {
+                    degStr = degStr + d.DegreeName + ",";
+                }
+
+                degStr = degStr.Remove(degStr.Length - 1);
+
+                var experties = doctorSpecializations.Where(sp => sp.DoctorProfileId == item.Id && sp.SpecialityId == item.SpecialityId).ToList();
+                string expStr = string.Empty;
+                foreach (var e in experties)
+                {
+                    expStr = expStr + e.SpecializationName + ",";
+                }
+
+                expStr = expStr.Remove(expStr.Length - 1);
+
+                result.Add(new DoctorProfileDto()
+                {
+                    Id = item.Id,
+                    Degrees = degrees,
+                    Qualifications = degStr,
+                    SpecialityId = item.SpecialityId,
+                    SpecialityName = item.SpecialityId > 0 ? item.Speciality?.SpecialityName : "n/a",
+                    DoctorSpecialization = doctorSpecializations.Where(sp => sp.DoctorProfileId == item.Id && sp.SpecialityId == item.SpecialityId).ToList(),
+                    AreaOfExperties = expStr,
+                    FullName = item.FullName,
+                    DoctorTitle = item.DoctorTitle,
+                    DoctorTitleName = item.DoctorTitle > 0 ? ((DoctorTitle)item.DoctorTitle).ToString() : "n/a",
+                    MaritalStatus = item.MaritalStatus,
+                    MaritalStatusName = item.MaritalStatus > 0 ? ((MaritalStatus)item.MaritalStatus).ToString() : "n/a",
+                    City = item.City,
+                    ZipCode = item.ZipCode,
+                    Country = item.Country,
+                    IdentityNumber = item.IdentityNumber,
+                    BMDCRegNo = item.BMDCRegNo,
+                    BMDCRegExpiryDate = item.BMDCRegExpiryDate,
+                    Email = item.Email,
+                    MobileNo = item.MobileNo,
+                    DateOfBirth = item.DateOfBirth,
+                    Gender = item.Gender,
+                    GenderName = item.Gender > 0 ? ((Gender)item.Gender).ToString() : "n/a",
+                    Address = item.Address,
+                    ProfileRole = "Doctor",
+                    IsActive = item.IsActive,
+                    UserId = item.UserId,
+                    IsOnline = item.IsOnline,
+                    profileStep = item.profileStep,
+                    createFrom = item.createFrom,
+                    DoctorCode = item.DoctorCode,
+                    ProfilePic = profilePics?.Path,
+                    DisplayFee = fee
+                });
             }
-            catch(Exception e)
-            {
-                return null;
-            }
-            
 
             return result;
         }
@@ -565,87 +558,80 @@ namespace SoowGoodWeb.Services
             var fees = financialSetups.OrderBy(p => p.ProviderAmount).Where(a => a.ProviderAmount != null).ToList();
 
             var doctorFees = await _doctorFeesSetup.WithDetailsAsync(d => d.DoctorSchedule.DoctorProfile);
-            try
+
+            foreach (var item in profiles)
             {
-                foreach (var item in profiles)
+                var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
+                                                                && x.EntityId == item.Id
+                                                                && x.AttachmentType == AttachmentType.ProfilePicture
+                                                                && x.IsDeleted == false).FirstOrDefault();
+
+                decimal? fee = 0;
+                if (item.IsOnline == true)
                 {
-                    var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
-                                                                    && x.EntityId == item.Id
-                                                                    && x.AttachmentType == AttachmentType.ProfilePicture
-                                                                    && x.IsDeleted == false).FirstOrDefault();
-
-                    decimal? fee = 0;
-                    if (item.IsOnline == true)
-                    {
-                        fee = fees?.FirstOrDefault()?.ProviderAmount;
-                    }
-                    else
-                    {
-                        var docfeees = doctorFees.Where(f => f.DoctorSchedule.DoctorProfile.Id == item.Id && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
-                        fee = docfeees?.FirstOrDefault()?.TotalFee;
-                    }
-
-                    var degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.Id).ToList();
-                    string degStr = string.Empty;
-                    foreach (var d in degrees)
-                    {
-                        degStr = degStr + d.DegreeName + ",";
-                    }
-
-                    degStr = degStr.Remove(degStr.Length - 1);
-
-                    var experties = doctorSpecializations.Where(sp => sp.DoctorProfileId == item.Id && sp.SpecialityId == item.SpecialityId).ToList();
-                    string expStr = string.Empty;
-                    foreach (var e in experties)
-                    {
-                        expStr = expStr + e.SpecializationName + ",";
-                    }
-
-                    expStr = expStr.Remove(expStr.Length - 1);
-
-                    result.Add(new DoctorProfileDto()
-                    {
-                        Id = item.Id,
-                        Degrees = degrees,
-                        Qualifications = degStr,
-                        SpecialityId = item.SpecialityId,
-                        SpecialityName = item.SpecialityId > 0 ? item.Speciality?.SpecialityName : "n/a",
-                        DoctorSpecialization = doctorSpecializations.Where(sp => sp.DoctorProfileId == item.Id && sp.SpecialityId == item.SpecialityId).ToList(),
-                        AreaOfExperties = expStr,
-                        FullName = item.FullName,
-                        DoctorTitle = item.DoctorTitle,
-                        DoctorTitleName = item.DoctorTitle > 0 ? ((DoctorTitle)item.DoctorTitle).ToString() : "n/a",
-                        MaritalStatus = item.MaritalStatus,
-                        MaritalStatusName = item.MaritalStatus > 0 ? ((MaritalStatus)item.MaritalStatus).ToString() : "n/a",
-                        City = item.City,
-                        ZipCode = item.ZipCode,
-                        Country = item.Country,
-                        IdentityNumber = item.IdentityNumber,
-                        BMDCRegNo = item.BMDCRegNo,
-                        BMDCRegExpiryDate = item.BMDCRegExpiryDate,
-                        Email = item.Email,
-                        MobileNo = item.MobileNo,
-                        DateOfBirth = item.DateOfBirth,
-                        Gender = item.Gender,
-                        GenderName = item.Gender > 0 ? ((Gender)item.Gender).ToString() : "n/a",
-                        Address = item.Address,
-                        ProfileRole = "Doctor",
-                        IsActive = item.IsActive,
-                        UserId = item.UserId,
-                        IsOnline = item.IsOnline,
-                        profileStep = item.profileStep,
-                        createFrom = item.createFrom,
-                        DoctorCode = item.DoctorCode,
-                        ProfilePic = profilePics?.Path,
-                        DisplayFee = fee
-                    });
+                    fee = fees?.FirstOrDefault()?.ProviderAmount;
                 }
-            }
-            catch(Exception e)
-            {
+                else
+                {
+                    var docfeees = doctorFees.Where(f => f.DoctorSchedule.DoctorProfile.Id == item.Id && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
+                    fee = docfeees?.FirstOrDefault()?.TotalFee;
+                }
 
+                var degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.Id).ToList();
+                string degStr = string.Empty;
+                foreach (var d in degrees)
+                {
+                    degStr = degStr + d.DegreeName + ",";
+                }
+
+                degStr = degStr.Remove(degStr.Length - 1);
+
+                var experties = doctorSpecializations.Where(sp => sp.DoctorProfileId == item.Id && sp.SpecialityId == item.SpecialityId).ToList();
+                string expStr = string.Empty;
+                foreach (var e in experties)
+                {
+                    expStr = expStr + e.SpecializationName + ",";
+                }
+
+                expStr = expStr.Remove(expStr.Length - 1);
+
+                result.Add(new DoctorProfileDto()
+                {
+                    Id = item.Id,
+                    Degrees = degrees,
+                    Qualifications = degStr,
+                    SpecialityId = item.SpecialityId,
+                    SpecialityName = item.SpecialityId > 0 ? item.Speciality?.SpecialityName : "n/a",
+                    DoctorSpecialization = doctorSpecializations.Where(sp => sp.DoctorProfileId == item.Id && sp.SpecialityId == item.SpecialityId).ToList(),
+                    AreaOfExperties = expStr,
+                    FullName = item.FullName,
+                    DoctorTitle = item.DoctorTitle,
+                    DoctorTitleName = item.DoctorTitle > 0 ? ((DoctorTitle)item.DoctorTitle).ToString() : "n/a",
+                    MaritalStatus = item.MaritalStatus,
+                    MaritalStatusName = item.MaritalStatus > 0 ? ((MaritalStatus)item.MaritalStatus).ToString() : "n/a",
+                    City = item.City,
+                    ZipCode = item.ZipCode,
+                    Country = item.Country,
+                    IdentityNumber = item.IdentityNumber,
+                    BMDCRegNo = item.BMDCRegNo,
+                    BMDCRegExpiryDate = item.BMDCRegExpiryDate,
+                    Email = item.Email,
+                    MobileNo = item.MobileNo,
+                    DateOfBirth = item.DateOfBirth,
+                    Gender = item.Gender,
+                    GenderName = item.Gender > 0 ? ((Gender)item.Gender).ToString() : "n/a",
+                    Address = item.Address,
+                    ProfileRole = "Doctor",
+                    IsActive = item.IsActive,
+                    UserId = item.UserId,
+                    IsOnline = item.IsOnline,
+                    profileStep = item.profileStep,
+                    createFrom = item.createFrom,
+                    DoctorCode = item.DoctorCode,
+                    ProfilePic = profilePics?.Path,
+                    DisplayFee = fee
+                });
             }
-            
 
             return result;
             //var profiles = await _doctorProfileRepository.WithDetailsAsync(d => d.Degrees, s => s.DoctorSpecialization);
@@ -693,7 +679,7 @@ namespace SoowGoodWeb.Services
 
                 });
             }
-            return result;
+            return result.OrderByDescending(d=>d.Id).ToList();
         }
 
         public async Task<DoctorProfileDto> UpdateActiveStatusByAdmin(int Id, bool activeStatus)
@@ -969,6 +955,5 @@ namespace SoowGoodWeb.Services
             }
             return result;//ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
         }
-        
     }
 }
