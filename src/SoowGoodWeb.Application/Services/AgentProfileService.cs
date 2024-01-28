@@ -88,7 +88,7 @@ namespace SoowGoodWeb.Services
             }
             catch (Exception e) { }
 
-            return result;//ObjectMapper.Map<List<AgentProfile>, List<AgentProfileDto>>(item);
+            return result.OrderByDescending(r=>r.Id).ToList();//ObjectMapper.Map<List<AgentProfile>, List<AgentProfileDto>>(item);
         }
         public async Task<AgentProfileDto> GetByUserIdAsync(Guid userId)
         {

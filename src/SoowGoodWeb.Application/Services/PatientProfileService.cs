@@ -121,9 +121,9 @@ namespace SoowGoodWeb.Services
                     Address = item.Address,
                     ProfileRole = "Patient",
 
-                }); ;
+                });
             }
-            return result;
+            return result.OrderByDescending(d => d.Id).ToList();
         }
 
         public async Task<PatientProfileDto> GetByUserIdAsync(Guid userId)
