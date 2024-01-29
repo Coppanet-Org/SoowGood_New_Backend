@@ -520,7 +520,8 @@ namespace SoowGoodWeb.Services
 
         public async Task<DoctorProfileDto> GetByUserNameAsync(string userName)
         {
-            var item = await _doctorProfileRepository.GetAsync(x => x.MobileNo == userName);
+            var dProfiles = await _doctorProfileRepository.WithDetailsAsync(s => s.Speciality);
+            var item = dProfiles.Where(x => x.MobileNo == userName).FirstOrDefault();
 
             return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
         }
