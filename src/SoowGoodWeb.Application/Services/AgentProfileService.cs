@@ -50,7 +50,7 @@ namespace SoowGoodWeb.Services
             //var result = profile != null ? ObjectMapper.Map<AgentProfile, AgentProfileDto>(profile) : null;
 
             //return result;
-        }
+        } 
 
         public async Task<AgentProfileDto> GetByUserNameAsync(string userName)
         {
