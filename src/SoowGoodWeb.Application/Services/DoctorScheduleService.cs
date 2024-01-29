@@ -216,6 +216,7 @@ namespace SoowGoodWeb.Services
                 var item = await _doctorScheduleRepository.UpdateAsync(updateItem);
                 await _unitOfWorkManager.Current.SaveChangesAsync();
                 result = ObjectMapper.Map<DoctorSchedule, DoctorScheduleDto>(item);
+                result.ScheduleName = input.ScheduleName;
                 //if (result is { Id: > 0 })
                 //{
 
