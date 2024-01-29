@@ -8,33 +8,26 @@ using System.Threading.Tasks;
 using SoowGoodWeb.Enums;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Uow;
-using Volo.Abp.ObjectMapping;
-using Scriban.Syntax;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.SslCommerz;
-using System.Collections;
 using AgoraIO.Media;
-using System.Security.Principal;
-using agora.rtc.LitJson;
 using System.Globalization;
-using Volo.Abp.Data;
-using Microsoft.IdentityModel.Tokens;
 
 namespace SoowGoodWeb.Services
 {
     public class AppointmentService : SoowGoodWebAppService, IAppointmentService
     {
         private readonly IRepository<Appointment> _appointmentRepository;
-        //private readonly IRepository<DoctorChamber> _doctorChamberRepository;
+        private readonly IRepository<DoctorChamber> _doctorChamberRepository;
         private readonly IRepository<DoctorScheduleDaySession> _doctorScheduleSessionRepository;
         private readonly IRepository<PatientProfile> _patientProfileRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
 
 
-        private uint _expireTimeInSeconds = 3600;
+        private readonly uint _expireTimeInSeconds = 3600;
         public AppointmentService(IRepository<Appointment> appointmentRepository,
-            //IRepository<DoctorChamber> doctorChamberRepository,
+            IRepository<DoctorChamber> doctorChamberRepository,
             IRepository<DoctorScheduleDaySession> doctorScheduleSessionRepository,
             IRepository<PatientProfile> patientProfileRepository,
             SslCommerzGatewayManager sslCommerzGatewayManager,
@@ -42,7 +35,7 @@ namespace SoowGoodWeb.Services
         {
             _appointmentRepository = appointmentRepository;
             //_doctorScheduleRepository = doctorScheduleRepository;
-            //_doctorChamberRepository = doctorChamberRepository;
+            _doctorChamberRepository = doctorChamberRepository;
             _doctorScheduleSessionRepository = doctorScheduleSessionRepository;
             _patientProfileRepository = patientProfileRepository;
             _sslCommerzGatewayManager = sslCommerzGatewayManager;
@@ -53,27 +46,31 @@ namespace SoowGoodWeb.Services
         public async Task<AppointmentDto> CreateAsync(AppointmentInputDto input)
         {
             var response = new AppointmentDto();
-            //return response;
             try
             {
-                var consultencyType = "";
-                long lastSerial = 0;//await GetAppCountByScheduleIdSessionIdAsync(input.DoctorScheduleId, input.DoctorScheduleDaySessionId);
-                if (input.DoctorScheduleId > 0 && input.DoctorScheduleDaySessionId > 0)
+                string consultancyType;
+                long lastSerial;
+                var chamberName = "";
+                if (input.DoctorChamberId > 0)
+
+                {
+                    var appChamber = await _doctorChamberRepository.FirstOrDefaultAsync(c => c.Id == input.DoctorChamberId);
+                    chamberName = appChamber.ChamberName;
+                }
+
+                var list = new List<string>();
+                if (input is { DoctorScheduleId: > 0, DoctorScheduleDaySessionId: > 0 })
                 {
                     var mainSession = await _doctorScheduleSessionRepository.GetAsync(s => s.Id == input.DoctorScheduleDaySessionId && s.DoctorScheduleId == input.DoctorScheduleId);
                     var stTime = Convert.ToDateTime(mainSession.StartTime);
                     var enTime = Convert.ToDateTime(mainSession.EndTime);
-                    var totalhr = (enTime - stTime).TotalHours; //Convert.ToDateTime(mainSession.EndTime) - Convert.ToDateTime(mainSession.StartTime);
-                    var hrmnt = totalhr * 60;
-                    var slotPerPatient = hrmnt / mainSession.NoOfPatients;
-                    string[] slots = null;// = new string[0];
-                    List<string> list = new List<string>();
-                    //int durationOfSession = 60;
-                    //int gapBetweenSessions = 30;
-                    //DateTime start = DateTime.Today.AddHours(8);
-                    //DateTime end = DateTime.Today.AddHours(18);
+                    var totalHr = (enTime - stTime).TotalHours;
 
-                    for (DateTime appointment = stTime; appointment < enTime; appointment = appointment.AddMinutes((double)slotPerPatient))
+                    var hrMnt = totalHr * 60;
+                    var slotPerPatient = hrMnt / mainSession.NoOfPatients;
+                    string[]? slots = null;
+
+                    for (var appointment = stTime; appointment < enTime; appointment = appointment.AddMinutes((double)slotPerPatient!))
                     {
                         list.Add(appointment.ToString("HH:mm"));
                         slots = list.ToArray();
@@ -82,15 +79,14 @@ namespace SoowGoodWeb.Services
                     lastSerial = await GetAppCountByScheduleIdSessionIdAsync(input.DoctorScheduleId, input.DoctorScheduleDaySessionId);
 
 
-                    for (long i = lastSerial; i < mainSession.NoOfPatients; ++i)
+                    for (var i = lastSerial; i < mainSession.NoOfPatients; )
                     {
-                        input.AppointmentTime = slots != null ? slots[i].ToString() : "";
+                        input.AppointmentTime = slots != null ? slots[i] : "";
                         break;
                     }
-                    //DateTime? x = input.AppointmentDate;
-                    consultencyType = (input.ConsultancyType > 0 ? (ConsultancyType)input.ConsultancyType : 0).ToString();
+                    consultancyType = (input.ConsultancyType > 0 ? (ConsultancyType)input.ConsultancyType : 0).ToString();
                     input.AppointmentSerial = (lastSerial + 1).ToString();
-                    input.AppointmentCode = input.DoctorCode + input.AppointmentDate?.ToString("yyyyMMdd") + consultencyType + "SL00" + input.AppointmentSerial;
+                    input.AppointmentCode = input.DoctorCode + input.AppointmentDate?.ToString("yyyyMMdd") + consultancyType + "SL00" + input.AppointmentSerial;
                 }
                 else
                 {
@@ -99,22 +95,25 @@ namespace SoowGoodWeb.Services
                     input.AppointmentTime = DateTime.Now.ToString("HH:mm");
                     input.AppointmentType = AppointmentType.New;
                     lastSerial = await GetAppCountByRealTimeConsultancyAsync(input.AppointmentDate);
-                    consultencyType = ConsultancyType.OnlineRT.ToString();
+                    consultancyType = ConsultancyType.OnlineRT.ToString();
                     input.AppointmentSerial = (lastSerial + 1).ToString();
-                    input.AppointmentCode = input.DoctorCode + input.AppointmentDate?.ToString("yyyyMMdd") + consultencyType + "SL00" + input.AppointmentSerial;
+                    input.AppointmentCode = input.DoctorCode + input.AppointmentDate?.ToString("yyyyMMdd") + consultancyType + "SL00" + input.AppointmentSerial;
                 }
                 var newEntity = ObjectMapper.Map<AppointmentInputDto, Appointment>(input);
 
                 var doctorChamber = await _appointmentRepository.InsertAsync(newEntity);
+
                 response = ObjectMapper.Map<Appointment, AppointmentDto>(doctorChamber);
+
+                response.AppointmentTypeName = response.AppointmentType.ToString();
+                response.ConsultancyTypeName = response.ConsultancyType.ToString();
+                response.DoctorChamberName = !string.IsNullOrEmpty(chamberName) ? chamberName.ToString() : "SoowGood Online";
+
             }
             catch (Exception ex)
             {
                 return response;
             }
-
-
-            //await _unitOfWorkManager.Current.SaveChangesAsync();
 
             return response;//ObjectMapper.Map<Appointment, AppointmentDto>(doctorChamber);
         }
@@ -158,7 +157,7 @@ namespace SoowGoodWeb.Services
 
             if (!string.IsNullOrEmpty(name))
             {
-                appointments = appointments.Where(p => p.PatientName.Contains(name)).ToList();
+                appointments = appointments.Where(p => p.PatientName != null && p.PatientName.Contains(name)).ToList();
             }
             if (consultancy > 0)
             {
@@ -171,42 +170,47 @@ namespace SoowGoodWeb.Services
             if (!string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate))
             {
                 appointments = appointments.Where(p =>
-                p.AppointmentDate.Value.Date >= DateTime.ParseExact(fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)
+                p.AppointmentDate != null
+                && p.AppointmentDate.Value.Date >= DateTime.ParseExact(fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)
                 && p.AppointmentDate.Value.Date <= DateTime.ParseExact(toDate, "dd/MM/yyyy", provider, DateTimeStyles.None)).ToList();
             }
             if (!string.IsNullOrEmpty(fromDate) && string.IsNullOrEmpty(toDate))
             {
                 appointments = appointments.Where(p =>
-                p.AppointmentDate.Value.Date >= DateTime.ParseExact(fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)
+                p.AppointmentDate != null
+                && p.AppointmentDate.Value.Date >= DateTime.ParseExact(fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)
                 && p.AppointmentDate.Value.Date <= DateTime.ParseExact(fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)).ToList();
             }
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
 
-        public async Task<List<AppointmentDto>> GetAppointmentListForDoctorWithSearchFilterAsync(long doctorId, DataFilterModel? dataFilter, FilterModel filterModel)
+        public async Task<List<AppointmentDto>?> GetAppointmentListForDoctorWithSearchFilterAsync(long doctorId, DataFilterModel? dataFilter, FilterModel filterModel)
         {
-            CultureInfo provider = CultureInfo.InvariantCulture;
+            var provider = CultureInfo.InvariantCulture;
             try
             {
-                if (dataFilter?.toDate == null || dataFilter?.toDate == "Invalid Date")
+                if (dataFilter?.toDate is null or "Invalid Date")
                 {
-                    dataFilter.toDate = dataFilter.fromDate;
+                    if (dataFilter != null)
+                    {
+                        dataFilter.toDate = dataFilter.fromDate;
+                    }
                 }
                 var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
                 var appointments = item.Where(d => d.DoctorProfileId == doctorId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
 
-                if (!string.IsNullOrEmpty(dataFilter.name))
+                if (!string.IsNullOrEmpty(dataFilter?.name))
                 {
-                    appointments = appointments.Where(p => p.PatientName.ToLower().Contains(dataFilter.name.ToLower().Trim())).ToList();
+                    appointments = appointments.Where(p => p.PatientName != null && p.PatientName.ToLower().Contains(dataFilter.name.ToLower().Trim())).ToList();
                 }
 
-                if (dataFilter.consultancyType > 0 || dataFilter.appointmentStatus > 0
-                    || (!string.IsNullOrEmpty(dataFilter.fromDate) && !string.IsNullOrEmpty(dataFilter.toDate)))
+                if (dataFilter?.consultancyType > 0 || dataFilter?.appointmentStatus > 0
+                                                    || (!string.IsNullOrEmpty(dataFilter?.fromDate) && !string.IsNullOrEmpty(dataFilter.toDate)))
                 {
-                    appointments = appointments.Where(p => p.ConsultancyType == dataFilter.consultancyType
-                                                            || p.AppointmentStatus == dataFilter.appointmentStatus
-                                                            || (p.AppointmentDate.Value.Date >= DateTime.ParseExact(dataFilter.fromDate, "MM/dd/yyyy", provider, DateTimeStyles.None)
-                                                            && p.AppointmentDate.Value.Date <= DateTime.ParseExact(dataFilter.toDate, "MM/dd/yyyy", provider, DateTimeStyles.None))).ToList();
+                    appointments = appointments.Where(p => dataFilter.toDate != null && p.AppointmentDate != null && dataFilter.fromDate != null && (p.ConsultancyType == dataFilter.consultancyType
+                        || p.AppointmentStatus == dataFilter.appointmentStatus
+                        || (p.AppointmentDate.Value.Date >= DateTime.ParseExact(dataFilter.fromDate, "MM/dd/yyyy", provider, DateTimeStyles.None)
+                            && p.AppointmentDate.Value.Date <= DateTime.ParseExact(dataFilter.toDate, "MM/dd/yyyy", provider, DateTimeStyles.None)))).ToList();
                 }
 
                 appointments = appointments.Skip(filterModel.Offset)
@@ -336,7 +340,7 @@ namespace SoowGoodWeb.Services
 
         }
 
-        public async Task<List<AppointmentDto>> GetListAppointmentListByAdminAsync()
+        public async Task<List<AppointmentDto>?> GetListAppointmentListByAdminAsync()
         {
             List<AppointmentDto>? result = null;
             DoctorScheduleDaySession? weekDayName = null;
@@ -348,45 +352,61 @@ namespace SoowGoodWeb.Services
             }
 
             result = new List<AppointmentDto>();
-            foreach (var item in allAppoinment)
+            try
             {
-                var patientDetails = await _patientProfileRepository.GetAsync(p => p.Id == item.PatientProfileId);
-                if (item.DoctorScheduleDaySessionId > 0)
+
+                foreach (var item in allAppoinment)
                 {
-                    weekDayName = await _doctorScheduleSessionRepository.GetAsync(p => p.Id == item.DoctorScheduleDaySessionId);
+                    var patientDetails = await _patientProfileRepository.GetAsync(p => p.Id == item.PatientProfileId);
+                    if (item.DoctorScheduleDaySessionId > 0)
+                    {
+                        weekDayName = await _doctorScheduleSessionRepository.GetAsync(p => p.Id == item.DoctorScheduleDaySessionId);
+                    }
+                    result.Add(new AppointmentDto()
+                    {
+                        Id = item.Id,
+                        PatientName = item.PatientName,
+                        AppointmentDate = Convert.ToDateTime(item.AppointmentDate).Date,
+                        AppointmentTime = item.AppointmentTime,
+                        AppointmentSerial = item.AppointmentSerial,
+                        AppointmentType = item.AppointmentType,
+                        AppointmentTypeName = item.AppointmentType > 0 ? ((AppointmentType)item.AppointmentType).ToString() : "n/a",
+                        DoctorName = item.DoctorName,
+                        DoctorScheduleId = item.DoctorScheduleId,
+                        DoctorScheduleName = item.DoctorScheduleId > 0 ? item.DoctorSchedule?.ScheduleName : "n/a",
+                        AppointmentCode = item.AppointmentCode,
+                        AppointmentStatus = item.AppointmentStatus,
+                        DoctorCode = item.DoctorCode,
+                        PatientCode = item.PatientCode,
+                        PatientMobileNo = patientDetails.PatientMobileNo,
+                        PatientEmail = patientDetails.PatientEmail,
+                        AppointmentStatusName = item.AppointmentStatus > 0 ? ((AppointmentStatus)item.AppointmentStatus).ToString() : "n/a",
+                        AppointmentPaymentStatus = item.AppointmentPaymentStatus,
+                        AppointmentPaymentStatusName = item.AppointmentPaymentStatus > 0 ? ((AppointmentPaymentStatus)item.AppointmentPaymentStatus).ToString() : "n/a",
+                        ConsultancyType = item.ConsultancyType,
+                        ConsultancyTypeName = item.ConsultancyType > 0 ? ((ConsultancyType)item.ConsultancyType).ToString() : "n/a",
+                        DoctorChamberId = item.DoctorChamberId,
+                        DoctorChamberName = item.DoctorChamberId > 0 ? item.DoctorSchedule?.DoctorChamber?.ChamberName : "n/a",
+                        DoctorFee = item.DoctorFee,
+                        PatientLocation = patientDetails?.City?.ToString(),
+                        DoctorScheduleDaySessionId = item.DoctorScheduleDaySessionId,
+                        ScheduleDayofWeek = weekDayName?.ScheduleDayofWeek?.ToString(),
+                        CancelledByRole = item.CancelledByRole,
+                        PaymentTransactionId = item.PaymentTransactionId,
+                    });
                 }
-                result.Add(new AppointmentDto()
-                {
-                    Id = item.Id,
-                    PatientName = item.PatientName,
-                    AppointmentDate = item.AppointmentDate,
-                    AppointmentTime = item.AppointmentTime,
-                    AppointmentType = item.AppointmentType,
-                    AppointmentTypeName = item.AppointmentType > 0 ? ((AppointmentType)item.AppointmentType).ToString() : "n/a",
-                    DoctorName = item.DoctorName,
-                    DoctorScheduleId = item.DoctorScheduleId,
-                    DoctorScheduleName = item.DoctorScheduleId > 0 ? item.DoctorSchedule?.ScheduleName : "n/a",
-                    AppointmentCode = item.AppointmentCode,
-                    AppointmentStatus = item.AppointmentStatus,
-                    DoctorCode = item.DoctorCode,
-                    PatientCode = item.PatientCode,
-                    PatientMobileNo = patientDetails.PatientMobileNo,
-                    PatientEmail = patientDetails.PatientEmail,
-                    AppointmentStatusName = item.AppointmentStatus > 0 ? ((AppointmentStatus)item.AppointmentStatus).ToString() : "n/a",
-                    AppointmentPaymentStatus = item.AppointmentPaymentStatus,
-                    AppointmentPaymentStatusName = item.AppointmentPaymentStatus > 0 ? ((AppointmentPaymentStatus)item.AppointmentPaymentStatus).ToString() : "n/a",
-                    ConsultancyType = item.ConsultancyType,
-                    ConsultancyTypeName = item.ConsultancyType > 0 ? ((ConsultancyType)item.ConsultancyType).ToString() : "n/a",
-                    DoctorChamberId = item.DoctorChamberId,
-                    DoctorChamberName = item.DoctorChamberId > 0 ? item.DoctorSchedule?.DoctorChamber?.ChamberName : "n/a",
-                    DoctorFee = item.DoctorFee,
-                    PatientLocation = patientDetails?.City?.ToString(),
-                    DoctorScheduleDaySessionId = item.DoctorScheduleDaySessionId,
-                    ScheduleDayofWeek = weekDayName?.ScheduleDayofWeek?.ToString(),
-                    CancelledByRole = item.CancelledByRole,
-                    PaymentTransactionId = item.PaymentTransactionId,
-                });
             }
+            catch (Exception ex)
+            {
+                // ignored
+            }
+
+            result = result.OrderByDescending(a => a.AppointmentDate).ToList();
+            var list = result.OrderBy(item => item.AppointmentSerial)
+                .GroupBy(item => item.AppointmentDate)
+                .OrderBy(g => g.Key).Select(g => new { g }).ToList();
+            
+
             return result;
         }
 

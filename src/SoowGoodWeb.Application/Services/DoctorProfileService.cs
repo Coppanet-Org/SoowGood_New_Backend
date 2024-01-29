@@ -246,7 +246,7 @@ namespace SoowGoodWeb.Services
                 return result;
             }
 
-            var schedules = await _doctorScheduleRepository.WithDetailsAsync(d=>d.DoctorProfile);
+            var schedules = await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile);
             var profiles = profileWithDetails.ToList();
 
             profiles = (from doctors in profiles
@@ -529,8 +529,8 @@ namespace SoowGoodWeb.Services
             List<DoctorProfileDto> result = null;
             var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
 
-            
-            
+
+
             if (!profileWithDetails.Any())
             {
                 return result;
@@ -679,7 +679,7 @@ namespace SoowGoodWeb.Services
 
                 });
             }
-            return result;
+            return result.OrderByDescending(d=>d.Id).ToList();
         }
 
         public async Task<DoctorProfileDto> UpdateActiveStatusByAdmin(int Id, bool activeStatus)
@@ -929,137 +929,31 @@ namespace SoowGoodWeb.Services
             try
             {
                 var itemDoctor = await _doctorProfileRepository.GetAsync(d => d.Id == input.Id);
-                itemDoctor.FullName = input.FullName;
-                itemDoctor.DoctorTitle = input.DoctorTitle;
-                itemDoctor.Email = input.Email;
-                itemDoctor.Gender = input.Gender;
-                itemDoctor.DateOfBirth = input.DateOfBirth;
-                itemDoctor.BMDCRegNo = input.BMDCRegNo;
-                itemDoctor.BMDCRegExpiryDate = input.BMDCRegExpiryDate;
-                itemDoctor.Address = input.Address;
-                itemDoctor.City = input.City;
-                itemDoctor.Country = input.Country;
-                itemDoctor.ZipCode = input.ZipCode;
-                itemDoctor.IdentityNumber = input.IdentityNumber;
-                itemDoctor.SpecialityId = input.SpecialityId;
+                if (itemDoctor != null)
+                {
+                    itemDoctor.FullName = input.FullName;
+                    itemDoctor.DoctorTitle = input.DoctorTitle;
+                    itemDoctor.DateOfBirth = input.DateOfBirth;
+                    itemDoctor.Gender = input.Gender;
+                    itemDoctor.Address = input.Address;
+                    itemDoctor.City = input.City;
+                    itemDoctor.Country = input.Country;
+                    itemDoctor.ZipCode = input.ZipCode;
+                    itemDoctor.Email = input.Email;
+                    itemDoctor.IdentityNumber = input.IdentityNumber;
+                    itemDoctor.BMDCRegNo = input.BMDCRegNo;
+                    itemDoctor.BMDCRegExpiryDate = input.BMDCRegExpiryDate;
+                    itemDoctor.SpecialityId = input.SpecialityId;
 
-                var item = await _doctorProfileRepository.UpdateAsync(itemDoctor);
-                await _unitOfWorkManager.Current.SaveChangesAsync();
-                result = ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+                    var item = await _doctorProfileRepository.UpdateAsync(itemDoctor);
+                    await _unitOfWorkManager.Current.SaveChangesAsync();
+                    result = ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+                }
             }
             catch (Exception ex)
             {
             }
             return result;//ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
         }
-        //public async Task<List<DoctorProfileDto>> GetListAsync()
-        //{
-        //    List<DoctorProfileDto> list = null;
-        //    var items = await _doctorProfileRepository.WithDetailsAsync(p => p.District);
-        //    if (items.Any())
-        //    {
-        //        list = new List<DoctorProfileDto>();
-        //        foreach (var item in items)
-        //        {
-        //            list.Add(new DoctorProfileDto()
-        //            {
-        //                Id = item.Id,
-        //                Name = item.Name,
-        //                Description = item.Description,
-        //                DistrictId = item.DistrictId,
-        //                DistrictName = item.District?.Name,
-        //                CivilSubDivisionId = item.CivilSubDivisionId,
-        //                EmSubDivisionId = item.EmSubDivisionId,
-        //            });
-        //        }
-        //    }
-
-        //    return list;
-        //}
-        //public async Task<List<QuarterDto>> GetListByDistrictAsync(int id)
-        //{
-        //    List<QuarterDto> list = null;
-        //    var items = await repository.WithDetailsAsync(p => p.District);
-        //    items = items.Where(i => i.DistrictId == id);
-        //    if (items.Any())
-        //    {
-        //        list = new List<QuarterDto>();
-        //        foreach (var item in items)
-        //        {
-        //            list.Add(new QuarterDto()
-        //            {
-        //                Id = item.Id,
-        //                Name = item.Name,
-        //                Description = item.Description,
-        //                DistrictId = item.DistrictId,
-        //                DistrictName = item.District?.Name,
-        //                CivilSubDivisionId = item.CivilSubDivisionId,
-        //                EmSubDivisionId = item.EmSubDivisionId,
-        //            });
-        //        }
-        //    }
-
-        //    return list;
-        //}
-
-        //public async Task<int> GetCountAsync()
-        //{
-        //    return (await quarterRepository.GetListAsync()).Count;
-        //}
-        //public async Task<List<QuarterDto>> GetSortedListAsync(FilterModel filterModel)
-        //{
-        //    var quarters = await quarterRepository.WithDetailsAsync();
-        //    quarters = quarters.Skip(filterModel.Offset)
-        //                    .Take(filterModel.Limit);
-        //    return ObjectMapper.Map<List<Quarter>, List<QuarterDto>>(quarters.ToList());
-        //}
-        ////public async Task<int> GetCountBySDIdAsync(Guid? civilSDId, Guid? emSDId)
-        //public async Task<int> GetCountBySDIdAsync(Guid? sdId)
-        //{
-        //    var quarters = await quarterRepository.WithDetailsAsync();
-        //    //if (civilSDId != null && emSDId != null)
-        //    //{
-        //    //    quarters = quarters.Where(q => q.CivilSubDivisionId == civilSDId && q.EmSubDivisionId == emSDId);
-        //    //}
-        //    if (sdId != null)
-        //    {
-        //        quarters = quarters.Where(q => q.CivilSubDivisionId == sdId || q.EmSubDivisionId == sdId);
-        //    }
-        //    //else if (emSDId != null)
-        //    //{
-        //    //    quarters = quarters.Where(q => q.EmSubDivisionId == emSDId);
-        //    //}
-        //    return quarters.Count();
-        //}
-        ////public async Task<List<QuarterDto>> GetSortedListBySDIdAsync(Guid? civilSDId, Guid? emSDId, FilterModel filterModel)
-        //public async Task<List<QuarterDto>> GetSortedListBySDIdAsync(Guid? sdId, FilterModel filterModel)
-        //{
-        //    var quarters = await quarterRepository.WithDetailsAsync();
-        //    //if (civilSDId != null && emSDId != null)
-        //    //{
-        //    //    quarters = quarters.Where(q => q.CivilSubDivisionId == civilSDId && q.EmSubDivisionId == emSDId);
-        //    //}
-        //    //else if (civilSDId != null)
-        //    //{
-        //    if (sdId != null)
-        //        quarters = quarters.Where(q => q.CivilSubDivisionId == sdId || q.EmSubDivisionId == sdId);
-        //    //}
-        //    //else if (emSDId != null)
-        //    //{
-        //    //    quarters = quarters.Where(q => q.EmSubDivisionId == emSDId);
-        //    //}
-        //    quarters = quarters.Skip(filterModel.Offset)
-        //                    .Take(filterModel.Limit);
-        //    return ObjectMapper.Map<List<Quarter>, List<QuarterDto>>(quarters.ToList());
-        //}
-        //public async Task<List<QuarterDto>> GetListBySDIdAsync(Guid? sdId)
-        //{
-        //    var quarters = await quarterRepository.WithDetailsAsync();
-        //    if (sdId != null)
-        //    {
-        //        quarters = quarters.Where(q => q.CivilSubDivisionId == sdId || q.EmSubDivisionId == sdId);
-        //    }
-        //    return ObjectMapper.Map<List<Quarter>, List<QuarterDto>>(quarters.ToList());
-        //}
     }
 }

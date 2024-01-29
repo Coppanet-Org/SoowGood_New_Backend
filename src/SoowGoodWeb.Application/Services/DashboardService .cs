@@ -450,7 +450,7 @@ namespace SoowGoodWeb.Services
             var result = new DashboardDto();
             decimal? totalFees = 0;
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-            var appointments = item.Where(d => d.DoctorProfileId == doctorid).ToList();
+            var appointments = item.Where(d => d.DoctorProfileId == doctorid && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
             var patients = (from t1 in appointments
                             select t1.PatientProfileId).Distinct().ToList();
             result.totalAppointment = appointments.Count;
@@ -504,7 +504,7 @@ namespace SoowGoodWeb.Services
             var result = new DashboardDto();
             decimal? totalFees = 0;
             var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-            var appointments = item.Where(d => d.AppointmentCreatorId == patientId && d.AppointmentCreatorRole==role).ToList();
+            var appointments = item.Where(d => d.AppointmentCreatorId == patientId && d.AppointmentCreatorRole == role && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
             var patients = (from t1 in appointments
                             select t1.PatientProfileId).Distinct().ToList();
             result.totalAppointment = appointments.Count;

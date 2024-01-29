@@ -60,8 +60,35 @@ namespace SoowGoodWeb.Services
         }
         public async Task<List<AgentProfileDto>> GetListAsync()
         {
-            var profiles = await _agentProfileRepository.GetListAsync();
-            return ObjectMapper.Map<List<AgentProfile>, List<AgentProfileDto>>(profiles);
+            var result = new List<AgentProfileDto>();
+            try
+            {
+                var profiles = await _agentProfileRepository.WithDetailsAsync(m => m.AgentMaster, s => s.AgentSupervisor);
+                var item = profiles.ToList();
+                if (item.Any())
+                {
+                    foreach (var profile in item)
+                    {
+                        result.Add(new AgentProfileDto()
+                        {
+                            Id = profile.Id,
+                            AgentCode = profile.AgentCode,
+                            FullName = profile.FullName,
+                            MobileNo = profile.MobileNo,
+                            Email = profile.Email,
+                            OrganizationName = profile.OrganizationName,
+                            City = profile.City,
+                            Address = profile.Address,
+                            AgentMasterName = profile?.AgentMaster?.AgentMasterOrgName,
+                            AgentSupervisorName = profile?.AgentSupervisor?.AgentSupervisorOrgName
+
+                        });
+                    }
+                }
+            }
+            catch (Exception e) { }
+
+            return result.OrderByDescending(r=>r.Id).ToList();//ObjectMapper.Map<List<AgentProfile>, List<AgentProfileDto>>(item);
         }
         public async Task<AgentProfileDto> GetByUserIdAsync(Guid userId)
         {
@@ -71,12 +98,42 @@ namespace SoowGoodWeb.Services
 
         public async Task<AgentProfileDto> UpdateAsync(AgentProfileInputDto input)
         {
-            var updateItem = ObjectMapper.Map<AgentProfileInputDto, AgentProfile>(input);
+            var result = new AgentProfileDto();
+            try
+            {
+                var itemAgent = await _agentProfileRepository.GetAsync(d => d.Id == input.Id);
+                if (itemAgent != null)
+                {
+                    var isActive = input.IsActive == false ? false : true;
 
-            var item = await _agentProfileRepository.UpdateAsync(updateItem);
-            await _unitOfWorkManager.Current.SaveChangesAsync();                        
-            return ObjectMapper.Map<AgentProfile, AgentProfileDto>(item);
+
+                    itemAgent.FullName = input.FullName;
+                    itemAgent.OrganizationName = input.OrganizationName;
+                    itemAgent.Email = input.Email;
+
+                    itemAgent.Address = input.Address;
+                    itemAgent.City = input.City;
+                    itemAgent.Country = input.Country;
+                    itemAgent.ZipCode = input.ZipCode;
+                    itemAgent.AgentMasterId = input.AgentMasterId;
+                    itemAgent.AgentSupervisorId = input.AgentSupervisorId;
+                    itemAgent.IsActive = isActive;
+                    itemAgent.AgentDocNumber = input.AgentDocNumber;
+                    itemAgent.AgentDocExpireDate = input.AgentDocExpireDate;
+
+                    var item = await _agentProfileRepository.UpdateAsync(itemAgent);
+                    await _unitOfWorkManager.Current.SaveChangesAsync();
+                    result = ObjectMapper.Map<AgentProfile, AgentProfileDto>(item);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            return result;
+
         }
+
 
         public async Task<AgentProfileDto> GetlByUserNameAsync(string userName)
         {
