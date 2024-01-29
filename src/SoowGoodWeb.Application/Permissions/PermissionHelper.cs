@@ -40,4 +40,4 @@ namespace SoowGoodWeb
         public static readonly string _clientSecret = "1q2w3e*";
         public static readonly string _scope = "SoowGoodWeb";
     }
-}
+} 
