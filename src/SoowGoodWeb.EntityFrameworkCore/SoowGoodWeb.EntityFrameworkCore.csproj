@@ -19,6 +19,12 @@
     <Compile Remove="Migrations\20231018080943_prescription_master_appcode.Designer.cs" />
     <Compile Remove="Migrations\20231018101207_prescription_master_updated_with_Patient_info.cs" />
     <Compile Remove="Migrations\20231018101207_prescription_master_updated_with_Patient_info.Designer.cs" />
+    <Compile Remove="Migrations\20231206102333_platformServices_platformfinancials_created.cs" />
+    <Compile Remove="Migrations\20231206102333_platformServices_platformfinancials_created.Designer.cs" />
+    <Compile Remove="Migrations\20231207052901_platform_service_and_financal_setup_table_updated.cs" />
+    <Compile Remove="Migrations\20231207052901_platform_service_and_financal_setup_table_updated.Designer.cs" />
+    <Compile Remove="Migrations\20231207084718_platform_service_and_financal_setup_table_updated_forPatformId.cs" />
+    <Compile Remove="Migrations\20231207084718_platform_service_and_financal_setup_table_updated_forPatformId.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
