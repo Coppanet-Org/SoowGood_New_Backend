@@ -350,7 +350,7 @@ namespace SoowGoodWeb.Services
             {
                 return result;
             }
-
+             
             result = new List<AppointmentDto>();
             try
             {

@@ -520,7 +520,8 @@ namespace SoowGoodWeb.Services
 
         public async Task<DoctorProfileDto> GetByUserNameAsync(string userName)
         {
-            var item = await _doctorProfileRepository.GetAsync(x => x.MobileNo == userName);
+            var dProfiles = await _doctorProfileRepository.WithDetailsAsync(s => s.Speciality);
+            var item = dProfiles.Where(x => x.MobileNo == userName).FirstOrDefault();
 
             return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
         }
@@ -884,8 +885,16 @@ namespace SoowGoodWeb.Services
             var medcalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
             var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medcalSpecializations.ToList());
 
+
+            var attachedItems = await _documentsAttachment.WithDetailsAsync();
+
             foreach (var item in profiles)
             {
+                var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
+                                                                && x.EntityId == item.Id
+                                                                && x.AttachmentType == AttachmentType.ProfilePicture
+                                                                && x.IsDeleted == false).FirstOrDefault();
+
                 result.Add(new DoctorProfileDto()
                 {
                     Id = item.Id,
@@ -916,6 +925,7 @@ namespace SoowGoodWeb.Services
                     IsOnline = item.IsOnline,
                     profileStep = item.profileStep,
                     createFrom = item.createFrom,
+                    ProfilePic = profilePics?.Path,
                     DoctorCode = item.DoctorCode,
                 });
             }
