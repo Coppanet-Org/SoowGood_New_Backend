@@ -140,16 +140,16 @@ namespace SoowGoodWeb.Services
                 var itemPatient = await _patientRepository.FindAsync(input.Id);
                 if (itemPatient != null)
                 {
-                    itemPatient.FullName = input.FullName;
-                    itemPatient.DateOfBirth = input.DateOfBirth;
-                    itemPatient.Age = input.Age;
-                    itemPatient.Gender = input.Gender;
-                    itemPatient.BloodGroup = input.BloodGroup;
-                    itemPatient.Address = input.Address;
-                    itemPatient.City = input.City;
-                    itemPatient.ZipCode = input.ZipCode;
-                    itemPatient.Country = input.Country;
-                    itemPatient.Email = input.Email;
+                    itemPatient.FullName = !string.IsNullOrEmpty(input.FullName) ? input.FullName : itemPatient.FullName;
+                    itemPatient.DateOfBirth = input.DateOfBirth != null ? input.DateOfBirth : itemPatient.DateOfBirth;
+                    itemPatient.Age = input.Age > 0 ? input.Age : itemPatient.Age;
+                    itemPatient.Gender = input.Gender != null ? input.Gender : itemPatient.Gender;
+                    itemPatient.BloodGroup = input.BloodGroup != null ? input.BloodGroup : itemPatient.BloodGroup;
+                    itemPatient.Address = !string.IsNullOrEmpty(input.Address) ? input.Address : itemPatient.Address;
+                    itemPatient.City = !string.IsNullOrEmpty(input.City) ? input.City : itemPatient.City;
+                    itemPatient.ZipCode = !string.IsNullOrEmpty(input.ZipCode) ? input.ZipCode : itemPatient.ZipCode;
+                    itemPatient.Country = !string.IsNullOrEmpty(input.Country) ? input.Country : itemPatient.Country;
+                    itemPatient.Email = !string.IsNullOrEmpty(input.Email) ? input.Email : itemPatient.Email;
                     itemPatient.PatientName = !string.IsNullOrEmpty(itemPatient.PatientName) ? itemPatient.PatientName : input.PatientName;
                     itemPatient.PatientMobileNo = !string.IsNullOrEmpty(itemPatient.PatientMobileNo) ? itemPatient.PatientMobileNo : input.PatientMobileNo;
                     itemPatient.PatientEmail = !string.IsNullOrEmpty(itemPatient.PatientEmail) ? itemPatient.PatientEmail : input.PatientEmail;
