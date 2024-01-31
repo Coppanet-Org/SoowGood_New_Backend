@@ -177,7 +177,7 @@ namespace SoowGoodWeb.Services
             else
             {
                 result = new LoginResponseDto()
-                {                    
+                {
                     Success = false,
                     Message = "No User Found"
                 };
@@ -378,12 +378,12 @@ namespace SoowGoodWeb.Services
             }
             return false;
         }
-        public async Task<AccountDeteleResponsesDto> DeleteAsync(long id, string role)
+        public async Task<AccountDeteleResponsesDto> DeleteAsync(string mobile, string role)
         {
-            var response = new AccountDeteleResponsesDto();
+            var result = new AccountDeteleResponsesDto();
             if (role == "Doctor")
             {
-                var doctorDelete = _doctorProfileRepository.DeleteAsync(d => d.Id == id);
+                var doctorDelete = _doctorProfileRepository.DeleteAsync(d => d.MobileNo == mobile);
                 if (doctorDelete != null)
                 {
                     response.Success = true;
@@ -392,14 +392,42 @@ namespace SoowGoodWeb.Services
             }
             else if (role == "Patient")
             {
-                var doctorDelete = _patientProfileRepository.DeleteAsync(d => d.Id == id);
+                var doctorDelete = _patientProfileRepository.DeleteAsync(d => d.MobileNo == mobile);
                 if (doctorDelete != null)
                 {
                     response.Success = true;
                     response.Message = "User Account removed";
                 }
             }
-            return response;
+
+            using (var client = new HttpClient())
+            {
+                var tokenResponse = await GetToken();
+                client.BaseAddress = new Uri(authClientUrl);
+                client.SetBearerToken(tokenResponse.AccessToken);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                //GET Method
+
+                //var update = JsonSerializer.Serialize(userDto);
+                //var requestContent = new StringContent(update, Encoding.UTF8, "application/json");
+                HttpResponseMessage response =
+                    await client.DeleteAsync($"api/app/account/delete?userName={mobile}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var newUserString = await response.Content.ReadAsStringAsync();
+                    var newUser = JsonConvert.DeserializeObject<AccountDeteleResponsesDto>(newUserString);
+
+                    result = new AccountDeteleResponsesDto()
+                    {
+                        Success = newUser.Success,
+                        Message = "User Account removed";
+
+                };
+                return result;
+
+            }
+
         }
     }
 }
