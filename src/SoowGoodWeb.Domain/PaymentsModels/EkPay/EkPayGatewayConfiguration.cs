@@ -13,16 +13,16 @@ namespace SoowGoodWeb.EkPayData
             _appConfiguration = configurationAccessor;
         }
 
-        public bool IsActive => _appConfiguration["Payment:eKPay:IsActive"].To<bool>();
-        public string SubmitUrl => _appConfiguration["Payment:eKPay:SubmitUrl"];
-        //public string ValidationUrl => _appConfiguration["Payment:eKPay:ValidationUrl"];
-        //public string CheckingUrl => _appConfiguration["Payment:eKPay:CheckingUrl"];
+        public bool IsActive => _appConfiguration["Payment:EkPay:IsActive"].To<bool>();
+        public string SubmitUrl => _appConfiguration["Payment:EkPay:SubmitUrl"];
+        //public string ValidationUrl => _appConfiguration["Payment:EkPay:ValidationUrl"];
+        //public string CheckingUrl => _appConfiguration["Payment:EkPay:CheckingUrl"];
 
         // Sandbox or Test
-        public string SandboxEnvironment => _appConfiguration["Payment:eKPay:SandboxEnvironment"];
-        public string SandboxStoreId => _appConfiguration["Payment:eKPay:SandboxStoreId"];
-        public string SandboxStorePassword => _appConfiguration["Payment:eKPay:SandboxStorePassword"];
-        public string SanboxUrl => _appConfiguration["Payment:eKPay:SanboxUrl"];
+        public string SandboxEnvironment => _appConfiguration["Payment:EkPay:SandboxEnvironment"];
+        public string SandboxStoreId => _appConfiguration["Payment:EkPay:SandboxStoreId"];
+        public string SandboxStorePassword => _appConfiguration["Payment:EkPay:SandboxStorePassword"];
+        public string SanboxUrl => _appConfiguration["Payment:EkPay:SanboxUrl"];
         public string SandboxSubmitUrl => SanboxUrl + SubmitUrl;
         //public string SandboxValidationUrl => SanboxUrl + ValidationUrl;
         //public string SandboxCheckingUrl => SanboxUrl + CheckingUrl;
@@ -37,10 +37,10 @@ namespace SoowGoodWeb.EkPayData
         //public string LiveCheckingUrl => LiveUrl + CheckingUrl;
 
         // Success, Fail or Cancel Callback Url
-        public string DevSuccessCallbackUrl => _appConfiguration["Payment:eKPay:DevSuccessCallbackUrl"];
-        public string DevFailCallbackUrl => _appConfiguration["Payment:eKPay:DevFailCallbackUrl"];
-        public string DevCancelCallbackUrl => _appConfiguration["Payment:eKPay:DevCancelCallbackUrl"];
-        //public string DevIpnLintener => _appConfiguration["Payment:eKPay:DevIpnLintener"];
+        public string DevSuccessCallbackUrl => _appConfiguration["Payment:EkPay:DevSuccessCallbackUrl"];
+        public string DevFailCallbackUrl => _appConfiguration["Payment:EkPay:DevFailCallbackUrl"];
+        public string DevCancelCallbackUrl => _appConfiguration["Payment:EkPay:DevCancelCallbackUrl"];
+        //public string DevIpnLintener => _appConfiguration["Payment:EkPay:DevIpnLintener"];
 
         //public string ProdSuccessCallbackUrl => _appConfiguration["Payment:SslCommerz:ProdSuccessCallbackUrl"];
         //public string ProdFailCallbackUrl => _appConfiguration["Payment:SslCommerz:ProdFailCallbackUrl"];

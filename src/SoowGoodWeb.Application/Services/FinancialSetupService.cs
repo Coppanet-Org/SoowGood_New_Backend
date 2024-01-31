@@ -67,7 +67,8 @@ namespace SoowGoodWeb.Services
                     ProviderAmount=item.ProviderAmount,
                 });
             }
-            return result;
+            var resList = result.OrderByDescending(d=>d.Id).ToList();
+            return resList;
         }
         
         public async Task<FinancialSetupDto> UpdateAsync(FinancialSetupInputDto input)

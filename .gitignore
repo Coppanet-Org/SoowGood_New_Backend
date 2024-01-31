@@ -263,5 +263,10 @@ src/SoowGoodWeb.Blazor.Server.Tiered/Logs/*
 
 # Use abp install-libs to restore.
 **/wwwroot/libs/*
-/src/SoowGoodWeb.HttpApi.Host/web - Copy.config
-/src/SoowGoodWeb.HttpApi.Host/appsettings - Copy.json
+/src/SoowGoodWeb.EntityFrameworkCore/Migrations/20231206102333_platformServices_platformfinancials_created.cs
+/src/SoowGoodWeb.EntityFrameworkCore/Migrations/20231206102333_platformServices_platformfinancials_created.Designer.cs
+/src/SoowGoodWeb.EntityFrameworkCore/Migrations/20231207052901_platform_service_and_financal_setup_table_updated.cs
+/src/SoowGoodWeb.EntityFrameworkCore/Migrations/20231207052901_platform_service_and_financal_setup_table_updated.Designer.cs
+/src/SoowGoodWeb.EntityFrameworkCore/Migrations/20231207084718_platform_service_and_financal_setup_table_updated_forPatformId.cs
+/src/SoowGoodWeb.EntityFrameworkCore/Migrations/20231207084718_platform_service_and_financal_setup_table_updated_forPatformId.Designer.cs
+/src/SoowGoodWeb.EntityFrameworkCore/Migrations/20231206102333_platformServices_platformfinancials_created.cs
