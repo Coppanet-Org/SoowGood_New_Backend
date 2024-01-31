@@ -378,10 +378,12 @@ namespace SoowGoodWeb.Services
         public async Task<AccountDeteleResponsesDto> DeleteAsync(string mobile, string role)
         {
             //var doctorDelete = null;
+            bool profileDeleted = false;
             var result = new AccountDeteleResponsesDto();
             if (role == "Doctor")
             {
                 var doctorDelete = _doctorProfileRepository.DeleteAsync(d => d.MobileNo == mobile);
+                profileDeleted = true;
                 //if (doctorDelete != null)
                 //{
                 //    result.Success = true;
@@ -391,39 +393,42 @@ namespace SoowGoodWeb.Services
             else if (role == "Patient")
             {
                 var doctorDelete = _patientProfileRepository.DeleteAsync(d => d.MobileNo == mobile);
+                profileDeleted = true;
                 //if (doctorDelete != null)
                 //{
                 //    result.Success = true;
                 //    result.Message = "User Account removed";
                 //}
             }
-
-            using (var client = new HttpClient())
+            if (profileDeleted == true)
             {
-                var tokenResponse = await GetToken();
-                client.BaseAddress = new Uri(authClientUrl);
-                client.SetBearerToken(tokenResponse.AccessToken);
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                //GET Method
-
-                //var update = JsonSerializer.Serialize(userDto);
-                //var requestContent = new StringContent(update, Encoding.UTF8, "application/json");
-                HttpResponseMessage response =
-                    await client.DeleteAsync($"api/app/account?userName={mobile}");
-                if (response.IsSuccessStatusCode)
+                using (var client = new HttpClient())
                 {
-                    var newUserString = await response.Content.ReadAsStringAsync();
-                    var newUser = JsonConvert.DeserializeObject<AccountDeteleResponsesDto>(newUserString);
+                    var tokenResponse = await GetToken();
+                    client.BaseAddress = new Uri(authClientUrl);
+                    client.SetBearerToken(tokenResponse.AccessToken);
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    //GET Method
 
-                    result = new AccountDeteleResponsesDto()
+                    //var update = JsonSerializer.Serialize(userDto);
+                    //var requestContent = new StringContent(update, Encoding.UTF8, "application/json");
+                    HttpResponseMessage response =
+                        await client.DeleteAsync($"api/app/account?userName={mobile}");
+                    if (response.IsSuccessStatusCode)
                     {
-                        Success = newUser.Success,
-                        Message = newUser.Message//"User Account removed"
+                        var newUserString = await response.Content.ReadAsStringAsync();
+                        var newUser = JsonConvert.DeserializeObject<AccountDeteleResponsesDto>(newUserString);
 
-                    };
-                    //return result;
+                        result = new AccountDeteleResponsesDto()
+                        {
+                            Success = newUser.Success,
+                            Message = newUser.Message//"User Account removed"
 
+                        };
+                        //return result;
+
+                    }
                 }
             }
             return result;
