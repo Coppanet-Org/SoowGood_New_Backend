@@ -99,4 +99,12 @@ namespace SoowGoodWeb.DtoModels
         public IList<string>? RoleNames { get; set; }
         public string? Password { get; set; }
     }
+
+    public class AccountDeteleResponsesDto
+    {
+        public string? UserName { get; set; }
+        public string? Name { get; set; }
+        public bool? Success { get; set; }
+        public string? Message { get; set; }
+    }
 }
