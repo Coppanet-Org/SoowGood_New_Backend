@@ -20,6 +20,7 @@ using static Volo.Abp.Identity.Settings.IdentitySettingNames;
 using System.Linq;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+using Nancy;
 
 namespace SoowGoodWeb.Services
 {
@@ -111,79 +112,74 @@ namespace SoowGoodWeb.Services
         public async Task<LoginResponseDto> Login(LoginDto userDto)
         {
             LoginResponseDto result = new LoginResponseDto();
-            bool profileExists = false;
-            var doctors = await _doctorProfileRepository.GetListAsync();//(d => d.MobileNo==mobileNo);
-            var doctor = doctors.FirstOrDefault(d => d.MobileNo == userDto.UserName && d.IsDeleted == false);
-
-            if (doctor == null)
+            using (var client = new HttpClient())
             {
-                var patients = await _patientProfileRepository.GetListAsync();//.GetAsync(p => p.MobileNo==mobileNo);
-                var patient = patients.FirstOrDefault(p => p.MobileNo == userDto.UserName && p.IsDeleted == false);
-                if (patient == null)
+                var tokenResponse = await GetToken();
+                client.BaseAddress = new Uri(authClientUrl);
+                client.SetBearerToken(tokenResponse.AccessToken);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+
+                var update = JsonSerializer.Serialize(userDto);
+                var requestContent = new StringContent(update, Encoding.UTF8, "application/json");
+                HttpResponseMessage response =
+                    await client.PostAsync(($"api/app/account/login"), requestContent);
+                if (response.IsSuccessStatusCode)
                 {
-                    var agents = await _agentProfileRepository.GetListAsync();//.GetAsync(a => a.MobileNo==mobileNo);
-                    var agent = agents.FirstOrDefault(a => a.MobileNo == userDto.UserName && a.IsDeleted == false);
-                    if (agent == null)
+                    var newUserString = await response.Content.ReadAsStringAsync();
+                    var newUser = JsonConvert.DeserializeObject<LoginResponseDto>(newUserString);
+
+                    result = new LoginResponseDto()
                     {
-                        profileExists = false;
-                    }
-                    else
-                    {
-                        profileExists = true;
-                    }
+                        UserId = newUser?.UserId,
+                        UserName = newUser?.UserName,
+                        RoleName = newUser?.RoleName,
+                        Success = newUser.Success,
+                        Message = newUser.Message
+                    };
+                    return result;
                 }
-                else
-                {
-                    profileExists = true;
-                }
+                return result;
+                //var user = await _userManager.FindByNameAsync(userDto.UserName);
+                //LoginResponseDto loginInfo = new LoginResponseDto();
+                //loginInfo.RoleName = new List<string>();
+                //if (user != null)
+                //{
+                //    var userole = await _userManager.GetRolesAsync(user); //_roleManager.GetRolesAsync(user);
+
+                //    var res = await _signInManager.PasswordSignInAsync(user.UserName, userDto.password, userDto.RememberMe, lockoutOnFailure: false);
+                //    if (res.Succeeded)
+                //    {
+                //        loginInfo.UserId = user.Id;
+                //        loginInfo.UserName = user.UserName;
+                //        foreach (string r in userole)
+                //        {
+                //            loginInfo.RoleName.Add(r);
+                //        }
+                //        loginInfo.Success = true;
+                //        loginInfo.Message = "User Exists! Login Successful!";
+                //        return loginInfo;
+                //    }
+                //    else
+                //    {
+                //        loginInfo.UserId = null;
+                //        loginInfo.UserName = "";
+                //        loginInfo.Success = false;
+                //        loginInfo.Message = "User Name Or Password is not correct !";
+                //        return loginInfo;
+                //    }
+                //}
+                //else
+                //{
+                //    loginInfo.UserId = null;
+                //    loginInfo.UserName = "";
+                //    loginInfo.Success = false;
+                //    loginInfo.Message = "User not exists! Please sign up as new user";
+                //    return loginInfo;
+                //}
             }
-            else
-            {
-                profileExists = true;
-            }
 
-            if (profileExists == true)
-            {
-                using (var client = new HttpClient())
-                {
-                    var tokenResponse = await GetToken();
-                    client.BaseAddress = new Uri(authClientUrl);
-                    client.SetBearerToken(tokenResponse.AccessToken);
-                    client.DefaultRequestHeaders.Accept.Clear();
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-
-                    var update = JsonSerializer.Serialize(userDto);
-                    var requestContent = new StringContent(update, Encoding.UTF8, "application/json");
-                    HttpResponseMessage response =
-                        await client.PostAsync(($"api/app/account/login"), requestContent);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var newUserString = await response.Content.ReadAsStringAsync();
-                        var newUser = JsonConvert.DeserializeObject<LoginResponseDto>(newUserString);
-
-                        result = new LoginResponseDto()
-                        {
-                            UserId = newUser?.UserId,
-                            UserName = newUser?.UserName,
-                            RoleName = newUser?.RoleName,
-                            Success = newUser.Success,
-                            Message = newUser.Message
-                        };
-                        //return result;
-                    }
-                }
-            }
-            else
-            {
-                result = new LoginResponseDto()
-                {
-                    Success = false,
-                    Message = "No User Found"
-                };
-
-            }
-            return result;
         }
 
         [AllowAnonymous]
@@ -378,56 +374,64 @@ namespace SoowGoodWeb.Services
             }
             return false;
         }
+
         public async Task<AccountDeteleResponsesDto> DeleteAsync(string mobile, string role)
         {
+            //var doctorDelete = null;
+            bool profileDeleted = false;
             var result = new AccountDeteleResponsesDto();
             if (role == "Doctor")
             {
                 var doctorDelete = _doctorProfileRepository.DeleteAsync(d => d.MobileNo == mobile);
-                if (doctorDelete != null)
-                {
-                    response.Success = true;
-                    response.Message = "User Account removed";
-                }
+                profileDeleted = true;
+                //if (doctorDelete != null)
+                //{
+                //    result.Success = true;
+                //    result.Message = "User Account removed";
+                //}
             }
             else if (role == "Patient")
             {
                 var doctorDelete = _patientProfileRepository.DeleteAsync(d => d.MobileNo == mobile);
-                if (doctorDelete != null)
+                profileDeleted = true;
+                //if (doctorDelete != null)
+                //{
+                //    result.Success = true;
+                //    result.Message = "User Account removed";
+                //}
+            }
+            if (profileDeleted == true)
+            {
+                using (var client = new HttpClient())
                 {
-                    response.Success = true;
-                    response.Message = "User Account removed";
+                    var tokenResponse = await GetToken();
+                    client.BaseAddress = new Uri(authClientUrl);
+                    client.SetBearerToken(tokenResponse.AccessToken);
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    //GET Method
+
+                    //var update = JsonSerializer.Serialize(userDto);
+                    //var requestContent = new StringContent(update, Encoding.UTF8, "application/json");
+                    HttpResponseMessage response =
+                        await client.DeleteAsync($"api/app/account?userName={mobile}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var newUserString = await response.Content.ReadAsStringAsync();
+                        var newUser = JsonConvert.DeserializeObject<AccountDeteleResponsesDto>(newUserString);
+
+                        result = new AccountDeteleResponsesDto()
+                        {
+                            Success = newUser.Success,
+                            Message = newUser.Message//"User Account removed"
+
+                        };
+                        //return result;
+
+                    }
                 }
             }
-
-            using (var client = new HttpClient())
-            {
-                var tokenResponse = await GetToken();
-                client.BaseAddress = new Uri(authClientUrl);
-                client.SetBearerToken(tokenResponse.AccessToken);
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                //GET Method
-
-                //var update = JsonSerializer.Serialize(userDto);
-                //var requestContent = new StringContent(update, Encoding.UTF8, "application/json");
-                HttpResponseMessage response =
-                    await client.DeleteAsync($"api/app/account/delete?userName={mobile}");
-                if (response.IsSuccessStatusCode)
-                {
-                    var newUserString = await response.Content.ReadAsStringAsync();
-                    var newUser = JsonConvert.DeserializeObject<AccountDeteleResponsesDto>(newUserString);
-
-                    result = new AccountDeteleResponsesDto()
-                    {
-                        Success = newUser.Success,
-                        Message = "User Account removed";
-
-                };
-                return result;
-
-            }
-
+            return result;
         }
     }
 }
