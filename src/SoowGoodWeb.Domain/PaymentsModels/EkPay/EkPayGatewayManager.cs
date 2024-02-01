@@ -372,16 +372,16 @@ namespace SoowGoodWeb.EkPayData
         public data_raw CreateDataRaw(EkPayDataRawDto postData)
         {
             var merChantInfo = new mer_info();
-            merChantInfo.mer_reg_id = postData.mer_reg_id;
-            merChantInfo.mer_pas_key = postData.mer_pas_key;
+            merChantInfo.mer_reg_id = _configuration.SandboxStoreId;
+            merChantInfo.mer_pas_key = _configuration.SandboxStorePassword;
             var feedUriInfo = new feed_uri();
-            feedUriInfo.c_uri = postData.c_uri;
-            feedUriInfo.f_uri = postData.f_uri;
-            feedUriInfo.s_uri = postData.s_uri;
+            feedUriInfo.c_uri = _configuration.DevCancelCallbackUrl; ;
+            feedUriInfo.f_uri = _configuration.DevFailCallbackUrl; ;
+            feedUriInfo.s_uri = _configuration.DevSuccessCallbackUrl; ;
             var customerInfo = new cust_info();
             customerInfo.cust_email = postData.cust_email;
             customerInfo.cust_id = postData.cust_id;
-            customerInfo.cust_mail_addr = postData.cust_mail_addr;
+            customerInfo.cust_mail_addr = "Dhaka";//postData.cust_mail_addr;
             customerInfo.cust_mobo_no = postData.cust_mobo_no;
             customerInfo.cust_name = postData.cust_name;
             var trnsInfo = new trns_info();
@@ -391,16 +391,18 @@ namespace SoowGoodWeb.EkPayData
             trnsInfo.trnx_currency = postData.trnx_currency;
             trnsInfo.trnx_id = postData.trnx_id;
             var ipnInfo = new ipn_info();
-            ipnInfo.ipn_channel = postData.ipn_channel;
-            ipnInfo.ipn_email = postData.ipn_email;
-            ipnInfo.ipn_uri = postData.ipn_uri;
+            ipnInfo.ipn_channel = "1";
+            ipnInfo.ipn_email = "a@synesisit.com.bd";
+            ipnInfo.ipn_uri = "https://www.dev.ekpay.gov.bd/test/ipn";
             
             var ekPayDataRaw = new data_raw();
             ekPayDataRaw.mer_info = merChantInfo;
+            ekPayDataRaw.req_timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:MM:ss 'GMT+6'");//"2024-11-08 18:14:00 GMT + 6";
             ekPayDataRaw.feed_uri = feedUriInfo;
             ekPayDataRaw.cust_Info = customerInfo;
             ekPayDataRaw.trns_Info = trnsInfo;
             ekPayDataRaw.ipn_Info = ipnInfo;
+            ekPayDataRaw.mac_addr = "1.1.1.1";
 
             return ekPayDataRaw;
         }

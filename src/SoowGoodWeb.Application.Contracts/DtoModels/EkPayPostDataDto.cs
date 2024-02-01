@@ -35,7 +35,7 @@ namespace SoowGoodWeb.DtoModels
     public class data_raw
     {
         public mer_info? mer_info { get; set; }
-        public DateTime? req_timestamp { get; set; }
+        public string? req_timestamp { get; set; }
         public feed_uri? feed_uri { get; set; }
         public cust_info? cust_Info { get; set; }
         public trns_info? trns_Info { get; set; }
