@@ -89,11 +89,44 @@ namespace SoowGoodWeb.Services
         public async Task<EkPayInitDto> InitiateTestPaymentAsync(EkPayInputDto input)
         {
             var nuDto = new EkPayInitDto();
+            
             input.TransactionId = GenerateTransactionId(16);
+
+            //var merChantInfo = new mer_info();
+            //merChantInfo.mer_reg_id = input.mer_reg_id;
+            //merChantInfo.mer_pas_key = input.mer_pas_key;
+            //var feedUriInfo = new feed_uri();
+            //feedUriInfo.c_uri = input.c_uri;
+            //feedUriInfo.f_uri = input.f_uri;
+            //feedUriInfo.s_uri = input.s_uri;
+            //var customerInfo = new cust_info();
+            //customerInfo.cust_email = input.cust_email;
+            //customerInfo.cust_id = input.cust_id;
+            //customerInfo.cust_mail_addr= input.cust_mail_addr;
+            //customerInfo.cust_mobo_no = input.cust_mobo_no;
+            //customerInfo.cust_name = input.cust_name;
+            //var trnsInfo = new trns_info();
+            //trnsInfo.ord_det = input.ord_det;
+            //trnsInfo.ord_id = input.ord_id;
+            //trnsInfo.trnx_amt = input.trnx_amt;
+            //trnsInfo.trnx_currency = input.trnx_currency;
+            //trnsInfo.trnx_id=input.trnx_id;
+            //var ipnInfo = new ipn_info();
+            //ipnInfo.ipn_channel = input.ipn_channel;
+            //ipnInfo.ipn_email = input.ipn_email;
+            //ipnInfo.ipn_uri = input.ipn_uri;
+            //var ekPayDataRaw = new data_raw();
+            //ekPayDataRaw.mer_info = merChantInfo;
+            //ekPayDataRaw.feed_uri = feedUriInfo;
+            //ekPayDataRaw.cust_Info = customerInfo;
+            //ekPayDataRaw.trns_Info = trnsInfo;
+            //ekPayDataRaw.ipn_Info = ipnInfo;
+            
+
 
             var applicantData = await GetApplicantDetails(input);
 
-            var postData = _ekPayGatewayManager.CreateTestPostData(applicantData);
+            var postData = _ekPayGatewayManager.CreateDataRaw(applicantData);
 
             var initResponse = await _ekPayGatewayManager.InitiateTestPaymentAsync(postData);
 
@@ -119,35 +152,30 @@ namespace SoowGoodWeb.Services
             return response;
         }
 
-        private async Task<EkPayPostDataDto> GetApplicantDetails(EkPayInputDto input)
+        private async Task<EkPayDataRawDto> GetApplicantDetails(EkPayInputDto input)
         {
-            var nDto = new EkPayPostDataDto();
+            var nDto = new EkPayDataRawDto();
             return await Task.Run(async () =>
             {
                 var app = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
                 var job = app.Where(a => a.AppointmentCode == input.ApplicationCode).FirstOrDefault();
-                var ekPayPostDataDto = new EkPayPostDataDto();
+                var ekPayPostDataDto = new EkPayDataRawDto();
                 if (job != null && job.AppointmentStatus == AppointmentStatus.Pending)
                 {
                     var patient = await _patientRepository.GetAsync(p => p.Id == job.PatientProfileId);
+                    
+                    ekPayPostDataDto.cust_email = patient.Email;
+                    ekPayPostDataDto.cust_id = patient.PatientCode;
+                    ekPayPostDataDto.cust_mail_addr = patient.Address;
+                    ekPayPostDataDto.cust_mobo_no = patient.PatientMobileNo;
+                    ekPayPostDataDto.cust_name = patient.PatientName;
 
-                    ekPayPostDataDto.tran_id = input.TransactionId;
-                    ekPayPostDataDto.total_amount = input.TotalAmount;
-                    ekPayPostDataDto.currency = "BDT";
-                    ekPayPostDataDto.cus_name = job.PatientName;
-                    ekPayPostDataDto.cus_email = patient.PatientEmail;
-                    ekPayPostDataDto.cus_phone = patient.PatientMobileNo;
-
-                    //var applicantAddr = job.Applicant.ApplicantAddresses.FirstOrDefault();
-                    ekPayPostDataDto.cus_add1 = patient.Address;
-                    ekPayPostDataDto.cus_postcode = patient.ZipCode;
-                    ekPayPostDataDto.cus_city = patient.City;
-                    ekPayPostDataDto.cus_country = "Bangladesh";
-                    ekPayPostDataDto.shipping_method = "NO";
-                    ekPayPostDataDto.num_of_item = "1";
-                    ekPayPostDataDto.product_name = "Soowgood";
-                    ekPayPostDataDto.product_profile = "general";
-                    ekPayPostDataDto.product_category = "Soowgood - Appointment";
+                    ekPayPostDataDto.ord_det = input.ApplicationCode;
+                    ekPayPostDataDto.ord_id = job.Id.ToString();
+                    ekPayPostDataDto.trnx_amt = input.TotalAmount;
+                    ekPayPostDataDto.trnx_currency = "BDT";
+                    ekPayPostDataDto.trnx_id = input.TransactionId;
+                    
                 }
 
                 return ekPayPostDataDto;

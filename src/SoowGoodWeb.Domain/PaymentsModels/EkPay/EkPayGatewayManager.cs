@@ -12,6 +12,8 @@ using Volo.Abp.DependencyInjection;
 using SoowGoodWeb.EkPayData;
 using Newtonsoft.Json;
 using SoowGoodWeb.DtoModels;
+using System.Net.Http;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace SoowGoodWeb.EkPayData
 {
@@ -211,7 +213,7 @@ namespace SoowGoodWeb.EkPayData
             return true;
         }
 
-        public async Task<EkPayInitResponse> InitiateTestPaymentAsync(NameValueCollection postData)
+        public async Task<EkPayInitResponse> InitiateTestPaymentAsync(data_raw postData)
         {
             var initResponse = new EkPayInitResponse();
             try
@@ -223,7 +225,7 @@ namespace SoowGoodWeb.EkPayData
             catch (Exception e)
             {
                 var jsonResponse = JsonConvert.SerializeObject(initResponse);
-                var jsonPostData = JsonConvert.SerializeObject(postData.ToDictionary());
+                var jsonPostData = JsonConvert.SerializeObject(postData);
                 throw new Exception($"InitResponse: {jsonResponse} {Environment.NewLine}- PostData: {jsonPostData} {Environment.NewLine}- ErrorMsg: {e.Message}");
             }
         }
@@ -323,60 +325,97 @@ namespace SoowGoodWeb.EkPayData
             throw new NotImplementedException();
         }
 
-        public NameValueCollection CreateTestPostData(EkPayPostDataDto postDataDto)
-        {
-            var postData = new NameValueCollection
-            {
-                { "store_id", _configuration.SandboxStoreId },
-                { "store_passwd", _configuration.SandboxStorePassword },
-                { "total_amount", $"{postDataDto.total_amount}" },
-                { "currency", $"{postDataDto.currency}" },
-                { "tran_id", $"{postDataDto.tran_id}" },
-                { "success_url", _configuration.DevSuccessCallbackUrl},
-                { "fail_url", _configuration.DevFailCallbackUrl },
-                { "cancel_url", _configuration.DevCancelCallbackUrl },
-                //{ "ipn_url", _configuration.DevIpnLintener },
-                { "cus_name", $"{postDataDto.cus_name}" },
-                { "cus_email", $"{postDataDto.cus_email}" },
-                { "cus_add1", $"{postDataDto.cus_add1}" },
-                { "cus_add2", $"{postDataDto.cus_add2}" },
-                { "cus_city", $"{postDataDto.cus_city}"  },
-                { "cus_state", $"{postDataDto.cus_state}" },
-                { "cus_postcode", $"{postDataDto.cus_postcode}" },
-                { "cus_country", $"{postDataDto.cus_country}" },
-                { "cus_phone", $"{postDataDto.cus_phone}" },
-                { "cus_fax", $"{postDataDto.cus_fax}" },
-                { "ship_name", $"{postDataDto.ship_name}" },
-                { "ship_add1", $"{postDataDto.ship_add1}" },
-                { "ship_add2", $"{postDataDto.ship_add2}" },
-                { "ship_city", $"{postDataDto.ship_city}" },
-                { "ship_state", $"{postDataDto.ship_state}" },
-                { "ship_postcode", $"{postDataDto.ship_postcode}" },
-                { "ship_country", $"{postDataDto.ship_country}" },
-                { "value_a", $"{postDataDto.value_a}" },
-                { "value_b", $"{postDataDto.value_b}" },
-                { "value_c", $"{postDataDto.value_c}" },
-                { "value_d", $"{postDataDto.value_d}" },
-                { "shipping_method", $"{postDataDto.shipping_method}" },
-                { "num_of_item", $"{postDataDto.num_of_item}" },
-                { "product_name", $"{postDataDto.product_name}" },
-                { "product_profile", $"{postDataDto.product_profile}" },
-                { "product_category", $"{postDataDto.product_category}" }
-            };
+        //public NameValueCollection CreateTestPostData(EkPayPostDataDto postDataDto)
+        //{
+        //    var postData = new NameValueCollection
+        //    {
+        //        { "store_id", _configuration.SandboxStoreId },
+        //        { "store_passwd", _configuration.SandboxStorePassword },
+        //        { "total_amount", $"{postDataDto.total_amount}" },
+        //        { "currency", $"{postDataDto.currency}" },
+        //        { "tran_id", $"{postDataDto.tran_id}" },
+        //        { "success_url", _configuration.DevSuccessCallbackUrl},
+        //        { "fail_url", _configuration.DevFailCallbackUrl },
+        //        { "cancel_url", _configuration.DevCancelCallbackUrl },
+        //        //{ "ipn_url", _configuration.DevIpnLintener },
+        //        { "cus_name", $"{postDataDto.cus_name}" },
+        //        { "cus_email", $"{postDataDto.cus_email}" },
+        //        { "cus_add1", $"{postDataDto.cus_add1}" },
+        //        { "cus_add2", $"{postDataDto.cus_add2}" },
+        //        { "cus_city", $"{postDataDto.cus_city}"  },
+        //        { "cus_state", $"{postDataDto.cus_state}" },
+        //        { "cus_postcode", $"{postDataDto.cus_postcode}" },
+        //        { "cus_country", $"{postDataDto.cus_country}" },
+        //        { "cus_phone", $"{postDataDto.cus_phone}" },
+        //        { "cus_fax", $"{postDataDto.cus_fax}" },
+        //        { "ship_name", $"{postDataDto.ship_name}" },
+        //        { "ship_add1", $"{postDataDto.ship_add1}" },
+        //        { "ship_add2", $"{postDataDto.ship_add2}" },
+        //        { "ship_city", $"{postDataDto.ship_city}" },
+        //        { "ship_state", $"{postDataDto.ship_state}" },
+        //        { "ship_postcode", $"{postDataDto.ship_postcode}" },
+        //        { "ship_country", $"{postDataDto.ship_country}" },
+        //        { "value_a", $"{postDataDto.value_a}" },
+        //        { "value_b", $"{postDataDto.value_b}" },
+        //        { "value_c", $"{postDataDto.value_c}" },
+        //        { "value_d", $"{postDataDto.value_d}" },
+        //        { "shipping_method", $"{postDataDto.shipping_method}" },
+        //        { "num_of_item", $"{postDataDto.num_of_item}" },
+        //        { "product_name", $"{postDataDto.product_name}" },
+        //        { "product_profile", $"{postDataDto.product_profile}" },
+        //        { "product_category", $"{postDataDto.product_category}" }
+        //    };
 
-            return postData;
+        //    return postData;
+        //}
+
+        public data_raw CreateDataRaw(EkPayDataRawDto postData)
+        {
+            var merChantInfo = new mer_info();
+            merChantInfo.mer_reg_id = postData.mer_reg_id;
+            merChantInfo.mer_pas_key = postData.mer_pas_key;
+            var feedUriInfo = new feed_uri();
+            feedUriInfo.c_uri = postData.c_uri;
+            feedUriInfo.f_uri = postData.f_uri;
+            feedUriInfo.s_uri = postData.s_uri;
+            var customerInfo = new cust_info();
+            customerInfo.cust_email = postData.cust_email;
+            customerInfo.cust_id = postData.cust_id;
+            customerInfo.cust_mail_addr = postData.cust_mail_addr;
+            customerInfo.cust_mobo_no = postData.cust_mobo_no;
+            customerInfo.cust_name = postData.cust_name;
+            var trnsInfo = new trns_info();
+            trnsInfo.ord_det = postData.ord_det;
+            trnsInfo.ord_id = postData.ord_id;
+            trnsInfo.trnx_amt = postData.trnx_amt;
+            trnsInfo.trnx_currency = postData.trnx_currency;
+            trnsInfo.trnx_id = postData.trnx_id;
+            var ipnInfo = new ipn_info();
+            ipnInfo.ipn_channel = postData.ipn_channel;
+            ipnInfo.ipn_email = postData.ipn_email;
+            ipnInfo.ipn_uri = postData.ipn_uri;
+            
+            var ekPayDataRaw = new data_raw();
+            ekPayDataRaw.mer_info = merChantInfo;
+            ekPayDataRaw.feed_uri = feedUriInfo;
+            ekPayDataRaw.cust_Info = customerInfo;
+            ekPayDataRaw.trns_Info = trnsInfo;
+            ekPayDataRaw.ipn_Info = ipnInfo;
+
+            return ekPayDataRaw;
         }
 
-
         // Common Actions
-        public async Task<string> SendPaymentRequestAsync(string url, NameValueCollection postData)
+        public async Task<string> SendPaymentRequestAsync(string url, data_raw postData)
         {
-            byte[] response = null;
-            using (WebClient client = new WebClient())
+            HttpResponseMessage response = null;
+            using (var client = new HttpClient())
             {
-                response = await client.UploadValuesTaskAsync(url, "POST", postData);
+                var uploadData = JsonSerializer.Serialize(postData);
+                var requestContent = new StringContent(uploadData, Encoding.UTF8, "application/json");
+                response = await client.PostAsync(url, requestContent);
             }
-            var str = Encoding.UTF8.GetString(response);
+            var str = await response.Content.ReadAsStringAsync();//Encoding.UTF8.GetString(response);
             return str;//Encoding.UTF8.GetString(response);
         }
 
