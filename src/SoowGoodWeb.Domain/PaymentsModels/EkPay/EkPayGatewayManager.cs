@@ -380,7 +380,7 @@ namespace SoowGoodWeb.EkPayData
             feedUriInfo.s_uri = _configuration.DevSuccessCallbackUrl; ;
             var customerInfo = new cust_info();
             customerInfo.cust_email = postData.cust_email;
-            customerInfo.cust_id = postData.cust_id;
+            customerInfo.cust_id = "";//postData.cust_id;
             customerInfo.cust_mail_addr = "Dhaka";//postData.cust_mail_addr;
             customerInfo.cust_mobo_no = postData.cust_mobo_no;
             customerInfo.cust_name = postData.cust_name;
@@ -392,7 +392,7 @@ namespace SoowGoodWeb.EkPayData
             trnsInfo.trnx_id = postData.trnx_id;
             var ipnInfo = new ipn_info();
             ipnInfo.ipn_channel = "1";
-            ipnInfo.ipn_email = "a@synesisit.com.bd";
+            ipnInfo.ipn_email = "shaikat.b@coppanet.com";
             ipnInfo.ipn_uri = "https://www.dev.ekpay.gov.bd/test/ipn";
             
             var ekPayDataRaw = new data_raw();

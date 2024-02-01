@@ -90,39 +90,7 @@ namespace SoowGoodWeb.Services
         {
             var nuDto = new EkPayInitDto();
             
-            input.TransactionId = GenerateTransactionId(16);
-
-            //var merChantInfo = new mer_info();
-            //merChantInfo.mer_reg_id = input.mer_reg_id;
-            //merChantInfo.mer_pas_key = input.mer_pas_key;
-            //var feedUriInfo = new feed_uri();
-            //feedUriInfo.c_uri = input.c_uri;
-            //feedUriInfo.f_uri = input.f_uri;
-            //feedUriInfo.s_uri = input.s_uri;
-            //var customerInfo = new cust_info();
-            //customerInfo.cust_email = input.cust_email;
-            //customerInfo.cust_id = input.cust_id;
-            //customerInfo.cust_mail_addr= input.cust_mail_addr;
-            //customerInfo.cust_mobo_no = input.cust_mobo_no;
-            //customerInfo.cust_name = input.cust_name;
-            //var trnsInfo = new trns_info();
-            //trnsInfo.ord_det = input.ord_det;
-            //trnsInfo.ord_id = input.ord_id;
-            //trnsInfo.trnx_amt = input.trnx_amt;
-            //trnsInfo.trnx_currency = input.trnx_currency;
-            //trnsInfo.trnx_id=input.trnx_id;
-            //var ipnInfo = new ipn_info();
-            //ipnInfo.ipn_channel = input.ipn_channel;
-            //ipnInfo.ipn_email = input.ipn_email;
-            //ipnInfo.ipn_uri = input.ipn_uri;
-            //var ekPayDataRaw = new data_raw();
-            //ekPayDataRaw.mer_info = merChantInfo;
-            //ekPayDataRaw.feed_uri = feedUriInfo;
-            //ekPayDataRaw.cust_Info = customerInfo;
-            //ekPayDataRaw.trns_Info = trnsInfo;
-            //ekPayDataRaw.ipn_Info = ipnInfo;
-            
-
+            input.TransactionId = GenerateTransactionId(16);           
 
             var applicantData = await GetApplicantDetails(input);
 
