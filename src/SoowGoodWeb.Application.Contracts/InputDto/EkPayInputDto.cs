@@ -7,7 +7,7 @@
         public string? TotalAmount { get; set; }
     }
 
-    public class EkPayInputDto2
+    public class EkPayTxnInputDto
     {
         public string? mer_reg_id { get; set; }
         public string? mer_pas_key { get; set; }
