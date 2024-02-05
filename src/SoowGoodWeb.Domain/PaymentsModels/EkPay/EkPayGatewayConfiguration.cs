@@ -40,7 +40,7 @@ namespace SoowGoodWeb.EkPayData
         public string DevSuccessCallbackUrl => _appConfiguration["Payment:EkPay:DevSuccessCallbackUrl"];
         public string DevFailCallbackUrl => _appConfiguration["Payment:EkPay:DevFailCallbackUrl"];
         public string DevCancelCallbackUrl => _appConfiguration["Payment:EkPay:DevCancelCallbackUrl"];
-        //public string DevIpnLintener => _appConfiguration["Payment:EkPay:DevIpnLintener"];
+        public string DevIpnLintener => _appConfiguration["Payment:EkPay:DevIpnLintener"];
 
         //public string ProdSuccessCallbackUrl => _appConfiguration["Payment:SslCommerz:ProdSuccessCallbackUrl"];
         //public string ProdFailCallbackUrl => _appConfiguration["Payment:SslCommerz:ProdFailCallbackUrl"];

@@ -181,5 +181,9 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<FinancialSetup, FinancialSetupDto>();
         CreateMap<FinancialSetupDto, FinancialSetup>();
         CreateMap<FinancialSetupInputDto, FinancialSetup>();
+
+        CreateMap<UserDataDeleteRequest, UserDataDeleteRequestDto>();
+        CreateMap<UserDataDeleteRequestDto, UserDataDeleteRequest>();
+        CreateMap<UserDataDeleteRequestInputDto, UserDataDeleteRequest>();
     }
 }

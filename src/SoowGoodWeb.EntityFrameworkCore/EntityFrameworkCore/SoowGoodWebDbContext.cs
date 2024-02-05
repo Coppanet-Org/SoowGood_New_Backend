@@ -86,6 +86,7 @@ public class SoowGoodWebDbContext :
     public DbSet<AgentSupervisor> SgAgentSupervisors { get; set; }
     public DbSet<PlatformFacility> SgPlatformFacilities { get; set; }
     public DbSet<FinancialSetup> SgFinancialSetups { get; set; }
+    public DbSet<UserDataDeleteRequest> SgUserDataDeleteRequests { get; set; }
 
     #endregion
 

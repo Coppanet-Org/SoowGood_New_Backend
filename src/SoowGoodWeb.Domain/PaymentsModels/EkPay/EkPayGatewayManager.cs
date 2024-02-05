@@ -393,7 +393,7 @@ namespace SoowGoodWeb.EkPayData
             var ipnInfo = new ipn_info();
             ipnInfo.ipn_channel = "1";
             ipnInfo.ipn_email = "shaikat.b@coppanet.com";
-            ipnInfo.ipn_uri = "https://www.dev.ekpay.gov.bd/test/ipn";
+            ipnInfo.ipn_uri = _configuration.DevIpnLintener;//"https://www.dev.ekpay.gov.bd/test/ipn";
             
             var ekPayDataRaw = new data_raw();
             ekPayDataRaw.mer_info = merChantInfo;
