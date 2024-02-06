@@ -980,19 +980,21 @@ namespace SoowGoodWeb.Services
                 var itemDoctor = await _doctorProfileRepository.GetAsync(d => d.Id == input.Id);
                 if (itemDoctor != null)
                 {
-                    itemDoctor.FullName = input.FullName;
-                    itemDoctor.DoctorTitle = input.DoctorTitle;
-                    itemDoctor.DateOfBirth = input.DateOfBirth;
-                    itemDoctor.Gender = input.Gender;
-                    itemDoctor.Address = input.Address;
-                    itemDoctor.City = input.City;
-                    itemDoctor.Country = input.Country;
-                    itemDoctor.ZipCode = input.ZipCode;
-                    itemDoctor.Email = input.Email;
-                    itemDoctor.IdentityNumber = input.IdentityNumber;
-                    itemDoctor.BMDCRegNo = input.BMDCRegNo;
-                    itemDoctor.BMDCRegExpiryDate = input.BMDCRegExpiryDate;
-                    itemDoctor.SpecialityId = input.SpecialityId;
+                    itemDoctor.FullName = !string.IsNullOrEmpty(input.FullName) ? input.FullName : itemDoctor.FullName;
+                    itemDoctor.DoctorTitle = input.DoctorTitle > 0 ? input.DoctorTitle : itemDoctor.DoctorTitle;
+                    itemDoctor.DateOfBirth = input.DateOfBirth != null ? input.DateOfBirth : itemDoctor.DateOfBirth; ;
+                    itemDoctor.Gender = input.Gender != null ? input.Gender : itemDoctor.Gender;
+                    itemDoctor.Address = !string.IsNullOrEmpty(input.Address) ? input.Address : itemDoctor.Address;
+                    itemDoctor.City = !string.IsNullOrEmpty(input.City) ? input.City : itemDoctor.City;
+                    itemDoctor.Country = !string.IsNullOrEmpty(input.Country) ? input.Country : itemDoctor.Country;
+                    itemDoctor.ZipCode = !string.IsNullOrEmpty(input.ZipCode) ? input.ZipCode : itemDoctor.ZipCode;
+                    itemDoctor.Email = !string.IsNullOrEmpty(input.Email) ? input.Email : itemDoctor.Email;
+                    itemDoctor.IdentityNumber = !string.IsNullOrEmpty(input.IdentityNumber) ? input.IdentityNumber : itemDoctor.IdentityNumber;
+                    itemDoctor.BMDCRegNo = !string.IsNullOrEmpty(input.BMDCRegNo) ? input.BMDCRegNo : itemDoctor.BMDCRegNo;
+                    itemDoctor.BMDCRegExpiryDate = input.BMDCRegExpiryDate != null ? input.BMDCRegExpiryDate : itemDoctor.BMDCRegExpiryDate; ;
+                    itemDoctor.SpecialityId = input.SpecialityId > 0 ? input.SpecialityId : itemDoctor.SpecialityId;
+                    itemDoctor.IsActive = input.IsActive;
+
 
                     var item = await _doctorProfileRepository.UpdateAsync(itemDoctor);
                     await _unitOfWorkManager.Current.SaveChangesAsync();
