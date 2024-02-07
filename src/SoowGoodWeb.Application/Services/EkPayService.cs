@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Uow;
 using SoowGoodWeb.Enums;
+using static System.Net.WebRequestMethods;
 
 namespace SoowGoodWeb.Services
 {
@@ -56,15 +57,15 @@ namespace SoowGoodWeb.Services
             //return GetInitPaymentResponse(initResponse);
         }
 
-        private async Task InitPaymentHistory(EkPayInputDto input, EkPayInitResponse initResponse)
+        private async Task InitPaymentHistory(EkPayInputDto input, EkPayTokenResponse initResponse)
         {
             await _paymentHistoryService.CreateAsync(new PaymentHistoryInputDto
             {
                 amount = input.TotalAmount,
-                status = initResponse.status,
+                status = initResponse.msg_code,
                 tran_id = input.TransactionId,
-                sessionkey = initResponse.sessionkey,
-                failedreason = initResponse.failedreason,
+                sessionkey = initResponse.secure_token,
+                failedreason = initResponse.responseCode!=null?initResponse.responseMessage: "",
                 application_code = input.ApplicationCode
             });
         }
@@ -89,8 +90,8 @@ namespace SoowGoodWeb.Services
         public async Task<EkPayInitDto> InitiateTestPaymentAsync(EkPayInputDto input)
         {
             var nuDto = new EkPayInitDto();
-            
-            input.TransactionId = GenerateTransactionId(16);           
+
+            input.TransactionId = GenerateTransactionId(16);
 
             var applicantData = await GetApplicantDetails(input);
 
@@ -100,7 +101,7 @@ namespace SoowGoodWeb.Services
 
             await InitPaymentHistory(input, initResponse);
 
-            return GetInitPaymentResponse(initResponse);
+            return GetInitPaymentResponse(initResponse, input.TransactionId);
         }
 
         //[HttpGet]
@@ -131,7 +132,7 @@ namespace SoowGoodWeb.Services
                 if (job != null && job.AppointmentStatus == AppointmentStatus.Pending)
                 {
                     var patient = await _patientRepository.GetAsync(p => p.Id == job.PatientProfileId);
-                    
+
                     ekPayPostDataDto.cust_email = patient.Email;
                     ekPayPostDataDto.cust_id = patient.PatientCode;
                     ekPayPostDataDto.cust_mail_addr = patient.Address;
@@ -143,7 +144,7 @@ namespace SoowGoodWeb.Services
                     ekPayPostDataDto.trnx_amt = input.TotalAmount;
                     ekPayPostDataDto.trnx_currency = "BDT";
                     ekPayPostDataDto.trnx_id = input.TransactionId;
-                    
+
                 }
 
                 return ekPayPostDataDto;
@@ -184,7 +185,7 @@ namespace SoowGoodWeb.Services
         private async Task UpdatePaymentStatus(string application_code, string tran_id, string paid_amount)
         {
             var applicant = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-            var app = applicant.Where(a=>a.AppointmentCode == application_code).FirstOrDefault();
+            var app = applicant.Where(a => a.AppointmentCode == application_code).FirstOrDefault();
 
             if (app != null) //&& app.AppointmentStatus != AppointmentStatus.Confirmed)
             {
@@ -287,14 +288,15 @@ namespace SoowGoodWeb.Services
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        private static EkPayInitDto GetInitPaymentResponse(EkPayInitResponse initResponse)
+        private static EkPayInitDto GetInitPaymentResponse(EkPayTokenResponse initResponse, string trnsId)
         {
             var pResponse = new EkPayInitDto();
             //pResponse =
-            pResponse.status = initResponse.status;
-            pResponse.failedreason = initResponse.failedreason;
-            pResponse.GatewayPageURL = initResponse.GatewayPageURL;
-            
+            pResponse.status = initResponse.responseCode != null ? initResponse.responseCode : initResponse.msg_code;
+            pResponse.message = initResponse.responseMessage != null ? initResponse.responseMessage : initResponse.msg_det;
+            pResponse.GatewayPageURL = initResponse.responseCode == null && initResponse.responseMessage == null ? "https://sandbox.ekpay.gov.bd/ekpaypg/v1?sToken=" + initResponse.secure_token+ "&trnsID=" + trnsId:"";
+
+
             //return new EkPayInitDto
             //{
             //    status = initResponse.status,
@@ -329,7 +331,7 @@ namespace SoowGoodWeb.Services
             try
             {
                 var appointment = await _appointmentRepository.GetAsync(a => a.AppointmentCode == appCode);
-                var transactions = await _paymentHistoryRepository.GetAsync(p=>p.application_code == appCode);
+                var transactions = await _paymentHistoryRepository.GetAsync(p => p.application_code == appCode);
                 if (appointment != null && appointment.AppointmentStatus != AppointmentStatus.Confirmed) //&& app.AppointmentStatus != AppointmentStatus.Confirmed)
                 {
                     appointment.AppointmentStatus = AppointmentStatus.Confirmed;

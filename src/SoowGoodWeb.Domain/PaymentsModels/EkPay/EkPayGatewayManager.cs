@@ -213,13 +213,13 @@ namespace SoowGoodWeb.EkPayData
             return true;
         }
 
-        public async Task<EkPayInitResponse> InitiateTestPaymentAsync(data_raw postData)
+        public async Task<EkPayTokenResponse> InitiateTestPaymentAsync(data_raw postData)
         {
-            var initResponse = new EkPayInitResponse();
+            var initResponse = new EkPayTokenResponse();
             try
             {
                 string response = await SendPaymentRequestAsync(_configuration.SandboxSubmitUrl, postData);
-                initResponse = new JavaScriptSerializer().Deserialize<EkPayInitResponse>(response);
+                initResponse = new JavaScriptSerializer().Deserialize<EkPayTokenResponse>(response);
                 return initResponse;
             }
             catch (Exception e)
@@ -375,9 +375,9 @@ namespace SoowGoodWeb.EkPayData
             merChantInfo.mer_reg_id = _configuration.SandboxStoreId;
             merChantInfo.mer_pas_key = _configuration.SandboxStorePassword;
             var feedUriInfo = new feed_uri();
-            feedUriInfo.c_uri = _configuration.DevCancelCallbackUrl; ;
-            feedUriInfo.f_uri = _configuration.DevFailCallbackUrl; ;
-            feedUriInfo.s_uri = _configuration.DevSuccessCallbackUrl; ;
+            feedUriInfo.c_uri = _configuration.DevCancelClientUrl;//.DevCancelCallbackUrl;
+            feedUriInfo.f_uri = _configuration.DevFailClientUrl;
+            feedUriInfo.s_uri = _configuration.DevSuccessClientUrl;
             var customerInfo = new cust_info();
             customerInfo.cust_email = postData.cust_email;
             customerInfo.cust_id = "";//postData.cust_id;
@@ -397,11 +397,11 @@ namespace SoowGoodWeb.EkPayData
             
             var ekPayDataRaw = new data_raw();
             ekPayDataRaw.mer_info = merChantInfo;
-            ekPayDataRaw.req_timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:MM:ss 'GMT+6'");//"2024-11-08 18:14:00 GMT + 6";
+            ekPayDataRaw.req_timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss 'GMT''+''6'");//"2024-11-08 18:14:00 GMT + 6";
             ekPayDataRaw.feed_uri = feedUriInfo;
-            ekPayDataRaw.cust_Info = customerInfo;
-            ekPayDataRaw.trns_Info = trnsInfo;
-            ekPayDataRaw.ipn_Info = ipnInfo;
+            ekPayDataRaw.cust_info = customerInfo;
+            ekPayDataRaw.trns_info = trnsInfo;
+            ekPayDataRaw.ipn_info = ipnInfo;
             ekPayDataRaw.mac_addr = "1.1.1.1";
 
             return ekPayDataRaw;

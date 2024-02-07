@@ -21,6 +21,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using Nancy;
+using System.Numerics;
 
 namespace SoowGoodWeb.Services
 {
@@ -379,9 +380,12 @@ namespace SoowGoodWeb.Services
         {
             //var doctorDelete = null;
             bool profileDeleted = false;
+            Guid? userId;
             var result = new AccountDeteleResponsesDto();
             if (role == "Doctor")
             {
+                var doctor = await _doctorProfileRepository.GetAsync(d=>d.MobileNo == mobile);
+                userId = doctor.UserId;
                 var doctorDelete = _doctorProfileRepository.DeleteAsync(d => d.MobileNo == mobile);
                 profileDeleted = true;
                 //if (doctorDelete != null)
@@ -392,6 +396,8 @@ namespace SoowGoodWeb.Services
             }
             else if (role == "Patient")
             {
+                var patient = await _patientProfileRepository.GetAsync(d => d.MobileNo == mobile);
+                userId = patient.UserId;
                 var doctorDelete = _patientProfileRepository.DeleteAsync(d => d.MobileNo == mobile);
                 profileDeleted = true;
                 //if (doctorDelete != null)

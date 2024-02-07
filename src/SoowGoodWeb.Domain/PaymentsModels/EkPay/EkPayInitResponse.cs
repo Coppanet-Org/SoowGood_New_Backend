@@ -20,4 +20,15 @@ namespace SoowGoodWeb.EkPayData
         public List<Desc> desc { get; set; }
         public string is_direct_pay_enable { get; set; }
     }
+    public class EkPayTokenResponse
+    {
+        public string? secure_token { get; set; }
+        public string? token_exp_time { get; set; }
+        public string? msg_code { get; set; }
+        public string? msg_det { get; set; }
+        public string? ack_tstamp { get; set; }
+        public string? responseCode { get; set; }
+        public string? responseMessage { get; set; }
+                     
+    }
 }

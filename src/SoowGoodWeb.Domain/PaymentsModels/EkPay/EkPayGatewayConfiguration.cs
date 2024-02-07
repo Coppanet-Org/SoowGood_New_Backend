@@ -48,9 +48,9 @@ namespace SoowGoodWeb.EkPayData
         //public string ProdIpnLintener => _appConfiguration["Payment:SslCommerz:ProdIpnLintener"];
 
         //// Success, Fail or Cancel Client Url
-        public string DevSuccessClientUrl => _appConfiguration["Payment:SslCommerz:DevSuccessClientUrl"];
-        public string DevFailClientUrl => _appConfiguration["Payment:SslCommerz:DevFailClientUrl"];
-        public string DevCancelClientUrl => _appConfiguration["Payment:SslCommerz:DevCancelClientUrl"];
+        public string DevSuccessClientUrl => _appConfiguration["Payment:EkPay:DevSuccessClientUrl"];
+        public string DevFailClientUrl => _appConfiguration["Payment:EkPay:DevFailClientUrl"];
+        public string DevCancelClientUrl => _appConfiguration["Payment:EkPay:DevCancelClientUrl"];
 
         //public string ProdSuccessClientUrl => _appConfiguration["Payment:SslCommerz:ProdSuccessClientUrl"];
         //public string ProdFailClientUrl => _appConfiguration["Payment:SslCommerz:ProdFailClientUrl"];
