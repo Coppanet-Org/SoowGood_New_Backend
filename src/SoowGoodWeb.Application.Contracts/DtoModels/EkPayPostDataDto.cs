@@ -37,9 +37,9 @@ namespace SoowGoodWeb.DtoModels
         public mer_info? mer_info { get; set; }
         public string? req_timestamp { get; set; }
         public feed_uri? feed_uri { get; set; }
-        public cust_info? cust_Info { get; set; }
-        public trns_info? trns_Info { get; set; }
-        public ipn_info? ipn_Info { get; set; }
+        public cust_info? cust_info { get; set; }
+        public trns_info? trns_info { get; set; }
+        public ipn_info? ipn_info { get; set; }
         public string? mac_addr { get; set; }
     }
     public class mer_info
