@@ -383,9 +383,9 @@ namespace SoowGoodWeb.Services
             Guid? userId;
             var authresult = new AccountDeteleResponsesDto();
             var result = new AccountDeteleResponsesDto();
-
-            if (profileDeleted == true)
+            try
             {
+
                 using (var client = new HttpClient())
                 {
                     var tokenResponse = await GetToken();
@@ -398,7 +398,7 @@ namespace SoowGoodWeb.Services
                     var update = JsonSerializer.Serialize(userData);
                     var requestContent = new StringContent(update, Encoding.UTF8, "application/json");
                     HttpResponseMessage response =
-                        await client.PostAsync($"api/app/account", requestContent);
+                        await client.PostAsync($"api/app/account/user-data-remove", requestContent);
                     if (response.IsSuccessStatusCode)
                     {
                         var newUserString = await response.Content.ReadAsStringAsync();
@@ -410,13 +410,13 @@ namespace SoowGoodWeb.Services
                             //Message = newUser.Message//"User Account removed"
 
                         };
-                        if (result.Success == true)
+                        if (authresult.Success == true)
                         {
                             if (role == "Doctor")
                             {
                                 var doctor = await _doctorProfileRepository.GetAsync(d => d.MobileNo == userData.UserName);
                                 userId = doctor.UserId;
-                                var doctorDelete = _doctorProfileRepository.DeleteAsync(d => d.MobileNo == userData.UserName);
+                                var doctorDelete = _doctorProfileRepository.DeleteAsync(doctor);
                                 //profileDeleted = true;
                                 if (doctorDelete != null)
                                 {
@@ -428,7 +428,7 @@ namespace SoowGoodWeb.Services
                             {
                                 var patient = await _patientProfileRepository.GetAsync(d => d.MobileNo == userData.UserName);
                                 userId = patient.UserId;
-                                var doctorDelete = _patientProfileRepository.DeleteAsync(d => d.MobileNo == userData.UserName);
+                                var doctorDelete = _patientProfileRepository.DeleteAsync(patient);
                                 //profileDeleted = true;
                                 if (doctorDelete != null)
                                 {
@@ -442,6 +442,11 @@ namespace SoowGoodWeb.Services
                     }
                 }
             }
+            catch (Exception ex)
+            {
+
+            }
+
             return result;
         }
     }
