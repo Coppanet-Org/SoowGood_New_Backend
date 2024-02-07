@@ -20,4 +20,8 @@ namespace SoowGoodWeb.DtoModels
         public bool Success { get; set; }
         public string Message { get; set; }
     }
+    public class DeleteUserDataDto
+    {
+        public string? UserName { get; set; }
+    }
 }
