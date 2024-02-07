@@ -376,36 +376,14 @@ namespace SoowGoodWeb.Services
             return false;
         }
 
-        public async Task<AccountDeteleResponsesDto> DeleteAsync(string mobile, string role)
+        public async Task<AccountDeteleResponsesDto> UserDataRemoveAsync(DeleteUserDataDto userData, string role)
         {
             //var doctorDelete = null;
             bool profileDeleted = false;
             Guid? userId;
+            var authresult = new AccountDeteleResponsesDto();
             var result = new AccountDeteleResponsesDto();
-            if (role == "Doctor")
-            {
-                var doctor = await _doctorProfileRepository.GetAsync(d=>d.MobileNo == mobile);
-                userId = doctor.UserId;
-                var doctorDelete = _doctorProfileRepository.DeleteAsync(d => d.MobileNo == mobile);
-                profileDeleted = true;
-                //if (doctorDelete != null)
-                //{
-                //    result.Success = true;
-                //    result.Message = "User Account removed";
-                //}
-            }
-            else if (role == "Patient")
-            {
-                var patient = await _patientProfileRepository.GetAsync(d => d.MobileNo == mobile);
-                userId = patient.UserId;
-                var doctorDelete = _patientProfileRepository.DeleteAsync(d => d.MobileNo == mobile);
-                profileDeleted = true;
-                //if (doctorDelete != null)
-                //{
-                //    result.Success = true;
-                //    result.Message = "User Account removed";
-                //}
-            }
+
             if (profileDeleted == true)
             {
                 using (var client = new HttpClient())
@@ -417,21 +395,48 @@ namespace SoowGoodWeb.Services
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     //GET Method
 
-                    //var update = JsonSerializer.Serialize(userDto);
-                    //var requestContent = new StringContent(update, Encoding.UTF8, "application/json");
+                    var update = JsonSerializer.Serialize(userData);
+                    var requestContent = new StringContent(update, Encoding.UTF8, "application/json");
                     HttpResponseMessage response =
-                        await client.DeleteAsync($"api/app/account?userName={mobile}");
+                        await client.PostAsync($"api/app/account", requestContent);
                     if (response.IsSuccessStatusCode)
                     {
                         var newUserString = await response.Content.ReadAsStringAsync();
                         var newUser = JsonConvert.DeserializeObject<AccountDeteleResponsesDto>(newUserString);
 
-                        result = new AccountDeteleResponsesDto()
+                        authresult = new AccountDeteleResponsesDto()
                         {
                             Success = newUser.Success,
-                            Message = newUser.Message//"User Account removed"
+                            //Message = newUser.Message//"User Account removed"
 
                         };
+                        if (result.Success == true)
+                        {
+                            if (role == "Doctor")
+                            {
+                                var doctor = await _doctorProfileRepository.GetAsync(d => d.MobileNo == userData.UserName);
+                                userId = doctor.UserId;
+                                var doctorDelete = _doctorProfileRepository.DeleteAsync(d => d.MobileNo == userData.UserName);
+                                //profileDeleted = true;
+                                if (doctorDelete != null)
+                                {
+                                    result.Success = true;
+                                    result.Message = "User Account removed";
+                                }
+                            }
+                            else if (role == "Patient")
+                            {
+                                var patient = await _patientProfileRepository.GetAsync(d => d.MobileNo == userData.UserName);
+                                userId = patient.UserId;
+                                var doctorDelete = _patientProfileRepository.DeleteAsync(d => d.MobileNo == userData.UserName);
+                                //profileDeleted = true;
+                                if (doctorDelete != null)
+                                {
+                                    result.Success = true;
+                                    result.Message = "User Account removed";
+                                }
+                            }
+                        }
                         //return result;
 
                     }
