@@ -6,6 +6,7 @@ using SoowGoodWeb.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Volo.Abp.Account;
 using Volo.Abp.Domain.Repositories;
@@ -103,6 +104,46 @@ namespace SoowGoodWeb.Services
             //return ObjectMapper.Map<List<AgentSupervisor>, List<AgentSupervisorDto>>(agentSupervisors);
         }
 
+        public async Task<List<AgentSupervisorDto>> GetListByMasterIdAsync(long masterId)
+        {
+            //var agentSupervisors = await _agentSupervisorRepository.GetListAsync();
+            List<AgentSupervisorDto>? result = null;
+            var allsupervisorwithDetails = await _agentSupervisorRepository.WithDetailsAsync(s => s.AgentMaster);
+            var supervisorProfiles=allsupervisorwithDetails.Where(m=>m.AgentMasterId==masterId).ToList();
+            if (!supervisorProfiles.Any())
+            {
+                return result;
+            }
+            result = new List<AgentSupervisorDto>();
+            foreach (var item in supervisorProfiles)
+            {
+                result.Add(new AgentSupervisorDto()
+                {
+                    Id = item.Id,
+                    AgentMasterId = item.AgentMasterId,
+                    AgentMasterName = item.AgentMasterId > 0 ? item.AgentMaster.AgentMasterOrgName : "",
+                    SupervisorName = item.SupervisorName,
+                    AgentSupervisorOrgName = item.AgentSupervisorOrgName,
+                    AgentSupervisorCode = item.AgentSupervisorCode,
+                    SupervisorIdentityNumber = item.SupervisorIdentityNumber,
+                    SupervisorMobileNo = item.SupervisorMobileNo,
+                    Address = item.Address,
+                    City = item.City,
+                    ZipCode = item.ZipCode,
+                    Country = item.Country,
+                    PhoneNo = item.PhoneNo,
+                    Email = item.Email,
+                    EmergencyContact = item.EmergencyContact,
+                    AgentSupervisorDocNumber = item.AgentSupervisorDocNumber,
+                    AgentSupervisorDocExpireDate = item.AgentSupervisorDocExpireDate,
+                    IsActive = item.IsActive,
+                    DisplayName = item.AgentSupervisorCode + "-" + item.AgentSupervisorOrgName + "-" + item.SupervisorName
+                });
+            }
+            return result;
+            //return ObjectMapper.Map<List<AgentSupervisor>, List<AgentSupervisorDto>>(agentSupervisors);
+        }
+
         public async Task<List<AgentSupervisorDto>> GetAgentSupervisorsByAgentMasterListAsync(long agentMasterId)
         {
             List<AgentSupervisorDto>? result = null;
@@ -125,6 +166,13 @@ namespace SoowGoodWeb.Services
                 });
             }
             return result;
+        }
+        public async Task<AgentSupervisorDto> GetByUserNameAsync(string userName)
+        {
+            var agentSupervisor = await _agentSupervisorRepository.WithDetailsAsync();
+            var item = agentSupervisor.Where(x => x.SupervisorMobileNo == userName).FirstOrDefault();
+
+            return ObjectMapper.Map<AgentSupervisor, AgentSupervisorDto>(item);
         }
     }
 }

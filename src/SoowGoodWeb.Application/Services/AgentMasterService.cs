@@ -51,6 +51,14 @@ namespace SoowGoodWeb.Services
             return result;
         }
 
+        public async Task<AgentMasterDto> GetByUserNameAsync(string userName)
+        {
+            var agentMasters = await _agentMasterRepository.WithDetailsAsync();
+            var item = agentMasters.Where(x => x.ContactPersongMobileNo == userName).FirstOrDefault();
+
+            return ObjectMapper.Map<AgentMaster, AgentMasterDto>(item);
+        }
+
         public async Task<List<AgentMasterDto>> GetListAsync()
         {
             var agentMasters = await _agentMasterRepository.GetListAsync();
