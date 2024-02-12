@@ -15,7 +15,7 @@ namespace SoowGoodWeb.EkPayData
 
         public bool IsActive => _appConfiguration["Payment:EkPay:IsActive"].To<bool>();
         public string SubmitUrl => _appConfiguration["Payment:EkPay:SubmitUrl"];
-        //public string ValidationUrl => _appConfiguration["Payment:EkPay:ValidationUrl"];
+        //public string ValidationUrl => _appConfiguration["Payment:EkPay:DevIpnLintener"];
         //public string CheckingUrl => _appConfiguration["Payment:EkPay:CheckingUrl"];
 
         // Sandbox or Test

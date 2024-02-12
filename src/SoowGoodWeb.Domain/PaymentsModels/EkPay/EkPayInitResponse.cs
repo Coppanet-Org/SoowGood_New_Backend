@@ -31,4 +31,12 @@ namespace SoowGoodWeb.EkPayData
         public string? responseMessage { get; set; }
                      
     }
+
+    public class EkPayIpnResponse
+    {
+        public string? ack_code { get; set; }
+        public string? ack_msg { get; set; }
+        public string? ack_timestamp { get; set; }
+    }
+
 }

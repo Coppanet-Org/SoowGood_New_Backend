@@ -245,7 +245,7 @@ namespace SoowGoodWeb.EkPayData
         //            var encodedStoreId = HttpUtility.UrlEncode(_configuration.SandboxStoreId);
         //            var encodedStorePassword = HttpUtility.UrlEncode(_configuration.SandboxStorePassword);
 
-        //            var validateUrl = _configuration.LiveValidationUrl + "?val_id=" + encodedValId + "&store_id=" + encodedStoreId + "&store_passwd=" + encodedStorePassword + "&v=1&format=json";
+        //            var validateUrl = _configuration.ValidationUrl + "?val_id=" + encodedValId + "&store_id=" + encodedStoreId + "&store_passwd=" + encodedStorePassword + "&v=1&format=json";
 
         //            var request = (HttpWebRequest)WebRequest.Create(validateUrl);
         //            var response = (HttpWebResponse)request.GetResponse();
@@ -369,6 +369,22 @@ namespace SoowGoodWeb.EkPayData
         //    return postData;
         //}
 
+        //public async Task<EkPayIpnResponse> InitiateTestIpnPaymentAsync(data_raw postData)
+        //{
+        //    var initResponse = new EkPayTokenResponse();
+        //    try
+        //    {
+        //        string response = await SendPaymentRequestAsync(_configuration.SandboxSubmitUrl, postData);
+        //        initResponse = new JavaScriptSerializer().Deserialize<EkPayTokenResponse>(response);
+        //        return initResponse;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        var jsonResponse = JsonConvert.SerializeObject(initResponse);
+        //        var jsonPostData = JsonConvert.SerializeObject(postData);
+        //        throw new Exception($"InitResponse: {jsonResponse} {Environment.NewLine}- PostData: {jsonPostData} {Environment.NewLine}- ErrorMsg: {e.Message}");
+        //    }
+        //}
         public data_raw CreateDataRaw(EkPayDataRawDto postData)
         {
             var merChantInfo = new mer_info();
@@ -377,7 +393,7 @@ namespace SoowGoodWeb.EkPayData
             var feedUriInfo = new feed_uri();
             feedUriInfo.c_uri = _configuration.DevCancelClientUrl;//.DevCancelCallbackUrl;
             feedUriInfo.f_uri = _configuration.DevFailClientUrl;
-            feedUriInfo.s_uri = _configuration.DevSuccessClientUrl;
+            feedUriInfo.s_uri = _configuration.DevSuccessCallbackUrl;//.DevSuccessClientUrl;
             var customerInfo = new cust_info();
             customerInfo.cust_email = postData.cust_email;
             customerInfo.cust_id = "";//postData.cust_id;
