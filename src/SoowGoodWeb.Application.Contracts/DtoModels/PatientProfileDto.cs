@@ -31,5 +31,9 @@ namespace SoowGoodWeb.DtoModels
         public long? CreatorEntityId { get; set; }
         public Guid? UserId { get; set; }
         public string? ProfileRole { get; set;}
+        public string? CreatorName { get; set; }
+        public string? BoothName { get; set; }
+        public string? AgentMasterName { get; set; }
+        public string? AgentSupervisorName { get; set; }
     }
 }

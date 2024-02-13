@@ -308,8 +308,8 @@ namespace SoowGoodWeb.Services
                     }
                 }
 
-                profiles = profiles.Skip(filterModel.Offset)
-                                   .Take(filterModel.Limit).ToList();
+                //profiles = profiles.Skip(filterModel.Offset)
+                //                   .Take(filterModel.Limit).ToList();
 
                 try
                 {

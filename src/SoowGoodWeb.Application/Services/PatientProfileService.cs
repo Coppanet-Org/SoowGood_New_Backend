@@ -19,15 +19,18 @@ namespace SoowGoodWeb.Services
     {
         private readonly IRepository<PatientProfile> _patientProfileRepository;
         private readonly IRepository<PatientProfile, long> _patientRepository;
+        private readonly IRepository<AgentProfile> _agentProfileRepository;
         //private readonly IRepository<AgentDegree> _agentDegreeRepository;
         //private readonly IRepository<AgentSpecialization> _agentSpecializationRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         public PatientProfileService(IRepository<PatientProfile> patientProfileRepository,
             IRepository<PatientProfile, long> patientRepository,
+            IRepository<AgentProfile> agentProfileRepository,
             IUnitOfWorkManager unitOfWorkManager)
         {
             _patientProfileRepository = patientProfileRepository;
             _patientRepository = patientRepository;
+            _agentProfileRepository = agentProfileRepository;
             _unitOfWorkManager = unitOfWorkManager;
         }
 
@@ -99,6 +102,8 @@ namespace SoowGoodWeb.Services
         {
             List<PatientProfileDto>? result = null;
             var allProfile = await _patientProfileRepository.GetListAsync();
+            var agentDetails = await _agentProfileRepository.WithDetailsAsync(a => a.AgentMaster, s => s.AgentSupervisor);
+
             if (!allProfile.Any())
             {
                 return result;
@@ -107,6 +112,7 @@ namespace SoowGoodWeb.Services
             result = new List<PatientProfileDto>();
             foreach (var item in allProfile)
             {
+                var agent = item.CreatorRole == "agent" ? agentDetails.Where(a => a.Id == item.CreatorEntityId).FirstOrDefault() : null;
                 result.Add(new PatientProfileDto()
                 {
                     Id = item.Id,
@@ -120,6 +126,98 @@ namespace SoowGoodWeb.Services
                     BloodGroup = item.BloodGroup,
                     Address = item.Address,
                     ProfileRole = "Patient",
+                    CreatorRole = item.CreatorRole,
+                    BoothName = item.CreatorRole == "agent" ? agent?.Address : "N/A",
+                    AgentMasterName = item.CreatorRole == "agent" ? agent?.AgentMaster?.AgentMasterOrgName : "N/A",
+                    AgentSupervisorName = item.CreatorRole == "agent" ? agent?.AgentSupervisor?.AgentSupervisorOrgName : "N/A",
+
+                });
+            }
+            return result.OrderByDescending(d => d.Id).ToList();
+        }
+
+        public async Task<List<PatientProfileDto>> GetListPatientListByAgentMasterAsync(long masterId)
+        {
+            List<PatientProfileDto>? result = null;
+            var allProfile = await _patientProfileRepository.GetListAsync();
+            var profiles = allProfile.Where(c => c.CreatorRole == "agent").ToList();
+            var agentDetails = await _agentProfileRepository.WithDetailsAsync(a => a.AgentMaster, s => s.AgentSupervisor);
+            var agentsByMaster = agentDetails.Where(a => a.AgentMasterId == masterId).ToList();
+
+            var itemProfiles = (from p in profiles join agents in agentsByMaster on p.CreatorEntityId equals agents.Id select p).ToList();
+
+            if (!itemProfiles.Any())
+            {
+                return result;
+            }
+
+            result = new List<PatientProfileDto>();
+            foreach (var item in itemProfiles)
+            {
+                var agent = item.CreatorRole == "agent" ? agentsByMaster.Where(a => a.Id == item.CreatorEntityId).FirstOrDefault() : null;
+                result.Add(new PatientProfileDto()
+                {
+                    Id = item.Id,
+                    PatientName = item.PatientName,
+                    PatientEmail = item.PatientEmail,
+                    PatientMobileNo = item.PatientMobileNo,
+                    PatientCode = item.PatientCode,
+                    DateOfBirth = item.DateOfBirth,
+                    Gender = item.Gender,
+                    GenderName = item.Gender > 0 ? ((Gender)item.Gender).ToString() : "n/a",
+                    BloodGroup = item.BloodGroup,
+                    Address = item.Address,
+                    ProfileRole = "Patient",
+                    CreatorRole = item.CreatorRole,
+                    BoothName = item.CreatorRole == "agent" ? agent?.Address : "N/A",
+                    AgentMasterName = item.CreatorRole == "agent" ? agent?.AgentMaster?.AgentMasterOrgName : "N/A",
+                    AgentSupervisorName = item.CreatorRole == "agent" ? agent?.AgentSupervisor?.AgentSupervisorOrgName : "N/A",
+
+                });
+            }
+            return result.OrderByDescending(d => d.Id).ToList();
+        }
+
+        public async Task<List<PatientProfileDto>> GetListPatientListByAgentSuperVisorAsync(long supervisorId)
+        {
+            List<PatientProfileDto>? result = null;
+            var allProfile = await _patientProfileRepository.GetListAsync();
+            var profiles = allProfile.Where(c => c.CreatorRole == "agent").ToList();
+            var agentDetails = await _agentProfileRepository.WithDetailsAsync(a => a.AgentMaster, s => s.AgentSupervisor);
+            var agentsBySuperVisor = agentDetails.Where(a => a.AgentSupervisorId == supervisorId).ToList();
+
+            var itemProfiles = (from p in profiles join agents in agentsBySuperVisor on p.CreatorEntityId equals agents.Id select p).ToList();
+
+
+
+            //var agentDetails = await _agentProfileRepository.WithDetailsAsync(a => a.AgentMaster, s => s.AgentSupervisor);
+
+            if (!itemProfiles.Any())
+            {
+                return result;
+            }
+
+            result = new List<PatientProfileDto>();
+            foreach (var item in itemProfiles)
+            {
+                var agent = item.CreatorRole == "agent" ? agentsBySuperVisor.Where(a => a.Id == item.CreatorEntityId).FirstOrDefault() : null;
+                result.Add(new PatientProfileDto()
+                {
+                    Id = item.Id,
+                    PatientName = item.PatientName,
+                    PatientEmail = item.PatientEmail,
+                    PatientMobileNo = item.PatientMobileNo,
+                    PatientCode = item.PatientCode,
+                    DateOfBirth = item.DateOfBirth,
+                    Gender = item.Gender,
+                    GenderName = item.Gender > 0 ? ((Gender)item.Gender).ToString() : "n/a",
+                    BloodGroup = item.BloodGroup,
+                    Address = item.Address,
+                    ProfileRole = "Patient",
+                    CreatorRole = item.CreatorRole,
+                    BoothName = item.CreatorRole == "agent" ? agent?.Address : "N/A",
+                    AgentMasterName = item.CreatorRole == "agent" ? agent?.AgentMaster?.AgentMasterOrgName : "N/A",
+                    AgentSupervisorName = item.CreatorRole == "agent" ? agent?.AgentSupervisor?.AgentSupervisorOrgName : "N/A",
 
                 });
             }

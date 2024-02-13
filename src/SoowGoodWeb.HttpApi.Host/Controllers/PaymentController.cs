@@ -17,12 +17,15 @@ namespace SoowGoodWeb.Controllers
     public class PaymentController : AbpController
     {
         private readonly ISslCommerzService _sslCommerzAppService;
+        private readonly IEkPayService _ekPayAppService;
         private readonly SslCommerzGatewayConfiguration _configuration;
 
         public PaymentController(ISslCommerzService sslCommerzAppService,
+            IEkPayService ekPayAppService,
                                     SslCommerzGatewayConfiguration configuration)
         {
             _sslCommerzAppService = sslCommerzAppService;
+            _ekPayAppService = ekPayAppService;
             _configuration = configuration;
         }
 
@@ -92,6 +95,15 @@ namespace SoowGoodWeb.Controllers
             return new RedirectResult(_configuration.DevCancelClientUrl);
         }
 
+        [HttpPost]//, ActionName("TestPaymentSuccess")]
+        [Route("/api/test/ipn")]
+        //[DisableRequestSizeLimit]
+        public async Task<IActionResult> SuccessTestIPNPaymentAsync()
+        {
+            await CompleteTestPaymentProcess();
+
+            return new RedirectResult(_configuration.DevSuccessClientUrl);
+        }
         //****************SSLCOMMERZ SANDBOX*************//
 
         private async Task CompletePaymentProcess(bool continueWithValidationCheck = false)

@@ -296,15 +296,10 @@ namespace SoowGoodWeb.Services
             pResponse.message = initResponse.responseMessage != null ? initResponse.responseMessage : initResponse.msg_det;
             pResponse.GatewayPageURL = initResponse.responseCode == null && initResponse.responseMessage == null ? "https://sandbox.ekpay.gov.bd/ekpaypg/v1?sToken=" + initResponse.secure_token+ "&trnsID=" + trnsId:"";
 
-
-            //return new EkPayInitDto
-            //{
-            //    status = initResponse.status,
-            //    failedreason = initResponse.failedreason,
-            //    GatewayPageURL = initResponse.GatewayPageURL
-            //};
             return pResponse;
         }
+
+
 
         private static EkPayDto GetFullInitPaymentResponse(EkPayInitResponse initResponse)
         {

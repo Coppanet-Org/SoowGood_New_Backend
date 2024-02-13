@@ -21,6 +21,7 @@ namespace SoowGoodWeb.Services
         private readonly IRepository<DoctorChamber> _doctorChamberRepository;
         private readonly IRepository<DoctorScheduleDaySession> _doctorScheduleSessionRepository;
         private readonly IRepository<PatientProfile> _patientProfileRepository;
+        private readonly IRepository<AgentProfile> _agentProfileRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
 
@@ -30,6 +31,7 @@ namespace SoowGoodWeb.Services
             IRepository<DoctorChamber> doctorChamberRepository,
             IRepository<DoctorScheduleDaySession> doctorScheduleSessionRepository,
             IRepository<PatientProfile> patientProfileRepository,
+            IRepository<AgentProfile> agentProfileRepository,
             SslCommerzGatewayManager sslCommerzGatewayManager,
             IUnitOfWorkManager unitOfWorkManager)
         {
@@ -38,6 +40,7 @@ namespace SoowGoodWeb.Services
             _doctorChamberRepository = doctorChamberRepository;
             _doctorScheduleSessionRepository = doctorScheduleSessionRepository;
             _patientProfileRepository = patientProfileRepository;
+            _agentProfileRepository = agentProfileRepository;
             _sslCommerzGatewayManager = sslCommerzGatewayManager;
 
             _unitOfWorkManager = unitOfWorkManager;
@@ -79,7 +82,7 @@ namespace SoowGoodWeb.Services
                     lastSerial = await GetAppCountByScheduleIdSessionIdAsync(input.DoctorScheduleId, input.DoctorScheduleDaySessionId);
 
 
-                    for (var i = lastSerial; i < mainSession.NoOfPatients; )
+                    for (var i = lastSerial; i < mainSession.NoOfPatients;)
                     {
                         input.AppointmentTime = slots != null ? slots[i] : "";
                         break;
@@ -187,13 +190,17 @@ namespace SoowGoodWeb.Services
         public async Task<List<AppointmentDto>?> GetAppointmentListForDoctorWithSearchFilterAsync(long doctorId, DataFilterModel? dataFilter, FilterModel filterModel)
         {
             var provider = CultureInfo.InvariantCulture;
+
             try
             {
+                var fDate1 = Convert.ToDateTime(dataFilter.fromDate).Date;
+                var tdate1 = DateTime.Now;
                 if (dataFilter?.toDate is null or "Invalid Date")
                 {
                     if (dataFilter != null)
                     {
                         dataFilter.toDate = dataFilter.fromDate;
+                        tdate1 = Convert.ToDateTime(dataFilter.toDate).Date;
                     }
                 }
                 var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
@@ -203,18 +210,15 @@ namespace SoowGoodWeb.Services
                 {
                     appointments = appointments.Where(p => p.PatientName != null && p.PatientName.ToLower().Contains(dataFilter.name.ToLower().Trim())).ToList();
                 }
-
-                if (dataFilter?.consultancyType > 0 || dataFilter?.appointmentStatus > 0
-                                                    || (!string.IsNullOrEmpty(dataFilter?.fromDate) && !string.IsNullOrEmpty(dataFilter.toDate)))
+                if (dataFilter?.consultancyType > 0)
                 {
-                    appointments = appointments.Where(p => dataFilter.toDate != null && p.AppointmentDate != null && dataFilter.fromDate != null && (p.ConsultancyType == dataFilter.consultancyType
-                        || p.AppointmentStatus == dataFilter.appointmentStatus
-                        || (p.AppointmentDate.Value.Date >= DateTime.ParseExact(dataFilter.fromDate, "MM/dd/yyyy", provider, DateTimeStyles.None)
-                            && p.AppointmentDate.Value.Date <= DateTime.ParseExact(dataFilter.toDate, "MM/dd/yyyy", provider, DateTimeStyles.None)))).ToList();
+                    appointments = appointments.Where(p => p.ConsultancyType == dataFilter.consultancyType).ToList();
                 }
-
-                appointments = appointments.Skip(filterModel.Offset)
-                                   .Take(filterModel.Limit).ToList();
+                if (!string.IsNullOrEmpty(dataFilter?.fromDate) && !string.IsNullOrEmpty(dataFilter.toDate))
+                {
+                    appointments = appointments.Where(p => p?.AppointmentDate.Value.Date >= fDate1
+                            && p?.AppointmentDate.Value.Date <= tdate1).ToList();
+                }
 
                 return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
             }
@@ -230,28 +234,32 @@ namespace SoowGoodWeb.Services
             CultureInfo provider = CultureInfo.InvariantCulture;
             try
             {
-                if (dataFilter?.toDate == "Invalid Date")
+                var fDate1 = Convert.ToDateTime(dataFilter.fromDate).Date;
+                var tdate1 = DateTime.Now;
+                if (dataFilter?.toDate is null or "Invalid Date")
                 {
-                    dataFilter.toDate = dataFilter.fromDate;
+                    if (dataFilter != null)
+                    {
+                        dataFilter.toDate = dataFilter.fromDate;
+                        tdate1 = Convert.ToDateTime(dataFilter.toDate).Date;
+                    }
                 }
                 var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
                 var appointments = item.Where(d => d.DoctorProfileId == doctorId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
 
-                if (!string.IsNullOrEmpty(dataFilter.name))
+                if (!string.IsNullOrEmpty(dataFilter?.name))
                 {
-                    appointments = appointments.Where(p => p.PatientName.Contains(dataFilter.name)).ToList();
+                    appointments = appointments.Where(p => p.PatientName != null && p.PatientName.ToLower().Contains(dataFilter.name.ToLower().Trim())).ToList();
                 }
-
-                if (dataFilter.consultancyType > 0 || dataFilter.appointmentStatus > 0
-                    || (!string.IsNullOrEmpty(dataFilter.fromDate) && !string.IsNullOrEmpty(dataFilter.toDate)))
+                if (dataFilter?.consultancyType > 0)
                 {
-                    appointments = appointments.Where(p => p.ConsultancyType == dataFilter.consultancyType
-                                                            || p.AppointmentStatus == dataFilter.appointmentStatus
-                                                            || (p.AppointmentDate.Value.Date >= DateTime.ParseExact(dataFilter.fromDate, "MM/dd/yyyy", provider, DateTimeStyles.None)
-                                                            && p.AppointmentDate.Value.Date <= DateTime.ParseExact(dataFilter.toDate, "MM/dd/yyyy", provider, DateTimeStyles.None))).ToList();
+                    appointments = appointments.Where(p => p.ConsultancyType == dataFilter.consultancyType).ToList();
                 }
-
-
+                if (!string.IsNullOrEmpty(dataFilter?.fromDate) && !string.IsNullOrEmpty(dataFilter.toDate))
+                {
+                    appointments = appointments.Where(p => p?.AppointmentDate.Value.Date >= fDate1
+                            && p?.AppointmentDate.Value.Date <= tdate1).ToList();
+                }
                 return appointments.Count();
             }
             catch (Exception ex)
@@ -273,29 +281,35 @@ namespace SoowGoodWeb.Services
             CultureInfo provider = CultureInfo.InvariantCulture;
             try
             {
-                if (dataFilter?.toDate == "Invalid Date")
+                var fDate1 = Convert.ToDateTime(dataFilter.fromDate).Date;
+                var tdate1 = DateTime.Now;
+                if (dataFilter?.toDate is null or "Invalid Date")
                 {
-                    dataFilter.toDate = dataFilter.fromDate; ;
+                    if (dataFilter != null)
+                    {
+                        dataFilter.toDate = dataFilter.fromDate;
+                        tdate1 = Convert.ToDateTime(dataFilter.toDate).Date;
+                    }
                 }
                 var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
                 var appointments = item.Where(d => d.AppointmentCreatorId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed) && d.AppointmentCreatorRole == role).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
 
-                if (!string.IsNullOrEmpty(dataFilter.name))
+                if (!string.IsNullOrEmpty(dataFilter?.name))
                 {
-                    //appointments = appointments.Where(p => p.DoctorName.Contains(dataFilter.name)).ToList();
-                    appointments = appointments.Where(p => p.DoctorName.ToLower().Contains(dataFilter.name.ToLower().Trim())).ToList();
+                    appointments = appointments.Where(p => p.PatientName != null && p.PatientName.ToLower().Contains(dataFilter.name.ToLower().Trim())).ToList();
                 }
-                if (dataFilter.consultancyType > 0 || dataFilter.appointmentStatus > 0
-                    || (!string.IsNullOrEmpty(dataFilter.fromDate) && !string.IsNullOrEmpty(dataFilter.toDate)))
+                if (dataFilter?.consultancyType > 0)
                 {
-                    appointments = appointments.Where(p => p.ConsultancyType == dataFilter.consultancyType
-                                                            || p.AppointmentStatus == dataFilter.appointmentStatus
-                                                            || (p.AppointmentDate.Value.Date >= DateTime.ParseExact(dataFilter.fromDate, "MM/dd/yyyy", provider, DateTimeStyles.None)
-                                                            && p.AppointmentDate.Value.Date <= DateTime.ParseExact(dataFilter.toDate, "MM/dd/yyyy", provider, DateTimeStyles.None))).ToList();
+                    appointments = appointments.Where(p => p.ConsultancyType == dataFilter.consultancyType).ToList();
+                }
+                if (!string.IsNullOrEmpty(dataFilter?.fromDate) && !string.IsNullOrEmpty(dataFilter.toDate))
+                {
+                    appointments = appointments.Where(p => p?.AppointmentDate.Value.Date >= fDate1
+                            && p?.AppointmentDate.Value.Date <= tdate1).ToList();
                 }
 
-                appointments = appointments.Skip(filterModel.Offset)
-                                   .Take(filterModel.Limit).ToList();
+                //appointments = appointments.Skip(filterModel.Offset)
+                //                   .Take(filterModel.Limit).ToList();
 
                 return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
             }
@@ -311,24 +325,31 @@ namespace SoowGoodWeb.Services
             CultureInfo provider = CultureInfo.InvariantCulture;
             try
             {
-                if (dataFilter?.toDate == "Invalid Date")
+                var fDate1 = Convert.ToDateTime(dataFilter.fromDate).Date;
+                var tdate1 = DateTime.Now;
+                if (dataFilter?.toDate is null or "Invalid Date")
                 {
-                    dataFilter.toDate = dataFilter.fromDate; ;
+                    if (dataFilter != null)
+                    {
+                        dataFilter.toDate = dataFilter.fromDate;
+                        tdate1 = Convert.ToDateTime(dataFilter.toDate).Date;
+                    }
                 }
                 var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
                 var appointments = item.Where(d => d.AppointmentCreatorId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed) && d.AppointmentCreatorRole == role).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
 
-                if (!string.IsNullOrEmpty(dataFilter.name))
+                if (!string.IsNullOrEmpty(dataFilter?.name))
                 {
-                    appointments = appointments.Where(p => p.DoctorName.Contains(dataFilter.name)).ToList();
+                    appointments = appointments.Where(p => p.PatientName != null && p.PatientName.ToLower().Contains(dataFilter.name.ToLower().Trim())).ToList();
                 }
-                if (dataFilter.consultancyType > 0 || dataFilter.appointmentStatus > 0
-                    || (!string.IsNullOrEmpty(dataFilter.fromDate) && !string.IsNullOrEmpty(dataFilter.toDate)))
+                if (dataFilter?.consultancyType > 0)
                 {
-                    appointments = appointments.Where(p => p.ConsultancyType == dataFilter.consultancyType
-                                                            || p.AppointmentStatus == dataFilter.appointmentStatus
-                                                            || (p.AppointmentDate.Value.Date >= DateTime.ParseExact(dataFilter.fromDate, "MM/dd/yyyy", provider, DateTimeStyles.None)
-                                                            && p.AppointmentDate.Value.Date <= DateTime.ParseExact(dataFilter.toDate, "MM/dd/yyyy", provider, DateTimeStyles.None))).ToList();
+                    appointments = appointments.Where(p => p.ConsultancyType == dataFilter.consultancyType).ToList();
+                }
+                if (!string.IsNullOrEmpty(dataFilter?.fromDate) && !string.IsNullOrEmpty(dataFilter.toDate))
+                {
+                    appointments = appointments.Where(p => p?.AppointmentDate.Value.Date >= fDate1
+                            && p?.AppointmentDate.Value.Date <= tdate1).ToList();
                 }
 
                 return appointments.Count;
@@ -345,12 +366,13 @@ namespace SoowGoodWeb.Services
             List<AppointmentDto>? result = null;
             DoctorScheduleDaySession? weekDayName = null;
             var allAppoinment = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule, c => c.DoctorSchedule.DoctorChamber);
+            var agentDetails = await _agentProfileRepository.WithDetailsAsync(a => a.AgentMaster, s => s.AgentSupervisor);
             //var  = await _appointmentRepository.GetListAsync();
             if (!allAppoinment.Any())
             {
                 return result;
             }
-             
+
             result = new List<AppointmentDto>();
             try
             {
@@ -358,6 +380,10 @@ namespace SoowGoodWeb.Services
                 foreach (var item in allAppoinment)
                 {
                     var patientDetails = await _patientProfileRepository.GetAsync(p => p.Id == item.PatientProfileId);
+
+                    //if(item.AppointmentCreatorRole=="agent")
+                    var agent = item.AppointmentCreatorRole == "agent" ? agentDetails.Where(a => a.Id == item.AppointmentCreatorId).FirstOrDefault() : null;
+
                     if (item.DoctorScheduleDaySessionId > 0)
                     {
                         weekDayName = await _doctorScheduleSessionRepository.GetAsync(p => p.Id == item.DoctorScheduleDaySessionId);
@@ -393,6 +419,10 @@ namespace SoowGoodWeb.Services
                         ScheduleDayofWeek = weekDayName?.ScheduleDayofWeek?.ToString(),
                         CancelledByRole = item.CancelledByRole,
                         PaymentTransactionId = item.PaymentTransactionId,
+                        AppointmentCreatorRole = item.AppointmentCreatorRole,
+                        BoothName = item.AppointmentCreatorRole == "agent" ? agent?.Address : "N/A",
+                        AgentMasterName = item.AppointmentCreatorRole == "agent" ? agent?.AgentMaster?.AgentMasterOrgName : "N/A",
+                        AgentSupervisorName = item.AppointmentCreatorRole == "agent" ? agent?.AgentSupervisor?.AgentSupervisorOrgName : "N/A",
                     });
                 }
             }
@@ -405,7 +435,177 @@ namespace SoowGoodWeb.Services
             var list = result.OrderBy(item => item.AppointmentSerial)
                 .GroupBy(item => item.AppointmentDate)
                 .OrderBy(g => g.Key).Select(g => new { g }).ToList();
-            
+
+
+            return result;
+        }
+
+        public async Task<List<AppointmentDto>?> GetListAppointmentListByAgentMasterAsync(long agentMasterId)
+        {
+            List<AppointmentDto>? result = null;
+            DoctorScheduleDaySession? weekDayName = null;
+            var allAppoinment = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule, c => c.DoctorSchedule.DoctorChamber);
+            var appointments = allAppoinment.Where(c => c.AppointmentCreatorRole == "agent").ToList();
+            var agentDetails = await _agentProfileRepository.WithDetailsAsync(a => a.AgentMaster, s => s.AgentSupervisor);
+            var agentsByMasters = agentDetails.Where(a => a.AgentMasterId == agentMasterId).ToList();
+
+            var itemAppointments = (from app in appointments join agents in agentsByMasters on app.AppointmentCreatorId equals agents.Id select app).ToList();
+
+            //allAppoinment.Where(ap=>ap.AppointmentCreatorId == agentMasterId);
+            //var  = await _appointmentRepository.GetListAsync();
+            if (!itemAppointments.Any())
+            {
+                return result;
+            }
+
+            result = new List<AppointmentDto>();
+            try
+            {
+
+                foreach (var item in itemAppointments)
+                {
+                    var patientDetails = await _patientProfileRepository.GetAsync(p => p.Id == item.PatientProfileId);
+
+                    //if(item.AppointmentCreatorRole=="agent")
+                    var agent = item.AppointmentCreatorRole == "agent" ? agentsByMasters.Where(a => a.Id == item.AppointmentCreatorId).FirstOrDefault() : null;
+
+                    if (item.DoctorScheduleDaySessionId > 0)
+                    {
+                        weekDayName = await _doctorScheduleSessionRepository.GetAsync(p => p.Id == item.DoctorScheduleDaySessionId);
+                    }
+                    result.Add(new AppointmentDto()
+                    {
+                        Id = item.Id,
+                        PatientName = item.PatientName,
+                        AppointmentDate = Convert.ToDateTime(item.AppointmentDate).Date,
+                        AppointmentTime = item.AppointmentTime,
+                        AppointmentSerial = item.AppointmentSerial,
+                        AppointmentType = item.AppointmentType,
+                        AppointmentTypeName = item.AppointmentType > 0 ? ((AppointmentType)item.AppointmentType).ToString() : "n/a",
+                        DoctorName = item.DoctorName,
+                        DoctorScheduleId = item.DoctorScheduleId,
+                        DoctorScheduleName = item.DoctorScheduleId > 0 ? item.DoctorSchedule?.ScheduleName : "n/a",
+                        AppointmentCode = item.AppointmentCode,
+                        AppointmentStatus = item.AppointmentStatus,
+                        DoctorCode = item.DoctorCode,
+                        PatientCode = item.PatientCode,
+                        PatientMobileNo = patientDetails.PatientMobileNo,
+                        PatientEmail = patientDetails.PatientEmail,
+                        AppointmentStatusName = item.AppointmentStatus > 0 ? ((AppointmentStatus)item.AppointmentStatus).ToString() : "n/a",
+                        AppointmentPaymentStatus = item.AppointmentPaymentStatus,
+                        AppointmentPaymentStatusName = item.AppointmentPaymentStatus > 0 ? ((AppointmentPaymentStatus)item.AppointmentPaymentStatus).ToString() : "n/a",
+                        ConsultancyType = item.ConsultancyType,
+                        ConsultancyTypeName = item.ConsultancyType > 0 ? ((ConsultancyType)item.ConsultancyType).ToString() : "n/a",
+                        DoctorChamberId = item.DoctorChamberId,
+                        DoctorChamberName = item.DoctorChamberId > 0 ? item.DoctorSchedule?.DoctorChamber?.ChamberName : "n/a",
+                        DoctorFee = item.DoctorFee,
+                        PatientLocation = patientDetails?.City?.ToString(),
+                        DoctorScheduleDaySessionId = item.DoctorScheduleDaySessionId,
+                        ScheduleDayofWeek = weekDayName?.ScheduleDayofWeek?.ToString(),
+                        CancelledByRole = item.CancelledByRole,
+                        PaymentTransactionId = item.PaymentTransactionId,
+                        AppointmentCreatorRole = item.AppointmentCreatorRole,
+                        BoothName = item.AppointmentCreatorRole == "agent" ? agent?.Address : "N/A",
+                        AgentMasterName = item.AppointmentCreatorRole == "agent" ? agent?.AgentMaster?.AgentMasterOrgName : "N/A",
+                        AgentSupervisorName = item.AppointmentCreatorRole == "agent" ? agent?.AgentSupervisor?.AgentSupervisorOrgName : "N/A",
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                // ignored
+            }
+
+            result = result.OrderByDescending(a => a.AppointmentDate).ToList();
+            var list = result.OrderBy(item => item.AppointmentSerial)
+                .GroupBy(item => item.AppointmentDate)
+                .OrderBy(g => g.Key).Select(g => new { g }).ToList();
+
+
+            return result;
+        }
+
+        public async Task<List<AppointmentDto>?> GetListAppointmentListByAgentSupervisorAsync(long supervisorId)
+        {
+            List<AppointmentDto>? result = null;
+            DoctorScheduleDaySession? weekDayName = null;
+            var allAppoinment = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule, c => c.DoctorSchedule.DoctorChamber);
+            var appointments = allAppoinment.Where(c => c.AppointmentCreatorRole == "agent").ToList();
+            var agentDetails = await _agentProfileRepository.WithDetailsAsync(a => a.AgentMaster, s => s.AgentSupervisor);
+            var agentsBySupervisors = agentDetails.Where(a => a.AgentMasterId == supervisorId).ToList();
+
+            var itemAppointments = (from app in appointments join agents in agentsBySupervisors on app.AppointmentCreatorId equals agents.Id select app).ToList();
+
+            //allAppoinment.Where(ap=>ap.AppointmentCreatorId == agentMasterId);
+            //var  = await _appointmentRepository.GetListAsync();
+            if (!itemAppointments.Any())
+            {
+                return result;
+            }
+
+            result = new List<AppointmentDto>();
+            try
+            {
+
+                foreach (var item in itemAppointments)
+                {
+                    var patientDetails = await _patientProfileRepository.GetAsync(p => p.Id == item.PatientProfileId);
+
+                    //if(item.AppointmentCreatorRole=="agent")
+                    var agent = item.AppointmentCreatorRole == "agent" ? agentsBySupervisors.Where(a => a.Id == item.AppointmentCreatorId).FirstOrDefault() : null;
+
+                    if (item.DoctorScheduleDaySessionId > 0)
+                    {
+                        weekDayName = await _doctorScheduleSessionRepository.GetAsync(p => p.Id == item.DoctorScheduleDaySessionId);
+                    }
+                    result.Add(new AppointmentDto()
+                    {
+                        Id = item.Id,
+                        PatientName = item.PatientName,
+                        AppointmentDate = Convert.ToDateTime(item.AppointmentDate).Date,
+                        AppointmentTime = item.AppointmentTime,
+                        AppointmentSerial = item.AppointmentSerial,
+                        AppointmentType = item.AppointmentType,
+                        AppointmentTypeName = item.AppointmentType > 0 ? ((AppointmentType)item.AppointmentType).ToString() : "n/a",
+                        DoctorName = item.DoctorName,
+                        DoctorScheduleId = item.DoctorScheduleId,
+                        DoctorScheduleName = item.DoctorScheduleId > 0 ? item.DoctorSchedule?.ScheduleName : "n/a",
+                        AppointmentCode = item.AppointmentCode,
+                        AppointmentStatus = item.AppointmentStatus,
+                        DoctorCode = item.DoctorCode,
+                        PatientCode = item.PatientCode,
+                        PatientMobileNo = patientDetails.PatientMobileNo,
+                        PatientEmail = patientDetails.PatientEmail,
+                        AppointmentStatusName = item.AppointmentStatus > 0 ? ((AppointmentStatus)item.AppointmentStatus).ToString() : "n/a",
+                        AppointmentPaymentStatus = item.AppointmentPaymentStatus,
+                        AppointmentPaymentStatusName = item.AppointmentPaymentStatus > 0 ? ((AppointmentPaymentStatus)item.AppointmentPaymentStatus).ToString() : "n/a",
+                        ConsultancyType = item.ConsultancyType,
+                        ConsultancyTypeName = item.ConsultancyType > 0 ? ((ConsultancyType)item.ConsultancyType).ToString() : "n/a",
+                        DoctorChamberId = item.DoctorChamberId,
+                        DoctorChamberName = item.DoctorChamberId > 0 ? item.DoctorSchedule?.DoctorChamber?.ChamberName : "n/a",
+                        DoctorFee = item.DoctorFee,
+                        PatientLocation = patientDetails?.City?.ToString(),
+                        DoctorScheduleDaySessionId = item.DoctorScheduleDaySessionId,
+                        ScheduleDayofWeek = weekDayName?.ScheduleDayofWeek?.ToString(),
+                        CancelledByRole = item.CancelledByRole,
+                        PaymentTransactionId = item.PaymentTransactionId,
+                        AppointmentCreatorRole = item.AppointmentCreatorRole,
+                        BoothName = item.AppointmentCreatorRole == "agent" ? agent?.Address : "N/A",
+                        AgentMasterName = item.AppointmentCreatorRole == "agent" ? agent?.AgentMaster?.AgentMasterOrgName : "N/A",
+                        AgentSupervisorName = item.AppointmentCreatorRole == "agent" ? agent?.AgentSupervisor?.AgentSupervisorOrgName : "N/A",
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                // ignored
+            }
+
+            result = result.OrderByDescending(a => a.AppointmentDate).ToList();
+            var list = result.OrderBy(item => item.AppointmentSerial)
+                .GroupBy(item => item.AppointmentDate)
+                .OrderBy(g => g.Key).Select(g => new { g }).ToList();
+
 
             return result;
         }
