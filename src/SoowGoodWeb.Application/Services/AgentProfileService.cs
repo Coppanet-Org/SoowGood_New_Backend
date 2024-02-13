@@ -97,6 +97,86 @@ namespace SoowGoodWeb.Services
 
             return result.OrderByDescending(x=>x.Id).ToList();//ObjectMapper.Map<List<AgentProfile>, List<AgentProfileDto>>(item);
         }
+        public async Task<List<AgentProfileDto>> GetListBySupervisorIdAsync( long supervisorId)
+        {
+            var result = new List<AgentProfileDto>();
+            try
+            {
+                var profiles = await _agentProfileRepository.WithDetailsAsync(m => m.AgentMaster, s => s.AgentSupervisor);
+                var agentProfile = profiles.Where(a => a.AgentSupervisorId == supervisorId).ToList();
+                if (agentProfile.Any())
+                {
+                    foreach (var profile in agentProfile)
+                    {
+                        result.Add(new AgentProfileDto()
+                        {
+                            Id = profile.Id,
+                            AgentCode = profile.AgentCode,
+                            FullName = profile.FullName,
+                            MobileNo = profile.MobileNo,
+                            Email = profile.Email,
+                            OrganizationName = profile.OrganizationName,
+                            City = profile.City,
+                            Address = profile.Address,
+                            AgentMasterId = profile.AgentMasterId,
+                            AgentSupervisorId = profile.AgentSupervisorId,
+                            AgentDocNumber = profile.AgentDocNumber,
+                            AgentDocExpireDate = profile.AgentDocExpireDate,
+                            AgentMasterName = profile?.AgentMaster?.ContactPerson,
+                            AgentSupervisorName = profile?.AgentSupervisor?.SupervisorName,
+                            ZipCode = profile?.ZipCode,
+                            Country = profile?.Country,
+                            IsActive = profile?.IsActive,
+
+                        });
+                    }
+                }
+            }
+            catch (Exception e) { }
+
+            return result.OrderByDescending(x => x.Id).ToList();//ObjectMapper.Map<List<AgentProfile>, List<AgentProfileDto>>(item);
+        }
+
+        public async Task<List<AgentProfileDto>> GetListByMasterIdAsync( long masterId)
+        {
+            var result = new List<AgentProfileDto>();
+            try
+            {
+                var profiles = await _agentProfileRepository.WithDetailsAsync(m => m.AgentMaster, s => s.AgentSupervisor);
+                var agentProfile=profiles.Where(a=>a.AgentMasterId == masterId).ToList();
+                
+                if (agentProfile.Any())
+                {
+                    foreach (var profile in agentProfile)
+                    {
+                        result.Add(new AgentProfileDto()
+                        {
+                            Id = profile.Id,
+                            AgentCode = profile.AgentCode,
+                            FullName = profile.FullName,
+                            MobileNo = profile.MobileNo,
+                            Email = profile.Email,
+                            OrganizationName = profile.OrganizationName,
+                            City = profile.City,
+                            Address = profile.Address,
+                            AgentMasterId = profile.AgentMasterId,
+                            AgentSupervisorId = profile.AgentSupervisorId,
+                            AgentDocNumber = profile.AgentDocNumber,
+                            AgentDocExpireDate = profile.AgentDocExpireDate,
+                            AgentMasterName = profile?.AgentMaster?.ContactPerson,
+                            AgentSupervisorName = profile?.AgentSupervisor?.SupervisorName,
+                            ZipCode = profile?.ZipCode,
+                            Country = profile?.Country,
+                            IsActive = profile?.IsActive,
+
+                        });
+                    }
+                }
+            }
+            catch (Exception e) { }
+
+            return result.OrderByDescending(x => x.Id).ToList();//ObjectMapper.Map<List<AgentProfile>, List<AgentProfileDto>>(item);
+        }
         public async Task<AgentProfileDto> GetByUserIdAsync(Guid userId)
         {
             var item = await _agentProfileRepository.GetAsync(x => x.UserId == userId);
