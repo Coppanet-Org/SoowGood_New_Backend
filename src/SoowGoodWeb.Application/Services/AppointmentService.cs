@@ -21,6 +21,7 @@ namespace SoowGoodWeb.Services
         private readonly IRepository<DoctorChamber> _doctorChamberRepository;
         private readonly IRepository<DoctorScheduleDaySession> _doctorScheduleSessionRepository;
         private readonly IRepository<PatientProfile> _patientProfileRepository;
+        private readonly IRepository<AgentProfile> _agentProfileRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
 
@@ -79,7 +80,7 @@ namespace SoowGoodWeb.Services
                     lastSerial = await GetAppCountByScheduleIdSessionIdAsync(input.DoctorScheduleId, input.DoctorScheduleDaySessionId);
 
 
-                    for (var i = lastSerial; i < mainSession.NoOfPatients; )
+                    for (var i = lastSerial; i < mainSession.NoOfPatients;)
                     {
                         input.AppointmentTime = slots != null ? slots[i] : "";
                         break;
@@ -350,7 +351,7 @@ namespace SoowGoodWeb.Services
             {
                 return result;
             }
-             
+
             result = new List<AppointmentDto>();
             try
             {
@@ -358,6 +359,13 @@ namespace SoowGoodWeb.Services
                 foreach (var item in allAppoinment)
                 {
                     var patientDetails = await _patientProfileRepository.GetAsync(p => p.Id == item.PatientProfileId);
+                    var agentDetails = await _agentProfileRepository.WithDetailsAsync(a => a.AgentMaster, s => s.AgentSupervisor);
+                    //if(item.AppointmentCreatorRole=="agent")
+                    var agent = item.AppointmentCreatorRole == "" ? agentDetails.Where(a => a.Id == item.AppointmentCreatorId).FirstOrDefault() : null;
+                    if (item.AppointmentCreatorId > 0)
+                    {
+
+                    }
                     if (item.DoctorScheduleDaySessionId > 0)
                     {
                         weekDayName = await _doctorScheduleSessionRepository.GetAsync(p => p.Id == item.DoctorScheduleDaySessionId);
@@ -393,6 +401,10 @@ namespace SoowGoodWeb.Services
                         ScheduleDayofWeek = weekDayName?.ScheduleDayofWeek?.ToString(),
                         CancelledByRole = item.CancelledByRole,
                         PaymentTransactionId = item.PaymentTransactionId,
+                        AppointmentCreatorRole = item.AppointmentCreatorRole,
+                        BoothName = item.AppointmentCreatorRole == "agent" ? agent?.Address : "N/A",
+                        AgentMasterName = item.AppointmentCreatorRole == "agent" ?agent?.AgentMaster?.AgentMasterOrgName : "N/A",
+                        AgentSupervisorName = item.AppointmentCreatorRole == "agent" ?agent?.AgentSupervisor?.AgentSupervisorOrgName : "N/A",
                     });
                 }
             }
@@ -405,7 +417,7 @@ namespace SoowGoodWeb.Services
             var list = result.OrderBy(item => item.AppointmentSerial)
                 .GroupBy(item => item.AppointmentDate)
                 .OrderBy(g => g.Key).Select(g => new { g }).ToList();
-            
+
 
             return result;
         }

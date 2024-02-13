@@ -53,5 +53,10 @@ namespace SoowGoodWeb.DtoModels
         public string? AppointmentCreatorCode { get; set; }
         public string? AppointmentCreatorRole { get; set; }
         public bool? IsCousltationComplete { get; set; }
+        public string? AgentCreatorName { get; set; }
+        public string? BoothName { get; set; }
+        public string? AgentMasterName { get; set; }
+        public string? AgentSupervisorName { get; set; }
+        //public bool? IsCousltationComplete { get; set; }
     }
 }
