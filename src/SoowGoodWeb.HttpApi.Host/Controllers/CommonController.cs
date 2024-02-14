@@ -42,12 +42,13 @@ namespace SoowGoodWeb.Controllers
         }
 
         [HttpPost, ActionName("Documents")]
-        [DisableRequestSizeLimit]
+        //[DisableRequestSizeLimit]
         public async Task<IActionResult> FileUploadDocuments()
         {
             Dictionary<string, string> result = new Dictionary<string, string>();
             try
             {
+                long attchmentId = 0;
                 var files = Request.Form.Files;
                 if (files.Count > 0)
                 {
@@ -78,7 +79,11 @@ namespace SoowGoodWeb.Controllers
                         // save attachment
                         if (entityType != EntityType.Patient.ToString() && entityType != AttachmentType.PatientPreviousDocuments.ToString())
                         {
-                            var attchmentId = await GetDocumentAsync(entityType, entityId, attachmentType, fileName);
+                            if (attachmentType == AttachmentType.ProfilePicture.ToString() || attachmentType == AttachmentType.DoctIdentityDoc.ToString())
+                            {
+                                attchmentId = await GetDocumentIdAsync(entityType, entityId, attachmentType);
+                            }
+
 
                             if (attchmentId > 0)
                             {
@@ -213,6 +218,30 @@ namespace SoowGoodWeb.Controllers
                                                                 && x.EntityId == entityId
                                                                 && x.AttachmentType == (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType)
                                                                 && x.OriginalFileName == fileName
+                                                                && x.IsDeleted == false).FirstOrDefault();
+                //var item = attachment.re;
+                if (attachment != null && attachment.Id > 0)
+                {
+                    return attachment.Id;
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return 0;
+
+        }
+
+        [HttpGet]
+        public async Task<long> GetDocumentIdAsync(string entityType, long? entityId, string attachmentType)
+        {
+            try
+            {
+                var queryable = await _attachmentRepository.WithDetailsAsync();
+                var attachment = queryable.Where(x => x.EntityType == (EntityType)Enum.Parse(typeof(EntityType), entityType)
+                                                                && x.EntityId == entityId
+                                                                && x.AttachmentType == (AttachmentType)Enum.Parse(typeof(AttachmentType), attachmentType)
                                                                 && x.IsDeleted == false).FirstOrDefault();
                 //var item = attachment.re;
                 if (attachment != null && attachment.Id > 0)
