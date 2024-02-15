@@ -9,6 +9,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Reflection.Emit;
@@ -53,12 +54,15 @@ namespace SoowGoodWeb.Services
         }
         public async Task<DoctorProfileDto> CreateAsync(DoctorProfileInputDto input)
         {
+            CultureInfo provider = CultureInfo.InvariantCulture;
             var result = new DoctorProfileDto();
             try
             {
 
                 var totalDoctors = await _doctorProfileRepository.GetListAsync();
                 var count = totalDoctors.Count();
+                input.DateOfBirth = Convert.ToDateTime(input.DateOfBirth).AddDays(1);
+                input.BMDCRegExpiryDate = Convert.ToDateTime(input.BMDCRegExpiryDate).AddDays(1);
                 var date = DateTime.Now;
                 input.DoctorCode = "SGD" + date.ToString("yyyyMMdd") + (count + 1);
                 var newEntity = ObjectMapper.Map<DoctorProfileInputDto, DoctorProfile>(input);
@@ -148,7 +152,7 @@ namespace SoowGoodWeb.Services
         {
             List<DoctorProfileDto> result = null;
             var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
-            var profiles = profileWithDetails.ToList();
+            var profiles = profileWithDetails.Where(p => p.IsActive == true).ToList();
             var schedules = await _doctorScheduleRepository.WithDetailsAsync();
             //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
             if (!profileWithDetails.Any())
@@ -213,7 +217,7 @@ namespace SoowGoodWeb.Services
         public async Task<int> GetDoctorsCountByNameAsync(string? name) //, int? skipValue, int? currentLimit)
         {
             var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
-            var profiles = profileWithDetails.ToList();
+            var profiles = profileWithDetails.Where(p => p.IsActive == true).ToList();
             var schedules = await _doctorScheduleRepository.WithDetailsAsync();
             //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
             if (!profileWithDetails.Any())
@@ -249,7 +253,7 @@ namespace SoowGoodWeb.Services
                 }
 
                 var schedules = await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile);
-                var profiles = profileWithDetails.ToList();
+                var profiles = profileWithDetails.Where(p=>p.IsActive == true).ToList();
 
                 profiles = (from doctors in profiles
                             join schedule in schedules on doctors.Id equals schedule.DoctorProfileId
@@ -308,8 +312,8 @@ namespace SoowGoodWeb.Services
                     }
                 }
 
-                profiles = profiles.Skip(filterModel.Offset)
-                                   .Take(filterModel.Limit).ToList();
+                //profiles = profiles.Skip(filterModel.Offset)
+                //                   .Take(filterModel.Limit).ToList();
 
                 try
                 {
@@ -411,7 +415,7 @@ namespace SoowGoodWeb.Services
             }
 
             var schedules = await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile);
-            var profiles = profileWithDetails.ToList();
+            var profiles = profileWithDetails.Where(p=> p.IsActive == true).ToList();
 
             profiles = (from doctors in profiles
                         join schedule in schedules on doctors.Id equals schedule.DoctorProfileId
@@ -475,7 +479,7 @@ namespace SoowGoodWeb.Services
         {
             List<DoctorProfileDto> result = null;
             var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
-            var profiles = profileWithDetails.ToList();
+            var profiles = profileWithDetails.Where(p => p.IsActive == true).ToList();
             var schedules = await _doctorScheduleRepository.WithDetailsAsync();
             //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
             if (!profileWithDetails.Any())
@@ -579,7 +583,7 @@ namespace SoowGoodWeb.Services
             {
                 return result;
             }
-            var profiles = profileWithDetails.ToList();
+            var profiles = profileWithDetails.Where(p => p.IsActive == true).ToList();
 
             var schedules = await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile);
 
@@ -916,10 +920,10 @@ namespace SoowGoodWeb.Services
         {
             List<DoctorProfileDto> result = null;
             var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
-            var profiles = profileWithDetails.Where(o => o.IsOnline == true).ToList();
+            var profiles = profileWithDetails.Where(o => o.IsOnline == true && o.IsActive == true).ToList();
             var schedules = await _doctorScheduleRepository.WithDetailsAsync();
             //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
-            if (!profileWithDetails.Any())
+            if (!profiles.Any())
             {
                 return result;
             }
@@ -989,7 +993,7 @@ namespace SoowGoodWeb.Services
                 {
                     itemDoctor.FullName = !string.IsNullOrEmpty(input.FullName) ? input.FullName : itemDoctor.FullName;
                     itemDoctor.DoctorTitle = input.DoctorTitle > 0 ? input.DoctorTitle : itemDoctor.DoctorTitle;
-                    itemDoctor.DateOfBirth = input.DateOfBirth != null ? input.DateOfBirth : itemDoctor.DateOfBirth; ;
+                    itemDoctor.DateOfBirth = input.DateOfBirth != null ? input.DateOfBirth : itemDoctor.DateOfBirth;
                     itemDoctor.Gender = input.Gender != null ? input.Gender : itemDoctor.Gender;
                     itemDoctor.Address = !string.IsNullOrEmpty(input.Address) ? input.Address : itemDoctor.Address;
                     itemDoctor.City = !string.IsNullOrEmpty(input.City) ? input.City : itemDoctor.City;
@@ -998,7 +1002,7 @@ namespace SoowGoodWeb.Services
                     itemDoctor.Email = !string.IsNullOrEmpty(input.Email) ? input.Email : itemDoctor.Email;
                     itemDoctor.IdentityNumber = !string.IsNullOrEmpty(input.IdentityNumber) ? input.IdentityNumber : itemDoctor.IdentityNumber;
                     itemDoctor.BMDCRegNo = !string.IsNullOrEmpty(input.BMDCRegNo) ? input.BMDCRegNo : itemDoctor.BMDCRegNo;
-                    itemDoctor.BMDCRegExpiryDate = input.BMDCRegExpiryDate != null ? input.BMDCRegExpiryDate : itemDoctor.BMDCRegExpiryDate; ;
+                    itemDoctor.BMDCRegExpiryDate = input.BMDCRegExpiryDate != null ? input.BMDCRegExpiryDate : itemDoctor.BMDCRegExpiryDate;
                     itemDoctor.SpecialityId = input.SpecialityId > 0 ? input.SpecialityId : itemDoctor.SpecialityId;
                     itemDoctor.IsActive = input.IsActive;
 
