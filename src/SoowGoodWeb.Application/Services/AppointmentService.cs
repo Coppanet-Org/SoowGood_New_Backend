@@ -885,7 +885,7 @@ namespace SoowGoodWeb.Services
             //}
             if (!string.IsNullOrEmpty(dataFilter?.name))
             {
-                itemAppointments = itemAppointments.Where(p => p.PatientName.ToLower() == dataFilter.name.ToLower() || p.DoctorName == dataFilter.name.ToLower()).ToList();
+                itemAppointments = itemAppointments.Where(p => p.PatientName.ToLower() == dataFilter.name.ToLower() && p.DoctorName == dataFilter.name.ToLower()).ToList();
             }
             if (dataFilter?.consultancyType > 0)
             {
