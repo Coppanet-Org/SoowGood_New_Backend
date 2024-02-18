@@ -117,6 +117,7 @@ namespace SoowGoodWeb.Services
                 result.AppointmentId = prescription.AppointmentId;
                 result.AppointmentSerial = prescription.Appointment?.AppointmentSerial;
                 result.AppointmentType = prescription.Appointment?.AppointmentType;
+                result.AppointmentCode = prescription.AppointmentCode;
                 result.DoctorProfileId = prescription.Appointment?.DoctorProfileId;
                 result.DoctorName = prescription.Appointment?.DoctorName;
                 result.DoctorCode = prescription.Appointment?.DoctorCode;
@@ -238,6 +239,7 @@ namespace SoowGoodWeb.Services
                         RefferenceCode = item.RefferenceCode,
                         AppointmentId = item.AppointmentId,
                         AppointmentSerial = item.Appointment?.AppointmentSerial,
+                        AppointmentCode = item.AppointmentCode,
                         DoctorProfileId = item.Appointment?.DoctorProfileId,
                         DoctorName = item.Appointment?.DoctorName,
                         DoctorCode = item.Appointment?.DoctorCode,
@@ -333,7 +335,7 @@ namespace SoowGoodWeb.Services
             var tests = ObjectMapper.Map<List<PrescriptionMedicalCheckups>, List<PrescriptionMedicalCheckupsDto>>(diagnosisTests);
 
             var doctorDetails = await _doctorDetails.WithDetailsAsync(s => s.Speciality);
-            var doctorInfo = doctorDetails.Where(d=>d.Id == prescription.DoctorProfileId).FirstOrDefault();
+            var doctorInfo = doctorDetails.Where(d => d.Id == prescription.DoctorProfileId).FirstOrDefault();
 
             var patientDetails = await _patientDetails.GetAsync(p => p.Id == prescription.PatientProfileId);
 
@@ -346,6 +348,7 @@ namespace SoowGoodWeb.Services
                 result.RefferenceCode = prescription.RefferenceCode;
                 result.AppointmentId = prescription.AppointmentId;
                 result.AppointmentSerial = prescription.Appointment?.AppointmentSerial;
+                result.AppointmentCode = prescription.AppointmentCode;
                 result.DoctorProfileId = prescription.Appointment?.DoctorProfileId;
                 result.DoctorName = prescription.Appointment?.DoctorName;
                 result.DoctorCode = prescription.Appointment?.DoctorCode;
