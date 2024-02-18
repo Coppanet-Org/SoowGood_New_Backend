@@ -370,10 +370,11 @@ namespace SoowGoodWeb.Services
         {
             List<AppointmentDto>? result = null;
             DoctorScheduleDaySession? weekDayName = null;
-            var allAppoinment = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule, c => c.DoctorSchedule.DoctorChamber);
+            var allAppoinments = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule, c => c.DoctorSchedule.DoctorChamber);
+            //var allAppoinment = allAppoinments.OrderByDescending(d => d.AppointmentDate).ToList();
             var agentDetails = await _agentProfileRepository.WithDetailsAsync(a => a.AgentMaster, s => s.AgentSupervisor);
             //var  = await _appointmentRepository.GetListAsync();
-            if (!allAppoinment.Any())
+            if (!allAppoinments.Any())
             {
                 return result;
             }
@@ -382,16 +383,16 @@ namespace SoowGoodWeb.Services
             try
             {
 
-                foreach (var item in allAppoinment)
+                foreach (var item in allAppoinments)
                 {
                     var patientDetails = await _patientProfileRepository.GetAsync(p => p.Id == item.PatientProfileId);
 
                     //if(item.AppointmentCreatorRole=="agent")
                     var agent = item.AppointmentCreatorRole == "agent" ? agentDetails.Where(a => a.Id == item.AppointmentCreatorId).FirstOrDefault() : null;
-
+                    var sDsession = await _doctorScheduleSessionRepository.GetListAsync(s => s.IsDeleted == false);
                     if (item.DoctorScheduleDaySessionId > 0)
                     {
-                        weekDayName = await _doctorScheduleSessionRepository.GetAsync(p => p.Id == item.DoctorScheduleDaySessionId);
+                        weekDayName = sDsession.FirstOrDefault(p => p.Id == item.DoctorScheduleDaySessionId);
                     }
                     result.Add(new AppointmentDto()
                     {
@@ -473,10 +474,10 @@ namespace SoowGoodWeb.Services
 
                     //if(item.AppointmentCreatorRole=="agent")
                     var agent = item.AppointmentCreatorRole == "agent" ? agentsByMasters.Where(a => a.Id == item.AppointmentCreatorId).FirstOrDefault() : null;
-
+                    var sDsession = await _doctorScheduleSessionRepository.GetListAsync(s => s.IsDeleted == false);
                     if (item.DoctorScheduleDaySessionId > 0)
                     {
-                        weekDayName = await _doctorScheduleSessionRepository.GetAsync(p => p.Id == item.DoctorScheduleDaySessionId);
+                        weekDayName = sDsession.FirstOrDefault(p => p.Id == item.DoctorScheduleDaySessionId);
                     }
                     result.Add(new AppointmentDto()
                     {
@@ -558,10 +559,10 @@ namespace SoowGoodWeb.Services
 
                     //if(item.AppointmentCreatorRole=="agent")
                     var agent = item.AppointmentCreatorRole == "agent" ? agentsBySupervisors.Where(a => a.Id == item.AppointmentCreatorId).FirstOrDefault() : null;
-
+                    var sDsession = await _doctorScheduleSessionRepository.GetListAsync(s => s.IsDeleted == false);
                     if (item.DoctorScheduleDaySessionId > 0)
                     {
-                        weekDayName = await _doctorScheduleSessionRepository.GetAsync(p => p.Id == item.DoctorScheduleDaySessionId);
+                        weekDayName = sDsession.FirstOrDefault(p => p.Id == item.DoctorScheduleDaySessionId);
                     }
                     result.Add(new AppointmentDto()
                     {
@@ -868,24 +869,31 @@ namespace SoowGoodWeb.Services
             }
             else
             {
-                itemAppointments = allAppoinment.Where(d => (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed || d.AppointmentStatus == AppointmentStatus.Pending || d.AppointmentStatus == AppointmentStatus.Cancelled)).ToList();
+                itemAppointments = allAppoinment.Where(d => (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed || d.AppointmentStatus == AppointmentStatus.Pending || d.AppointmentStatus == AppointmentStatus.Cancelled || d.AppointmentStatus == AppointmentStatus.InProgress || d.AppointmentStatus==AppointmentStatus.Failed)).ToList();
             }
             if (!itemAppointments.Any())
             {
                 return result;
             }
 
+            //if (!string.IsNullOrEmpty(dataFilter?.name))
+            //{
+            //    //var itemPatients = itemAppointments.Where(p=>p.PatientName.ToLower().Contains(dataFilter.name.ToLower().Trim())).ToList();
+            //    var itemDoctors = itemAppointments.Where(p=>p.DoctorName.ToLower().Contains(dataFilter.name.ToLower().Trim())).ToList();
+            //    //itemAppointments = itemAppointments.Where(p => p.PatientName.ToLower().Contains(dataFilter.patientName.ToLower().Trim())).ToList();
+            //    //var itemNames = from p in itemPatients join d in itemDoctors on p. ;
+            //}
             if (!string.IsNullOrEmpty(dataFilter?.name))
             {
-                itemAppointments = itemAppointments.Where(p => p.PatientName.ToLower().Contains(dataFilter.name.ToLower().Trim())).ToList();
-            }
-            if (!string.IsNullOrEmpty(dataFilter?.name))
-            {
-                itemAppointments = itemAppointments.Where(p => p.DoctorName.ToLower().Contains(dataFilter.name.ToLower().Trim())).ToList();
+                itemAppointments = itemAppointments.Where(p => p.PatientName.ToLower() == dataFilter.name.ToLower() || p.DoctorName == dataFilter.name.ToLower()).ToList();
             }
             if (dataFilter?.consultancyType > 0)
             {
                 itemAppointments = itemAppointments.Where(p => p.ConsultancyType == dataFilter.consultancyType).ToList();
+            }
+            if (dataFilter?.appointmentStatus > 0)
+            {
+                itemAppointments = itemAppointments.Where(p => p.AppointmentStatus == dataFilter.appointmentStatus).ToList();
             }
             if (!string.IsNullOrEmpty(dataFilter?.fromDate) && !string.IsNullOrEmpty(dataFilter.toDate))
             {
@@ -903,10 +911,10 @@ namespace SoowGoodWeb.Services
 
                     //if(item.AppointmentCreatorRole=="agent")
                     var agent = item.AppointmentCreatorRole == "agent" ? agentDetails.Where(a => a.Id == item.AppointmentCreatorId).FirstOrDefault() : null;
-
+                    var sDsession = await _doctorScheduleSessionRepository.GetListAsync(s => s.IsDeleted == false);
                     if (item.DoctorScheduleDaySessionId > 0)
                     {
-                        weekDayName = await _doctorScheduleSessionRepository.GetAsync(p => p.Id == item.DoctorScheduleDaySessionId);
+                        weekDayName = sDsession.FirstOrDefault(p => p.Id == item.DoctorScheduleDaySessionId);
                     }
                     result.Add(new AppointmentDto()
                     {
