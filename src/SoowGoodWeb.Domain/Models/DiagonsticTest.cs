@@ -9,12 +9,14 @@ using Volo.Abp.Domain.Entities.Auditing;
 
 namespace SoowGoodWeb.Models
 {
-    public class DiagonsticPackage : FullAuditedEntity<long>
+    public class DiagonsticTest : FullAuditedEntity<long>
     {
         public long? ServiceProviderId { get; set; }
         public ServiceProvider? ServiceProvider  { get; set; }
-        public string? PackageName { get; set; }
-        public string? PackageDescription { get; set; }
+        public long? PathologyCategoryId { get; set; }
+        public PathologyCategory? PathologyCategory { get; set; }
+        public long? PathologyTestId { get; set; }
+        public PathologyTest? PathologyTest { get; set; }
         [Column(TypeName = "decimal(18, 2)")]
         public decimal? ProviderRate { get; set; }
         [Column(TypeName = "decimal(18, 2)")]
