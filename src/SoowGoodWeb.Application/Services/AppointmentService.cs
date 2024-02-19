@@ -875,17 +875,9 @@ namespace SoowGoodWeb.Services
             {
                 return result;
             }
-
-            //if (!string.IsNullOrEmpty(dataFilter?.name))
-            //{
-            //    //var itemPatients = itemAppointments.Where(p=>p.PatientName.ToLower().Contains(dataFilter.name.ToLower().Trim())).ToList();
-            //    var itemDoctors = itemAppointments.Where(p=>p.DoctorName.ToLower().Contains(dataFilter.name.ToLower().Trim())).ToList();
-            //    //itemAppointments = itemAppointments.Where(p => p.PatientName.ToLower().Contains(dataFilter.patientName.ToLower().Trim())).ToList();
-            //    //var itemNames = from p in itemPatients join d in itemDoctors on p. ;
-            //}
             if (!string.IsNullOrEmpty(dataFilter?.name))
             {
-                itemAppointments = itemAppointments.Where(p => p.PatientName.ToLower() == dataFilter.name.ToLower() && p.DoctorName == dataFilter.name.ToLower()).ToList();
+                itemAppointments = itemAppointments.Where(p => ((!string.IsNullOrEmpty(p.PatientName)) && (!string.IsNullOrEmpty(p.DoctorName))) && (p.PatientName.ToLower().Contains(dataFilter.name.ToLower().Trim()) || p.DoctorName.ToLower().Contains(dataFilter.name.ToLower().Trim()))).ToList();
             }
             if (dataFilter?.consultancyType > 0)
             {
