@@ -869,7 +869,7 @@ namespace SoowGoodWeb.Services
             }
             else
             {
-                itemAppointments = allAppoinment.Where(d => (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed || d.AppointmentStatus == AppointmentStatus.Pending || d.AppointmentStatus == AppointmentStatus.Cancelled || d.AppointmentStatus == AppointmentStatus.InProgress || d.AppointmentStatus==AppointmentStatus.Failed)).ToList();
+                itemAppointments = allAppoinment.Where(d => (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed || d.AppointmentStatus == AppointmentStatus.Pending || d.AppointmentStatus == AppointmentStatus.Cancelled || d.AppointmentStatus == AppointmentStatus.InProgress || d.AppointmentStatus == AppointmentStatus.Failed)).ToList();
             }
             if (!itemAppointments.Any())
             {
@@ -958,6 +958,33 @@ namespace SoowGoodWeb.Services
 
 
             return result;
+        }
+
+        public async Task<List<SessionWeekDayTimeSlotPatientCountDto>> GetListOfSessionsWithWeekDayTimeSlotPatientCountAsync(long secheduleId, DateTime date)
+        {
+            var result = new List<SessionWeekDayTimeSlotPatientCountDto>();
+            var weekDay = date.DayOfWeek.ToString();
+            var sdSessions = await _doctorScheduleSessionRepository.WithDetailsAsync(s => s.DoctorSchedule);
+            var sessions = sdSessions.Where(ds => ds.DoctorScheduleId == secheduleId && ds.ScheduleDayofWeek == weekDay).ToList();
+
+            if (sessions.Any())
+            {
+                foreach (var session in sessions)
+                {
+                    var appointments = await _appointmentRepository.GetListAsync(a => a.AppointmentDate == date && a.DoctorScheduleDaySessionId == session.Id);
+                    result.Add(new SessionWeekDayTimeSlotPatientCountDto
+                    {
+                        SessionId = session.Id,
+                        WeekDay = session.ScheduleDayofWeek,
+                        StartTime = session.StartTime,
+                        EndTime = session.EndTime,
+                        PatientCount = session.NoOfPatients - appointments.Count,
+                    });
+
+                }
+            }
+
+            return result ;
         }
     }
 }
