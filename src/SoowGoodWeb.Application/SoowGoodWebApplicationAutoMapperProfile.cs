@@ -190,6 +190,14 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<ServiceProviderDto, ServiceProvider>();
         CreateMap<ServiceProviderInputDto, ServiceProvider>();
 
+        CreateMap<PathologyCategory, PathologyCategoryDto>();
+        CreateMap<PathologyCategoryDto, PathologyCategory>();
+        CreateMap<PathologyCategoryInputDto, PathologyCategory>();
+
+        CreateMap<PathologyTest, PathologyTestDto>();
+        CreateMap<PathologyTestDto, PathologyTest>();
+        CreateMap<PathologyTestInputDto, PathologyTest>();
+
         CreateMap<DiagonsticPackage, DiagonsticPackageDto>();
         CreateMap<DiagonsticPackageDto, DiagonsticPackage>();
         CreateMap<DiagonsticPackageInputDto, DiagonsticPackage>();
