@@ -88,6 +88,10 @@ public class SoowGoodWebDbContext :
     public DbSet<FinancialSetup> SgFinancialSetups { get; set; }
     public DbSet<UserDataDeleteRequest> SgUserDataDeleteRequests { get; set; }
     public DbSet<ServiceProvider> SgServiceProviders { get; set; }
+    public DbSet<DiagonsticTest> SgDiagonsticTests { get; set; }
+    public DbSet<DiagonsticPackage> SgDiagonsticPackages { get; set; }
+    public DbSet<DiagonsticPackageTest> SgDiagonsticPackageTests { get; set; }
+    public DbSet<DiagonsticPathologyServiceManagement> SgDiagonsticPathologyServiceManagements { get; set; }
 
     #endregion
 

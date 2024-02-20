@@ -185,5 +185,27 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<UserDataDeleteRequest, UserDataDeleteRequestDto>();
         CreateMap<UserDataDeleteRequestDto, UserDataDeleteRequest>();
         CreateMap<UserDataDeleteRequestInputDto, UserDataDeleteRequest>();
+
+        CreateMap<ServiceProvider, ServiceProviderDto>();
+        CreateMap<ServiceProviderDto, ServiceProvider>();
+        CreateMap<ServiceProviderInputDto, ServiceProvider>();
+
+        CreateMap<DiagonsticPackage, DiagonsticPackageDto>();
+        CreateMap<DiagonsticPackageDto, DiagonsticPackage>();
+        CreateMap<DiagonsticPackageInputDto, DiagonsticPackage>();
+
+        CreateMap<DiagonsticPackageTest, DiagonsticPackageTestDto>();
+        CreateMap<DiagonsticPackageTestDto, DiagonsticPackageTest>();
+        CreateMap<DiagonsticPackageTestInputDto, DiagonsticPackageTest>();
+
+        CreateMap<DiagonsticTest, DiagonsticTestDto>();
+        CreateMap<DiagonsticTestDto, DiagonsticTest>();
+        CreateMap<DiagonsticTestInputDto, DiagonsticTest>();
+
+        CreateMap<DiagonsticPathologyServiceManagement, DiagonsticPathologyServiceManagementDto>();
+        CreateMap<DiagonsticPathologyServiceManagementDto, DiagonsticPathologyServiceManagement>();
+        CreateMap<DiagonsticPathologyServiceManagementInputDto, DiagonsticPathologyServiceManagement>();
+
+
     }
 }

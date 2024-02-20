@@ -12,9 +12,7 @@ namespace SoowGoodWeb.Models
     public class DiagonsticPackageTest : FullAuditedEntity<long>
     {
         public long? DiagonsticPackageId { get; set; }
-        public DiagonsticPackage? DiagonsticPackage { get; set; }
-        public long? ServiceProviderId { get; set; }
-        public ServiceProvider? ServiceProvider { get; set; }
+        public DiagonsticPackage? DiagonsticPackage { get; set; }        
         public long? PathologyCategoryId { get; set; }
         public PathologyCategory? PathologyCategory { get; set; }
         public long? PathologyTestId { get; set; }

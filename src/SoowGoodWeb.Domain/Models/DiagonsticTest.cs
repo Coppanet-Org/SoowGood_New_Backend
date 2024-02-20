@@ -19,7 +19,5 @@ namespace SoowGoodWeb.Models
         public PathologyTest? PathologyTest { get; set; }
         [Column(TypeName = "decimal(18, 2)")]
         public decimal? ProviderRate { get; set; }
-        [Column(TypeName = "decimal(18, 2)")]
-        public decimal? ServiceRate { get; set; }
     }
 }
