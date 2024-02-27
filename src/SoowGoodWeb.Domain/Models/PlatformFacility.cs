@@ -12,5 +12,6 @@ namespace SoowGoodWeb.Models
     {
         public string? ServiceName { get; set; }
         public string? Description { get; set; }
+        public string? Slug { get; set; }
     }
 }

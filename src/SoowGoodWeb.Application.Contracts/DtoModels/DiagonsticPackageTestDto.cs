@@ -8,12 +8,11 @@ namespace SoowGoodWeb.DtoModels
 {
     public class DiagonsticPackageTestDto : FullAuditedEntityDto<long>
     {
-        public long? ServiceProviderId { get; set; }
-        public string? ServiceProviderName { get; set; }
+        public long? DiagonsticPackageId { get; set; }
+        public string? DiagonsticPackageName { get; set; }
         public long? PathologyCategoryId { get; set; }
         public string? PathologyCategoryName { get; set; }
         public long? PathologyTestId { get; set; }
         public string? PathologyTestName { get; set; }
-        public decimal? ProviderRate { get; set; }
     }
 }
