@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240220081503_Diagonstic-Pathology-service-Man-tables-field-updated")]
+    partial class DiagonsticPathologyserviceMantablesfieldupdated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1719,7 +1722,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SgPathologyCategory");
+                    b.ToTable("PathologyCategory");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.PathologyTest", b =>
@@ -1773,7 +1776,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("PathologyCategoryId");
 
-                    b.ToTable("SgPathologyTests");
+                    b.ToTable("PathologyTest");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.PatientProfile", b =>

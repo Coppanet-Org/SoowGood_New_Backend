@@ -10,6 +10,7 @@ namespace SoowGoodWeb.Interfaces
     public interface IOtpService:IApplicationService
     {
         Task<bool> ApplyOtp(string clientKey, string mobileNo);
+        Task<bool> ApplyOtpForPasswordReset(string clientKey, string role, string mobileNo);
         Task<bool> VarifyOtpAsync(int otp);   //string mobile,      
         Task<OtpDto> UpdateAsync(OtpDto input);
     }

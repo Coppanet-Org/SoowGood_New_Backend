@@ -3,6 +3,8 @@ using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.ObjectMapping;
@@ -53,8 +55,9 @@ namespace SoowGoodWeb.Services
         }
         public async Task<List<PlatformFacilityDto>> GetListAsync()
         {
-            var platformFacilitys = await _platformFacilityRepository.GetListAsync();
-            return ObjectMapper.Map<List<PlatformFacility>, List<PlatformFacilityDto>>(platformFacilitys);
+            var platformFacilitys = await _platformFacilityRepository.WithDetailsAsync();
+            var filteredFacilities = platformFacilitys.Where(p=>p.Id>6).ToList();
+            return ObjectMapper.Map<List<PlatformFacility>, List<PlatformFacilityDto>>(filteredFacilities);
         }
 
         

@@ -9,6 +9,8 @@ namespace SoowGoodWeb.DtoModels
     public class FinancialSetupDto : FullAuditedEntityDto<long>
     {
         public long? PlatformFacilityId { get; set; }
+        public DiagonsticServiceType? DiagonsticServiceType { get; set; }
+        public string? DiagonsticServiceTypeName { get; set; }
         public string? FacilityName { get; set; }
         public string? AmountIn { get; set; }
         public decimal? Amount { get; set; }

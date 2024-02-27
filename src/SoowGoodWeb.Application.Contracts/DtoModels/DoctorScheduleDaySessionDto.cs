@@ -21,7 +21,7 @@ namespace SoowGoodWeb.DtoModels
 
     public class SessionWeekDayTimeSlotPatientCountDto
     {
-        public long? scheduleId { get; set; }
+        public long? ScheduleId { get; set; }
         public long? SessionId { get; set; }
         public string? WeekDay { get; set; }
         public string? StartTime { get; set; }
