@@ -1000,6 +1000,7 @@ namespace SoowGoodWeb.Services
                     var appointments = await _appointmentRepository.GetListAsync(a => a.AppointmentDate == date && a.DoctorScheduleDaySessionId == session.Id);
                     result.Add(new SessionWeekDayTimeSlotPatientCountDto
                     {
+                        ScheduleId = session.DoctorScheduleId,
                         SessionId = session.Id,
                         WeekDay = session.ScheduleDayofWeek,
                         StartTime = session.StartTime,
