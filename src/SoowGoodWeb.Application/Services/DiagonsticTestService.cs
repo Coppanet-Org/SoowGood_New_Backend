@@ -54,8 +54,32 @@ namespace SoowGoodWeb.Services
         }
         public async Task<List<DiagonsticTestDto>> GetListAsync()
         {
-            var diagonsticTests = await _diagonsticTestRepository.GetListAsync();
-            return ObjectMapper.Map<List<DiagonsticTest>, List<DiagonsticTestDto>>(diagonsticTests).OrderByDescending(a=>a.Id).ToList();
+            List<DiagonsticTestDto>? result = null;
+            var alldiagonsticTestwithDetails = await _diagonsticTestRepository.WithDetailsAsync(s => s.ServiceProvider, p=>p.PathologyCategory, t=>t.PathologyTest);
+            //var list = allsupervisorwithDetails.ToList();
+
+            if (!alldiagonsticTestwithDetails.Any())
+            {
+                return result;
+            }
+            result = new List<DiagonsticTestDto>();
+            foreach (var item in alldiagonsticTestwithDetails)
+            {
+                result.Add(new DiagonsticTestDto()
+                {
+                    Id = item.Id,
+                    ServiceProviderId= item.ServiceProviderId,
+                    ServiceProviderName=item.ServiceProviderId > 0 ? item.ServiceProvider.ProviderOrganizationName : null,
+                    PathologyCategoryId=item.PathologyCategoryId,
+                    PathologyCategoryName=item.PathologyCategoryId>0? item.PathologyCategory.PathologyCategoryName : null,
+                    PathologyTestId=item.PathologyTestId,
+                    PathologyTestName=item.PathologyTestId>0?item.PathologyTest.PathologyTestName : null,
+                    ProviderRate=item.ProviderRate,
+                });
+            }
+            return result;
+            //var diagonsticTests = await _diagonsticTestRepository.GetListAsync();
+            //return ObjectMapper.Map<List<DiagonsticTest>, List<DiagonsticTestDto>>(diagonsticTests).OrderByDescending(a=>a.Id).ToList();
 
 
             //result = result.OrderByDescending(a => a.AppointmentDate).ToList();
