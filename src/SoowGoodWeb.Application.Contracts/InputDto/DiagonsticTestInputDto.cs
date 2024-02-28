@@ -11,7 +11,7 @@ namespace SoowGoodWeb.InputDto
     public class DiagonsticTestInputDto : FullAuditedEntityDto<long>
     {
         public long? ServiceProviderId { get; set; }
-        public long? PathologyCategoryId { get; set; }
+        public long? PathologyCategoryId { get; set; }        
         public long? PathologyTestId { get; set; }
         public decimal? ProviderRate { get; set; }
     }
