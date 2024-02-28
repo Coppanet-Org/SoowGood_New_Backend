@@ -3,6 +3,7 @@ using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.ObjectMapping;
@@ -54,7 +55,16 @@ namespace SoowGoodWeb.Services
         public async Task<List<ServiceProviderDto>> GetListAsync()
         {
             var serviceProviders = await _serviceProviderRepository.GetListAsync();
-            return ObjectMapper.Map<List<ServiceProvider>, List<ServiceProviderDto>>(serviceProviders);
+            return ObjectMapper.Map<List<ServiceProvider>, List<ServiceProviderDto>>(serviceProviders).OrderByDescending(a=>a.Id).ToList();
+
+
+            //result = result.OrderByDescending(a => a.AppointmentDate).ToList();
+            //var list = result.OrderBy(item => item.AppointmentSerial)
+            //    .GroupBy(item => item.AppointmentDate)
+            //    .OrderBy(g => g.Key).Select(g => new { g }).ToList();
+
+
+            //return result;
         }
     }
 }
