@@ -69,11 +69,11 @@ namespace SoowGoodWeb.Services
                 {
                     Id = item.Id,
                     ServiceProviderId= item.ServiceProviderId,
-                    ServiceProviderName=item.ServiceProviderId > 0 ? item.ServiceProvider.ProviderOrganizationName : null,
+                    ServiceProviderName=item.ServiceProviderId > 0 ? item.ServiceProvider?.ProviderOrganizationName : null,
                     PathologyCategoryId=item.PathologyCategoryId,
-                    PathologyCategoryName=item.PathologyCategoryId>0? item.PathologyCategory.PathologyCategoryName : null,
+                    PathologyCategoryName=item.PathologyCategoryId>0? item.PathologyCategory?.PathologyCategoryName : null,
                     PathologyTestId=item.PathologyTestId,
-                    PathologyTestName=item.PathologyTestId>0?item.PathologyTest.PathologyTestName : null,
+                    PathologyTestName=item.PathologyTestId>0?item.PathologyTest?.PathologyTestName : null,
                     ProviderRate=item.ProviderRate,
                 });
             }
