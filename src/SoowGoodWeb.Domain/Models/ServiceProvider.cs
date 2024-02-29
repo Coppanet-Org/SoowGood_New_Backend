@@ -17,6 +17,7 @@ namespace SoowGoodWeb.Models
         public string? ContactPerson { get; set; }        
         public string? ContactPersonMobileNo { get; set; }
         public string? ContactPersonEmail { get; set; }
+        public string? Branch { get; set; }
         public string? Address { get; set; }
         public string? OrganizationPhoneNumber { get; set; }
         public string? OrganizationAvailability { get; set; }

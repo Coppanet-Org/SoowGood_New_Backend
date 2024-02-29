@@ -76,10 +76,21 @@ namespace SoowGoodWeb.Services
 
         }
 
-        public async Task<List<ServiceProviderDto>> GetListByFacilityIdAsync(string slug)
+        public async Task<List<ServiceProviderDto>> GetListBySlugAsync(string slug)
         {
             var serviceProviders = await _serviceProviderRepository.WithDetailsAsync(f => f.PlatformFacility);
-            var serviceProviderList = serviceProviders.Where(p => p.PlatformFacility.Slug == slug).ToList();
+            var serviceProviderList = serviceProviders.Where(p => p.PlatformFacility.Slug == slug).Distinct().ToList();
+
+            
+
+            return ObjectMapper.Map<List<ServiceProvider>, List<ServiceProviderDto>>(serviceProviderList).OrderByDescending(a => a.Id).ToList();
+
+        }
+
+        public async Task<List<ServiceProviderDto>> GetListByProviderNameAsync(string providerName)
+        {
+            var serviceProviders = await _serviceProviderRepository.WithDetailsAsync(f => f.PlatformFacility);
+            var serviceProviderList = serviceProviders.Where(p => p.ProviderOrganizationName == providerName).ToList();
             return ObjectMapper.Map<List<ServiceProvider>, List<ServiceProviderDto>>(serviceProviderList).OrderByDescending(a => a.Id).ToList();
 
         }
