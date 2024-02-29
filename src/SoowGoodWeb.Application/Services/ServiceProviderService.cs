@@ -80,7 +80,7 @@ namespace SoowGoodWeb.Services
         {
             var serviceProviders = await _serviceProviderRepository.WithDetailsAsync(f => f.PlatformFacility);
             var serviceProviderList = serviceProviders.Where(p => p.PlatformFacility.Slug == slug).Distinct().ToList();
-
+            var distinctProviders = serviceProviderList.Select(s => s.ProviderOrganizationName).Distinct().ToList();
             
 
             return ObjectMapper.Map<List<ServiceProvider>, List<ServiceProviderDto>>(serviceProviderList).OrderByDescending(a => a.Id).ToList();
