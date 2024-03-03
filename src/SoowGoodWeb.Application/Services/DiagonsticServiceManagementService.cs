@@ -2,11 +2,14 @@
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.ObjectMapping;
 using Volo.Abp.Uow;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SoowGoodWeb.Services
 {
@@ -24,6 +27,11 @@ namespace SoowGoodWeb.Services
         }
         public async Task<DiagonsticPathologyServiceManagementDto> CreateAsync(DiagonsticPathologyServiceManagementInputDto input)
         {
+            var totalDiagServiceRequests = await _diagonsticPathologyServiceManagementRepository.GetListAsync();
+            var count = totalDiagServiceRequests.Count();            
+            var date = DateTime.Now;
+            input.RequestDate = DateTime.Now;
+            input.ServiceRequestCode = "SGPATH" + date.ToString("yyyyMMdd") + (count + 1);
             var newEntity = ObjectMapper.Map<DiagonsticPathologyServiceManagementInputDto, DiagonsticPathologyServiceManagement>(input);
 
             var diagonsticPathologyServiceManagement = await _diagonsticPathologyServiceManagementRepository.InsertAsync(newEntity);

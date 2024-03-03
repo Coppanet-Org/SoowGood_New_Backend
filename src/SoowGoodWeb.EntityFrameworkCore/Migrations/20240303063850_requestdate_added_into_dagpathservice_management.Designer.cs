@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240303063850_requestdate_added_into_dagpathservice_management")]
+    partial class requestdate_added_into_dagpathservice_management
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -696,9 +699,6 @@ namespace SoowGoodWeb.Migrations
                     b.Property<int?>("DiagonsticServiceType")
                         .HasColumnType("int");
 
-                    b.Property<long?>("DiagonsticTestId")
-                        .HasColumnType("bigint");
-
                     b.Property<decimal?>("Discount")
                         .HasColumnType("decimal(18, 2)");
 
@@ -749,8 +749,6 @@ namespace SoowGoodWeb.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DiagonsticPackageId");
-
-                    b.HasIndex("DiagonsticTestId");
 
                     b.HasIndex("ServiceProviderId");
 
@@ -4456,17 +4454,11 @@ namespace SoowGoodWeb.Migrations
                         .WithMany()
                         .HasForeignKey("DiagonsticPackageId");
 
-                    b.HasOne("SoowGoodWeb.Models.DiagonsticTest", "DiagonsticTest")
-                        .WithMany()
-                        .HasForeignKey("DiagonsticTestId");
-
                     b.HasOne("SoowGoodWeb.Models.ServiceProvider", "ServiceProvider")
                         .WithMany()
                         .HasForeignKey("ServiceProviderId");
 
                     b.Navigation("DiagonsticPackage");
-
-                    b.Navigation("DiagonsticTest");
 
                     b.Navigation("ServiceProvider");
                 });

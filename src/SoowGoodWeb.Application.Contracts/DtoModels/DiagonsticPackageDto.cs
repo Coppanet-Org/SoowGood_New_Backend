@@ -13,5 +13,7 @@ namespace SoowGoodWeb.DtoModels
         public string? PackageName { get; set; }
         public string? PackageDescription { get; set; }
         public decimal? ProviderRate { get; set; }
+        public decimal? DiscountRate { get; set; }
+        public decimal? FinalRate { get; set; }
     }
 }

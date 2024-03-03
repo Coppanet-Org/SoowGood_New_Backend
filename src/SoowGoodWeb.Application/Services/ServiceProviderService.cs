@@ -88,7 +88,7 @@ namespace SoowGoodWeb.Services
 
         }
 
-        public async Task<List<ServiceProviderDto>> GetBranchListListByProviderNameAsync(string providerName)
+        public async Task<List<ServiceProviderDto>> GetBranchListByProviderNameAsync(string providerName)
         {
             var serviceProviders = await _serviceProviderRepository.WithDetailsAsync(f => f.PlatformFacility);
             var serviceProviderList = serviceProviders.Where(p => p.ProviderOrganizationName == providerName).ToList();

@@ -1,4 +1,5 @@
 ﻿using SoowGoodWeb.DtoModels;
+using SoowGoodWeb.Enums;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
@@ -15,11 +16,12 @@ namespace SoowGoodWeb.Services
     {
         private readonly IRepository<DiagonsticTest> _diagonsticTestRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
-        private readonly IRepository<DoctorProfile> _doctorProfileRepository;
+        private readonly IRepository<FinancialSetup> _financialSetupRepository;
 
-        public DiagonsticTestService(IRepository<DiagonsticTest> diagonsticTestRepository, IUnitOfWorkManager unitOfWorkManager)
+        public DiagonsticTestService(IRepository<DiagonsticTest> diagonsticTestRepository, IRepository<FinancialSetup> financialSetupRepository, IUnitOfWorkManager unitOfWorkManager)
         {
             _diagonsticTestRepository = diagonsticTestRepository;
+            _financialSetupRepository = financialSetupRepository;
 
             _unitOfWorkManager = unitOfWorkManager;
         }
@@ -55,7 +57,7 @@ namespace SoowGoodWeb.Services
         public async Task<List<DiagonsticTestDto>> GetListAsync()
         {
             List<DiagonsticTestDto>? result = null;
-            var alldiagonsticTestwithDetails = await _diagonsticTestRepository.WithDetailsAsync(s => s.ServiceProvider, p=>p.PathologyCategory, t=>t.PathologyTest);
+            var alldiagonsticTestwithDetails = await _diagonsticTestRepository.WithDetailsAsync(s => s.ServiceProvider, p => p.PathologyCategory, t => t.PathologyTest);
             //var list = allsupervisorwithDetails.ToList();
 
             if (!alldiagonsticTestwithDetails.Any())
@@ -68,13 +70,13 @@ namespace SoowGoodWeb.Services
                 result.Add(new DiagonsticTestDto()
                 {
                     Id = item.Id,
-                    ServiceProviderId= item.ServiceProviderId,
-                    ServiceProviderName=item.ServiceProviderId > 0 ? item.ServiceProvider?.ProviderOrganizationName : null,
-                    PathologyCategoryId=item.PathologyCategoryId,
-                    PathologyCategoryName=item.PathologyCategoryId>0? item.PathologyCategory?.PathologyCategoryName : null,
-                    PathologyTestId=item.PathologyTestId,
-                    PathologyTestName=item.PathologyTestId>0?item.PathologyTest?.PathologyTestName : null,
-                    ProviderRate=item.ProviderRate,
+                    ServiceProviderId = item.ServiceProviderId,
+                    ServiceProviderName = item.ServiceProviderId > 0 ? item.ServiceProvider?.ProviderOrganizationName : null,
+                    PathologyCategoryId = item.PathologyCategoryId,
+                    PathologyCategoryName = item.PathologyCategoryId > 0 ? item.PathologyCategory?.PathologyCategoryName : null,
+                    PathologyTestId = item.PathologyTestId,
+                    PathologyTestName = item.PathologyTestId > 0 ? item.PathologyTest?.PathologyTestName : null,
+                    ProviderRate = item.ProviderRate,
                 });
             }
             return result;
@@ -94,10 +96,11 @@ namespace SoowGoodWeb.Services
         public async Task<List<DiagonsticTestDto>> GetTestListByProviderIdAsync(long providerId)
         {
             List<DiagonsticTestDto>? result = null;
+            decimal? totalRate = 0;
             var alldiagonsticTestwithDetails = await _diagonsticTestRepository.WithDetailsAsync(s => s.ServiceProvider, p => p.PathologyCategory, t => t.PathologyTest);
-            var alldiagonsticTests = alldiagonsticTestwithDetails.Where(s => s.ServiceProviderId==providerId);
+            var alldiagonsticTests = alldiagonsticTestwithDetails.Where(s => s.ServiceProviderId == providerId);
             //var list = allsupervisorwithDetails.ToList();
-
+            var finSetup = await _financialSetupRepository.WithDetailsAsync();
             if (!alldiagonsticTests.Any())
             {
                 return result;
@@ -105,6 +108,24 @@ namespace SoowGoodWeb.Services
             result = new List<DiagonsticTestDto>();
             foreach (var item in alldiagonsticTests)
             {
+                
+                decimal? finsetupAmnt = 0;
+                decimal? discountAmnt = 0;
+                decimal? finalAmnt = 0;
+                totalRate = totalRate + item.ProviderRate;
+                var finsetupAmntIn = finSetup.FirstOrDefault(f => f.PlatformFacilityId == 7 && f.DiagonsticServiceType == DiagonsticServiceType.General)?.AmountIn;
+                if (finsetupAmntIn == "Percentage")
+                {
+                    finsetupAmnt = finSetup.FirstOrDefault(a => a.PlatformFacilityId == 7 && a.DiagonsticServiceType == DiagonsticServiceType.General && a.AmountIn == finsetupAmntIn)?.Amount;
+                    discountAmnt = (totalRate * finsetupAmnt) / 100;
+                    finalAmnt = totalRate - discountAmnt;
+                }
+                else
+                {
+                    finsetupAmnt = finSetup.FirstOrDefault(a => a.PlatformFacilityId == 7 && a.DiagonsticServiceType == DiagonsticServiceType.General && a.AmountIn == finsetupAmntIn)?.Amount;
+                    discountAmnt = finsetupAmnt;
+                    finalAmnt = totalRate - discountAmnt;
+                }
                 result.Add(new DiagonsticTestDto()
                 {
                     Id = item.Id,
@@ -115,9 +136,63 @@ namespace SoowGoodWeb.Services
                     PathologyTestId = item.PathologyTestId,
                     PathologyTestName = item.PathologyTestId > 0 ? item.PathologyTest?.PathologyTestName : null,
                     ProviderRate = item.ProviderRate,
+                    TotalProviderRate = totalRate,
+                    DiscountRate = discountAmnt,
+                    FinalRate = finalAmnt
                 });
             }
             return result;
         }
+
+        //public async Task<List<DiagonsticTestDto>> GetTestListByProviderIdAsync(long providerId)
+        //{
+        //    List<DiagonsticTestDto>? result = null;
+        //    decimal? totalRate = 0;
+        //    var alldiagonsticTestwithDetails = await _diagonsticTestRepository.WithDetailsAsync(s => s.ServiceProvider, p => p.PathologyCategory, t => t.PathologyTest);
+        //    var alldiagonsticTests = alldiagonsticTestwithDetails.Where(s => s.ServiceProviderId == providerId);
+        //    //var list = allsupervisorwithDetails.ToList();
+        //    var finSetup = await _financialSetupRepository.WithDetailsAsync();
+        //    if (!alldiagonsticTests.Any())
+        //    {
+        //        return result;
+        //    }
+        //    result = new List<DiagonsticTestDto>();
+        //    foreach (var item in alldiagonsticTests)
+        //    {
+
+        //        decimal? finsetupAmnt = 0;
+        //        decimal? discountAmnt = 0;
+        //        decimal? finalAmnt = 0;
+        //        totalRate = totalRate + item.ProviderRate;
+        //        var finsetupAmntIn = finSetup.FirstOrDefault(f => f.PlatformFacilityId == 7 && f.DiagonsticServiceType == DiagonsticServiceType.General)?.AmountIn;
+        //        if (finsetupAmntIn == "Percentage")
+        //        {
+        //            finsetupAmnt = finSetup.FirstOrDefault(a => a.PlatformFacilityId == 7 && a.DiagonsticServiceType == DiagonsticServiceType.General && a.AmountIn == finsetupAmntIn)?.Amount;
+        //            discountAmnt = (totalRate * finsetupAmnt) / 100;
+        //            finalAmnt = totalRate - discountAmnt;
+        //        }
+        //        else
+        //        {
+        //            finsetupAmnt = finSetup.FirstOrDefault(a => a.PlatformFacilityId == 7 && a.DiagonsticServiceType == DiagonsticServiceType.General && a.AmountIn == finsetupAmntIn)?.Amount;
+        //            discountAmnt = finsetupAmnt;
+        //            finalAmnt = totalRate - discountAmnt;
+        //        }
+        //        result.Add(new DiagonsticTestDto()
+        //        {
+        //            Id = item.Id,
+        //            ServiceProviderId = item.ServiceProviderId,
+        //            ServiceProviderName = item.ServiceProviderId > 0 ? item.ServiceProvider?.ProviderOrganizationName : null,
+        //            PathologyCategoryId = item.PathologyCategoryId,
+        //            PathologyCategoryName = item.PathologyCategoryId > 0 ? item.PathologyCategory?.PathologyCategoryName : null,
+        //            PathologyTestId = item.PathologyTestId,
+        //            PathologyTestName = item.PathologyTestId > 0 ? item.PathologyTest?.PathologyTestName : null,
+        //            ProviderRate = item.ProviderRate,
+        //            TotalProviderRate = totalRate,
+        //            DiscountRate = discountAmnt,
+        //            FinalRate = finalAmnt
+        //        });
+        //    }
+        //    return result;
+        //}
     }
 }
