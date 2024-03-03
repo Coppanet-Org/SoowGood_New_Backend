@@ -90,5 +90,34 @@ namespace SoowGoodWeb.Services
 
             //return result;
         }
+
+        public async Task<List<DiagonsticTestDto>> GetTestListByProviderIdAsync(long providerId)
+        {
+            List<DiagonsticTestDto>? result = null;
+            var alldiagonsticTestwithDetails = await _diagonsticTestRepository.WithDetailsAsync(s => s.ServiceProvider, p => p.PathologyCategory, t => t.PathologyTest);
+            var alldiagonsticTests = alldiagonsticTestwithDetails.Where(s => s.ServiceProviderId==providerId);
+            //var list = allsupervisorwithDetails.ToList();
+
+            if (!alldiagonsticTests.Any())
+            {
+                return result;
+            }
+            result = new List<DiagonsticTestDto>();
+            foreach (var item in alldiagonsticTests)
+            {
+                result.Add(new DiagonsticTestDto()
+                {
+                    Id = item.Id,
+                    ServiceProviderId = item.ServiceProviderId,
+                    ServiceProviderName = item.ServiceProviderId > 0 ? item.ServiceProvider?.ProviderOrganizationName : null,
+                    PathologyCategoryId = item.PathologyCategoryId,
+                    PathologyCategoryName = item.PathologyCategoryId > 0 ? item.PathologyCategory?.PathologyCategoryName : null,
+                    PathologyTestId = item.PathologyTestId,
+                    PathologyTestName = item.PathologyTestId > 0 ? item.PathologyTest?.PathologyTestName : null,
+                    ProviderRate = item.ProviderRate,
+                });
+            }
+            return result;
+        }
     }
 }

@@ -88,5 +88,31 @@ namespace SoowGoodWeb.Services
 
             //return result;
         }
+
+        public async Task<List<DiagonsticPackageDto>> GetPackageListByProviderIdAsync(long providerId)
+        {
+            List<DiagonsticPackageDto>? result = null;
+            var alldiagonsticPackagewithDetails = await _diagonsticPackageRepository.WithDetailsAsync(s => s.ServiceProvider);
+            var alldiagonsticPackages = alldiagonsticPackagewithDetails.Where(s => s.ServiceProviderId==providerId);
+
+            if (!alldiagonsticPackages.Any())
+            {
+                return result;
+            }
+            result = new List<DiagonsticPackageDto>();
+            foreach (var item in alldiagonsticPackages)
+            {
+                result.Add(new DiagonsticPackageDto()
+                {
+                    Id = item.Id,
+                    ServiceProviderId = item.ServiceProviderId,
+                    ServiceProviderName = item.ServiceProviderId > 0 ? item.ServiceProvider?.ProviderOrganizationName : null,
+                    PackageName = item.PackageName,
+                    PackageDescription = item.PackageDescription,
+                    ProviderRate = item.ProviderRate,
+                });
+            }
+            return result;
+        }
     }
 }

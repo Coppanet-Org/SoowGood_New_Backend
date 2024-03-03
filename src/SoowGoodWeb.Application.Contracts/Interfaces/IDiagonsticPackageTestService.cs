@@ -12,7 +12,7 @@ namespace SoowGoodWeb.Interfaces
     {
         Task<List<DiagonsticPackageTestDto>> GetListAsync();
         Task<DiagonsticPackageTestDto> GetAsync(int id);
-        Task<DiagonsticPackageTestDto> CreateAsync(DiagonsticTestInputDto input);
+        Task<DiagonsticPackageTestDto> CreateAsync(DiagonsticPackageTestInputDto input);
         Task<DiagonsticPackageTestDto> UpdateAsync(DiagonsticPackageTestInputDto input);
     }
 }
