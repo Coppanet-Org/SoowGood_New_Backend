@@ -31,7 +31,6 @@ namespace SoowGoodWeb.Models
         public decimal? Discount { get; set; }
         [Column(TypeName = "decimal(18, 2)")]
         public decimal? FinalFee { get; set; }
-        [Column(TypeName = "decimal(18, 2)")]
         public ServiceRequestStatus? ServiceRequestStatus { get; set; }
         public List<DiagonsticTestRequested>? DiagonsticTestRequested { get; set; }
     }
