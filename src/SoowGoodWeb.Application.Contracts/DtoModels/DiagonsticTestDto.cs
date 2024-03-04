@@ -17,5 +17,8 @@ namespace SoowGoodWeb.DtoModels
         public long? PathologyTestId { get; set; }
         public string? PathologyTestName { get; set; }        
         public decimal? ProviderRate { get; set; }
+        public decimal? TotalProviderRate { get; set; }
+        public decimal? DiscountRate { get; set; }
+        public decimal? FinalRate { get; set; }
     }
 }

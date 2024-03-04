@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240304052904_diagonstic_service_management_table_updated_with_diagonstic_Test_request")]
+    partial class diagonstic_service_management_table_updated_with_diagonstic_Test_request
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -740,8 +743,8 @@ namespace SoowGoodWeb.Migrations
                     b.Property<string>("ServiceRequestCode")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ServiceRequestStatus")
-                        .HasColumnType("int");
+                    b.Property<decimal?>("ServiceRequestStatus")
+                        .HasColumnType("decimal(18, 2)");
 
                     b.HasKey("Id");
 
@@ -869,7 +872,7 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("DiagonsticTestId");
 
-                    b.ToTable("SgDiagonsticTestRequested");
+                    b.ToTable("DiagonsticTestRequested");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorChamber", b =>

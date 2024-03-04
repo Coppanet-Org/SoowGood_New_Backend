@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240304052024_diagonstic_service_table_updated_new_itemTable_created")]
+    partial class diagonstic_service_table_updated_new_itemTable_created
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -740,8 +743,8 @@ namespace SoowGoodWeb.Migrations
                     b.Property<string>("ServiceRequestCode")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ServiceRequestStatus")
-                        .HasColumnType("int");
+                    b.Property<decimal?>("ServiceRequestStatus")
+                        .HasColumnType("decimal(18, 2)");
 
                     b.HasKey("Id");
 
@@ -840,9 +843,6 @@ namespace SoowGoodWeb.Migrations
                     b.Property<long?>("DiagonsticPathologyServiceManagementId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("DiagonsticTestId")
-                        .HasColumnType("bigint");
-
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -857,8 +857,11 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<string>("PathologyCategoryAndTest")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<long?>("PathologyCategoryId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("PathologyTestId")
+                        .HasColumnType("bigint");
 
                     b.Property<decimal?>("ProviderRate")
                         .HasColumnType("decimal(18, 2)");
@@ -867,9 +870,11 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasIndex("DiagonsticPathologyServiceManagementId");
 
-                    b.HasIndex("DiagonsticTestId");
+                    b.HasIndex("PathologyCategoryId");
 
-                    b.ToTable("SgDiagonsticTestRequested");
+                    b.HasIndex("PathologyTestId");
+
+                    b.ToTable("DiagonsticTestRequested");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorChamber", b =>
@@ -4546,13 +4551,19 @@ namespace SoowGoodWeb.Migrations
                         .WithMany("DiagonsticTestRequested")
                         .HasForeignKey("DiagonsticPathologyServiceManagementId");
 
-                    b.HasOne("SoowGoodWeb.Models.DiagonsticTest", "DiagonsticTest")
+                    b.HasOne("SoowGoodWeb.Models.PathologyCategory", "PathologyCategory")
                         .WithMany()
-                        .HasForeignKey("DiagonsticTestId");
+                        .HasForeignKey("PathologyCategoryId");
+
+                    b.HasOne("SoowGoodWeb.Models.PathologyTest", "PathologyTest")
+                        .WithMany()
+                        .HasForeignKey("PathologyTestId");
 
                     b.Navigation("DiagonsticPathologyServiceManagement");
 
-                    b.Navigation("DiagonsticTest");
+                    b.Navigation("PathologyCategory");
+
+                    b.Navigation("PathologyTest");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorChamber", b =>
