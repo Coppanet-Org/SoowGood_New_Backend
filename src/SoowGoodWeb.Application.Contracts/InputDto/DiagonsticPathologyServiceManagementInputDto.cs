@@ -13,7 +13,7 @@ namespace SoowGoodWeb.InputDto
         public string? ServiceRequestCode { get; set; }
         public long? ServiceProviderId { get; set; }
         public DiagonsticServiceType? DiagonsticServiceType { get; set; }
-        public long? DiagonsticTestId { get; set; }
+        //public long? DiagonsticTestId { get; set; }
         public long? DiagonsticPackageId { get; set; }
         public string? OrganizationCode { get; set; }
         public long? PatientProfileId { get; set; }
@@ -25,5 +25,6 @@ namespace SoowGoodWeb.InputDto
         public decimal? Discount { get; set; }
         public decimal? FinalFee { get; set; }
         public ServiceRequestStatus? ServiceRequestStatus { get; set; }
+        public List<DiagonsticTestRequestedInputDto>? DiagonsticTestRequested { get; set; }
     }
 }

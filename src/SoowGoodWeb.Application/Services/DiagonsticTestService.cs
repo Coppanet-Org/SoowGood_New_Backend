@@ -96,11 +96,8 @@ namespace SoowGoodWeb.Services
         public async Task<List<DiagonsticTestDto>> GetTestListByProviderIdAsync(long providerId)
         {
             List<DiagonsticTestDto>? result = null;
-            decimal? totalRate = 0;
             var alldiagonsticTestwithDetails = await _diagonsticTestRepository.WithDetailsAsync(s => s.ServiceProvider, p => p.PathologyCategory, t => t.PathologyTest);
             var alldiagonsticTests = alldiagonsticTestwithDetails.Where(s => s.ServiceProviderId == providerId);
-            //var list = allsupervisorwithDetails.ToList();
-            var finSetup = await _financialSetupRepository.WithDetailsAsync();
             if (!alldiagonsticTests.Any())
             {
                 return result;
@@ -108,24 +105,6 @@ namespace SoowGoodWeb.Services
             result = new List<DiagonsticTestDto>();
             foreach (var item in alldiagonsticTests)
             {
-                
-                decimal? finsetupAmnt = 0;
-                decimal? discountAmnt = 0;
-                decimal? finalAmnt = 0;
-                totalRate = totalRate + item.ProviderRate;
-                var finsetupAmntIn = finSetup.FirstOrDefault(f => f.PlatformFacilityId == 7 && f.DiagonsticServiceType == DiagonsticServiceType.General)?.AmountIn;
-                if (finsetupAmntIn == "Percentage")
-                {
-                    finsetupAmnt = finSetup.FirstOrDefault(a => a.PlatformFacilityId == 7 && a.DiagonsticServiceType == DiagonsticServiceType.General && a.AmountIn == finsetupAmntIn)?.Amount;
-                    discountAmnt = (totalRate * finsetupAmnt) / 100;
-                    finalAmnt = totalRate - discountAmnt;
-                }
-                else
-                {
-                    finsetupAmnt = finSetup.FirstOrDefault(a => a.PlatformFacilityId == 7 && a.DiagonsticServiceType == DiagonsticServiceType.General && a.AmountIn == finsetupAmntIn)?.Amount;
-                    discountAmnt = finsetupAmnt;
-                    finalAmnt = totalRate - discountAmnt;
-                }
                 result.Add(new DiagonsticTestDto()
                 {
                     Id = item.Id,
@@ -135,10 +114,7 @@ namespace SoowGoodWeb.Services
                     PathologyCategoryName = item.PathologyCategoryId > 0 ? item.PathologyCategory?.PathologyCategoryName : null,
                     PathologyTestId = item.PathologyTestId,
                     PathologyTestName = item.PathologyTestId > 0 ? item.PathologyTest?.PathologyTestName : null,
-                    ProviderRate = item.ProviderRate,
-                    TotalProviderRate = totalRate,
-                    DiscountRate = discountAmnt,
-                    FinalRate = finalAmnt
+                    ProviderRate = item.ProviderRate
                 });
             }
             return result;

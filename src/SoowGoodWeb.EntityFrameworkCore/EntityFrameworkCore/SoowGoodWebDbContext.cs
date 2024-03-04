@@ -94,6 +94,7 @@ public class SoowGoodWebDbContext :
     public DbSet<DiagonsticPathologyServiceManagement> SgDiagonsticPathologyServiceManagements { get; set; }
     public DbSet<PathologyCategory> SgPathologyCategory { get; set; }
     public DbSet<PathologyTest> SgPathologyTests { get; set; }
+    public DbSet<DiagonsticTestRequested> SgDiagonsticTestRequested { get; set; }
 
     #endregion
 

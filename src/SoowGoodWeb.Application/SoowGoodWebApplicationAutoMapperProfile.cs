@@ -214,6 +214,8 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<DiagonsticPathologyServiceManagementDto, DiagonsticPathologyServiceManagement>();
         CreateMap<DiagonsticPathologyServiceManagementInputDto, DiagonsticPathologyServiceManagement>();
 
-
+        CreateMap<DiagonsticTestRequested, DiagonsticTestRequestedDto>();
+        CreateMap<DiagonsticTestRequestedDto, DiagonsticTestRequested>();
+        CreateMap<DiagonsticTestRequestedInputDto, DiagonsticTestRequested>();
     }
 }

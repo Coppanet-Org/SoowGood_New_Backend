@@ -15,8 +15,8 @@ namespace SoowGoodWeb.Models
         public long? ServiceProviderId { get; set; }
         public ServiceProvider? ServiceProvider { get; set; }
         public DiagonsticServiceType? DiagonsticServiceType { get; set; }
-        public long? DiagonsticTestId { get; set; }
-        public DiagonsticTest? DiagonsticTest { get; set; }
+        //public long? DiagonsticTestId { get; set; }
+        //public DiagonsticTest? DiagonsticTest { get; set; }
         public long? DiagonsticPackageId { get; set; }
         public DiagonsticPackage? DiagonsticPackage { get; set; }
         public string? OrganizationCode { get; set; }
@@ -33,5 +33,6 @@ namespace SoowGoodWeb.Models
         public decimal? FinalFee { get; set; }
         [Column(TypeName = "decimal(18, 2)")]
         public ServiceRequestStatus? ServiceRequestStatus { get; set; }
+        public List<DiagonsticTestRequested>? DiagonsticTestRequested { get; set; }
     }
 }
