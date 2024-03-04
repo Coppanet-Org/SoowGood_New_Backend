@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240303063850_requestdate_added_into_dagpathservice_management")]
+    partial class requestdate_added_into_dagpathservice_management
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -811,65 +814,6 @@ namespace SoowGoodWeb.Migrations
                     b.HasIndex("ServiceProviderId");
 
                     b.ToTable("SgDiagonsticTests");
-                });
-
-            modelBuilder.Entity("SoowGoodWeb.Models.DiagonsticTestRequested", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<long?>("DiagonsticPathologyServiceManagementId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("DiagonsticTestId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<string>("PathologyCategoryAndTest")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("ProviderRate")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DiagonsticPathologyServiceManagementId");
-
-                    b.HasIndex("DiagonsticTestId");
-
-                    b.ToTable("SgDiagonsticTestRequested");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorChamber", b =>
@@ -4540,21 +4484,6 @@ namespace SoowGoodWeb.Migrations
                     b.Navigation("ServiceProvider");
                 });
 
-            modelBuilder.Entity("SoowGoodWeb.Models.DiagonsticTestRequested", b =>
-                {
-                    b.HasOne("SoowGoodWeb.Models.DiagonsticPathologyServiceManagement", "DiagonsticPathologyServiceManagement")
-                        .WithMany("DiagonsticTestRequested")
-                        .HasForeignKey("DiagonsticPathologyServiceManagementId");
-
-                    b.HasOne("SoowGoodWeb.Models.DiagonsticTest", "DiagonsticTest")
-                        .WithMany()
-                        .HasForeignKey("DiagonsticTestId");
-
-                    b.Navigation("DiagonsticPathologyServiceManagement");
-
-                    b.Navigation("DiagonsticTest");
-                });
-
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorChamber", b =>
                 {
                     b.HasOne("SoowGoodWeb.Models.DoctorProfile", "DoctorProfile")
@@ -4881,11 +4810,6 @@ namespace SoowGoodWeb.Migrations
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("SoowGoodWeb.Models.DiagonsticPathologyServiceManagement", b =>
-                {
-                    b.Navigation("DiagonsticTestRequested");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorProfile", b =>

@@ -1,8 +1,10 @@
 ﻿using SoowGoodWeb.DtoModels;
+using SoowGoodWeb.Enums;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
@@ -15,11 +17,12 @@ namespace SoowGoodWeb.Services
     {
         private readonly IRepository<DiagonsticPackage> _diagonsticPackageRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
-        private readonly IRepository<DoctorProfile> _doctorProfileRepository;
+        private readonly IRepository<FinancialSetup> _financialSetupRepository;
 
-        public DiagonsticPackageService(IRepository<DiagonsticPackage> diagonsticPackageRepository, IUnitOfWorkManager unitOfWorkManager)
+        public DiagonsticPackageService(IRepository<DiagonsticPackage> diagonsticPackageRepository, IRepository<FinancialSetup> financialSetupRepository, IUnitOfWorkManager unitOfWorkManager)
         {
             _diagonsticPackageRepository = diagonsticPackageRepository;
+            _financialSetupRepository = financialSetupRepository;
 
             _unitOfWorkManager = unitOfWorkManager;
         }
@@ -95,6 +98,9 @@ namespace SoowGoodWeb.Services
             var alldiagonsticPackagewithDetails = await _diagonsticPackageRepository.WithDetailsAsync(s => s.ServiceProvider);
             var alldiagonsticPackages = alldiagonsticPackagewithDetails.Where(s => s.ServiceProviderId==providerId);
 
+            var finSetup = await _financialSetupRepository.WithDetailsAsync();
+            
+
             if (!alldiagonsticPackages.Any())
             {
                 return result;
@@ -102,6 +108,22 @@ namespace SoowGoodWeb.Services
             result = new List<DiagonsticPackageDto>();
             foreach (var item in alldiagonsticPackages)
             {
+                decimal? finsetupAmnt = 0;
+                decimal? discountAmnt = 0;
+                decimal? finalAmnt = 0;
+                var finsetupAmntIn = finSetup.FirstOrDefault(f=>f.PlatformFacilityId==7 && f.DiagonsticServiceType==DiagonsticServiceType.Package)?.AmountIn;
+                if (finsetupAmntIn == "Percentage")
+                { 
+                    finsetupAmnt = finSetup.FirstOrDefault(a=>a.PlatformFacilityId==7 && a.DiagonsticServiceType==DiagonsticServiceType.Package && a.AmountIn==finsetupAmntIn)?.Amount;
+                    discountAmnt = (item.ProviderRate * finsetupAmnt) / 100;
+                    finalAmnt = item.ProviderRate - discountAmnt;
+                }
+                else
+                {
+                    finsetupAmnt = finSetup.FirstOrDefault(a => a.PlatformFacilityId == 7 && a.DiagonsticServiceType == DiagonsticServiceType.Package && a.AmountIn == finsetupAmntIn)?.Amount;
+                    discountAmnt = finsetupAmnt;
+                    finalAmnt = item.ProviderRate - discountAmnt;
+                }
                 result.Add(new DiagonsticPackageDto()
                 {
                     Id = item.Id,
@@ -110,6 +132,8 @@ namespace SoowGoodWeb.Services
                     PackageName = item.PackageName,
                     PackageDescription = item.PackageDescription,
                     ProviderRate = item.ProviderRate,
+                    DiscountRate = discountAmnt,
+                    FinalRate = finalAmnt
                 });
             }
             return result;

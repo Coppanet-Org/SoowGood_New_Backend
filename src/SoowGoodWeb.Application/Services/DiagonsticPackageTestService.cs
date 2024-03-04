@@ -55,7 +55,7 @@ namespace SoowGoodWeb.Services
         public async Task<List<DiagonsticPackageTestDto>> GetListAsync()
         {
             List<DiagonsticPackageTestDto>? result = null;
-            var alldiagonsticPackageTestwithDetails = await _diagonsticPackageTestRepository.WithDetailsAsync(s => s.DiagonsticPackage, p=>p.PathologyCategory, t=>t.PathologyTest);
+            var alldiagonsticPackageTestwithDetails = await _diagonsticPackageTestRepository.WithDetailsAsync(s => s.DiagonsticPackage, p => p.PathologyCategory, t => t.PathologyTest);
             //var list = allsupervisorwithDetails.ToList();
 
             if (!alldiagonsticPackageTestwithDetails.Any())
@@ -68,12 +68,12 @@ namespace SoowGoodWeb.Services
                 result.Add(new DiagonsticPackageTestDto()
                 {
                     Id = item.Id,
-                    DiagonsticPackageId= item.DiagonsticPackageId,
-                    DiagonsticPackageName=item.DiagonsticPackageId > 0 ? item.DiagonsticPackage?.PackageName : null,
-                    PathologyCategoryId=item.PathologyCategoryId,
-                    PathologyCategoryName=item.PathologyCategoryId>0? item.PathologyCategory?.PathologyCategoryName : null,
-                    PathologyTestId=item.PathologyTestId,
-                    PathologyTestName=item.PathologyTestId>0?item.PathologyTest?.PathologyTestName : null,
+                    DiagonsticPackageId = item.DiagonsticPackageId,
+                    DiagonsticPackageName = item.DiagonsticPackageId > 0 ? item.DiagonsticPackage?.PackageName : null,
+                    PathologyCategoryId = item.PathologyCategoryId,
+                    PathologyCategoryName = item.PathologyCategoryId > 0 ? item.PathologyCategory?.PathologyCategoryName : null,
+                    PathologyTestId = item.PathologyTestId,
+                    PathologyTestName = item.PathologyTestId > 0 ? item.PathologyTest?.PathologyTestName : null,
                 });
             }
             return result;
