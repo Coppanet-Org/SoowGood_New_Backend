@@ -100,7 +100,7 @@ namespace SoowGoodWeb.Services
             var alldiagonsticTests = alldiagonsticTestwithDetails.Where(s => s.ServiceProviderId == providerId);
             if (!alldiagonsticTests.Any())
             {
-                return result;
+                return null;
             }
             result = new List<DiagonsticTestDto>();
             foreach (var item in alldiagonsticTests)
