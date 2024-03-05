@@ -110,6 +110,14 @@ namespace SoowGoodWeb.Services
                 }
             }
         }
+        //public async Task<string> GetUinfo(string tok)
+        //{
+        //    var hc = new HttpClient();
+        //    hc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tok);
+        //    var response = hc.GetAsync(PermissionHelper._authority).Result;
+        //    var userInfo =  response.Content.ReadAsStringAsync().Result;
+        //    return userInfo;
+        //}
         public async Task<LoginResponseDto> Login(LoginDto userDto)
         {
             LoginResponseDto result = new LoginResponseDto();
