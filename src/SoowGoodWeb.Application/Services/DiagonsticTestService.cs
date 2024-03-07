@@ -95,14 +95,15 @@ namespace SoowGoodWeb.Services
 
         public async Task<List<DiagonsticTestDto>> GetTestListByProviderIdAsync(long providerId)
         {
-            List<DiagonsticTestDto>? result = null;
+            var result = new List<DiagonsticTestDto>();//null;
+            //result = new List<DiagonsticTestDto>();
             var alldiagonsticTestwithDetails = await _diagonsticTestRepository.WithDetailsAsync(s => s.ServiceProvider, p => p.PathologyCategory, t => t.PathologyTest);
-            var alldiagonsticTests = alldiagonsticTestwithDetails.Where(s => s.ServiceProviderId == providerId);
+            var alldiagonsticTests = alldiagonsticTestwithDetails.Where(s => s.ServiceProviderId == providerId).ToList();
             if (!alldiagonsticTests.Any())
             {
                 return result;
             }
-            result = new List<DiagonsticTestDto>();
+
             foreach (var item in alldiagonsticTests)
             {
                 result.Add(new DiagonsticTestDto()

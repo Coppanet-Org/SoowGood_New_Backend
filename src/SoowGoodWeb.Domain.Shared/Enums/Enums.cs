@@ -93,7 +93,7 @@ namespace SoowGoodWeb.Enums
     {
         Paid = 1,
         Due = 2,
-        FailedOrCancelled=3
+        FailedOrCancelled = 3
 
     }
 
@@ -144,5 +144,11 @@ namespace SoowGoodWeb.Enums
     {
         General = 1,
         Package = 2
+    }
+
+    public enum FacilityEntityType
+    {
+        DoctorConsultation = 1,
+        ServiceFacility = 2
     }
 }

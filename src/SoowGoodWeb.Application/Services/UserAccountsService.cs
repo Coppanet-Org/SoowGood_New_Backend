@@ -22,6 +22,7 @@ using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using Nancy;
 using System.Numerics;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace SoowGoodWeb.Services
 {
@@ -110,6 +111,14 @@ namespace SoowGoodWeb.Services
                 }
             }
         }
+        //public async Task<string> GetUinfo(string tok)
+        //{
+        //    var hc = new HttpClient();
+        //    hc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tok);
+        //    var response = hc.GetAsync(PermissionHelper._authority).Result;
+        //    var userInfo = response.Content.ReadAsStringAsync().Result;
+        //    return userInfo;
+        //}
         public async Task<LoginResponseDto> Login(LoginDto userDto)
         {
             LoginResponseDto result = new LoginResponseDto();
@@ -449,6 +458,26 @@ namespace SoowGoodWeb.Services
 
             return result;
         }
+        public static JwtSecurityToken ConvertJwtStringToJwtSecurityToken(string? jwt)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var token = handler.ReadJwtToken(jwt);
+
+            return token;
+        }
+
+        public  string DecodeJwt(string? jwt)
+        {
+            var stream = jwt;
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadJwtToken(stream);
+            var tokenS = jsonToken as JwtSecurityToken;
+            //var str = tokenS.Payload[phone_number];
+            var jti = tokenS.Payload.First(claim => claim.Key == "name").Value.ToString();
+            return jti;
+        }
     }
+
+    
 }
 
