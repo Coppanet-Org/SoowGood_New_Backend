@@ -22,6 +22,8 @@ using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using Nancy;
 using System.Numerics;
+using IdentityModel;
+using Microsoft.IdentityModel.Tokens;
 //using System.IdentityModel.Tokens.Jwt;
 ////using System.IdentityModel.Tokens.Jwt;
 
@@ -467,13 +469,13 @@ namespace SoowGoodWeb.Services
         //    return token;
         //}
 
-        //public  string DecodeJwt(string? jwt)
+        //public string DecodeJwt(string? jwt)
         //{
         //    var stream = jwt;
-        //    var handler = new JwtSecurityTokenHandler();
+        //    var handler = new Json();
         //    var jsonToken = handler.ReadJwtToken(stream);
-        //    //var tokenS = jsonToken as JwtSecurityToken;
-        //    //var str = tokenS.Payload[phone_number];
+        //    var tokenS = jsonToken as JwtSecurityToken;
+        //    var str = tokenS.Payload[phone_number];
         //    var jti = jsonToken.Payload.First(claim => claim.Key == "name").Value.ToString();
         //    return jti;
         //}
