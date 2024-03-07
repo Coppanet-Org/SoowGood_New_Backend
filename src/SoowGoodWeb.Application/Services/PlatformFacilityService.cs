@@ -56,12 +56,12 @@ namespace SoowGoodWeb.Services
         public async Task<List<PlatformFacilityDto>> GetListAsync()
         {
             var platformFacilitys = await _platformFacilityRepository.WithDetailsAsync();
-            var filteredFacilities = platformFacilitys.Where(p=>p.Id>6).ToList();
+            var filteredFacilities = platformFacilitys.ToList();
             return ObjectMapper.Map<List<PlatformFacility>, List<PlatformFacilityDto>>(filteredFacilities);
         }
 
-        
-        //public async Task<List<DoctorProfileDto>> GetListAsync()
+
+        //public async Task<List<DoctorProfileDto>> GetListAsync().Where(p=>p.Id>6)
         //{
         //    List<DoctorProfileDto> list = null;
         //    var items = await _doctorProfileRepository.WithDetailsAsync(p => p.District);
