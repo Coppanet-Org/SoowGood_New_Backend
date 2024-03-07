@@ -22,6 +22,7 @@ using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using Nancy;
 using System.Numerics;
+using Volo.Abp.Users;
 //using System.IdentityModel.Tokens.Jwt;
 ////using System.IdentityModel.Tokens.Jwt;
 
@@ -467,16 +468,46 @@ namespace SoowGoodWeb.Services
         //    return token;
         //}
 
-        //public  string DecodeJwt(string? jwt)
-        //{
-        //    var stream = jwt;
-        //    var handler = new JwtSecurityTokenHandler();
-        //    var jsonToken = handler.ReadJwtToken(stream);
-        //    //var tokenS = jsonToken as JwtSecurityToken;
-        //    //var str = tokenS.Payload[phone_number];
-        //    var jti = jsonToken.Payload.First(claim => claim.Key == "name").Value.ToString();
-        //    return jti;
-        //}
+        public async Task<AccessUserName> DecodeJwt(JAccessToken jwt)
+        {
+            //var doctorDelete = null;
+            bool profileDeleted = false;
+            Guid? userId;
+            var authresult = new AccountDeteleResponsesDto();
+            var result = new AccessUserName();
+            try
+            {
+
+                using (var client = new HttpClient())
+                {
+                    var tokenResponse = await GetToken();
+                    client.BaseAddress = new Uri(authClientUrl);
+                    client.SetBearerToken(tokenResponse.AccessToken);
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    //GET Method
+
+                    var update = JsonSerializer.Serialize(jwt);
+                    var requestContent = new StringContent(update, Encoding.UTF8, "application/json");
+                    HttpResponseMessage response =
+                        await client.PostAsync($"api/app/account/retrieve-user-name", requestContent);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var newUserString = await response.Content.ReadAsStringAsync();
+                        var newUser = JsonConvert.DeserializeObject<AccessUserName>(newUserString);
+
+                        result.UserNmae = newUser?.UserNmae;
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return result;
+        }
     }
 
     

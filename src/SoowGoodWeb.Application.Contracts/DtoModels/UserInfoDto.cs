@@ -107,5 +107,15 @@ namespace SoowGoodWeb.DtoModels
         public bool? Success { get; set; }
         public string? Message { get; set; }
     }
-    
+
+    public class JAccessToken
+    {
+        public string? JwtToken { get; set; }
+    }
+
+    public class AccessUserName
+    {
+        public string? UserNmae { get; set; }
+    }
+
 }

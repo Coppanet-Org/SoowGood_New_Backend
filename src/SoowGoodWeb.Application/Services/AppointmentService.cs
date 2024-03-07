@@ -700,20 +700,20 @@ namespace SoowGoodWeb.Services
             //Output.WriteLine(token);
         }
 
-        public string testAcToken(RtcTokenBuilerDto input)
-        {
-            uint privilegeExpiredTs = _expireTimeInSeconds + (uint)Utils.getTimestamp();
-            AccessToken accessToken = new AccessToken(input.Appid, input.AppCertificate, input.ChanelName, input.Uid.ToString(), privilegeExpiredTs, 1);
-            accessToken.addPrivilege(Privileges.kJoinChannel, privilegeExpiredTs);
-            accessToken.addPrivilege(Privileges.kPublishAudioStream, privilegeExpiredTs);
-            accessToken.addPrivilege(Privileges.kPublishVideoStream, privilegeExpiredTs);
-            accessToken.addPrivilege(Privileges.kPublishDataStream, privilegeExpiredTs);
+        //public string testAcToken(RtcTokenBuilerDto input)
+        //{
+        //    uint privilegeExpiredTs = _expireTimeInSeconds + (uint)Utils.getTimestamp();
+        //    AccessToken accessToken = new AccessToken(input.Appid, input.AppCertificate, input.ChanelName, input.Uid.ToString(), privilegeExpiredTs, 1);
+        //    accessToken.addPrivilege(Privileges.kJoinChannel, privilegeExpiredTs);
+        //    accessToken.addPrivilege(Privileges.kPublishAudioStream, privilegeExpiredTs);
+        //    accessToken.addPrivilege(Privileges.kPublishVideoStream, privilegeExpiredTs);
+        //    accessToken.addPrivilege(Privileges.kPublishDataStream, privilegeExpiredTs);
 
-            string token = accessToken.build();
-            return token;
-            //Output.WriteLine(">> token");
-            //Output.WriteLine(token);
-        }
+        //    string token = accessToken.build();
+        //    return token;
+        //    //Output.WriteLine(">> token");
+        //    //Output.WriteLine(token);
+        //}
 
         public async Task<ResponseDto> UpdateCallConsultationAppointmentAsync(string appCode)
         {
