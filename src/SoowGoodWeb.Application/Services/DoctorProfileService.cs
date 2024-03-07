@@ -686,6 +686,14 @@ namespace SoowGoodWeb.Services
             //return ObjectMapper.Map<List<DoctorProfile>, List<DoctorProfileDto>>(profiles.ToList());
         }
 
+        public async Task<List<DoctorProfileDto>> GetAllActiveDoctorListAsync()
+        {
+            List<DoctorProfileDto> result = null;
+            var profileWithDetails = await _doctorProfileRepository.GetListAsync(s =>s.IsActive==true);
+
+            return ObjectMapper.Map<List<DoctorProfile>, List<DoctorProfileDto>>(profileWithDetails.ToList());
+        }
+
         public async Task<List<DoctorProfileDto>> GetAllDoctorsSearchListAsync(string? name, int? consultType, long? speciality, long? specialization)
         {
             var profiles = await _doctorProfileRepository.WithDetailsAsync(d => d.Degrees, s => s.DoctorSpecialization);
