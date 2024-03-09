@@ -468,13 +468,13 @@ namespace SoowGoodWeb.Services
         //    return token;
         //}
 
-        public async Task<AccessUserName> DecodeJwt(JAccessToken jwt)
+        public async Task<string> DecodeJwt(JAccessToken jwt)
         {
             //var doctorDelete = null;
             bool profileDeleted = false;
             Guid? userId;
             var authresult = new AccountDeteleResponsesDto();
-            var result = new AccessUserName();
+            var result = "";
             try
             {
 
@@ -496,7 +496,7 @@ namespace SoowGoodWeb.Services
                         var newUserString = await response.Content.ReadAsStringAsync();
                         var newUser = JsonConvert.DeserializeObject<AccessUserName>(newUserString);
 
-                        result.UserNmae = newUser?.UserNmae;
+                        result = newUser?.UserNmae;
 
                     }
                 }
