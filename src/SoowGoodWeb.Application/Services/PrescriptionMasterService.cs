@@ -366,7 +366,7 @@ namespace SoowGoodWeb.Services
                 result.PatientProfileId = prescription.PatientProfileId;
                 result.PatientName = prescription?.PatientName;
                 result.PatientCode = patientDetails?.PatientCode;
-                result.PatientAge = patientDetails?.Age;
+                result.PatientAge = prescription?.Age;
                 result.PatientBloodGroup = patientDetails?.BloodGroup;
                 result.PatientAdditionalInfo = prescription.PatientAdditionalInfo;
                 result.ConsultancyType = prescription.ConsultancyType;
