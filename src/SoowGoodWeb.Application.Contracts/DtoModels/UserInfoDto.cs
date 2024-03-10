@@ -113,9 +113,15 @@ namespace SoowGoodWeb.DtoModels
         public string? JwtToken { get; set; }
     }
 
-    public class AccessUserName
+    public class PatientDetailsForServiceDto
     {
         public string? UserNmae { get; set; }
+        public string? Role { get; set; }
+        public long? PatientProfileId { get; set; }
+        public string? PatientName { get; set; }
+        public string? PatientCode { get; set; }
+        public bool? Success { get; set; }
+        public string? Message { get; set; }
     }
 
 }

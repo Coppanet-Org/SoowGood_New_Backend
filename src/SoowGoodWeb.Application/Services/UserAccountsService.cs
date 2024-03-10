@@ -468,13 +468,12 @@ namespace SoowGoodWeb.Services
         //    return token;
         //}
 
-        public async Task<string> DecodeJwt(JAccessToken jwt)
+        public async Task<PatientDetailsForServiceDto> DecodeJwt(JAccessToken jwt)
         {
             //var doctorDelete = null;
             bool profileDeleted = false;
             Guid? userId;
-            var authresult = new AccountDeteleResponsesDto();
-            var result = "";
+            var result = new PatientDetailsForServiceDto();
             try
             {
 
@@ -494,10 +493,26 @@ namespace SoowGoodWeb.Services
                     if (response.IsSuccessStatusCode)
                     {
                         var newUserString = await response.Content.ReadAsStringAsync();
-                        var newUser = JsonConvert.DeserializeObject<AccessUserName>(newUserString);
+                        var newUser = JsonConvert.DeserializeObject<PatientDetailsForServiceDto>(newUserString);
 
-                        result = newUser?.UserNmae;
-
+                        if (newUser?.Role == "Patient")
+                        {
+                            result.Success = true;
+                            result.UserNmae = newUser?.UserNmae;
+                            result.Role = newUser?.Role;
+                            var patientDetails = await _patientProfileRepository.GetAsync(p => p.MobileNo == result.UserNmae);
+                            if (patientDetails != null)
+                            {
+                                result.PatientProfileId = patientDetails.Id;
+                                result.PatientCode = patientDetails.PatientCode;
+                                result.PatientName = patientDetails.FullName;
+                            }                            
+                        }
+                        else
+                        {
+                            result.Success = false;
+                            result.Message = "User Not a patient! Please login as a patient to avail the services...";
+                        }
                     }
                 }
             }
@@ -510,6 +525,6 @@ namespace SoowGoodWeb.Services
         }
     }
 
-    
+
 }
 
