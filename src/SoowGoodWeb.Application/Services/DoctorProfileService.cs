@@ -274,44 +274,6 @@ namespace SoowGoodWeb.Services
                 var fees = financialSetups.OrderBy(p => p.ProviderAmount).Where(a => a.ProviderAmount != null).ToList();
 
                 var doctorFees = await _doctorFeesSetup.WithDetailsAsync(d => d.DoctorSchedule.DoctorProfile);
-
-                if (!string.IsNullOrEmpty(doctorFilterModel?.name))
-                {
-                    profiles = profiles.Where(p => p.FullName.ToLower().Contains(doctorFilterModel.name.ToLower().Trim())).ToList();
-                }
-
-                //if (doctorFilterModel?.specialityId > 0)
-                //{
-                //    profiles = profiles.Where(p => p.SpecialityId == doctorFilterModel?.specialityId).ToList();
-                //    doctorSpecializations = doctorSpecializations.Where(sp => sp.SpecialityId == doctorFilterModel.specialityId).ToList();
-                //}
-
-                if (doctorFilterModel?.specializationId > 0)
-                {
-                    //doctorSpecializations = doctorSpecializations.Where(sp => sp.SpecializationId == doctorFilterModel.specializationId).ToList();
-                    profiles = (from t1 in profiles
-                                join t2 in doctorSpecializations.Where(c => c.SpecializationId == doctorFilterModel.specializationId)
-                                on t1.Id equals t2.DoctorProfileId
-                                select t1).ToList();
-                }
-
-                if (doctorFilterModel?.consultancyType > 0)
-                {
-                    if (doctorFilterModel?.consultancyType == ConsultancyType.OnlineRT)
-                    {
-                        profiles = profiles.Where(p => p.IsOnline == true).ToList();
-                    }
-                    //if (doctorFilterModel?.consultancyType == ConsultancyType.Chamber || doctorFilterModel?.consultancyType == ConsultancyType.Online || doctorFilterModel?.consultancyType == ConsultancyType.PhysicalVisit || doctorFilterModel?.consultancyType == ConsultancyType.OnDemand)
-                    else
-                    {
-                        schedules = schedules.Where(c => c.ConsultancyType == doctorFilterModel.consultancyType);
-                        profiles = (from t1 in profiles
-                                    join t2 in schedules //.Where(c => c.ConsultancyType == doctorFilterModel.consultancyType)
-                                    on t1.Id equals t2.DoctorProfileId
-                                    select t1).Distinct().ToList();
-                    }
-                }
-
                 //profiles = profiles.Skip(filterModel.Offset)
                 //                   .Take(filterModel.Limit).ToList();
 
@@ -389,6 +351,34 @@ namespace SoowGoodWeb.Services
                             ProfilePic = profilePics?.Path,
                             DisplayFee = fee
                         });
+                    }
+                    if (!string.IsNullOrEmpty(doctorFilterModel?.name))
+                    {
+                        result = result.Where(p => p.FullName.ToLower().Contains(doctorFilterModel.name.ToLower().Trim())).ToList();
+                    }
+
+                    if (doctorFilterModel?.specializationId > 0)
+                    {
+                        result = (from t1 in result
+                                  join t2 in doctorSpecializations.Where(c => c.SpecializationId == doctorFilterModel.specializationId)
+                                    on t1.Id equals t2.DoctorProfileId
+                                    select t1).ToList();
+                    }
+
+                    if (doctorFilterModel?.consultancyType > 0)
+                    {
+                        if (doctorFilterModel?.consultancyType == ConsultancyType.OnlineRT)
+                        {
+                            result = result.Where(p => p.IsOnline == true).ToList();
+                        }
+                        else
+                        {
+                            schedules = schedules.Where(c => c.ConsultancyType == doctorFilterModel.consultancyType);
+                            result = (from t1 in result
+                                      join t2 in schedules //.Where(c => c.ConsultancyType == doctorFilterModel.consultancyType)
+                                        on t1.Id equals t2.DoctorProfileId
+                                        select t1).Distinct().ToList();
+                        }
                     }
                 }
                 catch (Exception ex)
