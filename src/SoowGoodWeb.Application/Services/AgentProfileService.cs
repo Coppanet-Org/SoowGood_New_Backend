@@ -193,7 +193,7 @@ namespace SoowGoodWeb.Services
                 itemAgent.AgentCode = !string.IsNullOrEmpty(input.AgentCode) ? input.AgentCode : itemAgent.AgentCode;
                 itemAgent.OrganizationName = !string.IsNullOrEmpty(input.OrganizationName) ? input.OrganizationName : itemAgent.OrganizationName;
                 itemAgent.Email = !string.IsNullOrEmpty(input.Email) ? input.Email : itemAgent.Email;
-                itemAgent.MobileNo = !string.IsNullOrEmpty(input.MobileNo) ? input.Email : itemAgent.Email;
+                itemAgent.MobileNo = itemAgent.MobileNo;
 
                 itemAgent.Address = !string.IsNullOrEmpty(input.Address) ? input.Address : itemAgent.Address;
                 itemAgent.City = !string.IsNullOrEmpty(input.City) ? input.City : itemAgent.City;
@@ -202,10 +202,10 @@ namespace SoowGoodWeb.Services
                 itemAgent.AgentMasterId = input.AgentMasterId > 0 ? input.AgentMasterId : itemAgent.AgentMasterId;
                 itemAgent.AgentSupervisorId = input.AgentSupervisorId > 0 ? input.AgentSupervisorId : itemAgent.AgentSupervisorId;
                 itemAgent.IsActive = input.IsActive; //itemAgent.IsActive == false ? input.IsActive : itemAgent.IsActive;
-                itemAgent.UserId = input.UserId != null ? input.UserId : itemAgent.UserId;
-                itemAgent.profileStep = input.profileStep > 0 ? input.profileStep : itemAgent.profileStep;
+                itemAgent.UserId = itemAgent.UserId;
+                itemAgent.profileStep = itemAgent.profileStep;
                 itemAgent.createFrom = !string.IsNullOrEmpty(input.createFrom) ? input.createFrom : itemAgent.Address;
-                itemAgent.AgentDocNumber = !string.IsNullOrEmpty(input.AgentDocNumber) ? input.AgentDocNumber : itemAgent.Address;
+                itemAgent.AgentDocNumber = !string.IsNullOrEmpty(input.AgentDocNumber) ? input.AgentDocNumber : itemAgent.AgentDocNumber;
                 itemAgent.AgentDocExpireDate = input.AgentDocExpireDate != null ? input.AgentDocExpireDate : itemAgent.AgentDocExpireDate;
 
                 var item = await _agentProfileRepository.UpdateAsync(itemAgent);
