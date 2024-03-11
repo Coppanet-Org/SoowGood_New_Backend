@@ -26,6 +26,17 @@ namespace SoowGoodWeb.Services
         }
         public async Task<PlatformFacilityDto> CreateAsync(PlatformFacilityInputDto input)
         {
+            var serviceName = input.ServiceName.ToLower();
+            bool containsSpace = serviceName.Contains(" ");
+            if (containsSpace)
+            {
+                input.Slug = serviceName.Replace(" ", "-");
+            }
+            else
+            {
+                input.Slug = serviceName;
+            }
+            
             var newEntity = ObjectMapper.Map<PlatformFacilityInputDto, PlatformFacility>(input);
 
             var platformFacility = await _platformFacilityRepository.InsertAsync(newEntity);
