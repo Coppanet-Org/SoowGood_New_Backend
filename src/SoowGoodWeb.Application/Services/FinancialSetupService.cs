@@ -110,6 +110,31 @@ namespace SoowGoodWeb.Services
         {
             await _financialSetupRepository.DeleteAsync(d => d.Id == id);
         }
-        
+
+        public async Task<decimal> GetToalDiscountAmountTotalProviderAmountAsync(decimal amount)
+        {
+            decimal? finsetupAmnt = 0;
+            decimal? discountAmnt = 0;
+            //decimal? finalAmnt = 0;
+            var finSetup = await _financialSetupRepository.WithDetailsAsync();
+
+            var finsetupAmntIn = finSetup.FirstOrDefault(f => f.PlatformFacilityId == 7 && f.DiagonsticServiceType == DiagonsticServiceType.General)?.AmountIn;
+            if (finsetupAmntIn == "Percentage")
+            {
+                finsetupAmnt = finSetup.FirstOrDefault(a => a.PlatformFacilityId == 7 && a.DiagonsticServiceType == DiagonsticServiceType.General && a.AmountIn == finsetupAmntIn)?.Amount;
+                discountAmnt = (amount * finsetupAmnt) / 100;
+                //finalAmnt = item.ProviderRate - discountAmnt;
+            }
+            else
+            {
+                finsetupAmnt = finSetup.FirstOrDefault(a => a.PlatformFacilityId == 7 && a.DiagonsticServiceType == DiagonsticServiceType.General && a.AmountIn == finsetupAmntIn)?.Amount;
+                discountAmnt = finsetupAmnt;
+                //finalAmnt = item.ProviderRate - discountAmnt;
+            }
+
+            return discountAmnt>0?(decimal)discountAmnt:0;  
+                //ObjectMapper.Map<FinancialSetup, FinancialSetupDto>(item);
+        }
+
     }
 }

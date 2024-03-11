@@ -26,6 +26,7 @@ namespace SoowGoodWeb.Services
         private readonly IRepository<DoctorProfile> _doctorDetails;
         private readonly IRepository<PatientProfile> _patientDetails;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
+        private readonly AppointmentService _appointmentService;
         public PrescriptionMasterService(IRepository<PrescriptionMaster> prescriptionMasterRepository,
                                          IUnitOfWorkManager unitOfWorkManager,
                                          IRepository<PrescriptionMainComplaint> prescriptionMainComplaint,
@@ -34,6 +35,7 @@ namespace SoowGoodWeb.Services
                                          IRepository<PrescriptionPatientDiseaseHistory> prescriptionPatientDiseaseHistory,
                                          IRepository<PrescriptionDrugDetails> prescriptionDrugDetails,
                                          IRepository<DoctorProfile> doctorDetails,
+                                         AppointmentService appointmentService,
                                          IRepository<PatientProfile> patientDetails)
         {
             _prescriptionMasterRepository = prescriptionMasterRepository;
@@ -44,12 +46,13 @@ namespace SoowGoodWeb.Services
             _prescriptionMedicalCheckups = prescriptionMedicalCheckups;
             _prescriptionPatientDiseaseHistory = prescriptionPatientDiseaseHistory;
             _prescriptionDrugDetails = prescriptionDrugDetails;
+            _appointmentService = appointmentService;
             _doctorDetails = doctorDetails;
             _patientDetails = patientDetails;
         }
         public async Task<PrescriptionMasterDto> CreateAsync(PrescriptionMasterInputDto input)
         {
-            var result = new PrescriptionMasterDto();
+            var result = new PrescriptionMasterDto(); 
             try
             {
                 long lastcount = await GetPrescriptionCountAsync();
@@ -63,8 +66,13 @@ namespace SoowGoodWeb.Services
                 var prescriptionMaster = await _prescriptionMasterRepository.InsertAsync(newEntity);
 
                 await _unitOfWorkManager.Current.SaveChangesAsync();
+                
 
                 result = ObjectMapper.Map<PrescriptionMaster, PrescriptionMasterDto>(prescriptionMaster);
+                if(result != null)
+                {
+                   await _appointmentService.UpdateCallConsultationAppointmentAsync(input.AppointmentCode);
+                }
 
             }
             catch (Exception ex)
@@ -356,9 +364,9 @@ namespace SoowGoodWeb.Services
                 result.SpecialityId = doctorInfo?.SpecialityId;
                 result.DoctorSpecilityName = doctorInfo?.Speciality?.SpecialityName;
                 result.PatientProfileId = prescription.PatientProfileId;
-                result.PatientName = patientDetails?.PatientName;
+                result.PatientName = prescription?.PatientName;
                 result.PatientCode = patientDetails?.PatientCode;
-                result.PatientAge = patientDetails?.Age;
+                result.PatientAge = prescription?.Age;
                 result.PatientBloodGroup = patientDetails?.BloodGroup;
                 result.PatientAdditionalInfo = prescription.PatientAdditionalInfo;
                 result.ConsultancyType = prescription.ConsultancyType;
