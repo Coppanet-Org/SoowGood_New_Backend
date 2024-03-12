@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.ObjectMapping;
 using Volo.Abp.Uow;
+using System;
 
 namespace SoowGoodWeb.Services
 {
@@ -36,7 +37,7 @@ namespace SoowGoodWeb.Services
             {
                 input.Slug = serviceName;
             }
-            
+
             var newEntity = ObjectMapper.Map<PlatformFacilityInputDto, PlatformFacility>(input);
 
             var platformFacility = await _platformFacilityRepository.InsertAsync(newEntity);
@@ -48,13 +49,21 @@ namespace SoowGoodWeb.Services
 
         public async Task<PlatformFacilityDto> UpdateAsync(PlatformFacilityInputDto input)
         {
-            var updateItem = ObjectMapper.Map<PlatformFacilityInputDto, PlatformFacility>(input);
+            try
+            {
+                var updateItem = ObjectMapper.Map<PlatformFacilityInputDto, PlatformFacility>(input);
 
-            var item = await _platformFacilityRepository.UpdateAsync(updateItem);
+                var item = await _platformFacilityRepository.UpdateAsync(updateItem);
 
-            await _unitOfWorkManager.Current.SaveChangesAsync();
+                await _unitOfWorkManager.Current.SaveChangesAsync();
 
-            return ObjectMapper.Map<PlatformFacility, PlatformFacilityDto>(item);
+                return ObjectMapper.Map<PlatformFacility, PlatformFacilityDto>(item);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
         }
 
 
