@@ -67,9 +67,9 @@ namespace SoowGoodWeb.Services
 
                 result.Add(new PathologyTestDto()
                 {
-
+                    Id = item.Id,
                     PathologyCategoryId = item.PathologyCategoryId,
-                    PathologyCategoryName= item.PathologyCategoryId>0? item.PathologyCategory.PathologyCategoryName:"",
+                    PathologyCategoryName = item.PathologyCategoryId > 0 ? item.PathologyCategory.PathologyCategoryName : "",
                     PathologyTestDescription = item.PathologyTestDescription,
                     PathologyTestName = item.PathologyTestName,
 
