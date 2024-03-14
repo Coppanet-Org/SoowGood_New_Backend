@@ -1,4 +1,5 @@
 ﻿using SoowGoodWeb.DtoModels;
+using SoowGoodWeb.Enums;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
@@ -54,8 +55,40 @@ namespace SoowGoodWeb.Services
         }
         public async Task<List<ServiceProviderDto>> GetListAsync()
         {
-            var serviceProviders = await _serviceProviderRepository.GetListAsync();
-            return ObjectMapper.Map<List<ServiceProvider>, List<ServiceProviderDto>>(serviceProviders).OrderByDescending(a=>a.Id).ToList();
+            List<ServiceProviderDto>? result = null;
+            
+            var allServiceProviderDetails = await _serviceProviderRepository.WithDetailsAsync(p => p.PlatformFacility);
+            if (!allServiceProviderDetails.Any())
+            {
+                return result;
+            }
+            result = new List<ServiceProviderDto>();
+            foreach (var item in allServiceProviderDetails)
+            {
+               
+                result.Add(new ServiceProviderDto()
+                {
+
+                   Id = item.Id,
+                   PlatformFacilityId = item.PlatformFacilityId,
+                   PlatformFacilityName=item.PlatformFacilityId>0 ? item.PlatformFacility.ServiceName:"",
+                   ProviderOrganizationName = item.ProviderOrganizationName,
+                   OrganizationCode = item.OrganizationCode,
+                   OrganizationAvailability = item.OrganizationAvailability,
+                   OrganizationPhoneNumber = item.OrganizationPhoneNumber,
+                   ContactPerson=item.ContactPerson,
+                   ContactPersonEmail=item.ContactPersonEmail,
+                   ContactPersonMobileNo=item.ContactPersonMobileNo,
+                   Branch=item.Branch,
+                   Address=item.Address,
+                   IsActive=item.IsActive,
+
+                });
+            }
+            var resList = result.OrderByDescending(d => d.Id).ToList();
+            return resList;
+            //var serviceProviders = await _serviceProviderRepository.GetListAsync();
+            //return ObjectMapper.Map<List<ServiceProvider>, List<ServiceProviderDto>>(serviceProviders).OrderByDescending(a=>a.Id).ToList();
 
 
             //result = result.OrderByDescending(a => a.AppointmentDate).ToList();
