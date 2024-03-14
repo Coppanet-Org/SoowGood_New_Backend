@@ -62,7 +62,7 @@ namespace SoowGoodWeb.Services
         public async Task<List<AgentMasterDto>> GetListAsync()
         {
             var agentMasters = await _agentMasterRepository.GetListAsync();
-            return ObjectMapper.Map<List<AgentMaster>, List<AgentMasterDto>>(agentMasters);
+            return ObjectMapper.Map<List<AgentMaster>, List<AgentMasterDto>>(agentMasters).OrderByDescending(d => d.Id).ToList();
         }
 
         public async Task<AgentMasterDto> UpdateAsync(AgentMasterInputDto input)

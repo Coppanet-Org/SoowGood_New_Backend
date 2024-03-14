@@ -54,8 +54,31 @@ namespace SoowGoodWeb.Services
         }
         public async Task<List<PathologyTestDto>> GetListAsync()
         {
-            var pathologyTests = await _pathologyTestRepository.GetListAsync();
-            return ObjectMapper.Map<List<PathologyTest>, List<PathologyTestDto>>(pathologyTests).OrderByDescending(a=>a.Id).ToList();
+            List<PathologyTestDto>? result = null;
+
+            var allPathologyTestDetails = await _pathologyTestRepository.WithDetailsAsync(p => p.PathologyCategory);
+            if (!allPathologyTestDetails.Any())
+            {
+                return result;
+            }
+            result = new List<PathologyTestDto>();
+            foreach (var item in allPathologyTestDetails)
+            {
+
+                result.Add(new PathologyTestDto()
+                {
+
+                    PathologyCategoryId = item.PathologyCategoryId,
+                    PathologyCategoryName= item.PathologyCategoryId>0? item.PathologyCategory.PathologyCategoryName:"",
+                    PathologyTestDescription = item.PathologyTestDescription,
+                    PathologyTestName = item.PathologyTestName,
+
+                });
+            }
+            var resList = result.OrderByDescending(d => d.Id).ToList();
+            return resList;
+            //var pathologyTests = await _pathologyTestRepository.GetListAsync();
+            //return ObjectMapper.Map<List<PathologyTest>, List<PathologyTestDto>>(pathologyTests).OrderByDescending(a=>a.Id).ToList();
 
 
             //result = result.OrderByDescending(a => a.AppointmentDate).ToList();
