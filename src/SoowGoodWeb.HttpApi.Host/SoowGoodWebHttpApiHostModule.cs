@@ -36,6 +36,7 @@ using Volo.Abp.VirtualFileSystem;
 //using Volo.Abp.AspNetCore.Mvc.UI.Bundling;
 //using Volo.Abp.UI.Navigation.Urls;
 //using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared;
+using Volo.Abp.AspNetCore.SignalR;
 
 namespace SoowGoodWeb;
 
@@ -51,9 +52,10 @@ namespace SoowGoodWeb;
     //typeof(AbpAspNetCoreMvcUiBasicThemeModule),
     //typeof(AbpAccountWebOpenIddictModule),
     typeof(AbpAspNetCoreSerilogModule),
-    typeof(AbpSwashbuckleModule)
+    typeof(AbpSwashbuckleModule)//,
+    //typeof(AbpAspNetCoreSignalRModule)
 )]
-public class SoowGoodWebHttpApiHostModule : AbpModule
+    public class SoowGoodWebHttpApiHostModule : AbpModule
 {
     //public override void PreConfigureServices(ServiceConfigurationContext context)
     //{
@@ -83,6 +85,23 @@ public class SoowGoodWebHttpApiHostModule : AbpModule
         ConfigureVirtualFileSystem(context);
         ConfigureCors(context, configuration);
         ConfigureSwaggerServices(context, configuration);
+
+        //context.Services.AddTransient<ChatHub>();
+
+        //Configure<AbpSignalROptions>(options =>
+        //{
+        //    options.Hubs.Add(
+        //        new HubConfig(
+        //            typeof(ChatHub),
+        //            "/signalr-hubs/chatting",
+        //            hubOptions =>
+        //            {
+        //                //Additional options
+        //                hubOptions.LongPolling.PollTimeout = TimeSpan.FromSeconds(30);
+        //            }
+        //        )
+        //    );
+        //});
     }
 
     private void ConfigureCache(IConfiguration configuration)
@@ -220,6 +239,7 @@ public class SoowGoodWebHttpApiHostModule : AbpModule
                     .AllowCredentials();
             });
         });
+        context.Services.AddSignalR();
     }
 
     public override void OnApplicationInitialization(ApplicationInitializationContext context)
@@ -239,13 +259,30 @@ public class SoowGoodWebHttpApiHostModule : AbpModule
         //    app.UseErrorPage();
         //}
 
+        //app.Use(async (httpContext, next) =>
+        //    {
+        //        var accessToken = httpContext.Request.Query["access_token"];
+
+        //        var path = httpContext.Request.Path;
+        //        if (!string.IsNullOrEmpty(accessToken) &&
+        //            (path.StartsWithSegments("/signalr-hubs/chat")))
+        //        {
+        //            httpContext.Request.Headers["Authorization"] = "Bearer " + accessToken;
+        //        }
+
+        //        await next();
+        //    });
+
         app.UseCorrelationId();
         app.UseStaticFiles();
         app.UseRouting();
         app.UseCors();
         app.UseAuthentication();
         //app.UseAbpOpenIddictValidation();
-
+        app.UseEndpoints(endpoints =>
+         {
+             endpoints.MapHub<BroadcastHub>("/notify");
+         });
         if (MultiTenancyConsts.IsEnabled)
         {
             app.UseMultiTenancy();

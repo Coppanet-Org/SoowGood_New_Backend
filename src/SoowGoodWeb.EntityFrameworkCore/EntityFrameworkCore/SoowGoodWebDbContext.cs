@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SignalRTieredDemo.Users;
 using SoowGoodWeb.Models;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
@@ -53,7 +54,7 @@ public class SoowGoodWebDbContext :
     public DbSet<TenantConnectionString> TenantConnectionStrings { get; set; }
 
     #endregion
-
+    public DbSet<AppUser> SgUsers { get; set; }
     //SoowGood Database Models
     #region Entities from SoowGood Modules
 

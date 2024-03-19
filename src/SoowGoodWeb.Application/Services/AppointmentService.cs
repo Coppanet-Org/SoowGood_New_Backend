@@ -26,6 +26,8 @@ namespace SoowGoodWeb.Services
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
 
+        //private readonly IHubContext<BroadcastHub, IHubClient> _hubContext;
+
 
         private readonly uint _expireTimeInSeconds = 3600;
         public AppointmentService(IRepository<Appointment> appointmentRepository,
