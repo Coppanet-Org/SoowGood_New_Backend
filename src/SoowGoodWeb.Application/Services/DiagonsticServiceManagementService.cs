@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.DependencyInjection;
+using Nancy.Diagnostics;
 using SoowGoodWeb.DtoModels;
 using SoowGoodWeb.Enums;
 using SoowGoodWeb.InputDto;
@@ -18,13 +20,14 @@ namespace SoowGoodWeb.Services
     public class DiagonsticServiceManagementService : SoowGoodWebAppService, IDiagonsticPathologyServiceManagementService
     {
         private readonly IRepository<DiagonsticPathologyServiceManagement> _diagonsticPathologyServiceManagementRepository;
+        private readonly IRepository<DiagonsticTestRequested> _diagonsticTestRequestedRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly IRepository<DoctorProfile> _doctorProfileRepository;
 
-        public DiagonsticServiceManagementService(IRepository<DiagonsticPathologyServiceManagement> diagonsticPathologyServiceManagementRepository, IUnitOfWorkManager unitOfWorkManager)
+        public DiagonsticServiceManagementService(IRepository<DiagonsticPathologyServiceManagement> diagonsticPathologyServiceManagementRepository, IRepository<DiagonsticTestRequested> diagonsticTestRequestedRepository, IUnitOfWorkManager unitOfWorkManager)
         {
             _diagonsticPathologyServiceManagementRepository = diagonsticPathologyServiceManagementRepository;
-
+            _diagonsticTestRequestedRepository = diagonsticTestRequestedRepository;
             _unitOfWorkManager = unitOfWorkManager;
         }
         public async Task<DiagonsticPathologyServiceManagementDto> CreateAsync(DiagonsticPathologyServiceManagementInputDto input)
@@ -54,18 +57,70 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<DiagonsticPathologyServiceManagement, DiagonsticPathologyServiceManagementDto>(item);
         }
 
+        public async Task<DiagonsticPathologyServiceManagementDto> UpdateServiceRequestStatusByAdmin(int Id, ServiceRequestStatus serviceRequestStatus)
+        {
+            var user = await _diagonsticPathologyServiceManagementRepository.GetAsync(x => x.Id == Id);
+            if (user != null)
+            {
+                if (user.ServiceRequestStatus != ServiceRequestStatus.Cancelled)
+                {
+                    user.ServiceRequestStatus = serviceRequestStatus;
+                }
+            }
+            var item = await _diagonsticPathologyServiceManagementRepository.UpdateAsync(user);
+            await _unitOfWorkManager.Current.SaveChangesAsync();
+            return ObjectMapper.Map<DiagonsticPathologyServiceManagement, DiagonsticPathologyServiceManagementDto>(item);
+
+        }
 
         public async Task<DiagonsticPathologyServiceManagementDto> GetAsync(int id)
         {
-            var item = await _diagonsticPathologyServiceManagementRepository.GetAsync(x => x.Id == id);
+            DiagonsticPathologyServiceManagementDto? result = null;
+            var serviceWithDetails = await _diagonsticPathologyServiceManagementRepository.WithDetailsAsync(dp => dp.DiagonsticPackage, p => p.ServiceProvider, d => d.DiagonsticTestRequested);
+            if (!serviceWithDetails.Any())
+            {
+                return result;
+            }
+            var service = serviceWithDetails.FirstOrDefault(service => service.Id == id);
+            if (service == null) { return result; }
+            result = new DiagonsticPathologyServiceManagementDto();
+            var testRequests = await _diagonsticTestRequestedRepository.WithDetailsAsync(d => d.DiagonsticTest);
+            var requests = testRequests.Where(i => i.DiagonsticPathologyServiceManagementId == service.Id).ToList();
+            var diagonsticTestRequests = ObjectMapper.Map<List<DiagonsticTestRequested>, List<DiagonsticTestRequestedDto>>(requests);
 
-            return ObjectMapper.Map<DiagonsticPathologyServiceManagement, DiagonsticPathologyServiceManagementDto>(item);
+
+           
+            result.Id = service.Id;
+            result.DiagonsticPackageId = service.DiagonsticPackageId;
+            result.DiagonsticPackageName = service.DiagonsticPackageId > 0 ? service.DiagonsticPackage.PackageName : "n/a";
+            result.DiagonsticServiceType = service.DiagonsticServiceType;
+            result.DiagonsticServiceTypeName = service.DiagonsticServiceType > 0 ? ((DiagonsticServiceType)service.DiagonsticServiceType).ToString() : "n/a";
+            result.Discount = service.Discount;
+            result.FinalFee = service.FinalFee;
+            result.OrganizationCode = service.OrganizationCode;
+            result.PatientCode = service.PatientCode;
+            result.PatientName = service.PatientName;
+            result.PatientProfileId = service.PatientProfileId;
+            result.ProviderFee = service.ProviderFee;
+            result.RequestDate = service.RequestDate;
+            result.ServiceProviderId = service.ServiceProviderId;
+            result.ServiceProviderName = service.ServiceProviderId > 0 ? service.ServiceProvider.ProviderOrganizationName : "n/a";
+            result.ServiceRequestCode = service.ServiceRequestCode;
+            result.ServiceRequestStatus = service.ServiceRequestStatus;
+            result.ServiceRequestStatusName = service.ServiceRequestStatus > 0 ? ((ServiceRequestStatus)service.ServiceRequestStatus).ToString() : "n/a";
+            result.DiagonsticTestRequested = diagonsticTestRequests;
+            
+
+            return result;
+            //var item = await _diagonsticPathologyServiceManagementRepository.GetAsync(x => x.Id == id);
+
+            //return ObjectMapper.Map<DiagonsticPathologyServiceManagement, DiagonsticPathologyServiceManagementDto>(item);
         }
         public async Task<List<DiagonsticPathologyServiceManagementDto>> GetListAsync()
         {
             List<DiagonsticPathologyServiceManagementDto>? result = null;
 
-            var allDiagonsticPathologyServiceRequestDetails = await _diagonsticPathologyServiceManagementRepository.WithDetailsAsync(dp=>dp.DiagonsticPackage,p=>p.ServiceProvider);
+            var allDiagonsticPathologyServiceRequestDetails = await _diagonsticPathologyServiceManagementRepository.WithDetailsAsync(dp=>dp.DiagonsticPackage,p=>p.ServiceProvider,d=>d.DiagonsticTestRequested);
             if (!allDiagonsticPathologyServiceRequestDetails.Any())
             {
                 return result;
@@ -73,7 +128,7 @@ namespace SoowGoodWeb.Services
             result = new List<DiagonsticPathologyServiceManagementDto>();
             foreach (var item in allDiagonsticPathologyServiceRequestDetails)
             {
-
+               
                 result.Add(new DiagonsticPathologyServiceManagementDto()
                 {
                     Id = item.Id,
