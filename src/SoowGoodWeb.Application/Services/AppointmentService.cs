@@ -13,6 +13,7 @@ using SoowGoodWeb.SslCommerz;
 using AgoraIO.Media;
 using System.Globalization;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.AspNetCore.SignalR;
 
 namespace SoowGoodWeb.Services
 {
@@ -26,6 +27,7 @@ namespace SoowGoodWeb.Services
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
 
+        private readonly IHubContext<BroadcastHub, IHubClient> _hubContext;
         //private readonly IHubContext<BroadcastHub, IHubClient> _hubContext;
 
 
@@ -36,7 +38,8 @@ namespace SoowGoodWeb.Services
             IRepository<PatientProfile> patientProfileRepository,
             IRepository<AgentProfile> agentProfileRepository,
             SslCommerzGatewayManager sslCommerzGatewayManager,
-            IUnitOfWorkManager unitOfWorkManager)
+            IUnitOfWorkManager unitOfWorkManager,
+            IHubContext<BroadcastHub, IHubClient> hubContext)
         {
             _appointmentRepository = appointmentRepository;
             //_doctorScheduleRepository = doctorScheduleRepository;
@@ -47,6 +50,7 @@ namespace SoowGoodWeb.Services
             _sslCommerzGatewayManager = sslCommerzGatewayManager;
 
             _unitOfWorkManager = unitOfWorkManager;
+            _hubContext = hubContext;
         }
 
         public async Task<AppointmentDto> CreateAsync(AppointmentInputDto input)
@@ -105,6 +109,8 @@ namespace SoowGoodWeb.Services
                     input.AppointmentSerial = (lastSerial + 1).ToString();
                     input.AppointmentCode = input.DoctorCode + input.AppointmentDate?.ToString("yyyyMMdd") + consultancyType + "SL00" + input.AppointmentSerial;
                 }
+                await _hubContext.Clients.All.BroadcastMessage();
+
                 var newEntity = ObjectMapper.Map<AppointmentInputDto, Appointment>(input);
 
                 var doctorChamber = await _appointmentRepository.InsertAsync(newEntity);
@@ -114,7 +120,7 @@ namespace SoowGoodWeb.Services
                 response.AppointmentTypeName = response.AppointmentType.ToString();
                 response.ConsultancyTypeName = response.ConsultancyType.ToString();
                 response.DoctorChamberName = !string.IsNullOrEmpty(chamberName) ? chamberName.ToString() : "SoowGood Online";
-
+                
             }
             catch (Exception ex)
             {
