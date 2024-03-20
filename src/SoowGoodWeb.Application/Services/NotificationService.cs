@@ -7,7 +7,7 @@ using SoowGoodWeb.Interfaces;
 using Volo.Abp.EventBus.Distributed;
 using Volo.Abp.Identity;
 
-namespace SignalRTieredDemo
+namespace SoowGoodWeb.Services
 {
     public class NotificationService: SoowGoodWebAppService, INotificationAppService
     {

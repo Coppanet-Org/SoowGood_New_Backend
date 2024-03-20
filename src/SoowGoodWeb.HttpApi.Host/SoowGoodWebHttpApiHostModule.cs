@@ -37,6 +37,7 @@ using Volo.Abp.VirtualFileSystem;
 //using Volo.Abp.UI.Navigation.Urls;
 //using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared;
 using Volo.Abp.AspNetCore.SignalR;
+using Volo.Abp.EventBus.RabbitMq;
 
 namespace SoowGoodWeb;
 
@@ -52,10 +53,11 @@ namespace SoowGoodWeb;
     //typeof(AbpAspNetCoreMvcUiBasicThemeModule),
     //typeof(AbpAccountWebOpenIddictModule),
     typeof(AbpAspNetCoreSerilogModule),
-    typeof(AbpSwashbuckleModule)//,
+    typeof(AbpSwashbuckleModule),
+    typeof(AbpEventBusRabbitMqModule)
     //typeof(AbpAspNetCoreSignalRModule)
 )]
-    public class SoowGoodWebHttpApiHostModule : AbpModule
+public class SoowGoodWebHttpApiHostModule : AbpModule
 {
     //public override void PreConfigureServices(ServiceConfigurationContext context)
     //{
@@ -239,7 +241,7 @@ namespace SoowGoodWeb;
                     .AllowCredentials();
             });
         });
-        context.Services.AddSignalR();
+        //context.Services.AddSignalR();
     }
 
     public override void OnApplicationInitialization(ApplicationInitializationContext context)
@@ -279,10 +281,10 @@ namespace SoowGoodWeb;
         app.UseCors();
         app.UseAuthentication();
         //app.UseAbpOpenIddictValidation();
-        app.UseEndpoints(endpoints =>
-         {
-             endpoints.MapHub<BroadcastHub>("/notify");
-         });
+        //app.UseEndpoints(endpoints =>
+        // {
+        //     endpoints.MapHub<ChatHub>("/chat");
+        // });
         if (MultiTenancyConsts.IsEnabled)
         {
             app.UseMultiTenancy();
