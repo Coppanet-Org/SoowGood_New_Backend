@@ -89,14 +89,14 @@ public class SoowGoodWebHttpApiHostModule : AbpModule
         ConfigureCors(context, configuration);
         ConfigureSwaggerServices(context, configuration);
 
-        //context.Services.AddTransient<ChatHub>();
+        //context.Services.AddTransient<BroadcastHub>();
 
         //Configure<AbpSignalROptions>(options =>
         //{
         //    options.Hubs.Add(
         //        new HubConfig(
-        //            typeof(ChatHub),
-        //            "/signalr-hubs/chatting",
+        //            typeof(BroadcastHub),
+        //            "/notify",
         //            hubOptions =>
         //            {
         //                //Additional options
@@ -265,13 +265,10 @@ public class SoowGoodWebHttpApiHostModule : AbpModule
 
         //app.Use(async (httpContext, next) =>
         //    {
-        //        var accessToken = httpContext.Request.Query["access_token"];
-
         //        var path = httpContext.Request.Path;
-        //        if (!string.IsNullOrEmpty(accessToken) &&
-        //            (path.StartsWithSegments("/signalr-hubs/chat")))
-        //        {
-        //            httpContext.Request.Headers["Authorization"] = "Bearer " + accessToken;
+        //        if (
+        //            (path.StartsWithSegments("/notify")))
+        //        {   
         //        }
 
         //        await next();
@@ -286,6 +283,12 @@ public class SoowGoodWebHttpApiHostModule : AbpModule
         app.UseEndpoints(endpoints =>
          {
              endpoints.MapHub<BroadcastHub>("/notify");
+            //,
+            //        hubOptions =>
+            //        {
+            //            //Additional options
+            //            hubOptions.LongPolling.PollTimeout = TimeSpan.FromSeconds(5);
+            //        });
          });
         if (MultiTenancyConsts.IsEnabled)
         {
