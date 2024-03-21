@@ -24,6 +24,7 @@ namespace SoowGoodWeb.Services
         private readonly IRepository<DoctorScheduleDaySession> _doctorScheduleSessionRepository;
         private readonly IRepository<PatientProfile> _patientProfileRepository;
         private readonly IRepository<AgentProfile> _agentProfileRepository;
+        private readonly IRepository<Notification> _notificationRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
 
@@ -39,7 +40,8 @@ namespace SoowGoodWeb.Services
             IRepository<AgentProfile> agentProfileRepository,
             SslCommerzGatewayManager sslCommerzGatewayManager,
             IUnitOfWorkManager unitOfWorkManager,
-            IHubContext<BroadcastHub, IHubClient> hubContext)
+            IHubContext<BroadcastHub, IHubClient> hubContext,
+            IRepository<Notification> notificationRepository)
         {
             _appointmentRepository = appointmentRepository;
             //_doctorScheduleRepository = doctorScheduleRepository;
@@ -51,11 +53,14 @@ namespace SoowGoodWeb.Services
 
             _unitOfWorkManager = unitOfWorkManager;
             _hubContext = hubContext;
+            _notificationRepository = notificationRepository;
         }
 
         public async Task<AppointmentDto> CreateAsync(AppointmentInputDto input)
         {
             var response = new AppointmentDto();
+            var notificatinInput = new NotificationInputDto();
+            var notificatin = new NotificationDto();
             try
             {
                 string consultancyType;
@@ -109,6 +114,12 @@ namespace SoowGoodWeb.Services
                     input.AppointmentSerial = (lastSerial + 1).ToString();
                     input.AppointmentCode = input.DoctorCode + input.AppointmentDate?.ToString("yyyyMMdd") + consultancyType + "SL00" + input.AppointmentSerial;
                 }
+                notificatinInput.Message = "Appointment Create";
+                notificatinInput.TransactionType = "Add";
+
+                var newNotificaitonEntity = ObjectMapper.Map<NotificationInputDto, Notification>(notificatinInput);
+                var notifictionInsert = await _notificationRepository.InsertAsync(newNotificaitonEntity);
+
                 await _hubContext.Clients.All.BroadcastMessage();
 
                 var newEntity = ObjectMapper.Map<AppointmentInputDto, Appointment>(input);
