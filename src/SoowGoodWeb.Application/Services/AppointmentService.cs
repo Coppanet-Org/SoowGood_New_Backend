@@ -13,6 +13,7 @@ using SoowGoodWeb.SslCommerz;
 using AgoraIO.Media;
 using System.Globalization;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.AspNetCore.SignalR;
 
 namespace SoowGoodWeb.Services
 {
@@ -23,8 +24,12 @@ namespace SoowGoodWeb.Services
         private readonly IRepository<DoctorScheduleDaySession> _doctorScheduleSessionRepository;
         private readonly IRepository<PatientProfile> _patientProfileRepository;
         private readonly IRepository<AgentProfile> _agentProfileRepository;
+        private readonly IRepository<Notification> _notificationRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
+
+        private readonly IHubContext<BroadcastHub, IHubClient> _hubContext;
+        //private readonly IHubContext<BroadcastHub, IHubClient> _hubContext;
 
 
         private readonly uint _expireTimeInSeconds = 3600;
@@ -34,7 +39,9 @@ namespace SoowGoodWeb.Services
             IRepository<PatientProfile> patientProfileRepository,
             IRepository<AgentProfile> agentProfileRepository,
             SslCommerzGatewayManager sslCommerzGatewayManager,
-            IUnitOfWorkManager unitOfWorkManager)
+            IUnitOfWorkManager unitOfWorkManager,
+            IHubContext<BroadcastHub, IHubClient> hubContext,
+            IRepository<Notification> notificationRepository)
         {
             _appointmentRepository = appointmentRepository;
             //_doctorScheduleRepository = doctorScheduleRepository;
@@ -45,11 +52,15 @@ namespace SoowGoodWeb.Services
             _sslCommerzGatewayManager = sslCommerzGatewayManager;
 
             _unitOfWorkManager = unitOfWorkManager;
+            _hubContext = hubContext;
+            _notificationRepository = notificationRepository;
         }
 
         public async Task<AppointmentDto> CreateAsync(AppointmentInputDto input)
         {
             var response = new AppointmentDto();
+            var notificatinInput = new NotificationInputDto();
+            var notificatin = new NotificationDto();
             try
             {
                 string consultancyType;
@@ -103,6 +114,14 @@ namespace SoowGoodWeb.Services
                     input.AppointmentSerial = (lastSerial + 1).ToString();
                     input.AppointmentCode = input.DoctorCode + input.AppointmentDate?.ToString("yyyyMMdd") + consultancyType + "SL00" + input.AppointmentSerial;
                 }
+                notificatinInput.Message = "Appointment Create";
+                notificatinInput.TransactionType = "Add";
+
+                var newNotificaitonEntity = ObjectMapper.Map<NotificationInputDto, Notification>(notificatinInput);
+                var notifictionInsert = await _notificationRepository.InsertAsync(newNotificaitonEntity);
+
+                await _hubContext.Clients.All.BroadcastMessage();
+
                 var newEntity = ObjectMapper.Map<AppointmentInputDto, Appointment>(input);
 
                 var doctorChamber = await _appointmentRepository.InsertAsync(newEntity);
@@ -112,7 +131,7 @@ namespace SoowGoodWeb.Services
                 response.AppointmentTypeName = response.AppointmentType.ToString();
                 response.ConsultancyTypeName = response.ConsultancyType.ToString();
                 response.DoctorChamberName = !string.IsNullOrEmpty(chamberName) ? chamberName.ToString() : "SoowGood Online";
-
+                
             }
             catch (Exception ex)
             {
