@@ -217,5 +217,9 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<DiagonsticTestRequested, DiagonsticTestRequestedDto>();
         CreateMap<DiagonsticTestRequestedDto, DiagonsticTestRequested>();
         CreateMap<DiagonsticTestRequestedInputDto, DiagonsticTestRequested>();
+
+        CreateMap<Notification, NotificationDto>();
+        CreateMap<NotificationDto, Notification>();
+        CreateMap<NotificationInputDto, Notification>();
     }
 }

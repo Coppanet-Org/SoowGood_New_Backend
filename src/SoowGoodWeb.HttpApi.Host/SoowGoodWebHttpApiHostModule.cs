@@ -37,6 +37,8 @@ using Volo.Abp.VirtualFileSystem;
 //using Volo.Abp.UI.Navigation.Urls;
 //using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared;
 using Volo.Abp.AspNetCore.SignalR;
+using Volo.Abp.EventBus.RabbitMq;
+using Autofac.Core;
 
 namespace SoowGoodWeb;
 
@@ -53,9 +55,10 @@ namespace SoowGoodWeb;
     //typeof(AbpAccountWebOpenIddictModule),
     typeof(AbpAspNetCoreSerilogModule),
     typeof(AbpSwashbuckleModule)//,
+    //typeof(AbpEventBusRabbitMqModule)
     //typeof(AbpAspNetCoreSignalRModule)
 )]
-    public class SoowGoodWebHttpApiHostModule : AbpModule
+public class SoowGoodWebHttpApiHostModule : AbpModule
 {
     //public override void PreConfigureServices(ServiceConfigurationContext context)
     //{
@@ -86,14 +89,14 @@ namespace SoowGoodWeb;
         ConfigureCors(context, configuration);
         ConfigureSwaggerServices(context, configuration);
 
-        //context.Services.AddTransient<ChatHub>();
+        //context.Services.AddTransient<BroadcastHub>();
 
         //Configure<AbpSignalROptions>(options =>
         //{
         //    options.Hubs.Add(
         //        new HubConfig(
-        //            typeof(ChatHub),
-        //            "/signalr-hubs/chatting",
+        //            typeof(BroadcastHub),
+        //            "/notify",
         //            hubOptions =>
         //            {
         //                //Additional options
@@ -102,6 +105,7 @@ namespace SoowGoodWeb;
         //        )
         //    );
         //});
+        //context.Services.AddSignalR();
     }
 
     private void ConfigureCache(IConfiguration configuration)
@@ -261,13 +265,10 @@ namespace SoowGoodWeb;
 
         //app.Use(async (httpContext, next) =>
         //    {
-        //        var accessToken = httpContext.Request.Query["access_token"];
-
         //        var path = httpContext.Request.Path;
-        //        if (!string.IsNullOrEmpty(accessToken) &&
-        //            (path.StartsWithSegments("/signalr-hubs/chat")))
-        //        {
-        //            httpContext.Request.Headers["Authorization"] = "Bearer " + accessToken;
+        //        if (
+        //            (path.StartsWithSegments("/notify")))
+        //        {   
         //        }
 
         //        await next();
@@ -282,6 +283,12 @@ namespace SoowGoodWeb;
         app.UseEndpoints(endpoints =>
          {
              endpoints.MapHub<BroadcastHub>("/notify");
+            //,
+            //        hubOptions =>
+            //        {
+            //            //Additional options
+            //            hubOptions.LongPolling.PollTimeout = TimeSpan.FromSeconds(5);
+            //        });
          });
         if (MultiTenancyConsts.IsEnabled)
         {

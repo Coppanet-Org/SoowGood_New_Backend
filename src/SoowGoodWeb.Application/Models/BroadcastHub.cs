@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using SoowGoodWeb.Interfaces;
-using Volo.Abp.AspNetCore.SignalR;
+//using Volo.Abp.AspNetCore.SignalR;
 using Volo.Abp.Users;
 
 namespace SoowGoodWeb
@@ -10,8 +10,8 @@ namespace SoowGoodWeb
     //public class ChatHub : Hub<IHubClient>
     //{
     //}
-    [Authorize]
-    public class ChatHub : AbpHub
+    //[Authorize]
+    public class BroadcastHub : Hub<IHubClient> //: AbpHub
     {
         //private readonly ICurrentUser _currentUser;
 
