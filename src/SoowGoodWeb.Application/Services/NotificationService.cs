@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using SoowGoodWeb;
@@ -9,6 +10,7 @@ using SoowGoodWeb.Models;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.EventBus.Distributed;
 using Volo.Abp.Identity;
+using Volo.Abp.ObjectMapping;
 
 namespace SoowGoodWeb.Services
 {
@@ -47,7 +49,8 @@ namespace SoowGoodWeb.Services
         public async Task<List<NotificationDto>> GetListAsync()
         {
             var notifications = await _notificationRepository.GetListAsync();
-            return ObjectMapper.Map<List<Notification>, List<NotificationDto>>(notifications);
+            var notificationlist = notifications.OrderByDescending(x => x.Id).ToList();
+            return ObjectMapper.Map<List<Notification>, List<NotificationDto>>(notificationlist);
         }
         public async Task<int> GetCount()
         {
