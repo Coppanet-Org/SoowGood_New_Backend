@@ -14,6 +14,9 @@ namespace SoowGoodWeb.Models
 
         public long? PlatformFacilityId { get; set; }
         public PlatformFacility? PlatformFacility { get; set; }
+        public FacilityEntityType? FacilityEntityType { get; set; }
+        public DiagonsticServiceType? DiagonsticServiceType { get; set; }
+        public long? FacilityEntityID { get; set; }
         public string? AmountIn { get; set; }
         [Column(TypeName = "decimal(18, 2)")]
         public decimal? Amount { get; set; }

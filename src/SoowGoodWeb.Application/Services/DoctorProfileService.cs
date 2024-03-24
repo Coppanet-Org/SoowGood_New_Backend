@@ -274,44 +274,6 @@ namespace SoowGoodWeb.Services
                 var fees = financialSetups.OrderBy(p => p.ProviderAmount).Where(a => a.ProviderAmount != null).ToList();
 
                 var doctorFees = await _doctorFeesSetup.WithDetailsAsync(d => d.DoctorSchedule.DoctorProfile);
-
-                if (!string.IsNullOrEmpty(doctorFilterModel?.name))
-                {
-                    profiles = profiles.Where(p => p.FullName.ToLower().Contains(doctorFilterModel.name.ToLower().Trim())).ToList();
-                }
-
-                //if (doctorFilterModel?.specialityId > 0)
-                //{
-                //    profiles = profiles.Where(p => p.SpecialityId == doctorFilterModel?.specialityId).ToList();
-                //    doctorSpecializations = doctorSpecializations.Where(sp => sp.SpecialityId == doctorFilterModel.specialityId).ToList();
-                //}
-
-                if (doctorFilterModel?.specializationId > 0)
-                {
-                    //doctorSpecializations = doctorSpecializations.Where(sp => sp.SpecializationId == doctorFilterModel.specializationId).ToList();
-                    profiles = (from t1 in profiles
-                                join t2 in doctorSpecializations.Where(c => c.SpecializationId == doctorFilterModel.specializationId)
-                                on t1.Id equals t2.DoctorProfileId
-                                select t1).ToList();
-                }
-
-                if (doctorFilterModel?.consultancyType > 0)
-                {
-                    if (doctorFilterModel?.consultancyType == ConsultancyType.OnlineRT)
-                    {
-                        profiles = profiles.Where(p => p.IsOnline == true).ToList();
-                    }
-                    //if (doctorFilterModel?.consultancyType == ConsultancyType.Chamber || doctorFilterModel?.consultancyType == ConsultancyType.Online || doctorFilterModel?.consultancyType == ConsultancyType.PhysicalVisit || doctorFilterModel?.consultancyType == ConsultancyType.OnDemand)
-                    else
-                    {
-                        schedules = schedules.Where(c => c.ConsultancyType == doctorFilterModel.consultancyType);
-                        profiles = (from t1 in profiles
-                                    join t2 in schedules //.Where(c => c.ConsultancyType == doctorFilterModel.consultancyType)
-                                    on t1.Id equals t2.DoctorProfileId
-                                    select t1).Distinct().ToList();
-                    }
-                }
-
                 //profiles = profiles.Skip(filterModel.Offset)
                 //                   .Take(filterModel.Limit).ToList();
 
@@ -389,6 +351,34 @@ namespace SoowGoodWeb.Services
                             ProfilePic = profilePics?.Path,
                             DisplayFee = fee
                         });
+                    }
+                    if (!string.IsNullOrEmpty(doctorFilterModel?.name))
+                    {
+                        result = result.Where(p => p.FullName.ToLower().Contains(doctorFilterModel.name.ToLower().Trim())).ToList();
+                    }
+
+                    if (doctorFilterModel?.specializationId > 0)
+                    {
+                        result = (from t1 in result
+                                  join t2 in doctorSpecializations.Where(c => c.SpecializationId == doctorFilterModel.specializationId)
+                                    on t1.Id equals t2.DoctorProfileId
+                                    select t1).ToList();
+                    }
+
+                    if (doctorFilterModel?.consultancyType > 0)
+                    {
+                        if (doctorFilterModel?.consultancyType == ConsultancyType.OnlineRT)
+                        {
+                            result = result.Where(p => p.IsOnline == true).ToList();
+                        }
+                        else
+                        {
+                            schedules = schedules.Where(c => c.ConsultancyType == doctorFilterModel.consultancyType);
+                            result = (from t1 in result
+                                      join t2 in schedules //.Where(c => c.ConsultancyType == doctorFilterModel.consultancyType)
+                                        on t1.Id equals t2.DoctorProfileId
+                                        select t1).Distinct().ToList();
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -686,6 +676,14 @@ namespace SoowGoodWeb.Services
             //return ObjectMapper.Map<List<DoctorProfile>, List<DoctorProfileDto>>(profiles.ToList());
         }
 
+        public async Task<List<DoctorProfileDto>> GetAllActiveDoctorListAsync()
+        {
+            List<DoctorProfileDto> result = null;
+            var profileWithDetails = await _doctorProfileRepository.GetListAsync(s =>s.IsActive==true);
+
+            return ObjectMapper.Map<List<DoctorProfile>, List<DoctorProfileDto>>(profileWithDetails.ToList());
+        }
+
         public async Task<List<DoctorProfileDto>> GetAllDoctorsSearchListAsync(string? name, int? consultType, long? speciality, long? specialization)
         {
             var profiles = await _doctorProfileRepository.WithDetailsAsync(d => d.Degrees, s => s.DoctorSpecialization);
@@ -766,7 +764,6 @@ namespace SoowGoodWeb.Services
             }
         }
 
-
         public async Task<DoctorProfileDto> GetByUserIdAsync(Guid userId)
         {
             var doctorProfiles = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, sp => sp.Speciality, d => d.DoctorSpecialization);
@@ -792,7 +789,6 @@ namespace SoowGoodWeb.Services
                         {
                             var alldegrees = await _doctorDegreeRepository.WithDetailsAsync();
                             var existingDegree = alldegrees.FirstOrDefault(e => e.DegreeId == d.DegreeId && e.DoctorProfileId == d.DoctorProfileId);
-                            //var exDegRes= ObjectMapper.Map<DoctorDegree, DoctorDegreeDto>(existingDegree);
                             if (existingDegree == null)
                             {
                                 var degree = new DoctorDegreeInputDto
@@ -806,39 +802,19 @@ namespace SoowGoodWeb.Services
                                     InstituteCountry = d.InstituteCountry
                                 };
                                 var newDegree = ObjectMapper.Map<DoctorDegreeInputDto, DoctorDegree>(degree);
-
                                 var doctorDegree = await _doctorDegreeRepository.InsertAsync(newDegree);
-
-                                //await _unitOfWorkManager.Current.SaveChangesAsync();
-
                                 ObjectMapper.Map<DoctorDegree, DoctorDegreeDto>(doctorDegree);
                             }
                             else
                             {
-                                //var degree = new DoctorDegreeInputDto
-                                //{
-                                //    Id = exDegRes.Id,
-                                //    DoctorProfileId = d.DoctorProfileId,
-                                //    DegreeId = d.DegreeId,
-                                //    //Duration = d.Duration,
-                                //    PassingYear = d.PassingYear,
-                                //    InstituteName = d.InstituteName,
-                                //    InstituteCity = d.InstituteCity,
-                                //    InstituteCountry = d.InstituteCountry
-                                //};
-
                                 existingDegree.DegreeId = d.DegreeId;
                                 existingDegree.Duration = d.Duration;
                                 existingDegree.PassingYear = d.PassingYear;
                                 existingDegree.InstituteName = d.InstituteName;
                                 existingDegree.InstituteCity = d.InstituteCity;
                                 existingDegree.InstituteCountry = d.InstituteCountry;
-                                //var updatedDegree = ObjectMapper.Map<DoctorDegreeDto, DoctorDegree>(exDegRes);
-
                                 var doctorDegree = await _doctorDegreeRepository.UpdateAsync(existingDegree);
-
                                 await _unitOfWorkManager.Current.SaveChangesAsync();
-
                                 ObjectMapper.Map<DoctorDegree, DoctorDegreeDto>(doctorDegree);
                             }
                         }
@@ -850,7 +826,6 @@ namespace SoowGoodWeb.Services
                         {
                             var allExperties = await _doctorSpecializationRepository.WithDetailsAsync();
                             var existingSpecializations = allExperties.FirstOrDefault(e => e.SpecializationId == s.SpecializationId && e.DoctorProfileId == s.DoctorProfileId);
-                            //var exSpRes = ObjectMapper.Map<DoctorSpecialization, DoctorSpecializationDto>(existingSpecializations);
                             if (existingSpecializations == null)
                             {
                                 var specialization = new DoctorSpecializationInputDto
@@ -861,31 +836,15 @@ namespace SoowGoodWeb.Services
                                     DocumentName = s.DocumentName,
                                 };
                                 var newSpcializations = ObjectMapper.Map<DoctorSpecializationInputDto, DoctorSpecialization>(specialization);
-
                                 var doctorSpecialization = await _doctorSpecializationRepository.InsertAsync(newSpcializations);
-
-                                //await _unitOfWorkManager.Current.SaveChangesAsync();
-
                                 ObjectMapper.Map<DoctorSpecialization, DoctorSpecializationDto>(doctorSpecialization);
                             }
                             else
                             {
-                                //var specialization = new DoctorSpecializationInputDto
-                                //{
-                                //    Id = exSpRes.Id,
-                                //    DoctorProfileId = s.DoctorProfileId,
-                                //    SpecialityId = existingSpecializations.SpecialityId,
-                                //    SpecializationId = s.SpecializationId,
-                                //    DocumentName = s.DocumentName,
-                                //};
                                 existingSpecializations.SpecializationId = s.SpecializationId;
                                 existingSpecializations.DocumentName = s.DocumentName;
-                                //var updatedSpcializations = ObjectMapper.Map<DoctorSpecializationDto, DoctorSpecialization>(exSpRes);
-
                                 var doctorSpecialization = await _doctorSpecializationRepository.UpdateAsync(existingSpecializations);
-
                                 await _unitOfWorkManager.Current.SaveChangesAsync();
-
                                 ObjectMapper.Map<DoctorSpecialization, DoctorSpecializationDto>(doctorSpecialization);
                             }
                         }

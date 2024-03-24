@@ -13,31 +13,39 @@ using Volo.Abp.Uow;
 using SoowGoodWeb.Enums;
 using System.Transactions;
 using Volo.Abp.ObjectMapping;
+using Microsoft.AspNetCore.SignalR;
 
 namespace SoowGoodWeb.Services
 {
     public class SslCommerzService : SoowGoodWebAppService, ISslCommerzService
     {
         private readonly IRepository<Appointment> _appointmentRepository;
+        private readonly IRepository<AgentProfile> _agentRepository;
         private readonly IRepository<PatientProfile> _patientRepository;
         private readonly IPaymentHistoryService _paymentHistoryService;
         private readonly IRepository<PaymentHistory> _paymentHistoryRepository;
-        //private readonly INotificationAppService _notificationAppService;
+        private readonly IRepository<Notification> _notificationRepository;
         private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
+        private readonly IHubContext<BroadcastHub, IHubClient> _hubContext;
 
         //INotificationAppService notificationAppService,
         public SslCommerzService(IRepository<Appointment> appointmentRepository,
             IRepository<PatientProfile> patientRepository,
+            IRepository<AgentProfile> agentRepository,
             IRepository<PaymentHistory> paymentHistoryRepository,
                                     IPaymentHistoryService paymentHistoryService,
-                                    SslCommerzGatewayManager sslCommerzGatewayManager)
+                                    SslCommerzGatewayManager sslCommerzGatewayManager,
+            IRepository<Notification> notificationRepository,
+            IHubContext<BroadcastHub, IHubClient> hubContext)
         {
             _appointmentRepository = appointmentRepository;
             _patientRepository = patientRepository;
+            _agentRepository = agentRepository;
             _paymentHistoryService = paymentHistoryService;
             _paymentHistoryRepository = paymentHistoryRepository;
-            //_notificationAppService = notificationAppService;
+            _notificationRepository = notificationRepository;
             _sslCommerzGatewayManager = sslCommerzGatewayManager;
+            _hubContext = hubContext;
         }
 
 
@@ -76,7 +84,7 @@ namespace SoowGoodWeb.Services
             var inputPh = new PaymentHistoryInputDto();
             inputPh.application_code = input.ApplicationCode;
             inputPh.tran_id = input.TransactionId;
-            inputPh.amount=input.TotalAmount;
+            inputPh.amount = input.TotalAmount;
             inputPh.status = input.Status;
             inputPh.sessionkey = input.SessionKey;
             inputPh.failedreason = input.FailedReason;
@@ -206,7 +214,7 @@ namespace SoowGoodWeb.Services
         private async Task UpdatePaymentStatus(string application_code, string tran_id, string paid_amount)
         {
             var applicant = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-            var app = applicant.Where(a=>a.AppointmentCode == application_code).FirstOrDefault();
+            var app = applicant.Where(a => a.AppointmentCode == application_code).FirstOrDefault();
 
             if (app != null) //&& app.AppointmentStatus != AppointmentStatus.Confirmed)
             {
@@ -316,7 +324,7 @@ namespace SoowGoodWeb.Services
             pResponse.status = initResponse.status;
             pResponse.failedreason = initResponse.failedreason;
             pResponse.GatewayPageURL = initResponse.GatewayPageURL;
-            
+
             //return new SslCommerzInitDto
             //{
             //    status = initResponse.status,
@@ -348,6 +356,9 @@ namespace SoowGoodWeb.Services
 
         public async Task<string> UpdateAppointmentPaymentStatusAsync(string appCode, int sts)
         {
+
+            var notificatinInput = new NotificationInputDto();
+            var notificatin = new NotificationDto();
             var result = "";
             try
             {
@@ -355,29 +366,130 @@ namespace SoowGoodWeb.Services
                 var appointment = allAppointment.Where(a => a.AppointmentCode == appCode).FirstOrDefault();
                 var allTransactions = await _paymentHistoryRepository.WithDetailsAsync();
                 var transactions = allTransactions.Where(p => p.application_code == appCode).FirstOrDefault();
-                
+
                 if (appointment != null && appointment.AppointmentStatus != AppointmentStatus.Confirmed) //&& app.AppointmentStatus != AppointmentStatus.Confirmed)
                 {
-                    if(sts ==1)
-                    { 
-                    appointment.AppointmentStatus = AppointmentStatus.Confirmed;
-                    appointment.PaymentTransactionId = transactions.tran_id;
-                    appointment.AppointmentPaymentStatus = AppointmentPaymentStatus.Paid;
-                    //app.FeePaid = string.IsNullOrWhiteSpace(paid_amount) ? 0 : double.Parse(paid_amount);
-
-                    }
-                    else
+                    if (sts == 1)
                     {
-                        appointment.AppointmentStatus = AppointmentStatus.Failed;
-                        appointment.PaymentTransactionId = transactions.tran_id;
+                        appointment.AppointmentStatus = AppointmentStatus.Confirmed;
+                        appointment.PaymentTransactionId = transactions?.tran_id;
+                        appointment.AppointmentPaymentStatus = AppointmentPaymentStatus.Paid;
+
+                        //Notifiaction
+
+                        notificatinInput.Message = "Patient " + appointment.PatientName + "  has been scheduled for appointment " + appointment.AppointmentCode + " with doctor " + appointment.DoctorName
+                                                              + " by " + appointment.AppointmentCreatorRole + "";
+                        notificatinInput.TransactionType = "Add";
+                        notificatinInput.CreatorEntityId = appointment.AppointmentCreatorId;
+                        if (appointment.AppointmentCreatorRole == "agent")
+                        {
+                            var agent = await _agentRepository.GetAsync(a => a.Id == appointment.AppointmentCreatorId);
+                            notificatinInput.CreatorName = agent.FullName;
+                        }
+                        else
+                        {
+                            notificatinInput.CreatorName = appointment.PatientName;
+                        }
+                        notificatinInput.CreatorRole = appointment.AppointmentCreatorRole;
+                        notificatinInput.CreateForName = appointment.PatientName;
+                        notificatinInput.NotifyToEntityId = appointment.DoctorProfileId;
+                        notificatinInput.NotifyToName = appointment.DoctorName;
+                        notificatinInput.NotifyToRole = "Doctor";
+                        notificatinInput.NoticeFromEntity = "Appointment";
+                        notificatinInput.NoticeFromEntityId = appointment.Id;
+
+                        //
+                    }
+                    else if (sts == 2)
+                    {
+                        appointment.AppointmentStatus = AppointmentStatus.Cancelled;
+                        appointment.PaymentTransactionId = transactions?.tran_id;
                         appointment.AppointmentPaymentStatus = AppointmentPaymentStatus.FailedOrCancelled;
 
-                        //app.FeePaid = string.IsNullOrWhiteSpace(paid_amount) ? 0 : double.Parse(paid_amount);                    
+                        //Notifiaction
+                        notificatinInput.Message = "Patient " + appointment.PatientName + "  has been cancelled for appointment " + appointment.AppointmentCode + " with doctor " + appointment.DoctorName
+                                                              + " by " + appointment.AppointmentCreatorRole + " due to payment cancelled";
+                        notificatinInput.TransactionType = "Add";
+                        notificatinInput.CreatorEntityId = appointment.AppointmentCreatorId;
+                        if (appointment.AppointmentCreatorRole == "agent")
+                        {
+                            var agent = await _agentRepository.GetAsync(a => a.Id == appointment.AppointmentCreatorId);
+                            notificatinInput.CreatorName = agent.FullName;
+                        }
+                        else
+                        {
+                            notificatinInput.CreatorName = appointment.PatientName;
+                        }
+                        notificatinInput.CreatorRole = appointment.AppointmentCreatorRole;
+                        notificatinInput.CreateForName = appointment.PatientName;
+                        notificatinInput.NotifyToEntityId = 0;
+                        notificatinInput.NotifyToName = "SG Admin";
+                        notificatinInput.NotifyToRole = "Admin";
+                        notificatinInput.NoticeFromEntity = "Appointment";
+                        notificatinInput.NoticeFromEntityId = appointment.Id;
+                        // Notification
+                    }
+                    else if (sts == 3)
+                    {
+                        appointment.AppointmentStatus = AppointmentStatus.Failed;
+                        appointment.PaymentTransactionId = transactions?.tran_id;
+                        appointment.AppointmentPaymentStatus = AppointmentPaymentStatus.FailedOrCancelled;
+
+                        //Notifiaction
+                        notificatinInput.Message = "Patient " + appointment.PatientName + "  has been failed for appointment " + appointment.AppointmentCode + " with doctor " + appointment.DoctorName
+                                                              + " by " + appointment.AppointmentCreatorRole + " due to payment cancelled";
+                        notificatinInput.TransactionType = "Add";
+                        notificatinInput.CreatorEntityId = appointment.AppointmentCreatorId;
+                        if (appointment.AppointmentCreatorRole == "agent")
+                        {
+                            var agent = await _agentRepository.GetAsync(a => a.Id == appointment.AppointmentCreatorId);
+                            notificatinInput.CreatorName = agent.FullName;
+                        }
+                        else
+                        {
+                            notificatinInput.CreatorName = appointment.PatientName;
+                        }
+                        notificatinInput.CreatorRole = appointment.AppointmentCreatorRole;
+                        notificatinInput.CreateForName = appointment.PatientName;
+                        notificatinInput.NotifyToEntityId = 0;
+                        notificatinInput.NotifyToName = "SG Admin";
+                        notificatinInput.NotifyToRole = "Admin";
+                        notificatinInput.NoticeFromEntity = "Appointment";
+                        notificatinInput.NoticeFromEntityId = appointment.Id;
+                        // Notification
                     }
                     await _appointmentRepository.UpdateAsync(appointment);
 
+                    //if (sts == 1)
+                    //{
+                    //    notificatinInput.Message = "Patient " + appointment.PatientName + "  has been scheduled for appointment " + appointment.AppointmentCode + " with doctor " + appointment.DoctorName
+                    //                                          + " by " + appointment.AppointmentCreatorRole + "";
+                    //    //"An Appointment (" + appointment.AppointmentCode + ") Scheduled from " + appointment.AppointmentCreatorRole + " for";
+                    //    notificatinInput.TransactionType = "Add";
+                    //    notificatinInput.CreatorEntityId = appointment.AppointmentCreatorId;
+                    //    if (appointment.AppointmentCreatorRole == "agent")
+                    //    {
+                    //        var agent = await _agentRepository.GetAsync(a => a.Id == appointment.AppointmentCreatorId);
+                    //        notificatinInput.CreatorName = agent.FullName;
+                    //    }
+                    //    else
+                    //    {
+                    //        notificatinInput.CreatorName = appointment.PatientName;
+                    //    }
+                    //    notificatinInput.CreatorRole = appointment.AppointmentCreatorRole;
+                    //    notificatinInput.CreateForName = appointment.PatientName;
+                    //    notificatinInput.NotifyToEntityId = appointment.DoctorProfileId;
+                    //    notificatinInput.NotifyToName = appointment.DoctorName;
+                    //    notificatinInput.NotifyToRole = "Doctor";
+                    //    notificatinInput.NoticeFromEntity = "Appointment";
+                    //    notificatinInput.NoticeFromEntityId = appointment.Id;
+                    //}
+                    var newNotificaitonEntity = ObjectMapper.Map<NotificationInputDto, Notification>(notificatinInput);
+                    var notifictionInsert = await _notificationRepository.InsertAsync(newNotificaitonEntity);
+
+                    await _hubContext.Clients.All.BroadcastMessage(notifictionInsert.Message);//notifictionInsert.Id
+
                     result = "Appointmnet and Payment Operation Completed.";
-                    //await SendNotification(application_code, applicant.Applicant.Mobile);
                 }
             }
             catch (Exception ex) { }

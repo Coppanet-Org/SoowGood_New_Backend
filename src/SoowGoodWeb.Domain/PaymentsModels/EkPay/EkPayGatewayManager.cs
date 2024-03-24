@@ -393,7 +393,7 @@ namespace SoowGoodWeb.EkPayData
             var feedUriInfo = new feed_uri();
             feedUriInfo.c_uri = _configuration.DevCancelClientUrl;//.DevCancelCallbackUrl;
             feedUriInfo.f_uri = _configuration.DevFailClientUrl;
-            feedUriInfo.s_uri = _configuration.DevSuccessCallbackUrl;//.DevSuccessClientUrl;
+            feedUriInfo.s_uri = _configuration.DevSuccessClientUrl; //DevSuccessCallbackUrl
             var customerInfo = new cust_info();
             customerInfo.cust_email = postData.cust_email;
             customerInfo.cust_id = "";//postData.cust_id;
@@ -407,7 +407,7 @@ namespace SoowGoodWeb.EkPayData
             trnsInfo.trnx_currency = postData.trnx_currency;
             trnsInfo.trnx_id = postData.trnx_id;
             var ipnInfo = new ipn_info();
-            ipnInfo.ipn_channel = "1";
+            ipnInfo.ipn_channel = "3";
             ipnInfo.ipn_email = "shaikat.b@coppanet.com";
             ipnInfo.ipn_uri = _configuration.DevIpnLintener;//"https://www.dev.ekpay.gov.bd/test/ipn";
             

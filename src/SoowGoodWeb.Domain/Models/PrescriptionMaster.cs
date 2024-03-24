@@ -21,6 +21,7 @@ namespace SoowGoodWeb.Models
         public long? PatientProfileId { get; set; }
         public string? PatientName { get; set; }
         public string? PatientCode { get; set; }
+        public int? Age { get; set; }
         public ConsultancyType? ConsultancyType { get; set; }
         public AppointmentType? AppointmentType { get; set; }
         public DateTime? AppointmentDate { get; set; }

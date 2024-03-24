@@ -42,7 +42,7 @@ namespace SoowGoodWeb.Controllers
         }
 
         [HttpPost, ActionName("Documents")]
-        //[DisableRequestSizeLimit]
+        [DisableRequestSizeLimit]
         public async Task<IActionResult> FileUploadDocuments()
         {
             Dictionary<string, string> result = new Dictionary<string, string>();

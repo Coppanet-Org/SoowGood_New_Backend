@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SignalRTieredDemo.Users;
 using SoowGoodWeb.Models;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
@@ -53,7 +54,7 @@ public class SoowGoodWebDbContext :
     public DbSet<TenantConnectionString> TenantConnectionStrings { get; set; }
 
     #endregion
-
+    public DbSet<AppUser> SgUsers { get; set; }
     //SoowGood Database Models
     #region Entities from SoowGood Modules
 
@@ -88,6 +89,14 @@ public class SoowGoodWebDbContext :
     public DbSet<FinancialSetup> SgFinancialSetups { get; set; }
     public DbSet<UserDataDeleteRequest> SgUserDataDeleteRequests { get; set; }
     public DbSet<ServiceProvider> SgServiceProviders { get; set; }
+    public DbSet<DiagonsticTest> SgDiagonsticTests { get; set; }
+    public DbSet<DiagonsticPackage> SgDiagonsticPackages { get; set; }
+    public DbSet<DiagonsticPackageTest> SgDiagonsticPackageTests { get; set; }
+    public DbSet<DiagonsticPathologyServiceManagement> SgDiagonsticPathologyServiceManagements { get; set; }
+    public DbSet<PathologyCategory> SgPathologyCategory { get; set; }
+    public DbSet<PathologyTest> SgPathologyTests { get; set; }
+    public DbSet<DiagonsticTestRequested> SgDiagonsticTestRequested { get; set; }
+    public DbSet<Notification> SgNotification { get; set; }
 
     #endregion
 

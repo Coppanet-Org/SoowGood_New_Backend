@@ -93,7 +93,7 @@ namespace SoowGoodWeb.Enums
     {
         Paid = 1,
         Due = 2,
-        FailedOrCancelled=3
+        FailedOrCancelled = 3
 
     }
 
@@ -129,5 +129,26 @@ namespace SoowGoodWeb.Enums
         VALID,
         VALIDATED,
         INVALID_TRANSACTION
+    }
+
+    public enum ServiceRequestStatus
+    {
+        ReauestSubmited = 1,
+        RequestRecieved = 2,
+        RequestConfirmed = 3,
+        ServiceRecieved = 4,
+        Cancelled = 5
+    }
+
+    public enum DiagonsticServiceType
+    {
+        General = 1,
+        Package = 2
+    }
+
+    public enum FacilityEntityType
+    {
+        DoctorConsultation = 1,
+        ServiceFacility = 2
     }
 }

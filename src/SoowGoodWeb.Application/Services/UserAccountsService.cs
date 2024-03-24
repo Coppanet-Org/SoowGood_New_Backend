@@ -22,6 +22,9 @@ using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using Nancy;
 using System.Numerics;
+using Volo.Abp.Users;
+//using System.IdentityModel.Tokens.Jwt;
+////using System.IdentityModel.Tokens.Jwt;
 
 namespace SoowGoodWeb.Services
 {
@@ -110,6 +113,14 @@ namespace SoowGoodWeb.Services
                 }
             }
         }
+        //public async Task<string> GetUinfo(string tok)
+        //{
+        //    var hc = new HttpClient();
+        //    hc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tok);
+        //    var response = hc.GetAsync(PermissionHelper._authority).Result;
+        //    var userInfo = response.Content.ReadAsStringAsync().Result;
+        //    return userInfo;
+        //}
         public async Task<LoginResponseDto> Login(LoginDto userDto)
         {
             LoginResponseDto result = new LoginResponseDto();
@@ -449,6 +460,71 @@ namespace SoowGoodWeb.Services
 
             return result;
         }
+        //public static JwtSecurityToken ConvertJwtStringToJwtSecurityToken(string? jwt)
+        //{
+        //    var handler = new JwtSecurityTokenHandler();
+        //    var token = handler.ReadJwtToken(jwt);
+
+        //    return token;
+        //}
+
+        public async Task<PatientDetailsForServiceDto> DecodeJwt(JAccessToken jwt)
+        {
+            //var doctorDelete = null;
+            bool profileDeleted = false;
+            Guid? userId;
+            var result = new PatientDetailsForServiceDto();
+            try
+            {
+
+                using (var client = new HttpClient())
+                {
+                    var tokenResponse = await GetToken();
+                    client.BaseAddress = new Uri(authClientUrl);
+                    client.SetBearerToken(tokenResponse.AccessToken);
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    //GET Method
+
+                    var update = JsonSerializer.Serialize(jwt);
+                    var requestContent = new StringContent(update, Encoding.UTF8, "application/json");
+                    HttpResponseMessage response =
+                        await client.PostAsync($"api/app/account/retrieve-user-name", requestContent);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var newUserString = await response.Content.ReadAsStringAsync();
+                        var newUser = JsonConvert.DeserializeObject<PatientDetailsForServiceDto>(newUserString);
+
+                        if (newUser?.Role == "Patient")
+                        {
+                            result.Success = true;
+                            result.UserNmae = newUser?.UserNmae;
+                            result.Role = newUser?.Role;
+                            var patientDetails = await _patientProfileRepository.GetAsync(p => p.MobileNo == result.UserNmae);
+                            if (patientDetails != null)
+                            {
+                                result.PatientProfileId = patientDetails.Id;
+                                result.PatientCode = patientDetails.PatientCode;
+                                result.PatientName = patientDetails.FullName;
+                            }                            
+                        }
+                        else
+                        {
+                            result.Success = false;
+                            result.Message = "User Not a patient! Please login as a patient to avail the services...";
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return result;
+        }
     }
+
+
 }
 

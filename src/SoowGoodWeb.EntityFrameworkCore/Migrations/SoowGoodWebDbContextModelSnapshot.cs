@@ -24,6 +24,89 @@ namespace SoowGoodWeb.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("SignalRTieredDemo.Users.AppUser", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ExtraProperties")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Surname")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("TenantId");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SgUsers");
+                });
+
             modelBuilder.Entity("SoowGoodWeb.Models.AgentMaster", b =>
                 {
                     b.Property<long>("Id")
@@ -546,6 +629,330 @@ namespace SoowGoodWeb.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SgDegrees");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.DiagonsticPackage", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("PackageDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PackageName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("ProviderRate")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<long?>("ServiceProviderId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceProviderId");
+
+                    b.ToTable("SgDiagonsticPackages");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.DiagonsticPackageTest", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<long?>("DiagonsticPackageId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<long?>("PathologyCategoryId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("PathologyTestId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DiagonsticPackageId");
+
+                    b.HasIndex("PathologyCategoryId");
+
+                    b.HasIndex("PathologyTestId");
+
+                    b.ToTable("SgDiagonsticPackageTests");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.DiagonsticPathologyServiceManagement", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime?>("AppointmentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<long?>("DiagonsticPackageId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("DiagonsticServiceType")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("Discount")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<decimal?>("FinalFee")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("OrganizationCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PatientCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PatientName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("PatientProfileId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal?>("ProviderFee")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<DateTime?>("RequestDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("ServiceProviderId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ServiceRequestCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ServiceRequestStatus")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DiagonsticPackageId");
+
+                    b.HasIndex("ServiceProviderId");
+
+                    b.ToTable("SgDiagonsticPathologyServiceManagements");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.DiagonsticTest", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<long?>("PathologyCategoryId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("PathologyTestId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal?>("ProviderRate")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<long?>("ServiceProviderId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PathologyCategoryId");
+
+                    b.HasIndex("PathologyTestId");
+
+                    b.HasIndex("ServiceProviderId");
+
+                    b.ToTable("SgDiagonsticTests");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.DiagonsticTestRequested", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<long?>("DiagonsticPathologyServiceManagementId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DiagonsticTestId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("PathologyCategoryAndTest")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("ProviderRate")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DiagonsticPathologyServiceManagementId");
+
+                    b.HasIndex("DiagonsticTestId");
+
+                    b.ToTable("SgDiagonsticTestRequested");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorChamber", b =>
@@ -1314,11 +1721,20 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("DeletionTime");
 
+                    b.Property<int?>("DiagonsticServiceType")
+                        .HasColumnType("int");
+
                     b.Property<decimal?>("ExternalAmount")
                         .HasColumnType("decimal(18, 2)");
 
                     b.Property<string>("ExternalAmountIn")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("FacilityEntityID")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("FacilityEntityType")
+                        .HasColumnType("int");
 
                     b.Property<bool?>("IsActivie")
                         .HasColumnType("bit");
@@ -1348,6 +1764,82 @@ namespace SoowGoodWeb.Migrations
                     b.HasIndex("PlatformFacilityId");
 
                     b.ToTable("SgFinancialSetups");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.Notification", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("CreateForName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<long?>("CreatorEntityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<string>("CreatorName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatorRole")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NoticeFromEntity")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("NoticeFromEntityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("NotifyToEntityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("NotifyToName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NotifyToRole")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TransactionType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SgNotification");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Otp", b =>
@@ -1406,6 +1898,109 @@ namespace SoowGoodWeb.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SgOtps");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.PathologyCategory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("PathologyCategoryDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PathologyCategoryName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SgPathologyCategory");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.PathologyTest", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<long?>("PathologyCategoryId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("PathologyTestDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PathologyTestName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PathologyCategoryId");
+
+                    b.ToTable("SgPathologyTests");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.PatientProfile", b =>
@@ -1715,6 +2310,9 @@ namespace SoowGoodWeb.Migrations
                     b.Property<string>("ServiceName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("SgPlatformFacilities");
@@ -1916,6 +2514,9 @@ namespace SoowGoodWeb.Migrations
 
                     b.Property<string>("Advice")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Age")
+                        .HasColumnType("int");
 
                     b.Property<string>("AppointmentCode")
                         .HasColumnType("nvarchar(max)");
@@ -2128,6 +2729,9 @@ namespace SoowGoodWeb.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Branch")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ContactPerson")
@@ -4038,6 +4642,87 @@ namespace SoowGoodWeb.Migrations
                     b.Navigation("DoctorSchedule");
                 });
 
+            modelBuilder.Entity("SoowGoodWeb.Models.DiagonsticPackage", b =>
+                {
+                    b.HasOne("SoowGoodWeb.Models.ServiceProvider", "ServiceProvider")
+                        .WithMany()
+                        .HasForeignKey("ServiceProviderId");
+
+                    b.Navigation("ServiceProvider");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.DiagonsticPackageTest", b =>
+                {
+                    b.HasOne("SoowGoodWeb.Models.DiagonsticPackage", "DiagonsticPackage")
+                        .WithMany()
+                        .HasForeignKey("DiagonsticPackageId");
+
+                    b.HasOne("SoowGoodWeb.Models.PathologyCategory", "PathologyCategory")
+                        .WithMany()
+                        .HasForeignKey("PathologyCategoryId");
+
+                    b.HasOne("SoowGoodWeb.Models.PathologyTest", "PathologyTest")
+                        .WithMany()
+                        .HasForeignKey("PathologyTestId");
+
+                    b.Navigation("DiagonsticPackage");
+
+                    b.Navigation("PathologyCategory");
+
+                    b.Navigation("PathologyTest");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.DiagonsticPathologyServiceManagement", b =>
+                {
+                    b.HasOne("SoowGoodWeb.Models.DiagonsticPackage", "DiagonsticPackage")
+                        .WithMany()
+                        .HasForeignKey("DiagonsticPackageId");
+
+                    b.HasOne("SoowGoodWeb.Models.ServiceProvider", "ServiceProvider")
+                        .WithMany()
+                        .HasForeignKey("ServiceProviderId");
+
+                    b.Navigation("DiagonsticPackage");
+
+                    b.Navigation("ServiceProvider");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.DiagonsticTest", b =>
+                {
+                    b.HasOne("SoowGoodWeb.Models.PathologyCategory", "PathologyCategory")
+                        .WithMany()
+                        .HasForeignKey("PathologyCategoryId");
+
+                    b.HasOne("SoowGoodWeb.Models.PathologyTest", "PathologyTest")
+                        .WithMany()
+                        .HasForeignKey("PathologyTestId");
+
+                    b.HasOne("SoowGoodWeb.Models.ServiceProvider", "ServiceProvider")
+                        .WithMany()
+                        .HasForeignKey("ServiceProviderId");
+
+                    b.Navigation("PathologyCategory");
+
+                    b.Navigation("PathologyTest");
+
+                    b.Navigation("ServiceProvider");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.DiagonsticTestRequested", b =>
+                {
+                    b.HasOne("SoowGoodWeb.Models.DiagonsticPathologyServiceManagement", "DiagonsticPathologyServiceManagement")
+                        .WithMany("DiagonsticTestRequested")
+                        .HasForeignKey("DiagonsticPathologyServiceManagementId");
+
+                    b.HasOne("SoowGoodWeb.Models.DiagonsticTest", "DiagonsticTest")
+                        .WithMany()
+                        .HasForeignKey("DiagonsticTestId");
+
+                    b.Navigation("DiagonsticPathologyServiceManagement");
+
+                    b.Navigation("DiagonsticTest");
+                });
+
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorChamber", b =>
                 {
                     b.HasOne("SoowGoodWeb.Models.DoctorProfile", "DoctorProfile")
@@ -4141,6 +4826,15 @@ namespace SoowGoodWeb.Migrations
                         .HasForeignKey("PlatformFacilityId");
 
                     b.Navigation("PlatformFacility");
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.PathologyTest", b =>
+                {
+                    b.HasOne("SoowGoodWeb.Models.PathologyCategory", "PathologyCategory")
+                        .WithMany()
+                        .HasForeignKey("PathologyCategoryId");
+
+                    b.Navigation("PathologyCategory");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.PrescriptionDrugDetails", b =>
@@ -4355,6 +5049,11 @@ namespace SoowGoodWeb.Migrations
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("SoowGoodWeb.Models.DiagonsticPathologyServiceManagement", b =>
+                {
+                    b.Navigation("DiagonsticTestRequested");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorProfile", b =>

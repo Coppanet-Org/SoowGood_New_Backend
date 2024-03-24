@@ -3,10 +3,13 @@ using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.ObjectMapping;
 using Volo.Abp.Uow;
+using System;
 
 namespace SoowGoodWeb.Services
 {
@@ -24,6 +27,17 @@ namespace SoowGoodWeb.Services
         }
         public async Task<PlatformFacilityDto> CreateAsync(PlatformFacilityInputDto input)
         {
+            var serviceName = input.ServiceName.ToLower();
+            bool containsSpace = serviceName.Contains(" ");
+            if (containsSpace)
+            {
+                input.Slug = serviceName.Replace(" ", "-");
+            }
+            else
+            {
+                input.Slug = serviceName;
+            }
+
             var newEntity = ObjectMapper.Map<PlatformFacilityInputDto, PlatformFacility>(input);
 
             var platformFacility = await _platformFacilityRepository.InsertAsync(newEntity);
@@ -35,13 +49,21 @@ namespace SoowGoodWeb.Services
 
         public async Task<PlatformFacilityDto> UpdateAsync(PlatformFacilityInputDto input)
         {
-            var updateItem = ObjectMapper.Map<PlatformFacilityInputDto, PlatformFacility>(input);
+            try
+            {
+                var updateItem = ObjectMapper.Map<PlatformFacilityInputDto, PlatformFacility>(input);
 
-            var item = await _platformFacilityRepository.UpdateAsync(updateItem);
+                var item = await _platformFacilityRepository.UpdateAsync(updateItem);
 
-            await _unitOfWorkManager.Current.SaveChangesAsync();
+                await _unitOfWorkManager.Current.SaveChangesAsync();
 
-            return ObjectMapper.Map<PlatformFacility, PlatformFacilityDto>(item);
+                return ObjectMapper.Map<PlatformFacility, PlatformFacilityDto>(item);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
         }
 
 
@@ -53,12 +75,13 @@ namespace SoowGoodWeb.Services
         }
         public async Task<List<PlatformFacilityDto>> GetListAsync()
         {
-            var platformFacilitys = await _platformFacilityRepository.GetListAsync();
-            return ObjectMapper.Map<List<PlatformFacility>, List<PlatformFacilityDto>>(platformFacilitys);
+            var platformFacilitys = await _platformFacilityRepository.WithDetailsAsync();
+            var filteredFacilities = platformFacilitys.ToList();
+            return ObjectMapper.Map<List<PlatformFacility>, List<PlatformFacilityDto>>(filteredFacilities);
         }
 
-        
-        //public async Task<List<DoctorProfileDto>> GetListAsync()
+
+        //public async Task<List<DoctorProfileDto>> GetListAsync().Where(p=>p.Id>6)
         //{
         //    List<DoctorProfileDto> list = null;
         //    var items = await _doctorProfileRepository.WithDetailsAsync(p => p.District);
