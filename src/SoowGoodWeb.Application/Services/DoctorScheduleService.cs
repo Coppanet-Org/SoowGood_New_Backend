@@ -338,6 +338,7 @@ namespace SoowGoodWeb.Services
 
             return result; // ObjectMapper.Map<List<DoctorSchedule>, List<DoctorScheduleDto>>(schedules);
         }
+
         public async Task<List<DoctorScheduleDto>?> GetDetailsScheduleListByDoctorIdAsync(long doctorId)
         {
             List<DoctorScheduleDto>? result = null;
