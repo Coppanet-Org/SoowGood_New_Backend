@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240321072122_notification_table_added")]
+    partial class notification_table_added
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1774,25 +1777,13 @@ namespace SoowGoodWeb.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("CreateForName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2")
                         .HasColumnName("CreationTime");
 
-                    b.Property<long?>("CreatorEntityId")
-                        .HasColumnType("bigint");
-
                     b.Property<Guid?>("CreatorId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("CreatorId");
-
-                    b.Property<string>("CreatorName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CreatorRole")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("DeleterId")
                         .HasColumnType("uniqueidentifier")
@@ -1817,21 +1808,6 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnName("LastModifierId");
 
                     b.Property<string>("Message")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NoticeFromEntity")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("NoticeFromEntityId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("NotifyToEntityId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("NotifyToName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NotifyToRole")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TransactionType")

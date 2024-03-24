@@ -32,18 +32,26 @@ namespace SoowGoodWeb.Services
         }
         public async Task<DiagonsticPathologyServiceManagementDto> CreateAsync(DiagonsticPathologyServiceManagementInputDto input)
         {
-            var totalDiagServiceRequests = await _diagonsticPathologyServiceManagementRepository.GetListAsync();
-            var count = totalDiagServiceRequests.Count();            
-            var date = DateTime.Now;
-            input.RequestDate = DateTime.Now;
-            input.ServiceRequestCode = "SGPATH" + date.ToString("yyyyMMdd") + (count + 1);
-            var newEntity = ObjectMapper.Map<DiagonsticPathologyServiceManagementInputDto, DiagonsticPathologyServiceManagement>(input);
+            try 
+            {
+                var totalDiagServiceRequests = await _diagonsticPathologyServiceManagementRepository.GetListAsync();
+                var count = totalDiagServiceRequests.Count();
+                var date = DateTime.Now;
+                input.RequestDate = DateTime.Now;
+                input.ServiceRequestCode = "SGPATH" + date.ToString("yyyyMMdd") + (count + 1);
+                var newEntity = ObjectMapper.Map<DiagonsticPathologyServiceManagementInputDto, DiagonsticPathologyServiceManagement>(input);
 
-            var diagonsticPathologyServiceManagement = await _diagonsticPathologyServiceManagementRepository.InsertAsync(newEntity);
+                var diagonsticPathologyServiceManagement = await _diagonsticPathologyServiceManagementRepository.InsertAsync(newEntity);
 
-            await _unitOfWorkManager.Current.SaveChangesAsync();
+                await _unitOfWorkManager.Current.SaveChangesAsync();
 
-            return ObjectMapper.Map<DiagonsticPathologyServiceManagement, DiagonsticPathologyServiceManagementDto>(diagonsticPathologyServiceManagement);
+                return ObjectMapper.Map<DiagonsticPathologyServiceManagement, DiagonsticPathologyServiceManagementDto>(diagonsticPathologyServiceManagement);
+            }
+            catch (Exception ex) 
+            {
+                return null;
+            }
+            
         }
 
         public async Task<DiagonsticPathologyServiceManagementDto> UpdateAsync(DiagonsticPathologyServiceManagementInputDto input)
