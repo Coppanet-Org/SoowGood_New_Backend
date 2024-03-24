@@ -54,5 +54,21 @@ namespace SoowGoodWeb.Services
             var notifications = await _notificationRepository.GetListAsync();
             return notifications.Count;
         }
+
+        public async Task<int> GetByUserIdCount(long? userId, string? role)
+        {
+            int count = 0;
+            if (role == "doctor")
+            {
+                var notifications = await _notificationRepository.GetListAsync(n => n.NotifyToEntityId == userId);
+                count = notifications.Count;
+            }
+            else
+            {
+                var notifications = await _notificationRepository.GetListAsync(n => n.CreatorEntityId == userId);
+                count = notifications.Count;
+            }
+            return count;
+        }
     }
 }

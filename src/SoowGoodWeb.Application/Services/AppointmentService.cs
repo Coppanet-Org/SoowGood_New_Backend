@@ -101,7 +101,8 @@ namespace SoowGoodWeb.Services
                     }
                     consultancyType = (input.ConsultancyType > 0 ? (ConsultancyType)input.ConsultancyType : 0).ToString();
                     input.AppointmentSerial = (lastSerial + 1).ToString();
-                    input.AppointmentCode = input.DoctorCode + input.AppointmentDate?.ToString("yyyyMMdd") + consultancyType + "SL00" + input.AppointmentSerial;
+                    //input.AppointmentCode = input.DoctorCode + input.AppointmentDate?.ToString("yyyyMMdd") + consultancyType + "SL-" + input.AppointmentSerial;
+                    input.AppointmentCode = "SGAP" + input.AppointmentDate?.ToString("yyMMdd") + consultancyType.ToUpper() + "SL00" + input.AppointmentSerial;
                 }
                 else
                 {
@@ -112,15 +113,9 @@ namespace SoowGoodWeb.Services
                     lastSerial = await GetAppCountByRealTimeConsultancyAsync(input.AppointmentDate);
                     consultancyType = ConsultancyType.OnlineRT.ToString();
                     input.AppointmentSerial = (lastSerial + 1).ToString();
-                    input.AppointmentCode = input.DoctorCode + input.AppointmentDate?.ToString("yyyyMMdd") + consultancyType + "SL00" + input.AppointmentSerial;
+                    //input.AppointmentCode = input.DoctorCode + input.AppointmentDate?.ToString("yyyyMMdd") + consultancyType + "SL-" + input.AppointmentSerial;
+                    input.AppointmentCode = "SGAP" + input.AppointmentDate?.ToString("yyMMdd") + consultancyType.ToUpper() + "SL-" + input.AppointmentSerial;
                 }
-                notificatinInput.Message = "Appointment Create";
-                notificatinInput.TransactionType = "Add";
-
-                var newNotificaitonEntity = ObjectMapper.Map<NotificationInputDto, Notification>(notificatinInput);
-                var notifictionInsert = await _notificationRepository.InsertAsync(newNotificaitonEntity);
-
-                await _hubContext.Clients.All.BroadcastMessage();
 
                 var newEntity = ObjectMapper.Map<AppointmentInputDto, Appointment>(input);
 
