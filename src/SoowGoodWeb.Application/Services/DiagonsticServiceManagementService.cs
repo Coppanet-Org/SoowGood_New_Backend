@@ -118,6 +118,7 @@ namespace SoowGoodWeb.Services
         }
         public async Task<List<DiagonsticPathologyServiceManagementDto>> GetListAsync()
         {
+            var id=0;
             List<DiagonsticPathologyServiceManagementDto>? result = null;
 
             var allDiagonsticPathologyServiceRequestDetails = await _diagonsticPathologyServiceManagementRepository.WithDetailsAsync(dp=>dp.DiagonsticPackage,p=>p.ServiceProvider,d=>d.DiagonsticTestRequested);
@@ -125,15 +126,19 @@ namespace SoowGoodWeb.Services
             {
                 return result;
             }
+            
+            
             result = new List<DiagonsticPathologyServiceManagementDto>();
+           
             foreach (var item in allDiagonsticPathologyServiceRequestDetails)
             {
+
                
-                result.Add(new DiagonsticPathologyServiceManagementDto()
+                var dto=new DiagonsticPathologyServiceManagementDto()
                 {
                     Id = item.Id,
-                    DiagonsticPackageId=item.DiagonsticPackageId,
-                    DiagonsticPackageName=item.DiagonsticPackageId>0?item.DiagonsticPackage.PackageName: "n/a",
+                    DiagonsticPackageId = item.DiagonsticPackageId,
+                    DiagonsticPackageName = item.DiagonsticPackageId > 0 ? item.DiagonsticPackage.PackageName : "n/a",
                     DiagonsticServiceType = item.DiagonsticServiceType,
                     DiagonsticServiceTypeName = item.DiagonsticServiceType > 0 ? ((DiagonsticServiceType)item.DiagonsticServiceType).ToString() : "n/a",
                     Discount = item.Discount,
@@ -145,12 +150,24 @@ namespace SoowGoodWeb.Services
                     ProviderFee = item.ProviderFee,
                     RequestDate = item.RequestDate,
                     ServiceProviderId = item.ServiceProviderId,
-                    ServiceProviderName=item.ServiceProviderId>0?item.ServiceProvider.ProviderOrganizationName: "n/a",
+                    ServiceProviderName = item.ServiceProviderId > 0 ? item.ServiceProvider.ProviderOrganizationName : "n/a",
                     ServiceRequestCode = item.ServiceRequestCode,
                     ServiceRequestStatus = item.ServiceRequestStatus,
-                    ServiceRequestStatusName=item.ServiceRequestStatus>0? ((ServiceRequestStatus)item.ServiceRequestStatus).ToString() : "n/a",
+                    ServiceRequestStatusName = item.ServiceRequestStatus > 0 ? ((ServiceRequestStatus)item.ServiceRequestStatus).ToString() : "n/a",
+                    
+                };
 
-                });
+                if (item.DiagonsticTestRequested != null && item.DiagonsticTestRequested.Any())
+                {
+                    dto.DiagonsticTestRequested = item.DiagonsticTestRequested.Select(d => new DiagonsticTestRequestedDto
+                    {
+                        DiagonsticPathologyServiceManagementId = d.DiagonsticPathologyServiceManagementId,
+                        DiagonsticTestId = d.DiagonsticTestId,
+                        PathologyCategoryAndTest = d.PathologyCategoryAndTest,
+                    }).ToList();
+                };
+                
+                result.Add(dto);
             }
             var resList = result.OrderByDescending(d => d.Id).ToList();
             return resList;
