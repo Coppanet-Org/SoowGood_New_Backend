@@ -147,98 +147,6 @@ namespace SoowGoodWeb.Services
 
             return result;
         }
-
-        public async Task<List<DoctorProfileDto>> GetDoctorListSearchByNameAsync(string? name, FilterModel? filterModel) //, int? skipValue, int? currentLimit)
-        {
-            List<DoctorProfileDto> result = null;
-            var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
-            var profiles = profileWithDetails.Where(p => p.IsActive == true).ToList();
-            var schedules = await _doctorScheduleRepository.WithDetailsAsync();
-            //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
-            if (!profileWithDetails.Any())
-            {
-                return result;
-            }
-            result = new List<DoctorProfileDto>();
-            var medicaldegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
-            var doctorDegrees = ObjectMapper.Map<List<DoctorDegree>, List<DoctorDegreeDto>>(medicaldegrees.ToList());
-
-
-            var medcalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
-            var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medcalSpecializations.ToList());
-
-            if (!string.IsNullOrEmpty(name))
-            {
-                profiles = profiles.Where(p => p.FullName == name).ToList();
-            }
-
-            profiles = profiles.Skip(filterModel.Offset)
-                               .Take(filterModel.Limit).ToList();
-
-            foreach (var item in profiles)
-            {
-                result.Add(new DoctorProfileDto()
-                {
-                    Id = item.Id,
-                    Degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.Id).ToList(),
-                    DoctorSpecialization = doctorSpecializations.Where(sp => sp.DoctorProfileId == item.Id).ToList(),
-                    FullName = item.FullName,
-                    DoctorTitle = item.DoctorTitle,
-                    DoctorTitleName = item.DoctorTitle > 0 ? ((DoctorTitle)item.DoctorTitle).ToString() : "n/a",
-                    MaritalStatus = item.MaritalStatus,
-                    MaritalStatusName = item.MaritalStatus > 0 ? ((MaritalStatus)item.MaritalStatus).ToString() : "n/a",
-                    City = item.City,
-                    ZipCode = item.ZipCode,
-                    Country = item.Country,
-                    IdentityNumber = item.IdentityNumber,
-                    BMDCRegNo = item.BMDCRegNo,
-                    BMDCRegExpiryDate = item.BMDCRegExpiryDate,
-                    Email = item.Email,
-                    MobileNo = item.MobileNo,
-                    DateOfBirth = item.DateOfBirth,
-                    Gender = item.Gender,
-                    GenderName = item.Gender > 0 ? ((Gender)item.Gender).ToString() : "n/a",
-                    Address = item.Address,
-                    ProfileRole = "Doctor",
-                    IsActive = item.IsActive,
-                    UserId = item.UserId,
-                    IsOnline = item.IsOnline,
-                    profileStep = item.profileStep,
-                    createFrom = item.createFrom,
-                    DoctorCode = item.DoctorCode,
-                    SpecialityId = item.SpecialityId,
-                    SpecialityName = item.SpecialityId > 0 ? item.Speciality.SpecialityName : "n/a",
-                });
-            }
-
-            return result;
-        }
-
-        public async Task<int> GetDoctorsCountByNameAsync(string? name) //, int? skipValue, int? currentLimit)
-        {
-            var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
-            var profiles = profileWithDetails.Where(p => p.IsActive == true).ToList();
-            var schedules = await _doctorScheduleRepository.WithDetailsAsync();
-            //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
-            if (!profileWithDetails.Any())
-            {
-                return 0;
-            }
-            var medicaldegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
-            var doctorDegrees = ObjectMapper.Map<List<DoctorDegree>, List<DoctorDegreeDto>>(medicaldegrees.ToList());
-
-
-            var medcalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
-            var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medcalSpecializations.ToList());
-
-            if (!string.IsNullOrEmpty(name))
-            {
-                profiles = profiles.Where(p => p.FullName == name).ToList();
-            }
-
-            return profiles.Count;
-        }
-
         public async Task<List<DoctorProfileDto>> GetDoctorListFilterAsync(DataFilterModel? doctorFilterModel, FilterModel filterModel)
         {
             List<DoctorProfileDto> result = null;
@@ -276,7 +184,34 @@ namespace SoowGoodWeb.Services
                 var doctorFees = await _doctorFeesSetup.WithDetailsAsync(d => d.DoctorSchedule.DoctorProfile);
                 //profiles = profiles.Skip(filterModel.Offset)
                 //                   .Take(filterModel.Limit).ToList();
+                if (!string.IsNullOrEmpty(doctorFilterModel?.name))
+                {
+                    profiles = profiles.Where(p => p.FullName.ToLower().Contains(doctorFilterModel.name.ToLower().Trim())).ToList();
+                }
 
+                if (doctorFilterModel?.specializationId > 0)
+                {
+                    profiles = (from t1 in profiles
+                                join t2 in doctorSpecializations.Where(c => c.SpecializationId == doctorFilterModel.specializationId)
+                                on t1.Id equals t2.DoctorProfileId
+                              select t1).ToList();
+                }
+
+                if (doctorFilterModel?.consultancyType > 0)
+                {
+                    if (doctorFilterModel?.consultancyType == ConsultancyType.OnlineRT)
+                    {
+                        profiles = profiles.Where(p => p.IsOnline == true).ToList();
+                    }
+                    else
+                    {
+                        schedules = schedules.Where(c => c.ConsultancyType == doctorFilterModel.consultancyType);
+                        profiles = (from t1 in profiles
+                                    join t2 in schedules //.Where(c => c.ConsultancyType == doctorFilterModel.consultancyType)
+                                    on t1.Id equals t2.DoctorProfileId
+                                  select t1).Distinct().ToList();
+                    }
+                }
                 try
                 {
 
@@ -351,34 +286,6 @@ namespace SoowGoodWeb.Services
                             ProfilePic = profilePics?.Path,
                             DisplayFee = fee
                         });
-                    }
-                    if (!string.IsNullOrEmpty(doctorFilterModel?.name))
-                    {
-                        result = result.Where(p => p.FullName.ToLower().Contains(doctorFilterModel.name.ToLower().Trim())).ToList();
-                    }
-
-                    if (doctorFilterModel?.specializationId > 0)
-                    {
-                        result = (from t1 in result
-                                  join t2 in doctorSpecializations.Where(c => c.SpecializationId == doctorFilterModel.specializationId)
-                                    on t1.Id equals t2.DoctorProfileId
-                                    select t1).ToList();
-                    }
-
-                    if (doctorFilterModel?.consultancyType > 0)
-                    {
-                        if (doctorFilterModel?.consultancyType == ConsultancyType.OnlineRT)
-                        {
-                            result = result.Where(p => p.IsOnline == true).ToList();
-                        }
-                        else
-                        {
-                            schedules = schedules.Where(c => c.ConsultancyType == doctorFilterModel.consultancyType);
-                            result = (from t1 in result
-                                      join t2 in schedules //.Where(c => c.ConsultancyType == doctorFilterModel.consultancyType)
-                                        on t1.Id equals t2.DoctorProfileId
-                                        select t1).Distinct().ToList();
-                        }
                     }
                 }
                 catch (Exception ex)
@@ -464,97 +371,7 @@ namespace SoowGoodWeb.Services
             }
 
             return profiles.Count;
-        }
-        public async Task<List<DoctorProfileDto>> GetDoctorListWithSearchFilterAsync(string? name, ConsultancyType? consultancy, long? speciality, long? specialization, int? skipValue, int? currentLimit)
-        {
-            List<DoctorProfileDto> result = null;
-            var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
-            var profiles = profileWithDetails.Where(p => p.IsActive == true).ToList();
-            var schedules = await _doctorScheduleRepository.WithDetailsAsync();
-            //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
-            if (!profileWithDetails.Any())
-            {
-                return result;
-            }
-            result = new List<DoctorProfileDto>();
-            var medicaldegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
-            var doctorDegrees = ObjectMapper.Map<List<DoctorDegree>, List<DoctorDegreeDto>>(medicaldegrees.ToList());
-
-
-            var medcalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
-            var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medcalSpecializations.ToList());
-
-            if (!string.IsNullOrEmpty(name))
-            {
-                profiles = profiles.Where(p => p.FullName == name).ToList();
-            }
-
-            if (speciality > 0)
-            {
-                profiles = profiles.Where(p => p.SpecialityId == speciality).ToList();
-                doctorSpecializations = doctorSpecializations.Where(sp => sp.SpecialityId == speciality).ToList();
-            }
-
-            if (specialization > 0)
-            {
-                doctorSpecializations = doctorSpecializations.Where(sp => sp.Id == specialization).ToList();
-                profiles = (from t1 in profiles
-                            join t2 in doctorSpecializations.Where(c => c.Id == specialization)
-                            on t1.Id equals t2.DoctorProfileId
-                            select t1).ToList();
-            }
-
-            if (consultancy > 0)
-            {
-                //schedules = schedules.Where(c=>c.ConsultancyType==consultType).ToList();
-                profiles = (from t1 in profiles
-                            join t2 in schedules.Where(c => c.ConsultancyType == consultancy)
-                            on t1.Id equals t2.DoctorProfileId
-                            select t1).ToList();
-            }
-
-            profiles = profiles.Skip((int)(skipValue > 0 ? skipValue : 0))
-                               .Take((int)(currentLimit > 0 ? currentLimit : 0)).ToList();
-
-            foreach (var item in profiles)
-            {
-                result.Add(new DoctorProfileDto()
-                {
-                    Id = item.Id,
-                    Degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.Id).ToList(),
-                    DoctorSpecialization = doctorSpecializations.Where(sp => sp.DoctorProfileId == item.Id).ToList(),
-                    FullName = item.FullName,
-                    DoctorTitle = item.DoctorTitle,
-                    DoctorTitleName = item.DoctorTitle > 0 ? ((DoctorTitle)item.DoctorTitle).ToString() : "n/a",
-                    MaritalStatus = item.MaritalStatus,
-                    MaritalStatusName = item.MaritalStatus > 0 ? ((MaritalStatus)item.MaritalStatus).ToString() : "n/a",
-                    City = item.City,
-                    ZipCode = item.ZipCode,
-                    Country = item.Country,
-                    IdentityNumber = item.IdentityNumber,
-                    BMDCRegNo = item.BMDCRegNo,
-                    BMDCRegExpiryDate = item.BMDCRegExpiryDate,
-                    Email = item.Email,
-                    MobileNo = item.MobileNo,
-                    DateOfBirth = item.DateOfBirth,
-                    Gender = item.Gender,
-                    GenderName = item.Gender > 0 ? ((Gender)item.Gender).ToString() : "n/a",
-                    Address = item.Address,
-                    ProfileRole = "Doctor",
-                    IsActive = item.IsActive,
-                    UserId = item.UserId,
-                    IsOnline = item.IsOnline,
-                    profileStep = item.profileStep,
-                    createFrom = item.createFrom,
-                    DoctorCode = item.DoctorCode,
-                    SpecialityId = item.SpecialityId,
-                    SpecialityName = item.SpecialityId > 0 ? item.Speciality.SpecialityName : "n/a",
-                });
-            }
-
-            return result;
-        }
-
+        }       
         public async Task<DoctorProfileDto> GetByUserNameAsync(string userName)
         {
             var dProfiles = await _doctorProfileRepository.WithDetailsAsync(s => s.Speciality);
@@ -682,21 +499,7 @@ namespace SoowGoodWeb.Services
             var profileWithDetails = await _doctorProfileRepository.GetListAsync(s =>s.IsActive==true);
 
             return ObjectMapper.Map<List<DoctorProfile>, List<DoctorProfileDto>>(profileWithDetails.ToList());
-        }
-
-        public async Task<List<DoctorProfileDto>> GetAllDoctorsSearchListAsync(string? name, int? consultType, long? speciality, long? specialization)
-        {
-            var profiles = await _doctorProfileRepository.WithDetailsAsync(d => d.Degrees, s => s.DoctorSpecialization);
-            var specializations = await _doctorSpecializationRepository.GetListAsync(sp => sp.Id == specialization);
-            //var doctors = new List<DoctorProfileDto>();
-            if (profiles.Any())
-            {
-                //var doctors = from d in profiles join sp in specializations on d.Id equals sp.DoctorProfileId
-                //profiles.Where(d => d.FullName == name && d.SpecialityId == speciality).ToList();
-                //doctors = doctors.Where(sp=>sp.DoctorSpecialization)
-            }
-            return ObjectMapper.Map<List<DoctorProfile>, List<DoctorProfileDto>>(profiles.ToList());
-        }
+        }       
 
         public async Task<List<DoctorProfileDto>> GetListDoctorListByAdminAsync()
         {
@@ -976,5 +779,199 @@ namespace SoowGoodWeb.Services
             }
             return result;//ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
         }
+
+        //public async Task<List<DoctorProfileDto>> GetDoctorListSearchByNameAsync(string? name, FilterModel? filterModel) //, int? skipValue, int? currentLimit)
+        //{
+        //    List<DoctorProfileDto> result = null;
+        //    var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
+        //    var profiles = profileWithDetails.Where(p => p.IsActive == true).ToList();
+        //    var schedules = await _doctorScheduleRepository.WithDetailsAsync();
+        //    //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
+        //    if (!profileWithDetails.Any())
+        //    {
+        //        return result;
+        //    }
+        //    result = new List<DoctorProfileDto>();
+        //    var medicaldegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
+        //    var doctorDegrees = ObjectMapper.Map<List<DoctorDegree>, List<DoctorDegreeDto>>(medicaldegrees.ToList());
+
+
+        //    var medcalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
+        //    var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medcalSpecializations.ToList());
+
+        //    if (!string.IsNullOrEmpty(name))
+        //    {
+        //        profiles = profiles.Where(p => p.FullName == name).ToList();
+        //    }
+
+        //    profiles = profiles.Skip(filterModel.Offset)
+        //                       .Take(filterModel.Limit).ToList();
+
+        //    foreach (var item in profiles)
+        //    {
+        //        result.Add(new DoctorProfileDto()
+        //        {
+        //            Id = item.Id,
+        //            Degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.Id).ToList(),
+        //            DoctorSpecialization = doctorSpecializations.Where(sp => sp.DoctorProfileId == item.Id).ToList(),
+        //            FullName = item.FullName,
+        //            DoctorTitle = item.DoctorTitle,
+        //            DoctorTitleName = item.DoctorTitle > 0 ? ((DoctorTitle)item.DoctorTitle).ToString() : "n/a",
+        //            MaritalStatus = item.MaritalStatus,
+        //            MaritalStatusName = item.MaritalStatus > 0 ? ((MaritalStatus)item.MaritalStatus).ToString() : "n/a",
+        //            City = item.City,
+        //            ZipCode = item.ZipCode,
+        //            Country = item.Country,
+        //            IdentityNumber = item.IdentityNumber,
+        //            BMDCRegNo = item.BMDCRegNo,
+        //            BMDCRegExpiryDate = item.BMDCRegExpiryDate,
+        //            Email = item.Email,
+        //            MobileNo = item.MobileNo,
+        //            DateOfBirth = item.DateOfBirth,
+        //            Gender = item.Gender,
+        //            GenderName = item.Gender > 0 ? ((Gender)item.Gender).ToString() : "n/a",
+        //            Address = item.Address,
+        //            ProfileRole = "Doctor",
+        //            IsActive = item.IsActive,
+        //            UserId = item.UserId,
+        //            IsOnline = item.IsOnline,
+        //            profileStep = item.profileStep,
+        //            createFrom = item.createFrom,
+        //            DoctorCode = item.DoctorCode,
+        //            SpecialityId = item.SpecialityId,
+        //            SpecialityName = item.SpecialityId > 0 ? item.Speciality.SpecialityName : "n/a",
+        //        });
+        //    }
+
+        //    return result;
+        //}
+
+        //public async Task<int> GetDoctorsCountByNameAsync(string? name) //, int? skipValue, int? currentLimit)
+        //{
+        //    var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
+        //    var profiles = profileWithDetails.Where(p => p.IsActive == true).ToList();
+        //    var schedules = await _doctorScheduleRepository.WithDetailsAsync();
+        //    //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
+        //    if (!profileWithDetails.Any())
+        //    {
+        //        return 0;
+        //    }
+        //    var medicaldegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
+        //    var doctorDegrees = ObjectMapper.Map<List<DoctorDegree>, List<DoctorDegreeDto>>(medicaldegrees.ToList());
+
+
+        //    var medcalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
+        //    var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medcalSpecializations.ToList());
+
+        //    if (!string.IsNullOrEmpty(name))
+        //    {
+        //        profiles = profiles.Where(p => p.FullName == name).ToList();
+        //    }
+
+        //    return profiles.Count;
+        //}
+
+        //public async Task<List<DoctorProfileDto>> GetDoctorListWithSearchFilterAsync(string? name, ConsultancyType? consultancy, long? speciality, long? specialization, int? skipValue, int? currentLimit)
+        //{
+        //    List<DoctorProfileDto> result = null;
+        //    var profileWithDetails = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, p => p.Speciality, d => d.DoctorSpecialization);
+        //    var profiles = profileWithDetails.Where(p => p.IsActive == true).ToList();
+        //    var schedules = await _doctorScheduleRepository.WithDetailsAsync();
+        //    //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
+        //    if (!profileWithDetails.Any())
+        //    {
+        //        return result;
+        //    }
+        //    result = new List<DoctorProfileDto>();
+        //    var medicaldegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
+        //    var doctorDegrees = ObjectMapper.Map<List<DoctorDegree>, List<DoctorDegreeDto>>(medicaldegrees.ToList());
+
+
+        //    var medcalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
+        //    var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medcalSpecializations.ToList());
+
+        //    if (!string.IsNullOrEmpty(name))
+        //    {
+        //        profiles = profiles.Where(p => p.FullName == name).ToList();
+        //    }
+
+        //    if (speciality > 0)
+        //    {
+        //        profiles = profiles.Where(p => p.SpecialityId == speciality).ToList();
+        //        doctorSpecializations = doctorSpecializations.Where(sp => sp.SpecialityId == speciality).ToList();
+        //    }
+
+        //    if (specialization > 0)
+        //    {
+        //        doctorSpecializations = doctorSpecializations.Where(sp => sp.Id == specialization).ToList();
+        //        profiles = (from t1 in profiles
+        //                    join t2 in doctorSpecializations.Where(c => c.Id == specialization)
+        //                    on t1.Id equals t2.DoctorProfileId
+        //                    select t1).ToList();
+        //    }
+
+        //    if (consultancy > 0)
+        //    {
+        //        //schedules = schedules.Where(c=>c.ConsultancyType==consultType).ToList();
+        //        profiles = (from t1 in profiles
+        //                    join t2 in schedules.Where(c => c.ConsultancyType == consultancy)
+        //                    on t1.Id equals t2.DoctorProfileId
+        //                    select t1).ToList();
+        //    }
+
+        //    profiles = profiles.Skip((int)(skipValue > 0 ? skipValue : 0))
+        //                       .Take((int)(currentLimit > 0 ? currentLimit : 0)).ToList();
+
+        //    foreach (var item in profiles)
+        //    {
+        //        result.Add(new DoctorProfileDto()
+        //        {
+        //            Id = item.Id,
+        //            Degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.Id).ToList(),
+        //            DoctorSpecialization = doctorSpecializations.Where(sp => sp.DoctorProfileId == item.Id).ToList(),
+        //            FullName = item.FullName,
+        //            DoctorTitle = item.DoctorTitle,
+        //            DoctorTitleName = item.DoctorTitle > 0 ? ((DoctorTitle)item.DoctorTitle).ToString() : "n/a",
+        //            MaritalStatus = item.MaritalStatus,
+        //            MaritalStatusName = item.MaritalStatus > 0 ? ((MaritalStatus)item.MaritalStatus).ToString() : "n/a",
+        //            City = item.City,
+        //            ZipCode = item.ZipCode,
+        //            Country = item.Country,
+        //            IdentityNumber = item.IdentityNumber,
+        //            BMDCRegNo = item.BMDCRegNo,
+        //            BMDCRegExpiryDate = item.BMDCRegExpiryDate,
+        //            Email = item.Email,
+        //            MobileNo = item.MobileNo,
+        //            DateOfBirth = item.DateOfBirth,
+        //            Gender = item.Gender,
+        //            GenderName = item.Gender > 0 ? ((Gender)item.Gender).ToString() : "n/a",
+        //            Address = item.Address,
+        //            ProfileRole = "Doctor",
+        //            IsActive = item.IsActive,
+        //            UserId = item.UserId,
+        //            IsOnline = item.IsOnline,
+        //            profileStep = item.profileStep,
+        //            createFrom = item.createFrom,
+        //            DoctorCode = item.DoctorCode,
+        //            SpecialityId = item.SpecialityId,
+        //            SpecialityName = item.SpecialityId > 0 ? item.Speciality.SpecialityName : "n/a",
+        //        });
+        //    }
+
+        //    return result;
+        //}
+        //public async Task<List<DoctorProfileDto>> GetAllDoctorsSearchListAsync(string? name, int? consultType, long? speciality, long? specialization)
+        //{
+        //    var profiles = await _doctorProfileRepository.WithDetailsAsync(d => d.Degrees, s => s.DoctorSpecialization);
+        //    var specializations = await _doctorSpecializationRepository.GetListAsync(sp => sp.Id == specialization);
+        //    //var doctors = new List<DoctorProfileDto>();
+        //    if (profiles.Any())
+        //    {
+        //        //var doctors = from d in profiles join sp in specializations on d.Id equals sp.DoctorProfileId
+        //        //profiles.Where(d => d.FullName == name && d.SpecialityId == speciality).ToList();
+        //        //doctors = doctors.Where(sp=>sp.DoctorSpecialization)
+        //    }
+        //    return ObjectMapper.Map<List<DoctorProfile>, List<DoctorProfileDto>>(profiles.ToList());
+        //}
     }
 }
