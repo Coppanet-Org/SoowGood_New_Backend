@@ -764,7 +764,6 @@ namespace SoowGoodWeb.Services
             }
         }
 
-
         public async Task<DoctorProfileDto> GetByUserIdAsync(Guid userId)
         {
             var doctorProfiles = await _doctorProfileRepository.WithDetailsAsync(s => s.Degrees, sp => sp.Speciality, d => d.DoctorSpecialization);
