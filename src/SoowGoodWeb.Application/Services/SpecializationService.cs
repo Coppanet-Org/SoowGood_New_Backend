@@ -14,11 +14,12 @@ namespace SoowGoodWeb.Services
     public class SpecializationService : SoowGoodWebAppService, ISpecializationService
     {
         private readonly IRepository<Specialization> _specializationRepository;
+        private readonly IRepository<DoctorSpecialization> _doctorSpecializationRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
-        public SpecializationService(IRepository<Specialization> specializationRepository, IUnitOfWorkManager unitOfWorkManager)
+        public SpecializationService(IRepository<Specialization> specializationRepository, IRepository<DoctorSpecialization> doctorSpecializationRepository, IUnitOfWorkManager unitOfWorkManager)
         {
             _specializationRepository = specializationRepository;
-
+            _doctorSpecializationRepository = doctorSpecializationRepository;
             _unitOfWorkManager = unitOfWorkManager;
         }
         //public async Task<DoctorProfileDto> CreateAsync(DoctorProfileInputDto input)
@@ -42,6 +43,13 @@ namespace SoowGoodWeb.Services
         {
             var allsPecialization = await _specializationRepository.WithDetailsAsync(s => s.Speciality);
             var specialization = allsPecialization.ToList();
+            return ObjectMapper.Map<List<Specialization>, List<SpecializationDto>>(specialization);
+        }
+        public async Task<List<SpecializationDto>> GetListFilteringAsync()
+        {
+            var allsPecialization = await _specializationRepository.WithDetailsAsync(s => s.Speciality);
+            var docSp = await _doctorSpecializationRepository.WithDetailsAsync(sp => sp.Specialization);
+            var specialization = (from alsp in allsPecialization join dsp in docSp on alsp.Id equals dsp.SpecializationId select alsp).Distinct().ToList() ;
             return ObjectMapper.Map<List<Specialization>, List<SpecializationDto>>(specialization);
         }
         public async Task<List<SpecializationDto>> GetListBySpecialtyIdAsync(long specialityId)
