@@ -487,7 +487,7 @@ namespace SoowGoodWeb.Services
                     var newNotificaitonEntity = ObjectMapper.Map<NotificationInputDto, Notification>(notificatinInput);
                     var notifictionInsert = await _notificationRepository.InsertAsync(newNotificaitonEntity);
 
-                    await _hubContext.Clients.All.BroadcastMessage(notifictionInsert.Message);//notifictionInsert.Id
+                    await _hubContext.Clients.All.BroadcastMessage();//notifictionInsert.Id
 
                     result = "Appointmnet and Payment Operation Completed.";
                 }
