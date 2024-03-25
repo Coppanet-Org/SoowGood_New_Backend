@@ -11,7 +11,7 @@ namespace SoowGoodWeb.DtoModels
     {
         public string? ServiceRequestCode { get; set; }
         public long? ServiceProviderId { get; set; }
-        public long? ServiceProviderName { get; set; }
+        public string? ServiceProviderName { get; set; }
         public DiagonsticServiceType? DiagonsticServiceType { get; set; }
         public string? DiagonsticServiceTypeName { get; set; }
         public string? DiagonsticCategoryName { get; set; }
