@@ -6,7 +6,7 @@ namespace SoowGoodWeb.Interfaces
 {
     public interface IHubClient
     {
-        Task BroadcastMessage(string message); //long meassageId
+        Task BroadcastMessage(); //long meassageId
         //Task SendNotificationAsync(SendNotificationInputDto input);
     }
 }
