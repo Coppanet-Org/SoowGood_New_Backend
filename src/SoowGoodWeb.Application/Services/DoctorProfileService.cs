@@ -161,7 +161,7 @@ namespace SoowGoodWeb.Services
                 }
 
                 var schedules = await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile);
-                var profiles = profileWithDetails.Where(p=>p.IsActive == true).ToList();
+                var profiles = profileWithDetails.Where(p => p.IsActive == true).ToList();
 
                 profiles = (from doctors in profiles
                             join schedule in schedules on doctors.Id equals schedule.DoctorProfileId
@@ -179,7 +179,7 @@ namespace SoowGoodWeb.Services
                 var attachedItems = await _documentsAttachment.WithDetailsAsync();
 
                 var financialSetups = await _financialSetup.WithDetailsAsync();
-                var fees = financialSetups.OrderBy(p => p.ProviderAmount).Where(a => a.ProviderAmount != null).ToList();
+                var fees = financialSetups.OrderBy(p => p.ProviderAmount).Where(a => a.ProviderAmount != null && a.IsActivie == true).ToList();
 
                 var doctorFees = await _doctorFeesSetup.WithDetailsAsync(d => d.DoctorSchedule.DoctorProfile);
                 //profiles = profiles.Skip(filterModel.Offset)
@@ -194,12 +194,12 @@ namespace SoowGoodWeb.Services
                     profiles = (from t1 in profiles
                                 join t2 in doctorSpecializations.Where(c => c.SpecializationId == doctorFilterModel.specializationId)
                                 on t1.Id equals t2.DoctorProfileId
-                              select t1).ToList();
+                                select t1).ToList();
                 }
 
                 if (doctorFilterModel?.consultancyType > 0)
                 {
-                    if (doctorFilterModel?.consultancyType == ConsultancyType.OnlineRT)
+                    if (doctorFilterModel?.consultancyType == ConsultancyType.Instant)
                     {
                         profiles = profiles.Where(p => p.IsOnline == true).ToList();
                     }
@@ -209,7 +209,7 @@ namespace SoowGoodWeb.Services
                         profiles = (from t1 in profiles
                                     join t2 in schedules //.Where(c => c.ConsultancyType == doctorFilterModel.consultancyType)
                                     on t1.Id equals t2.DoctorProfileId
-                                  select t1).Distinct().ToList();
+                                    select t1).Distinct().ToList();
                     }
                 }
                 try
@@ -217,20 +217,33 @@ namespace SoowGoodWeb.Services
 
                     foreach (var item in profiles)
                     {
+                        decimal? instantfee = 0;
+                        decimal? individualinstantfee = 0;
+                        decimal? scheduledChamberfee = 0;
+                        decimal? scheduledOnlinefee = 0;
                         var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
                                                                         && x.EntityId == item.Id
                                                                         && x.AttachmentType == AttachmentType.ProfilePicture
                                                                         && x.IsDeleted == false).FirstOrDefault();
-                        decimal? fee = 0;
+
                         if (item.IsOnline == true)
                         {
-                            fee = fees.FirstOrDefault().ProviderAmount;
+                            instantfee = fees.FirstOrDefault()?.ProviderAmount;
+                            individualinstantfee = fees.Where(f => f.FacilityEntityID == item.Id)?.FirstOrDefault()?.ProviderAmount;
                         }
-                        else
+                        //else
+                        //{
+                        var docChamberfeees = doctorFees.Where(f => f.DoctorSchedule.ConsultancyType == ConsultancyType.Chamber && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
+                        if (docChamberfeees != null)
                         {
-                            var docfeees = doctorFees.Where(f => f.DoctorSchedule.DoctorProfile.Id == item.Id && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
-                            fee = docfeees?.FirstOrDefault()?.TotalFee;
+                            scheduledChamberfee = docChamberfeees?.FirstOrDefault(d=>d.DoctorSchedule.DoctorProfileId == item.Id)?.TotalFee;
                         }
+                        var docOnlinefeees = doctorFees.Where(f => f.DoctorSchedule.ConsultancyType == ConsultancyType.Online && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
+                        if (docOnlinefeees != null)
+                        {
+                            scheduledOnlinefee = docOnlinefeees?.FirstOrDefault(d => d.DoctorSchedule.DoctorProfileId == item.Id)?.TotalFee;
+                        }
+                        //}
 
                         var degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.Id).ToList();
                         string degStr = string.Empty;
@@ -284,7 +297,9 @@ namespace SoowGoodWeb.Services
                             createFrom = item.createFrom,
                             DoctorCode = item.DoctorCode,
                             ProfilePic = profilePics?.Path,
-                            DisplayFee = fee
+                            DisplayInstantFee = individualinstantfee > 0 ? individualinstantfee : instantfee,
+                            DisplayScheduledChamberFee = scheduledChamberfee,
+                            DisplayScheduledOnlineFee = scheduledOnlinefee
                         });
                     }
                 }
@@ -312,7 +327,7 @@ namespace SoowGoodWeb.Services
             }
 
             var schedules = await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile);
-            var profiles = profileWithDetails.Where(p=> p.IsActive == true).ToList();
+            var profiles = profileWithDetails.Where(p => p.IsActive == true).ToList();
 
             profiles = (from doctors in profiles
                         join schedule in schedules on doctors.Id equals schedule.DoctorProfileId
@@ -355,7 +370,7 @@ namespace SoowGoodWeb.Services
 
             if (doctorFilterModel?.consultancyType > 0)
             {
-                if (doctorFilterModel?.consultancyType == ConsultancyType.OnlineRT)
+                if (doctorFilterModel?.consultancyType == ConsultancyType.Instant)
                 {
                     profiles = profiles.Where(p => p.IsOnline == true).ToList();
                 }
@@ -371,7 +386,7 @@ namespace SoowGoodWeb.Services
             }
 
             return profiles.Count;
-        }       
+        }
         public async Task<DoctorProfileDto> GetByUserNameAsync(string userName)
         {
             var dProfiles = await _doctorProfileRepository.WithDetailsAsync(s => s.Speciality);
@@ -416,21 +431,33 @@ namespace SoowGoodWeb.Services
 
             foreach (var item in profiles)
             {
+                decimal? instantfee = 0;
+                decimal? individualinstantfee = 0;
+                decimal? scheduledChamberfee = 0;
+                decimal? scheduledOnlinefee = 0;
                 var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
                                                                 && x.EntityId == item.Id
                                                                 && x.AttachmentType == AttachmentType.ProfilePicture
                                                                 && x.IsDeleted == false).FirstOrDefault();
 
-                decimal? fee = 0;
                 if (item.IsOnline == true)
                 {
-                    fee = fees?.FirstOrDefault()?.ProviderAmount;
+                    instantfee = fees.FirstOrDefault()?.ProviderAmount;
+                    individualinstantfee = fees.Where(f => f.FacilityEntityID == item.Id)?.FirstOrDefault()?.ProviderAmount;
                 }
-                else
+                //else
+                //{
+                var docChamberfeees = doctorFees.Where(f => f.DoctorSchedule.ConsultancyType == ConsultancyType.Chamber && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
+                if (docChamberfeees != null)
                 {
-                    var docfeees = doctorFees.Where(f => f.DoctorSchedule.DoctorProfile.Id == item.Id && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
-                    fee = docfeees?.FirstOrDefault()?.TotalFee;
+                    scheduledChamberfee = docChamberfeees?.FirstOrDefault(d => d.DoctorSchedule.DoctorProfileId == item.Id)?.TotalFee;
                 }
+                var docOnlinefeees = doctorFees.Where(f => f.DoctorSchedule.ConsultancyType == ConsultancyType.Online && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
+                if (docOnlinefeees != null)
+                {
+                    scheduledOnlinefee = docOnlinefeees?.FirstOrDefault(d => d.DoctorSchedule.DoctorProfileId == item.Id)?.TotalFee;
+                }
+                //}
 
                 var degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.Id).ToList();
                 string degStr = string.Empty;
@@ -484,7 +511,9 @@ namespace SoowGoodWeb.Services
                     createFrom = item.createFrom,
                     DoctorCode = item.DoctorCode,
                     ProfilePic = profilePics?.Path,
-                    DisplayFee = fee
+                    DisplayInstantFee = individualinstantfee > 0 ? individualinstantfee : instantfee,
+                    DisplayScheduledChamberFee = scheduledChamberfee,
+                    DisplayScheduledOnlineFee = scheduledOnlinefee
                 });
             }
 
@@ -496,10 +525,10 @@ namespace SoowGoodWeb.Services
         public async Task<List<DoctorProfileDto>> GetAllActiveDoctorListAsync()
         {
             List<DoctorProfileDto> result = null;
-            var profileWithDetails = await _doctorProfileRepository.GetListAsync(s =>s.IsActive==true);
+            var profileWithDetails = await _doctorProfileRepository.GetListAsync(s => s.IsActive == true);
 
             return ObjectMapper.Map<List<DoctorProfile>, List<DoctorProfileDto>>(profileWithDetails.ToList());
-        }       
+        }
 
         public async Task<List<DoctorProfileDto>> GetListDoctorListByAdminAsync()
         {
