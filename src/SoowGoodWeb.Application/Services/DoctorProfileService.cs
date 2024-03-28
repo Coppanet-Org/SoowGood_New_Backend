@@ -217,10 +217,14 @@ namespace SoowGoodWeb.Services
 
                     foreach (var item in profiles)
                     {
-                        decimal? instantfee = 0;
-                        decimal? individualinstantfee = 0;
+                        decimal? instantfeeAsPatient = 0;
+                        decimal? instantfeeAsAgent = 0;
+                        decimal? individualInstantfeeAsPatient = 0;
+                        decimal? individualInstantfeeAsAgent = 0;
                         decimal? scheduledChamberfee = 0;
+                        //decimal? scheduledChamberfeeAsAgent = 0;
                         decimal? scheduledOnlinefee = 0;
+                        //decimal? scheduledOnlinefeeAsAgent = 0;
                         var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
                                                                         && x.EntityId == item.Id
                                                                         && x.AttachmentType == AttachmentType.ProfilePicture
@@ -228,15 +232,17 @@ namespace SoowGoodWeb.Services
 
                         if (item.IsOnline == true)
                         {
-                            instantfee = fees.FirstOrDefault()?.ProviderAmount;
-                            individualinstantfee = fees.Where(f => f.FacilityEntityID == item.Id)?.FirstOrDefault()?.ProviderAmount;
+                            instantfeeAsPatient = fees.Where(pf => pf.PlatformFacilityId == 3).FirstOrDefault()?.ProviderAmount;
+                            instantfeeAsAgent = fees.Where(pf => pf.PlatformFacilityId == 6).FirstOrDefault()?.ProviderAmount;
+                            individualInstantfeeAsPatient = fees.Where(f => f.PlatformFacilityId == 3 && f.FacilityEntityID == item.Id)?.FirstOrDefault()?.ProviderAmount;
+                            individualInstantfeeAsAgent = fees.Where(f => f.PlatformFacilityId == 6 && f.FacilityEntityID == item.Id)?.FirstOrDefault()?.ProviderAmount;
                         }
                         //else
                         //{
                         var docChamberfeees = doctorFees.Where(f => f.DoctorSchedule.ConsultancyType == ConsultancyType.Chamber && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
                         if (docChamberfeees != null)
                         {
-                            scheduledChamberfee = docChamberfeees?.FirstOrDefault(d=>d.DoctorSchedule.DoctorProfileId == item.Id)?.TotalFee;
+                            scheduledChamberfee = docChamberfeees?.FirstOrDefault(d => d.DoctorSchedule.DoctorProfileId == item.Id)?.TotalFee;
                         }
                         var docOnlinefeees = doctorFees.Where(f => f.DoctorSchedule.ConsultancyType == ConsultancyType.Online && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
                         if (docOnlinefeees != null)
@@ -297,7 +303,8 @@ namespace SoowGoodWeb.Services
                             createFrom = item.createFrom,
                             DoctorCode = item.DoctorCode,
                             ProfilePic = profilePics?.Path,
-                            DisplayInstantFee = individualinstantfee > 0 ? individualinstantfee : instantfee,
+                            DisplayInstantFeeAsPatient = individualInstantfeeAsPatient > 0 ? individualInstantfeeAsPatient : instantfeeAsPatient,
+                            DisplayInstantFeeAsAgent = individualInstantfeeAsAgent > 0 ? individualInstantfeeAsAgent : instantfeeAsAgent,
                             DisplayScheduledChamberFee = scheduledChamberfee,
                             DisplayScheduledOnlineFee = scheduledOnlinefee
                         });
@@ -431,10 +438,14 @@ namespace SoowGoodWeb.Services
 
             foreach (var item in profiles)
             {
-                decimal? instantfee = 0;
-                decimal? individualinstantfee = 0;
+                decimal? instantfeeAsPatient = 0;
+                decimal? instantfeeAsAgent = 0;
+                decimal? individualInstantfeeAsPatient = 0;
+                decimal? individualInstantfeeAsAgent = 0;
                 decimal? scheduledChamberfee = 0;
+                //decimal? scheduledChamberfeeAsAgent = 0;
                 decimal? scheduledOnlinefee = 0;
+                //decimal? scheduledOnlinefeeAsAgent = 0;
                 var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
                                                                 && x.EntityId == item.Id
                                                                 && x.AttachmentType == AttachmentType.ProfilePicture
@@ -442,8 +453,10 @@ namespace SoowGoodWeb.Services
 
                 if (item.IsOnline == true)
                 {
-                    instantfee = fees.FirstOrDefault()?.ProviderAmount;
-                    individualinstantfee = fees.Where(f => f.FacilityEntityID == item.Id)?.FirstOrDefault()?.ProviderAmount;
+                    instantfeeAsPatient = fees.Where(pf => pf.PlatformFacilityId == 3).FirstOrDefault()?.ProviderAmount;
+                    instantfeeAsAgent = fees.Where(pf => pf.PlatformFacilityId == 6).FirstOrDefault()?.ProviderAmount;
+                    individualInstantfeeAsPatient = fees.Where(f => f.PlatformFacilityId == 3 && f.FacilityEntityID == item.Id)?.FirstOrDefault()?.ProviderAmount;
+                    individualInstantfeeAsAgent = fees.Where(f => f.PlatformFacilityId == 6 && f.FacilityEntityID == item.Id)?.FirstOrDefault()?.ProviderAmount;
                 }
                 //else
                 //{
@@ -511,7 +524,8 @@ namespace SoowGoodWeb.Services
                     createFrom = item.createFrom,
                     DoctorCode = item.DoctorCode,
                     ProfilePic = profilePics?.Path,
-                    DisplayInstantFee = individualinstantfee > 0 ? individualinstantfee : instantfee,
+                    DisplayInstantFeeAsPatient = individualInstantfeeAsPatient > 0 ? individualInstantfeeAsPatient : instantfeeAsPatient,
+                    DisplayInstantFeeAsAgent = individualInstantfeeAsAgent > 0 ? individualInstantfeeAsAgent : instantfeeAsAgent,
                     DisplayScheduledChamberFee = scheduledChamberfee,
                     DisplayScheduledOnlineFee = scheduledOnlinefee
                 });

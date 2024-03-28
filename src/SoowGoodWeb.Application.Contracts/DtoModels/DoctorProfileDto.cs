@@ -44,7 +44,8 @@ namespace SoowGoodWeb.DtoModels
         public string? createFrom { get; set; }
         public string? ProfileRole { get; set; }
         public string? ProfilePic { get; set; }
-        public decimal? DisplayInstantFee { get; set; }
+        public decimal? DisplayInstantFeeAsPatient { get; set; }
+        public decimal? DisplayInstantFeeAsAgent { get; set; }
         public decimal? DisplayScheduledChamberFee { get; set; }
         public decimal? DisplayScheduledOnlineFee { get; set; }
         public decimal? DisplayIndividualInstantOnlineFee { get; set; }
