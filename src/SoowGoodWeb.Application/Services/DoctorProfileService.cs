@@ -232,8 +232,24 @@ namespace SoowGoodWeb.Services
 
                         if (item.IsOnline == true)
                         {
-                            instantfeeAsPatient = fees.Where(pf => pf.PlatformFacilityId == 3).FirstOrDefault()?.ProviderAmount;
-                            instantfeeAsAgent = fees.Where(pf => pf.PlatformFacilityId == 6).FirstOrDefault()?.ProviderAmount;
+                            var plAsPatientAmtIn = fees.Where(pf => pf.PlatformFacilityId == 3).FirstOrDefault()?.AmountIn;
+                            var plAsPatientAmt = fees.Where(pf => pf.PlatformFacilityId == 3).FirstOrDefault()?.Amount;
+
+                            var exAsPatientExAmtIn = fees.Where(pf => pf.PlatformFacilityId == 3).FirstOrDefault()?.ExternalAmountIn;
+                            var exAsPatientExAmt = fees.Where(pf => pf.PlatformFacilityId == 3).FirstOrDefault()?.ExternalAmount;
+                            if (plAsPatientAmtIn == "Percentage")
+                            {
+                                //instantfeeAsPatient
+                                var pAmnt = fees.Where(pf => pf.PlatformFacilityId == 3).FirstOrDefault()?.ProviderAmount;
+                                instantfeeAsPatient = (plAsPatientAmt / 100) * pAmnt + pAmnt;
+                            }
+                            else if(plAsPatientAmtIn =="Flat")
+                            {
+                                var pAmnt = fees.Where(pf => pf.PlatformFacilityId == 3).FirstOrDefault()?.ProviderAmount;
+                                instantfeeAsPatient = plAsPatientAmt  + pAmnt;
+                            }
+                            if (plAsPatientAmtIn == "Percentage" )
+                                instantfeeAsAgent = fees.Where(pf => pf.PlatformFacilityId == 6).FirstOrDefault()?.ProviderAmount;
                             individualInstantfeeAsPatient = fees.Where(f => f.PlatformFacilityId == 3 && f.FacilityEntityID == item.Id)?.FirstOrDefault()?.ProviderAmount;
                             individualInstantfeeAsAgent = fees.Where(f => f.PlatformFacilityId == 6 && f.FacilityEntityID == item.Id)?.FirstOrDefault()?.ProviderAmount;
                         }
