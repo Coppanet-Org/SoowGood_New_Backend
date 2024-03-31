@@ -51,8 +51,8 @@ namespace SoowGoodWeb.Services
         {
             List<FinancialSetupDto>? result = null;
             var facilityEntityName = "";
-            var allFinancialSetupDetails = await _financialSetupRepository.WithDetailsAsync(p=>p.PlatformFacility);
-            if(!allFinancialSetupDetails.Any())
+            var allFinancialSetupDetails = await _financialSetupRepository.WithDetailsAsync(p => p.PlatformFacility);
+            if (!allFinancialSetupDetails.Any())
             {
                 return result;
             }
@@ -61,42 +61,43 @@ namespace SoowGoodWeb.Services
             {
                 if (item.FacilityEntityID > 0)
                 {
-                    if(item.FacilityEntityType == FacilityEntityType.DoctorConsultation)
+                    if (item.FacilityEntityType == FacilityEntityType.DoctorConsultation)
                     {
-                        var doctorP = await _doctorProfileRepository.GetAsync(d=>d.Id == item.FacilityEntityID);
+                        var doctorP = await _doctorProfileRepository.GetAsync(d => d.Id == item.FacilityEntityID);
                         facilityEntityName = doctorP.FullName;
                     }
                     else if (item.FacilityEntityType == FacilityEntityType.ServiceFacility)
                     {
-                        var sp = await _serviceProviderRepository.GetAsync(d=>d.Id==item.FacilityEntityID);
+                        var sp = await _serviceProviderRepository.GetAsync(d => d.Id == item.FacilityEntityID);
                         facilityEntityName = sp.ProviderOrganizationName;
                     }
                 }
                 result.Add(new FinancialSetupDto()
                 {
-                    
+
                     Id = item.Id,
-                    PlatformFacilityId = item.PlatformFacilityId,                                        
-                    
-                    FacilityName = item.PlatformFacilityId > 0 ? item.PlatformFacility.ServiceName : "",
+                    PlatformFacilityId = item.PlatformFacilityId,
+
+                    FacilityName = item.PlatformFacilityId > 0 ? item.PlatformFacility?.ServiceName : "N/A",
                     FacilityEntityType = item.FacilityEntityType,
-                    FacilityEntityTypeName = item.FacilityEntityType>0? item.FacilityEntityType.ToString():"N/A",
+                    FacilityEntityTypeName = item.FacilityEntityType > 0 ? item.FacilityEntityType.ToString() : "N/A",
                     DiagonsticServiceType = item.DiagonsticServiceType,
                     DiagonsticServiceTypeName = item.DiagonsticServiceType > 0 ? item.DiagonsticServiceType.ToString() : "N/A",
                     FacilityEntityID = item.FacilityEntityID,
-                    FacilityEntityName=facilityEntityName,
-                    AmountIn =item.AmountIn,
-                    Amount=item.Amount,
-                    ExternalAmount=item.ExternalAmount,
-                    ExternalAmountIn=item.ExternalAmountIn,
-                    IsActive=item.IsActive,
-                    ProviderAmount=item.ProviderAmount,
+                    FacilityEntityName = item.FacilityEntityID > 0 ? facilityEntityName : "N/A",
+                    AmountIn = item.AmountIn,
+                    Amount = item.Amount,
+                    ExternalAmount = item.ExternalAmount > 0 ? item.ExternalAmount : 0,
+                    ExternalAmountIn = item.ExternalAmountIn != null ? item.ExternalAmountIn : "N/A",
+                    IsActive = item.IsActive,
+                    ProviderAmount = item.ProviderAmount > 0 ? item.ProviderAmount : 0,
+                    Vat = item.Vat
                 });
             }
-            var resList = result.OrderByDescending(d=>d.Id).ToList();
+            var resList = result.OrderByDescending(d => d.Id).ToList();
             return resList;
         }
-        
+
         public async Task<FinancialSetupDto> UpdateAsync(FinancialSetupInputDto input)
         {
             var updateItem = ObjectMapper.Map<FinancialSetupInputDto, FinancialSetup>(input);
@@ -132,8 +133,8 @@ namespace SoowGoodWeb.Services
                 //finalAmnt = item.ProviderRate - discountAmnt;
             }
 
-            return discountAmnt>0?(decimal)discountAmnt:0;  
-                //ObjectMapper.Map<FinancialSetup, FinancialSetupDto>(item);
+            return discountAmnt > 0 ? (decimal)discountAmnt : 0;
+            //ObjectMapper.Map<FinancialSetup, FinancialSetupDto>(item);
         }
 
     }
