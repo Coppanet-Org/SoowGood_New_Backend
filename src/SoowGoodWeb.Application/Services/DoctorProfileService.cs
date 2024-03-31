@@ -215,6 +215,38 @@ namespace SoowGoodWeb.Services
                 }
                 try
                 {
+                    decimal? plCharges = 0;
+                    decimal? agentCharges = 0;
+                    
+                    var vatAmount = fees.Where(pf => pf.Amount > 0).FirstOrDefault()?.Vat;
+
+                    var plAsPatientAmtIn = fees.Where(pf => pf.Amount > 0).FirstOrDefault()?.AmountIn;
+                    var plAsPatientAmt = fees.Where(pf => pf.Amount > 0).FirstOrDefault()?.Amount;
+
+                    var exAsPatientExAmtIn = fees.Where(pf => pf.PlatformFacilityId == 4 || pf.PlatformFacilityId == 5 || pf.PlatformFacilityId == 6).FirstOrDefault()?.ExternalAmountIn;
+                    var exAsPatientExAmt = fees.Where(pf => pf.PlatformFacilityId == 4 || pf.PlatformFacilityId == 5 || pf.PlatformFacilityId == 6).FirstOrDefault()?.ExternalAmount;
+
+                    if (plAsPatientAmtIn == "Percentage")
+                    {
+                        //instantfeeAsPatient
+                        var pAmnt = fees.Where(pf => pf.PlatformFacilityId == 3).FirstOrDefault()?.ProviderAmount;
+                        plCharges = (plAsPatientAmt / 100) * pAmnt;
+                    }
+                    else if (plAsPatientAmtIn == "Flat")
+                    {
+                        var pAmnt = fees.Where(pf => pf.PlatformFacilityId == 3).FirstOrDefault()?.ProviderAmount;
+                        plCharges = plAsPatientAmt;
+                    }
+                    if (exAsPatientExAmtIn == "Percentage")
+                    {
+                        var agAmnt = fees.Where(pf => pf.PlatformFacilityId == 4 || pf.PlatformFacilityId == 5 || pf.PlatformFacilityId == 6).FirstOrDefault()?.ProviderAmount;
+                        agentCharges = (exAsPatientExAmt / 100) * agAmnt;
+                    }
+                    else if (exAsPatientExAmtIn == "Flat")
+                    {
+                        var agAmnt = fees.Where(pf => pf.PlatformFacilityId == 4 || pf.PlatformFacilityId == 5 || pf.PlatformFacilityId == 6).FirstOrDefault()?.ProviderAmount;
+                        agentCharges = exAsPatientExAmt;
+                    }
 
                     foreach (var item in profiles)
                     {
@@ -223,10 +255,11 @@ namespace SoowGoodWeb.Services
                         decimal? individualInstantfeeAsPatient = 0;
                         decimal? individualInstantfeeAsAgent = 0;
                         decimal? scheduledChamberfee = 0;
-                        //decimal? scheduledChamberfeeAsAgent = 0;
                         decimal? scheduledOnlinefee = 0;
-                        decimal? plCharges = 0;
-                        decimal? agentCharges = 0;
+                        var serviceAmnt = plCharges + agentCharges;
+                        var serviceCharge = ((vatAmount / 100) * serviceAmnt) + serviceAmnt;
+                        
+
                         //decimal? scheduledOnlinefeeAsAgent = 0;
                         var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
                                                                         && x.EntityId == item.Id
@@ -235,46 +268,23 @@ namespace SoowGoodWeb.Services
 
                         if (item.IsOnline == true)
                         {
-                            var plAsPatientAmtIn = fees.Where(pf => pf.Amount > 0).FirstOrDefault()?.AmountIn;
-                            var plAsPatientAmt = fees.Where(pf => pf.Amount > 0).FirstOrDefault()?.Amount;
+                            instantfeeAsPatient = fees.Where(f => f.PlatformFacilityId == 3)?.FirstOrDefault()?.ProviderAmount + serviceCharge;
+                            instantfeeAsAgent = fees.Where(f => f.PlatformFacilityId == 6)?.FirstOrDefault()?.ProviderAmount + serviceCharge;
 
-                            var exAsPatientExAmtIn = fees.Where(pf => pf.PlatformFacilityId == 6).FirstOrDefault()?.ExternalAmountIn;
-                            var exAsPatientExAmt = fees.Where(pf => pf.PlatformFacilityId == 6).FirstOrDefault()?.ExternalAmount;
-                            if (plAsPatientAmtIn == "Percentage")
-                            {
-                                //instantfeeAsPatient
-                                var pAmnt = fees.Where(pf => pf.PlatformFacilityId == 3).FirstOrDefault()?.ProviderAmount;
-                                plCharges = (plAsPatientAmt / 100) * pAmnt;
-                            }
-                            else if (plAsPatientAmtIn == "Flat")
-                            {
-                                var pAmnt = fees.Where(pf => pf.PlatformFacilityId == 3).FirstOrDefault()?.ProviderAmount;
-                                plCharges = plAsPatientAmt;
-                            }
-                            if (exAsPatientExAmtIn == "Percentage")
-                            {
-                                var agAmnt = fees.Where(pf => pf.PlatformFacilityId == 6).FirstOrDefault()?.ProviderAmount;
-                                agentCharges = (exAsPatientExAmt / 100) * agAmnt;
-                            }
-                            else if (exAsPatientExAmtIn == "Flat")
-                            {
-                                var agAmnt = fees.Where(pf => pf.PlatformFacilityId == 3).FirstOrDefault()?.ProviderAmount;
-                                agentCharges = exAsPatientExAmt;
-                            }
-                            individualInstantfeeAsPatient = fees.Where(f => f.PlatformFacilityId == 3 && f.FacilityEntityID == item.Id)?.FirstOrDefault()?.ProviderAmount;
-                            individualInstantfeeAsAgent = fees.Where(f => f.PlatformFacilityId == 6 && f.FacilityEntityID == item.Id)?.FirstOrDefault()?.ProviderAmount;
+                            individualInstantfeeAsPatient = fees.Where(f => f.PlatformFacilityId == 3 && f.FacilityEntityID == item.Id)?.FirstOrDefault()?.ProviderAmount + serviceCharge;
+                            individualInstantfeeAsAgent = fees.Where(f => f.PlatformFacilityId == 6 && f.FacilityEntityID == item.Id)?.FirstOrDefault()?.ProviderAmount + serviceCharge;
                         }
                         //else
                         //{
                         var docChamberfeees = doctorFees.Where(f => f.DoctorSchedule.ConsultancyType == ConsultancyType.Chamber && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
                         if (docChamberfeees != null)
                         {
-                            scheduledChamberfee = docChamberfeees?.FirstOrDefault(d => d.DoctorSchedule.DoctorProfileId == item.Id)?.TotalFee;
+                            scheduledChamberfee = docChamberfeees?.FirstOrDefault(d => d.DoctorSchedule?.DoctorProfileId == item.Id)?.TotalFee + serviceCharge; ;
                         }
                         var docOnlinefeees = doctorFees.Where(f => f.DoctorSchedule.ConsultancyType == ConsultancyType.Online && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
                         if (docOnlinefeees != null)
                         {
-                            scheduledOnlinefee = docOnlinefeees?.FirstOrDefault(d => d.DoctorSchedule.DoctorProfileId == item.Id)?.TotalFee;
+                            scheduledOnlinefee = docOnlinefeees?.FirstOrDefault(d => d.DoctorSchedule?.DoctorProfileId == item.Id)?.TotalFee + serviceCharge; ;
                         }
                         //}
 
