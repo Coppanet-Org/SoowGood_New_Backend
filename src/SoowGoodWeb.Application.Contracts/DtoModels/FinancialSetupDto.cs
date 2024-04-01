@@ -21,6 +21,7 @@ namespace SoowGoodWeb.DtoModels
         public string? ExternalAmountIn { get; set; }
         public decimal? ExternalAmount { get; set; }
         public decimal? ProviderAmount { get; set; }
-        public bool? IsActivie { get; set; }
+        public bool? IsActive { get; set; }
+        public int? Vat { get; set; }
     }
 }
