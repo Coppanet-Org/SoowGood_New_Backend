@@ -18,6 +18,7 @@ namespace SoowGoodWeb.InputDto
         public string? ExternalAmountIn { get; set; }
         public decimal? ExternalAmount { get; set; }
         public decimal? ProviderAmount { get; set; }
+        public int? Vat { get; set; }
         public bool? IsActive { get; set; }
     }
 }

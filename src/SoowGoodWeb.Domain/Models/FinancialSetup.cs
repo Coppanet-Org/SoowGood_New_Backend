@@ -25,6 +25,7 @@ namespace SoowGoodWeb.Models
         public decimal? ExternalAmount { get; set; }
         [Column(TypeName = "decimal(18, 2)")]
         public decimal? ProviderAmount { get; set; }
+        public int? Vat { get; set; }
         public bool? IsActive { get; set; }    
 
 

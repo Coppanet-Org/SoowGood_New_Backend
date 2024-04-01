@@ -9,6 +9,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -161,7 +162,7 @@ namespace SoowGoodWeb.Services
                 }
 
                 var schedules = await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile);
-                var profiles = profileWithDetails.Where(p=>p.IsActive == true).ToList();
+                var profiles = profileWithDetails.Where(p => p.IsActive == true).ToList();
 
                 profiles = (from doctors in profiles
                             join schedule in schedules on doctors.Id equals schedule.DoctorProfileId
@@ -179,7 +180,11 @@ namespace SoowGoodWeb.Services
                 var attachedItems = await _documentsAttachment.WithDetailsAsync();
 
                 var financialSetups = await _financialSetup.WithDetailsAsync();
-                var fees = financialSetups.OrderBy(p => p.ProviderAmount).Where(a => a.ProviderAmount != null).ToList();
+                var fees = financialSetups.OrderBy(a => a.ProviderAmount).Where(p => p.ProviderAmount > 0 && p.IsActive == true).ToList();
+                var sfees = financialSetups.OrderBy(a => a.ProviderAmount).Where(p => (p.ProviderAmount == 0 || p.ProviderAmount == null) && p.IsActive == true).ToList();
+                decimal? vatAmnt = fees.Where(a => a.Vat > 0)?.FirstOrDefault()?.Vat;
+                decimal? vatCharge = vatAmnt / 100;
+
 
                 var doctorFees = await _doctorFeesSetup.WithDetailsAsync(d => d.DoctorSchedule.DoctorProfile);
                 //profiles = profiles.Skip(filterModel.Offset)
@@ -194,12 +199,12 @@ namespace SoowGoodWeb.Services
                     profiles = (from t1 in profiles
                                 join t2 in doctorSpecializations.Where(c => c.SpecializationId == doctorFilterModel.specializationId)
                                 on t1.Id equals t2.DoctorProfileId
-                              select t1).ToList();
+                                select t1).ToList();
                 }
 
                 if (doctorFilterModel?.consultancyType > 0)
                 {
-                    if (doctorFilterModel?.consultancyType == ConsultancyType.OnlineRT)
+                    if (doctorFilterModel?.consultancyType == ConsultancyType.Instant)
                     {
                         profiles = profiles.Where(p => p.IsOnline == true).ToList();
                     }
@@ -209,28 +214,183 @@ namespace SoowGoodWeb.Services
                         profiles = (from t1 in profiles
                                     join t2 in schedules //.Where(c => c.ConsultancyType == doctorFilterModel.consultancyType)
                                     on t1.Id equals t2.DoctorProfileId
-                                  select t1).Distinct().ToList();
+                                    select t1).Distinct().ToList();
                     }
                 }
                 try
                 {
-
                     foreach (var item in profiles)
                     {
+                        decimal? instantfeeAsPatient = 0;
+                        decimal? instantfeeAsAgent = 0;
+                        decimal? individualInstantfeeAsPatient = 0;
+                        decimal? individualInstantfeeAsAgent = 0;
+                        decimal? scheduledChamberfee = 0;
+                        decimal? scheduledOnlinefee = 0;
+
                         var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
                                                                         && x.EntityId == item.Id
                                                                         && x.AttachmentType == AttachmentType.ProfilePicture
                                                                         && x.IsDeleted == false).FirstOrDefault();
-                        decimal? fee = 0;
+
                         if (item.IsOnline == true)
                         {
-                            fee = fees.FirstOrDefault().ProviderAmount;
+                            decimal? realTimePtnAmountWithCharges = 0;
+                            decimal? realTimeAgntAmountWithCharges = 0;
+
+                            decimal? realTimePlAgntAmountWithCharges = 0; ///
+
+                            var realtimePatientchargeIn = fees.Where(a => a.PlatformFacilityId == 3 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.AmountIn;
+                            decimal? realtimePatientcharge = fees.Where(a => a.PlatformFacilityId == 3 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.Amount;
+                            decimal? realtimePatientProviderAmnt = fees.Where(p => p.PlatformFacilityId == 3 && p.ProviderAmount != null && p.IsActive == true).FirstOrDefault()?.ProviderAmount;
+                            if (realtimePatientchargeIn == "Percentage")
+                            {
+                                decimal? realTimePtnAmountWithChargesWithVat = ((realtimePatientcharge / 100) * realtimePatientProviderAmnt) * vatCharge;
+                                realTimePtnAmountWithCharges = realTimePtnAmountWithChargesWithVat + realtimePatientProviderAmnt;
+                            }
+                            else if (realtimePatientchargeIn == "Flat")
+                            {
+                                decimal? realTimePtnAmountWithChargesWithVat = (realtimePatientcharge) * vatCharge;
+                                realTimePtnAmountWithCharges = realTimePtnAmountWithChargesWithVat + realtimePatientProviderAmnt;
+                            }
+
+                            var realtimePlAgntchargeIn = fees.Where(a => a.PlatformFacilityId == 6 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.AmountIn;
+                            decimal? realtimePlAgntcharge = fees.Where(a => a.PlatformFacilityId == 6 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.Amount;
+                            decimal? realtimePlAgntProviderAmnt = fees.Where(p => p.PlatformFacilityId == 6 && p.ProviderAmount != null && p.IsActive == true).FirstOrDefault()?.ProviderAmount;
+                            if (realtimePlAgntchargeIn == "Percentage")
+                            {
+                                decimal? realTimePlAgntAmountWithChargesWithVat = ((realtimePlAgntcharge / 100) * realtimePlAgntProviderAmnt) * vatCharge;
+                                realTimePlAgntAmountWithCharges = realTimePlAgntAmountWithChargesWithVat;
+                            }
+                            else if (realtimePlAgntchargeIn == "Flat")
+                            {
+                                decimal? realTimePlAgntAmountWithChargesWithVat = (realtimePlAgntcharge) * vatCharge;
+                                realTimePlAgntAmountWithCharges = realTimePlAgntAmountWithChargesWithVat;
+                            }
+
+                            var realtimeAgentchargeIn = fees.Where(a => a.PlatformFacilityId == 6 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.ExternalAmountIn;
+                            decimal? realtimeAgentcharge = fees.Where(a => a.PlatformFacilityId == 6 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.ExternalAmount;
+                            decimal? realtimeAgentProviderAmnt = fees.Where(p => p.PlatformFacilityId == 6 && p.ProviderAmount != null && p.IsActive == true).FirstOrDefault()?.ProviderAmount;
+
+                            if (realtimeAgentchargeIn == "Percentage")
+                            {
+                                decimal? realTimeAgntAmountWithChargesWithVat = ((realtimeAgentcharge / 100) * realtimeAgentProviderAmnt) * vatCharge;
+                                realTimeAgntAmountWithCharges = realTimeAgntAmountWithChargesWithVat;
+                            }
+                            else if (realtimeAgentchargeIn == "Flat")
+                            {
+                                decimal? realTimeAgntAmountWithChargesWithVat = (realtimeAgentcharge) * vatCharge;
+                                realTimeAgntAmountWithCharges = realTimeAgntAmountWithChargesWithVat;
+                            }
+
+                            instantfeeAsPatient = realTimePtnAmountWithCharges;
+                            instantfeeAsAgent = realTimeAgntAmountWithCharges + realTimePlAgntAmountWithCharges + realtimePlAgntProviderAmnt;
+
+                            decimal? realTimeIndPtnAmountWithCharges = 0;
+                            decimal? realTimeIndAgntAmountWithCharges = 0;
+                            decimal? realTimeIndPlAgntAmountWithCharges = 0;
+
+                            var realtimeIndPatientchargeIn = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 3 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.AmountIn;
+                            decimal? realtimeIndPatientcharge = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 3 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.Amount;
+                            decimal? realtimeIndPatientProviderAmnt = fees.Where(p => p.FacilityEntityID == item.Id && p.PlatformFacilityId == 3 && p.ProviderAmount != null && p.IsActive == true).FirstOrDefault()?.ProviderAmount;
+
+                            if (realtimeIndPatientchargeIn == "Percentage")
+                            {
+                                decimal? realTimeIndPtnAmountWithChargesWithVat = ((realtimeIndPatientcharge / 100) * realtimeIndPatientProviderAmnt) * vatCharge;
+                                realTimeIndPtnAmountWithCharges = realTimeIndPtnAmountWithChargesWithVat + realtimeIndPatientProviderAmnt;
+                            }
+                            else if (realtimeIndPatientchargeIn == "Flat")
+                            {
+                                decimal? realTimeIndPtnAmountWithChargesWithVat = (realtimeIndPatientcharge) * vatCharge;
+                                realTimeIndPtnAmountWithCharges = realTimeIndPtnAmountWithChargesWithVat + realtimeIndPatientProviderAmnt;
+
+                            }
+
+                            var realtimeIndPlAgntchargeIn = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.AmountIn;
+                            decimal? realtimeIndPlAgntcharge = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.Amount;
+                            decimal? realtimeIndPlAgntProviderAmnt = fees.Where(p => p.FacilityEntityID == item.Id && p.PlatformFacilityId == 6 && p.ProviderAmount != null && p.IsActive == true).FirstOrDefault()?.ProviderAmount;
+
+                            if (realtimeIndPlAgntchargeIn == "Percentage")
+                            {
+                                decimal? realTimeIndPlAgntAmountWithChargesWithVat = ((realtimeIndPlAgntcharge / 100) * realtimeIndPlAgntProviderAmnt) * vatCharge;
+                                realTimeIndPlAgntAmountWithCharges = realTimeIndPlAgntAmountWithChargesWithVat;
+                            }
+                            else if (realtimeIndPlAgntchargeIn == "Flat")
+                            {
+                                decimal? realTimeIndPlAgntAmountWithChargesWithVat = (realtimeIndPlAgntcharge) * vatCharge;
+                                realTimeIndPlAgntAmountWithCharges = realTimeIndPlAgntAmountWithChargesWithVat;
+                            }
+
+                            var realtimeIndAgentchargeIn = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.ExternalAmountIn;
+                            decimal? realtimeIndAgentcharge = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.ExternalAmount;
+                            decimal? realtimeIndAgentProviderAmnt = fees.Where(p => p.FacilityEntityID == item.Id && p.PlatformFacilityId == 6 && p.ProviderAmount != null && p.IsActive == true).FirstOrDefault()?.ProviderAmount;
+
+                            if (realtimeIndAgentchargeIn == "Percentage")
+                            {
+
+                                decimal? realTimeIndAgntAmountWithChargesWithVat = ((realtimeIndAgentcharge / 100) * realtimeIndAgentProviderAmnt) * vatCharge;
+                                realTimeIndAgntAmountWithCharges = realTimeIndAgntAmountWithChargesWithVat;
+                            }
+                            else if (realtimeIndAgentchargeIn == "Flat")
+                            {
+                                decimal? realTimeIndAgntAmountWithChargesWithVat = realtimeIndAgentcharge * vatCharge;
+                                realTimeIndAgntAmountWithCharges = realTimeIndAgntAmountWithChargesWithVat;
+                            }
+
+                            individualInstantfeeAsPatient = realTimeIndPtnAmountWithCharges;
+                            individualInstantfeeAsAgent = realTimeIndAgntAmountWithCharges + realTimeIndPlAgntAmountWithCharges + realtimeIndAgentProviderAmnt;
                         }
-                        else
+                        //else
+                        //{
+                        var docChamberfeees = doctorFees.Where(f => f.DoctorSchedule.ConsultancyType == ConsultancyType.Chamber && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
+                        if (docChamberfeees != null)
                         {
-                            var docfeees = doctorFees.Where(f => f.DoctorSchedule.DoctorProfile.Id == item.Id && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
-                            fee = docfeees?.FirstOrDefault()?.TotalFee;
+                            decimal? scf = docChamberfeees?.FirstOrDefault(d => d.DoctorSchedule?.DoctorProfileId == item.Id)?.TotalFee;
+                            //decimal? scheduledChamberfee = docChamberfeees?.FirstOrDefault(d => d.DoctorSchedule?.DoctorProfileId == item.Id)?.TotalFee;
+
+                            decimal? scfPtnAmountWithCharges = 0;
+                            decimal? scfAgntAmountWithCharges = 0;
+
+                            var scfPatientchargeIn = sfees.Where(a => a.PlatformFacilityId == 1)?.FirstOrDefault()?.AmountIn;
+                            decimal? scfPatientcharge = sfees.Where(a => a.PlatformFacilityId == 1)?.FirstOrDefault()?.Amount;
+
+                            if (scfPatientchargeIn == "Percentage")
+                            {
+                                decimal? scfPtnAmountWithChargesWithVat = ((scfPatientcharge / 100) * scf) * vatCharge;
+                                scfPtnAmountWithCharges = scfPtnAmountWithChargesWithVat + scf;
+                            }
+                            else if (scfPatientchargeIn == "Flat")
+                            {
+                                decimal? scfPtnAmountWithChargesWithVat = (scfPatientcharge) * vatCharge;
+                                scfPtnAmountWithCharges = scfPtnAmountWithChargesWithVat + scf;
+                            }
+                            scheduledChamberfee = scfPtnAmountWithCharges;
+
                         }
+                        var docOnlinefeees = doctorFees.Where(f => f.DoctorSchedule.ConsultancyType == ConsultancyType.Online && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
+                        if (docOnlinefeees != null)
+                        {
+                            decimal? sof = docOnlinefeees?.FirstOrDefault(d => d.DoctorSchedule?.DoctorProfileId == item.Id)?.TotalFee;
+
+                            decimal? sofPtnAmountWithCharges = 0;
+                            decimal? sofAgntAmountWithCharges = 0;
+
+                            var sofPatientchargeIn = sfees.Where(a => a.PlatformFacilityId == 2)?.FirstOrDefault()?.AmountIn;
+                            decimal? sofPatientcharge = sfees.Where(a => a.PlatformFacilityId == 2)?.FirstOrDefault()?.Amount;
+
+                            if (sofPatientchargeIn == "Percentage")
+                            {
+                                decimal? sofPtnAmountWithChargesWithVat = ((sofPatientcharge / 100) * sof) * vatCharge;
+                                sofPtnAmountWithCharges = sofPtnAmountWithChargesWithVat + sof;
+                            }
+                            else if (sofPatientchargeIn == "Flat")
+                            {
+                                decimal? sofPtnAmountWithChargesWithVat = (sofPatientcharge) * vatCharge;
+                                sofPtnAmountWithCharges = sofPtnAmountWithChargesWithVat + sof;
+                            }
+                            scheduledOnlinefee = sofPtnAmountWithCharges;
+                        }
+                        //}
 
                         var degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.Id).ToList();
                         string degStr = string.Empty;
@@ -284,7 +444,10 @@ namespace SoowGoodWeb.Services
                             createFrom = item.createFrom,
                             DoctorCode = item.DoctorCode,
                             ProfilePic = profilePics?.Path,
-                            DisplayFee = fee
+                            DisplayInstantFeeAsPatient = individualInstantfeeAsPatient > 0 ? Math.Round((decimal)individualInstantfeeAsPatient, 2) : Math.Round((decimal)instantfeeAsPatient, 2),
+                            DisplayInstantFeeAsAgent = individualInstantfeeAsAgent > 0 ? Math.Round((decimal)individualInstantfeeAsAgent, 2) : Math.Round((decimal)instantfeeAsAgent, 2),
+                            DisplayScheduledChamberFee = scheduledChamberfee > 0 ? Math.Round((decimal)scheduledChamberfee, 2) : 0,
+                            DisplayScheduledOnlineFee = scheduledOnlinefee > 0 ? Math.Round((decimal)scheduledOnlinefee, 2) : 0
                         });
                     }
                 }
@@ -312,7 +475,7 @@ namespace SoowGoodWeb.Services
             }
 
             var schedules = await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile);
-            var profiles = profileWithDetails.Where(p=> p.IsActive == true).ToList();
+            var profiles = profileWithDetails.Where(p => p.IsActive == true).ToList();
 
             profiles = (from doctors in profiles
                         join schedule in schedules on doctors.Id equals schedule.DoctorProfileId
@@ -355,7 +518,7 @@ namespace SoowGoodWeb.Services
 
             if (doctorFilterModel?.consultancyType > 0)
             {
-                if (doctorFilterModel?.consultancyType == ConsultancyType.OnlineRT)
+                if (doctorFilterModel?.consultancyType == ConsultancyType.Instant)
                 {
                     profiles = profiles.Where(p => p.IsOnline == true).ToList();
                 }
@@ -371,7 +534,7 @@ namespace SoowGoodWeb.Services
             }
 
             return profiles.Count;
-        }       
+        }
         public async Task<DoctorProfileDto> GetByUserNameAsync(string userName)
         {
             var dProfiles = await _doctorProfileRepository.WithDetailsAsync(s => s.Speciality);
@@ -410,27 +573,184 @@ namespace SoowGoodWeb.Services
             var attachedItems = await _documentsAttachment.WithDetailsAsync();
 
             var financialSetups = await _financialSetup.WithDetailsAsync();
-            var fees = financialSetups.OrderBy(p => p.ProviderAmount).Where(a => a.ProviderAmount != null).ToList();
-
+            var fees = financialSetups.OrderBy(a => a.ProviderAmount).Where(p => p.ProviderAmount > 0 && p.IsActive == true).ToList();
+            var sfees = financialSetups.OrderBy(a => a.ProviderAmount).Where(p => (p.ProviderAmount == 0 || p.ProviderAmount == null) && p.IsActive == true).ToList();
+            decimal? vatAmnt = fees.Where(a => a.Vat > 0)?.FirstOrDefault()?.Vat;
+            decimal? vatCharge = vatAmnt / 100;
             var doctorFees = await _doctorFeesSetup.WithDetailsAsync(d => d.DoctorSchedule.DoctorProfile);
 
             foreach (var item in profiles)
             {
+                decimal? instantfeeAsPatient = 0;
+                decimal? instantfeeAsAgent = 0;
+                decimal? individualInstantfeeAsPatient = 0;
+                decimal? individualInstantfeeAsAgent = 0;
+                decimal? scheduledChamberfee = 0;
+                decimal? scheduledOnlinefee = 0;
+
                 var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
                                                                 && x.EntityId == item.Id
                                                                 && x.AttachmentType == AttachmentType.ProfilePicture
                                                                 && x.IsDeleted == false).FirstOrDefault();
 
-                decimal? fee = 0;
                 if (item.IsOnline == true)
                 {
-                    fee = fees?.FirstOrDefault()?.ProviderAmount;
+                    decimal? realTimePtnAmountWithCharges = 0;
+                    decimal? realTimeAgntAmountWithCharges = 0;
+
+                    decimal? realTimePlAgntAmountWithCharges = 0; ///
+
+                    var realtimePatientchargeIn = fees.Where(a => a.PlatformFacilityId == 3 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.AmountIn;
+                    decimal? realtimePatientcharge = fees.Where(a => a.PlatformFacilityId == 3 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.Amount;
+                    decimal? realtimePatientProviderAmnt = fees.Where(p => p.PlatformFacilityId == 3 && p.ProviderAmount != null && p.IsActive == true).FirstOrDefault()?.ProviderAmount;
+                    if (realtimePatientchargeIn == "Percentage")
+                    {
+                        decimal? realTimePtnAmountWithChargesWithVat = ((realtimePatientcharge / 100) * realtimePatientProviderAmnt) * vatCharge;
+                        realTimePtnAmountWithCharges = realTimePtnAmountWithChargesWithVat + realtimePatientProviderAmnt;
+                    }
+                    else if (realtimePatientchargeIn == "Flat")
+                    {
+                        decimal? realTimePtnAmountWithChargesWithVat = (realtimePatientcharge) * vatCharge;
+                        realTimePtnAmountWithCharges = realTimePtnAmountWithChargesWithVat + realtimePatientProviderAmnt;
+                    }
+
+                    var realtimePlAgntchargeIn = fees.Where(a => a.PlatformFacilityId == 6 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.AmountIn;
+                    decimal? realtimePlAgntcharge = fees.Where(a => a.PlatformFacilityId == 6 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.Amount;
+                    decimal? realtimePlAgntProviderAmnt = fees.Where(p => p.PlatformFacilityId == 6 && p.ProviderAmount != null && p.IsActive == true).FirstOrDefault()?.ProviderAmount;
+                    if (realtimePlAgntchargeIn == "Percentage")
+                    {
+                        decimal? realTimePlAgntAmountWithChargesWithVat = ((realtimePlAgntcharge / 100) * realtimePlAgntProviderAmnt) * vatCharge;
+                        realTimePlAgntAmountWithCharges = realTimePlAgntAmountWithChargesWithVat;
+                    }
+                    else if (realtimePlAgntchargeIn == "Flat")
+                    {
+                        decimal? realTimePlAgntAmountWithChargesWithVat = (realtimePlAgntcharge) * vatCharge;
+                        realTimePlAgntAmountWithCharges = realTimePlAgntAmountWithChargesWithVat;
+                    }
+
+                    var realtimeAgentchargeIn = fees.Where(a => a.PlatformFacilityId == 6 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.ExternalAmountIn;
+                    decimal? realtimeAgentcharge = fees.Where(a => a.PlatformFacilityId == 6 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.ExternalAmount;
+                    decimal? realtimeAgentProviderAmnt = fees.Where(p => p.PlatformFacilityId == 6 && p.ProviderAmount != null && p.IsActive == true).FirstOrDefault()?.ProviderAmount;
+
+                    if (realtimeAgentchargeIn == "Percentage")
+                    {
+                        decimal? realTimeAgntAmountWithChargesWithVat = ((realtimeAgentcharge / 100) * realtimeAgentProviderAmnt) * vatCharge;
+                        realTimeAgntAmountWithCharges = realTimeAgntAmountWithChargesWithVat;
+                    }
+                    else if (realtimeAgentchargeIn == "Flat")
+                    {
+                        decimal? realTimeAgntAmountWithChargesWithVat = (realtimeAgentcharge) * vatCharge;
+                        realTimeAgntAmountWithCharges = realTimeAgntAmountWithChargesWithVat;
+                    }
+
+                    instantfeeAsPatient = realTimePtnAmountWithCharges;
+                    instantfeeAsAgent = realTimeAgntAmountWithCharges + realTimePlAgntAmountWithCharges + realtimePlAgntProviderAmnt;
+
+                    decimal? realTimeIndPtnAmountWithCharges = 0;
+                    decimal? realTimeIndAgntAmountWithCharges = 0;
+                    decimal? realTimeIndPlAgntAmountWithCharges = 0;
+
+                    var realtimeIndPatientchargeIn = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 3 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.AmountIn;
+                    decimal? realtimeIndPatientcharge = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 3 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.Amount;
+                    decimal? realtimeIndPatientProviderAmnt = fees.Where(p => p.FacilityEntityID == item.Id && p.PlatformFacilityId == 3 && p.ProviderAmount != null && p.IsActive == true).FirstOrDefault()?.ProviderAmount;
+
+                    if (realtimeIndPatientchargeIn == "Percentage")
+                    {
+                        decimal? realTimeIndPtnAmountWithChargesWithVat = ((realtimeIndPatientcharge / 100) * realtimeIndPatientProviderAmnt) * vatCharge;
+                        realTimeIndPtnAmountWithCharges = realTimeIndPtnAmountWithChargesWithVat + realtimeIndPatientProviderAmnt;
+                    }
+                    else if (realtimeIndPatientchargeIn == "Flat")
+                    {
+                        decimal? realTimeIndPtnAmountWithChargesWithVat = (realtimeIndPatientcharge) * vatCharge;
+                        realTimeIndPtnAmountWithCharges = realTimeIndPtnAmountWithChargesWithVat + realtimeIndPatientProviderAmnt;
+
+                    }
+
+                    var realtimeIndPlAgntchargeIn = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.AmountIn;
+                    decimal? realtimeIndPlAgntcharge = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.Amount;
+                    decimal? realtimeIndPlAgntProviderAmnt = fees.Where(p => p.FacilityEntityID == item.Id && p.PlatformFacilityId == 6 && p.ProviderAmount != null && p.IsActive == true).FirstOrDefault()?.ProviderAmount;
+
+                    if (realtimeIndPlAgntchargeIn == "Percentage")
+                    {
+                        decimal? realTimeIndPlAgntAmountWithChargesWithVat = ((realtimeIndPlAgntcharge / 100) * realtimeIndPlAgntProviderAmnt) * vatCharge;
+                        realTimeIndPlAgntAmountWithCharges = realTimeIndPlAgntAmountWithChargesWithVat;
+                    }
+                    else if (realtimeIndPlAgntchargeIn == "Flat")
+                    {
+                        decimal? realTimeIndPlAgntAmountWithChargesWithVat = (realtimeIndPlAgntcharge) * vatCharge;
+                        realTimeIndPlAgntAmountWithCharges = realTimeIndPlAgntAmountWithChargesWithVat;
+                    }
+
+                    var realtimeIndAgentchargeIn = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.ExternalAmountIn;
+                    decimal? realtimeIndAgentcharge = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount != null && a.IsActive == true)?.FirstOrDefault()?.ExternalAmount;
+                    decimal? realtimeIndAgentProviderAmnt = fees.Where(p => p.FacilityEntityID == item.Id && p.PlatformFacilityId == 6 && p.ProviderAmount != null && p.IsActive == true).FirstOrDefault()?.ProviderAmount;
+
+                    if (realtimeIndAgentchargeIn == "Percentage")
+                    {
+
+                        decimal? realTimeIndAgntAmountWithChargesWithVat = ((realtimeIndAgentcharge / 100) * realtimeIndAgentProviderAmnt) * vatCharge;
+                        realTimeIndAgntAmountWithCharges = realTimeIndAgntAmountWithChargesWithVat;
+                    }
+                    else if (realtimeIndAgentchargeIn == "Flat")
+                    {
+                        decimal? realTimeIndAgntAmountWithChargesWithVat = realtimeIndAgentcharge * vatCharge;
+                        realTimeIndAgntAmountWithCharges = realTimeIndAgntAmountWithChargesWithVat;
+                    }
+
+                    individualInstantfeeAsPatient = realTimeIndPtnAmountWithCharges;
+                    individualInstantfeeAsAgent = realTimeIndAgntAmountWithCharges + realTimeIndPlAgntAmountWithCharges + realtimeIndAgentProviderAmnt;
                 }
-                else
+                //else
+                //{
+                var docChamberfeees = doctorFees.Where(f => f.DoctorSchedule.ConsultancyType == ConsultancyType.Chamber && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
+                if (docChamberfeees != null)
                 {
-                    var docfeees = doctorFees.Where(f => f.DoctorSchedule.DoctorProfile.Id == item.Id && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
-                    fee = docfeees?.FirstOrDefault()?.TotalFee;
+                    decimal? scf = docChamberfeees?.FirstOrDefault(d => d.DoctorSchedule?.DoctorProfileId == item.Id)?.TotalFee;
+                    //decimal? scheduledChamberfee = docChamberfeees?.FirstOrDefault(d => d.DoctorSchedule?.DoctorProfileId == item.Id)?.TotalFee;
+
+                    decimal? scfPtnAmountWithCharges = 0;
+                    decimal? scfAgntAmountWithCharges = 0;
+
+                    var scfPatientchargeIn = sfees.Where(a => a.PlatformFacilityId == 1)?.FirstOrDefault()?.AmountIn;
+                    decimal? scfPatientcharge = sfees.Where(a => a.PlatformFacilityId == 1)?.FirstOrDefault()?.Amount;
+
+                    if (scfPatientchargeIn == "Percentage")
+                    {
+                        decimal? scfPtnAmountWithChargesWithVat = ((scfPatientcharge / 100) * scf) * vatCharge;
+                        scfPtnAmountWithCharges = scfPtnAmountWithChargesWithVat + scf;
+                    }
+                    else if (scfPatientchargeIn == "Flat")
+                    {
+                        decimal? scfPtnAmountWithChargesWithVat = (scfPatientcharge) * vatCharge;
+                        scfPtnAmountWithCharges = scfPtnAmountWithChargesWithVat + scf;
+                    }
+                    scheduledChamberfee = scfPtnAmountWithCharges;
+
                 }
+                var docOnlinefeees = doctorFees.Where(f => f.DoctorSchedule.ConsultancyType == ConsultancyType.Online && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
+                if (docOnlinefeees != null)
+                {
+                    decimal? sof = docOnlinefeees?.FirstOrDefault(d => d.DoctorSchedule?.DoctorProfileId == item.Id)?.TotalFee;
+
+                    decimal? sofPtnAmountWithCharges = 0;
+                    decimal? sofAgntAmountWithCharges = 0;
+
+                    var sofPatientchargeIn = sfees.Where(a => a.PlatformFacilityId == 2)?.FirstOrDefault()?.AmountIn;
+                    decimal? sofPatientcharge = sfees.Where(a => a.PlatformFacilityId == 2)?.FirstOrDefault()?.Amount;
+
+                    if (sofPatientchargeIn == "Percentage")
+                    {
+                        decimal? sofPtnAmountWithChargesWithVat = ((sofPatientcharge / 100) * sof) * vatCharge;
+                        sofPtnAmountWithCharges = sofPtnAmountWithChargesWithVat + sof;
+                    }
+                    else if (sofPatientchargeIn == "Flat")
+                    {
+                        decimal? sofPtnAmountWithChargesWithVat = (sofPatientcharge) * vatCharge;
+                        sofPtnAmountWithCharges = sofPtnAmountWithChargesWithVat + sof;
+                    }
+                    scheduledOnlinefee = sofPtnAmountWithCharges;
+                }
+                //}
 
                 var degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.Id).ToList();
                 string degStr = string.Empty;
@@ -484,7 +804,10 @@ namespace SoowGoodWeb.Services
                     createFrom = item.createFrom,
                     DoctorCode = item.DoctorCode,
                     ProfilePic = profilePics?.Path,
-                    DisplayFee = fee
+                    DisplayInstantFeeAsPatient = individualInstantfeeAsPatient > 0 ? Math.Round((decimal)individualInstantfeeAsPatient, 2) : Math.Round((decimal)instantfeeAsPatient, 2),
+                    DisplayInstantFeeAsAgent = individualInstantfeeAsAgent > 0 ? Math.Round((decimal)individualInstantfeeAsAgent, 2) : Math.Round((decimal)instantfeeAsAgent, 2),
+                    DisplayScheduledChamberFee = scheduledChamberfee > 0 ? Math.Round((decimal)scheduledChamberfee, 2) : 0,
+                    DisplayScheduledOnlineFee = scheduledOnlinefee > 0 ? Math.Round((decimal)scheduledOnlinefee, 2) : 0
                 });
             }
 
@@ -496,10 +819,10 @@ namespace SoowGoodWeb.Services
         public async Task<List<DoctorProfileDto>> GetAllActiveDoctorListAsync()
         {
             List<DoctorProfileDto> result = null;
-            var profileWithDetails = await _doctorProfileRepository.GetListAsync(s =>s.IsActive==true);
+            var profileWithDetails = await _doctorProfileRepository.GetListAsync(s => s.IsActive == true);
 
             return ObjectMapper.Map<List<DoctorProfile>, List<DoctorProfileDto>>(profileWithDetails.ToList());
-        }       
+        }
 
         public async Task<List<DoctorProfileDto>> GetListDoctorListByAdminAsync()
         {
