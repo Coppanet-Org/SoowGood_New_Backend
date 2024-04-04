@@ -353,8 +353,8 @@ namespace SoowGoodWeb.Services
                             decimal? scf = docChamberfeees?.FirstOrDefault(d => d.DoctorSchedule?.DoctorProfileId == item.Id)?.TotalFee;
                             //decimal? scheduledChamberfee = docChamberfeees?.FirstOrDefault(d => d.DoctorSchedule?.DoctorProfileId == item.Id)?.TotalFee;
 
-                            decimal? scfPtnAmountWithCharges = 0;
-                            decimal? scfAgntAmountWithCharges = 0;
+                            decimal? scfPtnChamberAmountWithCharges = 0;
+                            decimal? scfAgntChamberAmountWithCharges = 0;
 
                             var scfPatientchargeIn = sfees.Where(a => a.PlatformFacilityId == 1)?.FirstOrDefault()?.AmountIn;
                             decimal? scfPatientcharge = sfees.Where(a => a.PlatformFacilityId == 1)?.FirstOrDefault()?.Amount;
@@ -363,14 +363,14 @@ namespace SoowGoodWeb.Services
                             {
                                 decimal? scfPtnCharge = ((scfPatientcharge / 100) * scf);
                                 decimal? scfPtnAmountWithChargesWithVat = (scfPtnCharge * vatCharge) + scfPtnCharge;
-                                scfPtnAmountWithCharges = scfPtnAmountWithChargesWithVat + scf;
+                                scfPtnChamberAmountWithCharges = scfPtnAmountWithChargesWithVat + scf;
                             }
                             else if (scfPatientchargeIn == "Flat")
                             {
                                 decimal? scfPtnAmountWithChargesWithVat = (scfPatientcharge * vatCharge) + scfPatientcharge;
-                                scfPtnAmountWithCharges = scfPtnAmountWithChargesWithVat + scf;
+                                scfPtnChamberAmountWithCharges = scfPtnAmountWithChargesWithVat + scf;
                             }
-                            scheduledChamberfee = scfPtnAmountWithCharges;
+                            scheduledChamberfee = scfPtnChamberAmountWithCharges;
 
                         }
                         var docOnlinefeees = doctorFees.Where(f => f.DoctorSchedule.ConsultancyType == ConsultancyType.Online && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
@@ -379,7 +379,7 @@ namespace SoowGoodWeb.Services
                             decimal? sof = docOnlinefeees?.FirstOrDefault(d => d.DoctorSchedule?.DoctorProfileId == item.Id)?.TotalFee;
 
 
-                            decimal? sofPtnAmountWithCharges = 0;
+                            decimal? sofPtnOnlineAmountWithCharges = 0;
                             decimal? sofAgntAmountWithCharges = 0;
 
                             var sofPatientchargeIn = sfees.Where(a => a.PlatformFacilityId == 2)?.FirstOrDefault()?.AmountIn;
@@ -389,14 +389,14 @@ namespace SoowGoodWeb.Services
                             {
                                 decimal? sofPtnCharge = ((sofPatientcharge / 100) * sof);
                                 decimal? sofPtnAmountWithChargesWithVat = (sofPtnCharge * vatCharge) + sofPtnCharge;
-                                sofPtnAmountWithCharges = sofPtnAmountWithChargesWithVat + sof;
+                                sofPtnOnlineAmountWithCharges = sofPtnAmountWithChargesWithVat + sof;
                             }
                             else if (sofPatientchargeIn == "Flat")
                             {
                                 decimal? sofPtnAmountWithChargesWithVat = (sofPatientcharge * vatCharge) + sofPatientcharge;
-                                sofPtnAmountWithCharges = sofPtnAmountWithChargesWithVat + sof;
+                                sofPtnOnlineAmountWithCharges = sofPtnAmountWithChargesWithVat + sof;
                             }
-                            scheduledOnlinefee = sofPtnAmountWithCharges;
+                            scheduledOnlinefee = sofPtnOnlineAmountWithCharges;
                         }
                         //}
 
