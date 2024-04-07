@@ -66,6 +66,7 @@ namespace SoowGoodWeb.Services
                 string consultancyType;
                 long lastSerial;
                 var chamberName = "";
+                input.AppointmentDate = Convert.ToDateTime(input.AppointmentDate).AddDays(1);
                 if (input.DoctorChamberId > 0)
 
                 {
