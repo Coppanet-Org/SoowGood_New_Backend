@@ -66,6 +66,7 @@ namespace SoowGoodWeb.Services
                 string consultancyType;
                 long lastSerial;
                 var chamberName = "";
+                input.AppointmentDate = Convert.ToDateTime(input.AppointmentDate).AddDays(1);
                 if (input.DoctorChamberId > 0)
 
                 {
@@ -106,12 +107,12 @@ namespace SoowGoodWeb.Services
                 }
                 else
                 {
-                    input.ConsultancyType = ConsultancyType.OnlineRT;
+                    input.ConsultancyType = ConsultancyType.Instant;
                     input.AppointmentDate = DateTime.Today;
                     input.AppointmentTime = DateTime.Now.ToString("HH:mm");
                     input.AppointmentType = AppointmentType.New;
                     lastSerial = await GetAppCountByRealTimeConsultancyAsync(input.AppointmentDate);
-                    consultancyType = ConsultancyType.OnlineRT.ToString();
+                    consultancyType = ConsultancyType.Instant.ToString();
                     input.AppointmentSerial = (lastSerial + 1).ToString();
                     //input.AppointmentCode = input.DoctorCode + input.AppointmentDate?.ToString("yyyyMMdd") + consultancyType + "SL-" + input.AppointmentSerial;
                     input.AppointmentCode = "SGAP" + input.AppointmentDate?.ToString("yyMMdd") + consultancyType.ToUpper() + "SL-" + input.AppointmentSerial;
@@ -782,7 +783,7 @@ namespace SoowGoodWeb.Services
 
         public async Task<int> GetAppCountByRealTimeConsultancyAsync(DateTime? aptDate)
         {
-            var appointments = await _appointmentRepository.GetListAsync(a => a.AppointmentDate == aptDate && a.ConsultancyType == ConsultancyType.OnlineRT);
+            var appointments = await _appointmentRepository.GetListAsync(a => a.AppointmentDate == aptDate && a.ConsultancyType == ConsultancyType.Instant);
             var appCount = appointments.Count();
             return appCount;
         }

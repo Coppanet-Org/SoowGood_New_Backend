@@ -36,6 +36,7 @@ namespace SoowGoodWeb.DtoModels
         public decimal? DoctorFee { get; set; }
         public decimal? AgentFee { get; set; }
         public decimal? PlatformFee { get; set; }
+        public decimal? VatFee { get; set; }
         public decimal? TotalAppointmentFee { get; set; }
         public AppointmentStatus? AppointmentStatus { get; set; }
         public AppointmentPaymentStatus? AppointmentPaymentStatus { get; set; }

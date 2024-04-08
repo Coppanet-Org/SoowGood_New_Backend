@@ -41,6 +41,8 @@ namespace SoowGoodWeb.Models
         [Column(TypeName = "decimal(18, 2)")]
         public decimal? PlatformFee { get; set; }
         [Column(TypeName = "decimal(18, 2)")]
+        public decimal? VatFee { get; set; }
+        [Column(TypeName = "decimal(18, 2)")]
         public decimal? TotalAppointmentFee { get; set; }
         public AppointmentStatus? AppointmentStatus { get; set; }
         public AppointmentPaymentStatus? AppointmentPaymentStatus { get; set; }
