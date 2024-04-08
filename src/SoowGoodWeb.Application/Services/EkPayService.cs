@@ -97,7 +97,7 @@ namespace SoowGoodWeb.Services
 
             var postData = _ekPayGatewayManager.CreateDataRaw(applicantData);
 
-            var initResponse = await _ekPayGatewayManager.InitiateTestPaymentAsync(postData);
+            var initResponse = await _ekPayGatewayManager.InitiatePaymentAsync(postData);
 
             await InitPaymentHistory(input, initResponse);
 
