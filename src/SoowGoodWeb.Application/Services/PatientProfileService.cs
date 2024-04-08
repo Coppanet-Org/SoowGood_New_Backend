@@ -248,9 +248,9 @@ namespace SoowGoodWeb.Services
                     itemPatient.ZipCode = !string.IsNullOrEmpty(input.ZipCode) ? input.ZipCode : itemPatient.ZipCode;
                     itemPatient.Country = !string.IsNullOrEmpty(input.Country) ? input.Country : itemPatient.Country;
                     itemPatient.Email = !string.IsNullOrEmpty(input.Email) ? input.Email : itemPatient.Email;
-                    itemPatient.PatientName = !string.IsNullOrEmpty(itemPatient.PatientName) ? itemPatient.PatientName : input.PatientName;
-                    itemPatient.PatientMobileNo = !string.IsNullOrEmpty(itemPatient.PatientMobileNo) ? itemPatient.PatientMobileNo : input.PatientMobileNo;
-                    itemPatient.PatientEmail = !string.IsNullOrEmpty(itemPatient.PatientEmail) ? itemPatient.PatientEmail : input.PatientEmail;
+                    itemPatient.PatientName = input.PatientName; //!string.IsNullOrEmpty(itemPatient.PatientName) ? itemPatient.PatientName : 
+                    itemPatient.PatientMobileNo = input.PatientMobileNo; //!string.IsNullOrEmpty(itemPatient.PatientMobileNo) ? itemPatient.PatientMobileNo :
+                    itemPatient.PatientEmail = input.PatientEmail; //!string.IsNullOrEmpty(itemPatient.PatientEmail) ? itemPatient.PatientEmail : 
 
                     var item = await _patientRepository.UpdateAsync(itemPatient);
                     await _unitOfWorkManager.Current.SaveChangesAsync();
