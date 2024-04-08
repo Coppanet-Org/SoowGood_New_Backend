@@ -245,12 +245,13 @@ namespace SoowGoodWeb.Services
                             decimal? realtimePatientProviderAmnt = fees.Where(p => p.PlatformFacilityId == 3 && p.ProviderAmount != null && p.IsActive == true).FirstOrDefault()?.ProviderAmount;
                             if (realtimePatientchargeIn == "Percentage")
                             {
-                                decimal? realTimePtnAmountWithChargesWithVat = ((realtimePatientcharge / 100) * realtimePatientProviderAmnt) * vatCharge;
+                                decimal? realTimePtnAmountTotalCharges = ((realtimePatientcharge / 100) * realtimePatientProviderAmnt);
+                                decimal? realTimePtnAmountWithChargesWithVat = (realTimePtnAmountTotalCharges * vatCharge) + realTimePtnAmountTotalCharges;
                                 realTimePtnAmountWithCharges = realTimePtnAmountWithChargesWithVat + realtimePatientProviderAmnt;
                             }
                             else if (realtimePatientchargeIn == "Flat")
                             {
-                                decimal? realTimePtnAmountWithChargesWithVat = (realtimePatientcharge) * vatCharge;
+                                decimal? realTimePtnAmountWithChargesWithVat = (realtimePatientcharge * vatCharge) + realtimePatientcharge;
                                 realTimePtnAmountWithCharges = realTimePtnAmountWithChargesWithVat + realtimePatientProviderAmnt;
                             }
 
@@ -259,12 +260,13 @@ namespace SoowGoodWeb.Services
                             decimal? realtimePlAgntProviderAmnt = fees.Where(p => p.PlatformFacilityId == 6 && p.ProviderAmount != null && p.IsActive == true).FirstOrDefault()?.ProviderAmount;
                             if (realtimePlAgntchargeIn == "Percentage")
                             {
-                                decimal? realTimePlAgntAmountWithChargesWithVat = ((realtimePlAgntcharge / 100) * realtimePlAgntProviderAmnt) * vatCharge;
+                                decimal? realTimePlAgntAmountTotalCharges = ((realtimePlAgntcharge / 100) * realtimePlAgntProviderAmnt);
+                                decimal? realTimePlAgntAmountWithChargesWithVat = (realTimePlAgntAmountTotalCharges * vatCharge) + realTimePlAgntAmountTotalCharges;
                                 realTimePlAgntAmountWithCharges = realTimePlAgntAmountWithChargesWithVat;
                             }
                             else if (realtimePlAgntchargeIn == "Flat")
                             {
-                                decimal? realTimePlAgntAmountWithChargesWithVat = (realtimePlAgntcharge) * vatCharge;
+                                decimal? realTimePlAgntAmountWithChargesWithVat = (realtimePlAgntcharge * vatCharge) + realtimePlAgntcharge;
                                 realTimePlAgntAmountWithCharges = realTimePlAgntAmountWithChargesWithVat;
                             }
 
@@ -274,12 +276,13 @@ namespace SoowGoodWeb.Services
 
                             if (realtimeAgentchargeIn == "Percentage")
                             {
-                                decimal? realTimeAgntAmountWithChargesWithVat = ((realtimeAgentcharge / 100) * realtimeAgentProviderAmnt) * vatCharge;
+                                decimal? realTimeAgntAmountTotalCharges = ((realtimeAgentcharge / 100) * realtimeAgentProviderAmnt);
+                                decimal? realTimeAgntAmountWithChargesWithVat = (realTimeAgntAmountTotalCharges * vatCharge) + realTimeAgntAmountTotalCharges;
                                 realTimeAgntAmountWithCharges = realTimeAgntAmountWithChargesWithVat;
                             }
                             else if (realtimeAgentchargeIn == "Flat")
                             {
-                                decimal? realTimeAgntAmountWithChargesWithVat = (realtimeAgentcharge) * vatCharge;
+                                decimal? realTimeAgntAmountWithChargesWithVat = (realtimeAgentcharge * vatCharge) + realtimeAgentcharge;
                                 realTimeAgntAmountWithCharges = realTimeAgntAmountWithChargesWithVat;
                             }
 
@@ -296,12 +299,13 @@ namespace SoowGoodWeb.Services
 
                             if (realtimeIndPatientchargeIn == "Percentage")
                             {
-                                decimal? realTimeIndPtnAmountWithChargesWithVat = ((realtimeIndPatientcharge / 100) * realtimeIndPatientProviderAmnt) * vatCharge;
+                                decimal? realTimeIndPtnAmountTotalCharges = ((realtimeIndPatientcharge / 100) * realtimeIndPatientProviderAmnt);
+                                decimal? realTimeIndPtnAmountWithChargesWithVat = (realTimeIndPtnAmountTotalCharges * vatCharge) + realTimeIndPtnAmountTotalCharges;
                                 realTimeIndPtnAmountWithCharges = realTimeIndPtnAmountWithChargesWithVat + realtimeIndPatientProviderAmnt;
                             }
                             else if (realtimeIndPatientchargeIn == "Flat")
                             {
-                                decimal? realTimeIndPtnAmountWithChargesWithVat = (realtimeIndPatientcharge) * vatCharge;
+                                decimal? realTimeIndPtnAmountWithChargesWithVat = (realtimeIndPatientcharge * vatCharge) + realtimeIndPatientcharge;
                                 realTimeIndPtnAmountWithCharges = realTimeIndPtnAmountWithChargesWithVat + realtimeIndPatientProviderAmnt;
 
                             }
@@ -312,12 +316,13 @@ namespace SoowGoodWeb.Services
 
                             if (realtimeIndPlAgntchargeIn == "Percentage")
                             {
-                                decimal? realTimeIndPlAgntAmountWithChargesWithVat = ((realtimeIndPlAgntcharge / 100) * realtimeIndPlAgntProviderAmnt) * vatCharge;
+                                decimal? realTimeIndPlAgntAmountTotalCharges = ((realtimeIndPlAgntcharge / 100) * realtimeIndPlAgntProviderAmnt);
+                                decimal? realTimeIndPlAgntAmountWithChargesWithVat = (realTimeIndPlAgntAmountTotalCharges * vatCharge) + realTimeIndPlAgntAmountTotalCharges;
                                 realTimeIndPlAgntAmountWithCharges = realTimeIndPlAgntAmountWithChargesWithVat;
                             }
                             else if (realtimeIndPlAgntchargeIn == "Flat")
                             {
-                                decimal? realTimeIndPlAgntAmountWithChargesWithVat = (realtimeIndPlAgntcharge) * vatCharge;
+                                decimal? realTimeIndPlAgntAmountWithChargesWithVat = (realtimeIndPlAgntcharge * vatCharge) + realtimeIndPlAgntcharge;
                                 realTimeIndPlAgntAmountWithCharges = realTimeIndPlAgntAmountWithChargesWithVat;
                             }
 
@@ -327,13 +332,13 @@ namespace SoowGoodWeb.Services
 
                             if (realtimeIndAgentchargeIn == "Percentage")
                             {
-
-                                decimal? realTimeIndAgntAmountWithChargesWithVat = ((realtimeIndAgentcharge / 100) * realtimeIndAgentProviderAmnt) * vatCharge;
+                                decimal? realTimeIndAgntAmountTotalCharges = ((realtimeIndAgentcharge / 100) * realtimeIndAgentProviderAmnt);
+                                decimal? realTimeIndAgntAmountWithChargesWithVat = (realTimeIndAgntAmountTotalCharges * vatCharge) + realTimeIndAgntAmountTotalCharges;
                                 realTimeIndAgntAmountWithCharges = realTimeIndAgntAmountWithChargesWithVat;
                             }
                             else if (realtimeIndAgentchargeIn == "Flat")
                             {
-                                decimal? realTimeIndAgntAmountWithChargesWithVat = realtimeIndAgentcharge * vatCharge;
+                                decimal? realTimeIndAgntAmountWithChargesWithVat = (realtimeIndAgentcharge * vatCharge) + realtimeIndAgentcharge;
                                 realTimeIndAgntAmountWithCharges = realTimeIndAgntAmountWithChargesWithVat;
                             }
 
@@ -348,23 +353,24 @@ namespace SoowGoodWeb.Services
                             decimal? scf = docChamberfeees?.FirstOrDefault(d => d.DoctorSchedule?.DoctorProfileId == item.Id)?.TotalFee;
                             //decimal? scheduledChamberfee = docChamberfeees?.FirstOrDefault(d => d.DoctorSchedule?.DoctorProfileId == item.Id)?.TotalFee;
 
-                            decimal? scfPtnAmountWithCharges = 0;
-                            decimal? scfAgntAmountWithCharges = 0;
+                            decimal? scfPtnChamberAmountWithCharges = 0;
+                            decimal? scfAgntChamberAmountWithCharges = 0;
 
                             var scfPatientchargeIn = sfees.Where(a => a.PlatformFacilityId == 1)?.FirstOrDefault()?.AmountIn;
                             decimal? scfPatientcharge = sfees.Where(a => a.PlatformFacilityId == 1)?.FirstOrDefault()?.Amount;
 
                             if (scfPatientchargeIn == "Percentage")
                             {
-                                decimal? scfPtnAmountWithChargesWithVat = ((scfPatientcharge / 100) * scf) * vatCharge;
-                                scfPtnAmountWithCharges = scfPtnAmountWithChargesWithVat + scf;
+                                decimal? scfPtnCharge = ((scfPatientcharge / 100) * scf);
+                                decimal? scfPtnAmountWithChargesWithVat = (scfPtnCharge * vatCharge) + scfPtnCharge;
+                                scfPtnChamberAmountWithCharges = scfPtnAmountWithChargesWithVat + scf;
                             }
                             else if (scfPatientchargeIn == "Flat")
                             {
-                                decimal? scfPtnAmountWithChargesWithVat = (scfPatientcharge) * vatCharge;
-                                scfPtnAmountWithCharges = scfPtnAmountWithChargesWithVat + scf;
+                                decimal? scfPtnAmountWithChargesWithVat = (scfPatientcharge * vatCharge) + scfPatientcharge;
+                                scfPtnChamberAmountWithCharges = scfPtnAmountWithChargesWithVat + scf;
                             }
-                            scheduledChamberfee = scfPtnAmountWithCharges;
+                            scheduledChamberfee = scfPtnChamberAmountWithCharges;
 
                         }
                         var docOnlinefeees = doctorFees.Where(f => f.DoctorSchedule.ConsultancyType == ConsultancyType.Online && f.TotalFee != null).OrderBy(a => a.TotalFee).ToList();
@@ -372,7 +378,8 @@ namespace SoowGoodWeb.Services
                         {
                             decimal? sof = docOnlinefeees?.FirstOrDefault(d => d.DoctorSchedule?.DoctorProfileId == item.Id)?.TotalFee;
 
-                            decimal? sofPtnAmountWithCharges = 0;
+
+                            decimal? sofPtnOnlineAmountWithCharges = 0;
                             decimal? sofAgntAmountWithCharges = 0;
 
                             var sofPatientchargeIn = sfees.Where(a => a.PlatformFacilityId == 2)?.FirstOrDefault()?.AmountIn;
@@ -380,15 +387,16 @@ namespace SoowGoodWeb.Services
 
                             if (sofPatientchargeIn == "Percentage")
                             {
-                                decimal? sofPtnAmountWithChargesWithVat = ((sofPatientcharge / 100) * sof) * vatCharge;
-                                sofPtnAmountWithCharges = sofPtnAmountWithChargesWithVat + sof;
+                                decimal? sofPtnCharge = ((sofPatientcharge / 100) * sof);
+                                decimal? sofPtnAmountWithChargesWithVat = (sofPtnCharge * vatCharge) + sofPtnCharge;
+                                sofPtnOnlineAmountWithCharges = sofPtnAmountWithChargesWithVat + sof;
                             }
                             else if (sofPatientchargeIn == "Flat")
                             {
-                                decimal? sofPtnAmountWithChargesWithVat = (sofPatientcharge) * vatCharge;
-                                sofPtnAmountWithCharges = sofPtnAmountWithChargesWithVat + sof;
+                                decimal? sofPtnAmountWithChargesWithVat = (sofPatientcharge * vatCharge) + sofPatientcharge;
+                                sofPtnOnlineAmountWithCharges = sofPtnAmountWithChargesWithVat + sof;
                             }
-                            scheduledOnlinefee = sofPtnAmountWithCharges;
+                            scheduledOnlinefee = sofPtnOnlineAmountWithCharges;
                         }
                         //}
 
@@ -605,12 +613,13 @@ namespace SoowGoodWeb.Services
                     decimal? realtimePatientProviderAmnt = fees.Where(p => p.PlatformFacilityId == 3 && p.ProviderAmount != null && p.IsActive == true).FirstOrDefault()?.ProviderAmount;
                     if (realtimePatientchargeIn == "Percentage")
                     {
-                        decimal? realTimePtnAmountWithChargesWithVat = ((realtimePatientcharge / 100) * realtimePatientProviderAmnt) * vatCharge;
+                        decimal? realTimePtnAmountTotalCharges = ((realtimePatientcharge / 100) * realtimePatientProviderAmnt);
+                        decimal? realTimePtnAmountWithChargesWithVat = (realTimePtnAmountTotalCharges * vatCharge) + realTimePtnAmountTotalCharges;
                         realTimePtnAmountWithCharges = realTimePtnAmountWithChargesWithVat + realtimePatientProviderAmnt;
                     }
                     else if (realtimePatientchargeIn == "Flat")
                     {
-                        decimal? realTimePtnAmountWithChargesWithVat = (realtimePatientcharge) * vatCharge;
+                        decimal? realTimePtnAmountWithChargesWithVat = (realtimePatientcharge * vatCharge) + realtimePatientcharge;
                         realTimePtnAmountWithCharges = realTimePtnAmountWithChargesWithVat + realtimePatientProviderAmnt;
                     }
 
@@ -619,12 +628,13 @@ namespace SoowGoodWeb.Services
                     decimal? realtimePlAgntProviderAmnt = fees.Where(p => p.PlatformFacilityId == 6 && p.ProviderAmount != null && p.IsActive == true).FirstOrDefault()?.ProviderAmount;
                     if (realtimePlAgntchargeIn == "Percentage")
                     {
-                        decimal? realTimePlAgntAmountWithChargesWithVat = ((realtimePlAgntcharge / 100) * realtimePlAgntProviderAmnt) * vatCharge;
+                        decimal? realTimePlAgntAmountTotalCharges = ((realtimePlAgntcharge / 100) * realtimePlAgntProviderAmnt);
+                        decimal? realTimePlAgntAmountWithChargesWithVat = (realTimePlAgntAmountTotalCharges * vatCharge) + realTimePlAgntAmountTotalCharges;
                         realTimePlAgntAmountWithCharges = realTimePlAgntAmountWithChargesWithVat;
                     }
                     else if (realtimePlAgntchargeIn == "Flat")
                     {
-                        decimal? realTimePlAgntAmountWithChargesWithVat = (realtimePlAgntcharge) * vatCharge;
+                        decimal? realTimePlAgntAmountWithChargesWithVat = (realtimePlAgntcharge * vatCharge) + realtimePlAgntcharge;
                         realTimePlAgntAmountWithCharges = realTimePlAgntAmountWithChargesWithVat;
                     }
 
@@ -634,12 +644,13 @@ namespace SoowGoodWeb.Services
 
                     if (realtimeAgentchargeIn == "Percentage")
                     {
-                        decimal? realTimeAgntAmountWithChargesWithVat = ((realtimeAgentcharge / 100) * realtimeAgentProviderAmnt) * vatCharge;
+                        decimal? realTimeAgntAmountTotalCharges = ((realtimeAgentcharge / 100) * realtimeAgentProviderAmnt);
+                        decimal? realTimeAgntAmountWithChargesWithVat = (realTimeAgntAmountTotalCharges * vatCharge) + realTimeAgntAmountTotalCharges;
                         realTimeAgntAmountWithCharges = realTimeAgntAmountWithChargesWithVat;
                     }
                     else if (realtimeAgentchargeIn == "Flat")
                     {
-                        decimal? realTimeAgntAmountWithChargesWithVat = (realtimeAgentcharge) * vatCharge;
+                        decimal? realTimeAgntAmountWithChargesWithVat = (realtimeAgentcharge * vatCharge) + realtimeAgentcharge;
                         realTimeAgntAmountWithCharges = realTimeAgntAmountWithChargesWithVat;
                     }
 
@@ -656,12 +667,13 @@ namespace SoowGoodWeb.Services
 
                     if (realtimeIndPatientchargeIn == "Percentage")
                     {
-                        decimal? realTimeIndPtnAmountWithChargesWithVat = ((realtimeIndPatientcharge / 100) * realtimeIndPatientProviderAmnt) * vatCharge;
+                        decimal? realTimeIndPtnAmountTotalCharges = ((realtimeIndPatientcharge / 100) * realtimeIndPatientProviderAmnt);
+                        decimal? realTimeIndPtnAmountWithChargesWithVat = (realTimeIndPtnAmountTotalCharges * vatCharge) + realTimeIndPtnAmountTotalCharges;
                         realTimeIndPtnAmountWithCharges = realTimeIndPtnAmountWithChargesWithVat + realtimeIndPatientProviderAmnt;
                     }
                     else if (realtimeIndPatientchargeIn == "Flat")
                     {
-                        decimal? realTimeIndPtnAmountWithChargesWithVat = (realtimeIndPatientcharge) * vatCharge;
+                        decimal? realTimeIndPtnAmountWithChargesWithVat = (realtimeIndPatientcharge * vatCharge) + realtimeIndPatientcharge;
                         realTimeIndPtnAmountWithCharges = realTimeIndPtnAmountWithChargesWithVat + realtimeIndPatientProviderAmnt;
 
                     }
@@ -672,12 +684,13 @@ namespace SoowGoodWeb.Services
 
                     if (realtimeIndPlAgntchargeIn == "Percentage")
                     {
-                        decimal? realTimeIndPlAgntAmountWithChargesWithVat = ((realtimeIndPlAgntcharge / 100) * realtimeIndPlAgntProviderAmnt) * vatCharge;
+                        decimal? realTimeIndPlAgntAmountTotalCharges = ((realtimeIndPlAgntcharge / 100) * realtimeIndPlAgntProviderAmnt);
+                        decimal? realTimeIndPlAgntAmountWithChargesWithVat = (realTimeIndPlAgntAmountTotalCharges * vatCharge) + realTimeIndPlAgntAmountTotalCharges;
                         realTimeIndPlAgntAmountWithCharges = realTimeIndPlAgntAmountWithChargesWithVat;
                     }
                     else if (realtimeIndPlAgntchargeIn == "Flat")
                     {
-                        decimal? realTimeIndPlAgntAmountWithChargesWithVat = (realtimeIndPlAgntcharge) * vatCharge;
+                        decimal? realTimeIndPlAgntAmountWithChargesWithVat = (realtimeIndPlAgntcharge * vatCharge) + realtimeIndPlAgntcharge;
                         realTimeIndPlAgntAmountWithCharges = realTimeIndPlAgntAmountWithChargesWithVat;
                     }
 
@@ -687,13 +700,13 @@ namespace SoowGoodWeb.Services
 
                     if (realtimeIndAgentchargeIn == "Percentage")
                     {
-
-                        decimal? realTimeIndAgntAmountWithChargesWithVat = ((realtimeIndAgentcharge / 100) * realtimeIndAgentProviderAmnt) * vatCharge;
+                        decimal? realTimeIndAgntAmountTotalCharges = ((realtimeIndAgentcharge / 100) * realtimeIndAgentProviderAmnt);
+                        decimal? realTimeIndAgntAmountWithChargesWithVat = (realTimeIndAgntAmountTotalCharges * vatCharge) + realTimeIndAgntAmountTotalCharges;
                         realTimeIndAgntAmountWithCharges = realTimeIndAgntAmountWithChargesWithVat;
                     }
                     else if (realtimeIndAgentchargeIn == "Flat")
                     {
-                        decimal? realTimeIndAgntAmountWithChargesWithVat = realtimeIndAgentcharge * vatCharge;
+                        decimal? realTimeIndAgntAmountWithChargesWithVat = (realtimeIndAgentcharge * vatCharge) + realtimeIndAgentcharge;
                         realTimeIndAgntAmountWithCharges = realTimeIndAgntAmountWithChargesWithVat;
                     }
 
@@ -716,12 +729,13 @@ namespace SoowGoodWeb.Services
 
                     if (scfPatientchargeIn == "Percentage")
                     {
-                        decimal? scfPtnAmountWithChargesWithVat = ((scfPatientcharge / 100) * scf) * vatCharge;
+                        decimal? scfPtnCharge = ((scfPatientcharge / 100) * scf);
+                        decimal? scfPtnAmountWithChargesWithVat = (scfPtnCharge * vatCharge) + scfPtnCharge;
                         scfPtnAmountWithCharges = scfPtnAmountWithChargesWithVat + scf;
                     }
                     else if (scfPatientchargeIn == "Flat")
                     {
-                        decimal? scfPtnAmountWithChargesWithVat = (scfPatientcharge) * vatCharge;
+                        decimal? scfPtnAmountWithChargesWithVat = (scfPatientcharge * vatCharge) + scfPatientcharge;
                         scfPtnAmountWithCharges = scfPtnAmountWithChargesWithVat + scf;
                     }
                     scheduledChamberfee = scfPtnAmountWithCharges;
@@ -732,6 +746,7 @@ namespace SoowGoodWeb.Services
                 {
                     decimal? sof = docOnlinefeees?.FirstOrDefault(d => d.DoctorSchedule?.DoctorProfileId == item.Id)?.TotalFee;
 
+
                     decimal? sofPtnAmountWithCharges = 0;
                     decimal? sofAgntAmountWithCharges = 0;
 
@@ -740,12 +755,13 @@ namespace SoowGoodWeb.Services
 
                     if (sofPatientchargeIn == "Percentage")
                     {
-                        decimal? sofPtnAmountWithChargesWithVat = ((sofPatientcharge / 100) * sof) * vatCharge;
+                        decimal? sofPtnCharge = ((sofPatientcharge / 100) * sof);
+                        decimal? sofPtnAmountWithChargesWithVat = (sofPtnCharge * vatCharge) + sofPtnCharge;
                         sofPtnAmountWithCharges = sofPtnAmountWithChargesWithVat + sof;
                     }
                     else if (sofPatientchargeIn == "Flat")
                     {
-                        decimal? sofPtnAmountWithChargesWithVat = (sofPatientcharge) * vatCharge;
+                        decimal? sofPtnAmountWithChargesWithVat = (sofPatientcharge * vatCharge) + sofPatientcharge;
                         sofPtnAmountWithCharges = sofPtnAmountWithChargesWithVat + sof;
                     }
                     scheduledOnlinefee = sofPtnAmountWithCharges;
