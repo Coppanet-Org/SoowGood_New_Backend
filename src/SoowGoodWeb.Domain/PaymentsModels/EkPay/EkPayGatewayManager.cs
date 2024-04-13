@@ -424,7 +424,7 @@ namespace SoowGoodWeb.EkPayData
             trnsInfo.trnx_currency = postData.trnx_currency;
             trnsInfo.trnx_id = postData.trnx_id;
             var ipnInfo = new ipn_info();
-            ipnInfo.ipn_channel = "3";
+            ipnInfo.ipn_channel = "1";
             ipnInfo.ipn_email = "sanjida.a@coppanet.com";
             ipnInfo.ipn_uri = _configuration.ProdIpnLintener;//"https://www.dev.ekpay.gov.bd/test/ipn";
             
@@ -435,7 +435,7 @@ namespace SoowGoodWeb.EkPayData
             ekPayDataRaw.cust_info = customerInfo;
             ekPayDataRaw.trns_info = trnsInfo;
             ekPayDataRaw.ipn_info = ipnInfo;
-            ekPayDataRaw.mac_addr = "103.92.84.64";//"103.125.253.240";
+            ekPayDataRaw.mac_addr = "103.125.253.240"; //"103.92.84.64";//"103.125.253.240";
 
             return ekPayDataRaw;
         }
