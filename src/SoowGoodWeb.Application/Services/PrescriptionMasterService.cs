@@ -52,7 +52,7 @@ namespace SoowGoodWeb.Services
         }
         public async Task<PrescriptionMasterDto> CreateAsync(PrescriptionMasterInputDto input)
         {
-            var result = new PrescriptionMasterDto(); 
+            var result = new PrescriptionMasterDto();
             try
             {
                 long lastcount = await GetPrescriptionCountAsync();
@@ -66,12 +66,12 @@ namespace SoowGoodWeb.Services
                 var prescriptionMaster = await _prescriptionMasterRepository.InsertAsync(newEntity);
 
                 await _unitOfWorkManager.Current.SaveChangesAsync();
-                
+
 
                 result = ObjectMapper.Map<PrescriptionMaster, PrescriptionMasterDto>(prescriptionMaster);
-                if(result != null)
+                if (result != null)
                 {
-                   await _appointmentService.UpdateCallConsultationAppointmentAsync(input.AppointmentCode);
+                    await _appointmentService.UpdateCallConsultationAppointmentAsync(input.AppointmentCode);
                 }
 
             }
@@ -93,6 +93,7 @@ namespace SoowGoodWeb.Services
         public async Task<PrescriptionMasterDto> GetPrescriptionAsync(int id)
         {
             var detailsPrescription = await _prescriptionMasterRepository.WithDetailsAsync(a => a.Appointment
+                                                                                              , s => s.Appointment.DoctorSchedule
                                                                                               , doc => doc.Appointment.DoctorSchedule.DoctorProfile
                                                                                               , d => d.PrescriptionDrugDetails
                                                                                               , cd => cd.PrescriptionPatientDiseaseHistory
@@ -127,7 +128,7 @@ namespace SoowGoodWeb.Services
                 result.AppointmentType = prescription.Appointment?.AppointmentType;
                 result.AppointmentCode = prescription.AppointmentCode;
                 result.DoctorProfileId = prescription.Appointment?.DoctorProfileId;
-                result.DoctorName = prescription.Appointment?.DoctorName;
+                result.DoctorName = prescription.Appointment?.DoctorSchedule?.DoctorProfile?.DoctorTitle + " " + prescription.Appointment?.DoctorName;
                 result.DoctorCode = prescription.Appointment?.DoctorCode;
                 result.PatientProfileId = prescription.PatientProfileId;
                 result.PatientName = patientDetails?.PatientName;
@@ -249,7 +250,7 @@ namespace SoowGoodWeb.Services
                         AppointmentSerial = item.Appointment?.AppointmentSerial,
                         AppointmentCode = item.AppointmentCode,
                         DoctorProfileId = item.Appointment?.DoctorProfileId,
-                        DoctorName = item.Appointment?.DoctorName,
+                        DoctorName = item.Appointment?.DoctorSchedule?.DoctorProfile?.DoctorTitle + " " + item.Appointment?.DoctorName,
                         DoctorCode = item.Appointment?.DoctorCode,
                         DoctorBmdcRegNo = doctorInfo?.BMDCRegNo,
                         SpecialityId = doctorInfo?.SpecialityId,
@@ -358,7 +359,7 @@ namespace SoowGoodWeb.Services
                 result.AppointmentSerial = prescription.Appointment?.AppointmentSerial;
                 result.AppointmentCode = prescription.AppointmentCode;
                 result.DoctorProfileId = prescription.Appointment?.DoctorProfileId;
-                result.DoctorName = prescription.Appointment?.DoctorName;
+                result.DoctorName = prescription.Appointment?.DoctorSchedule?.DoctorProfile?.DoctorTitle + " " + prescription.Appointment?.DoctorName;
                 result.DoctorCode = prescription.Appointment?.DoctorCode;
                 result.DoctorBmdcRegNo = doctorInfo?.BMDCRegNo;
                 result.SpecialityId = doctorInfo?.SpecialityId;
@@ -366,23 +367,23 @@ namespace SoowGoodWeb.Services
                 result.PatientProfileId = prescription.PatientProfileId;
                 result.PatientName = prescription?.PatientName;
                 result.PatientCode = patientDetails?.PatientCode;
-                result.PatientAge = prescription?.Age;
+                result.PatientAge = patientDetails?.Age;
                 result.PatientBloodGroup = patientDetails?.BloodGroup;
-                result.PatientAdditionalInfo = prescription.PatientAdditionalInfo;
-                result.ConsultancyType = prescription.ConsultancyType;
-                result.ConsultancyTypeName = prescription.Appointment?.ConsultancyType > 0
+                result.PatientAdditionalInfo = prescription?.PatientAdditionalInfo;
+                result.ConsultancyType = prescription?.ConsultancyType;
+                result.ConsultancyTypeName = prescription?.Appointment?.ConsultancyType > 0
                         ? ((ConsultancyType)prescription.Appointment.ConsultancyType).ToString()
                         : "N/A";
-                result.AppointmentType = prescription.AppointmentType;
-                result.AppointmentTypeName = prescription.Appointment?.AppointmentType > 0
+                result.AppointmentType = prescription?.AppointmentType;
+                result.AppointmentTypeName = prescription?.Appointment?.AppointmentType > 0
                         ? ((AppointmentType)prescription.Appointment.AppointmentType).ToString()
                         : "N/A";
-                result.AppointmentDate = prescription.AppointmentDate;
-                result.PrescriptionDate = prescription.PrescriptionDate;
-                result.PatientLifeStyle = prescription.PatientLifeStyle;
-                result.ReportShowDate = prescription.ReportShowDate;
-                result.FollowupDate = prescription.FollowupDate;
-                result.Advice = prescription.Advice;
+                result.AppointmentDate = prescription?.AppointmentDate;
+                result.PrescriptionDate = prescription?.PrescriptionDate;
+                result.PatientLifeStyle = prescription?.PatientLifeStyle;
+                result.ReportShowDate = prescription?.ReportShowDate;
+                result.FollowupDate = prescription?.FollowupDate;
+                result.Advice = prescription?.Advice;
                 result.PrescriptionPatientDiseaseHistory = patientDiseaseHistories;
                 result.prescriptionMainComplaints = patientMainComplaints;
                 result.PrescriptionFindingsObservations = findings;
