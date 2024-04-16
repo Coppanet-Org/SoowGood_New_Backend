@@ -43,18 +43,18 @@ namespace SoowGoodWeb.Services
         //[HttpPost]
         public async Task<EkPayInitDto> InitiatePaymentAsync(EkPayInputDto input)
         {
-            return new EkPayInitDto();
+            //return new EkPayInitDto();
             input.TransactionId = GenerateTransactionId(16);
 
-            //var applicantData = await GetApplicantDetails(input);
+            var applicantData = await GetApplicantDetails(input);
 
-            //var postData = _ekPayGatewayManager.CreatePostData(applicantData);
+            var postData = _ekPayGatewayManager.CreateDataRaw(applicantData);//.CreateDataRaw(applicantData);
 
-            //var initResponse = await _ekPayGatewayManager.InitiatePaymentAsync(postData);
+            var initResponse = await _ekPayGatewayManager.InitiatePaymentAsync(postData);
 
-            //await InitPaymentHistory(input, initResponse);
+            await InitPaymentHistory(input, initResponse);
 
-            //return GetInitPaymentResponse(initResponse);
+            return GetInitPaymentResponse(initResponse, input.TransactionId);
         }
 
         private async Task InitPaymentHistory(EkPayInputDto input, EkPayTokenResponse initResponse)
@@ -89,13 +89,13 @@ namespace SoowGoodWeb.Services
         //[HttpPost]
         public async Task<EkPayInitDto> InitiateTestPaymentAsync(EkPayInputDto input)
         {
-            var nuDto = new EkPayInitDto();
+            //var nuDto = new EkPayInitDto();
 
             input.TransactionId = GenerateTransactionId(16);
 
             var applicantData = await GetApplicantDetails(input);
 
-            var postData = _ekPayGatewayManager.CreateDataRaw(applicantData);
+            var postData = _ekPayGatewayManager.CreateTestDataRaw(applicantData);//.CreateDataRaw(applicantData);
 
             var initResponse = await _ekPayGatewayManager.InitiateTestPaymentAsync(postData);
 
@@ -294,7 +294,7 @@ namespace SoowGoodWeb.Services
             //pResponse =
             pResponse.status = initResponse.responseCode != null ? initResponse.responseCode : initResponse.msg_code;
             pResponse.message = initResponse.responseMessage != null ? initResponse.responseMessage : initResponse.msg_det;
-            pResponse.GatewayPageURL = initResponse.responseCode == null && initResponse.responseMessage == null ? "https://sandbox.ekpay.gov.bd/ekpaypg/v1?sToken=" + initResponse.secure_token+ "&trnsID=" + trnsId:"";
+            pResponse.GatewayPageURL = initResponse.responseCode == null && initResponse.responseMessage == null ? "https://pg.ekpay.gov.bd/ekpaypg/v1?sToken=" + initResponse.secure_token+ "&trnsID=" + trnsId:"";
 
             return pResponse;
         }
