@@ -174,5 +174,64 @@ namespace SoowGoodWeb.Services
 
             return ObjectMapper.Map<AgentSupervisor, AgentSupervisorDto>(item);
         }
+
+        public async Task<List<AgentSupervisorDto>> GetSupervisorListFilterByAdminAsync(DataFilterModel? supervisorFilterModel, FilterModel filterModel)
+        {
+            List<AgentSupervisorDto> result = null;
+            try
+            {
+                var profileWithDetails = await _agentSupervisorRepository.WithDetailsAsync(s => s.AgentMaster);
+              
+                var profiles = profileWithDetails.Where(p => !string.IsNullOrEmpty(p.SupervisorName)).ToList();
+                //var schedules = await _patientProfileRepository.WithDetailsAsync();
+                //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
+                if (!profileWithDetails.Any())
+                {
+                    return result;
+                }
+                result = new List<AgentSupervisorDto>();
+                if (supervisorFilterModel != null && !string.IsNullOrEmpty(supervisorFilterModel.name))
+                {
+                    //profiles = profiles.Where(p => p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())).ToList();
+                    profiles = profiles.Where(p => p.SupervisorName.ToLower().Contains(supervisorFilterModel.name.ToLower().Trim())).ToList();
+                }
+                foreach (var item in profiles)
+                {
+                   
+                    result.Add(new AgentSupervisorDto()
+                    {
+                        Id = item.Id,
+                        AgentMasterId = item.AgentMasterId,
+                        AgentMasterName = item.AgentMasterId > 0 ? item.AgentMaster.AgentMasterOrgName : "",
+                        SupervisorName = item.SupervisorName,
+                        AgentSupervisorOrgName = item.AgentSupervisorOrgName,
+                        AgentSupervisorCode = item.AgentSupervisorCode,
+                        SupervisorIdentityNumber = item.SupervisorIdentityNumber,
+                        SupervisorMobileNo = item.SupervisorMobileNo,
+                        Address = item.Address,
+                        City = item.City,
+                        ZipCode = item.ZipCode,
+                        Country = item.Country,
+                        PhoneNo = item.PhoneNo,
+                        Email = item.Email,
+                        EmergencyContact = item.EmergencyContact,
+                        AgentSupervisorDocNumber = item.AgentSupervisorDocNumber,
+                        AgentSupervisorDocExpireDate = item.AgentSupervisorDocExpireDate,
+                        IsActive = item.IsActive,
+                        
+                    });
+                }
+
+
+                //result = result.Skip(filterModel.Offset)
+                //                   .Take(filterModel.Limit).ToList();
+            }
+            catch
+            {
+                return null;
+            }
+
+            return result;
+        }
     }
 }

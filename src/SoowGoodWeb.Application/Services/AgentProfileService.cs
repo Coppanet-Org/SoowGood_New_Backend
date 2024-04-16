@@ -1,4 +1,5 @@
-﻿using SoowGoodWeb.DtoModels;
+﻿using AutoMapper;
+using SoowGoodWeb.DtoModels;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
@@ -225,6 +226,64 @@ namespace SoowGoodWeb.Services
             var item = await _agentProfileRepository.GetAsync(x => x.MobileNo == userName);
 
             return ObjectMapper.Map<AgentProfile, AgentProfileDto>(item);
+        }
+
+        public async Task<List<AgentProfileDto>> GetAgentListFilterByAdminAsync(DataFilterModel? agentFilterModel, FilterModel filterModel)
+        {
+            List<AgentProfileDto> result = null;
+            try
+            {
+                var profileWithDetails = await _agentProfileRepository.WithDetailsAsync(m => m.AgentMaster, s => s.AgentSupervisor);
+
+                var profiles = profileWithDetails.Where(p => !string.IsNullOrEmpty(p.FullName)).ToList();
+                //var schedules = await _patientProfileRepository.WithDetailsAsync();
+                //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
+                if (!profileWithDetails.Any())
+                {
+                    return result;
+                }
+                result = new List<AgentProfileDto>();
+                if (agentFilterModel != null && !string.IsNullOrEmpty(agentFilterModel.name))
+                {
+                    //profiles = profiles.Where(p => p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())).ToList();
+                    profiles = profiles.Where(p => p.FullName.ToLower().Contains(agentFilterModel.name.ToLower().Trim())).ToList();
+                }
+                foreach (var item in profiles)
+                {
+
+                    result.Add(new AgentProfileDto()
+                    {
+                        Id = item.Id,
+                        AgentCode = item.AgentCode,
+                        FullName = item.FullName,
+                        MobileNo = item.MobileNo,
+                        Email = item.Email,
+                        OrganizationName = item.OrganizationName,
+                        City = item.City,
+                        Address = item.Address,
+                        AgentMasterId = item.AgentMasterId,
+                        AgentSupervisorId = item.AgentSupervisorId,
+                        AgentDocNumber = item.AgentDocNumber,
+                        AgentDocExpireDate = item.AgentDocExpireDate,
+                        AgentMasterName = item?.AgentMaster?.ContactPerson,
+                        AgentSupervisorName = item?.AgentSupervisor?.SupervisorName,
+                        ZipCode = item?.ZipCode,
+                        Country = item?.Country,
+                        IsActive = item?.IsActive,
+
+                    });
+                }
+
+
+                //result = result.Skip(filterModel.Offset)
+                //                   .Take(filterModel.Limit).ToList();
+            }
+            catch
+            {
+                return null;
+            }
+
+            return result;
         }
 
     }
