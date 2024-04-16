@@ -48,7 +48,7 @@ namespace SoowGoodWeb.Services
 
             var applicantData = await GetApplicantDetails(input);
 
-            var postData = _ekPayGatewayManager.CreateDataRaw(applicantData);
+            var postData = _ekPayGatewayManager.CreateDataRaw(applicantData);//.CreateDataRaw(applicantData);
 
             var initResponse = await _ekPayGatewayManager.InitiatePaymentAsync(postData);
 
@@ -89,13 +89,13 @@ namespace SoowGoodWeb.Services
         //[HttpPost]
         public async Task<EkPayInitDto> InitiateTestPaymentAsync(EkPayInputDto input)
         {
-            var nuDto = new EkPayInitDto();
+            //var nuDto = new EkPayInitDto();
 
             input.TransactionId = GenerateTransactionId(16);
 
             var applicantData = await GetApplicantDetails(input);
 
-            var postData = _ekPayGatewayManager.CreateDataRaw(applicantData);
+            var postData = _ekPayGatewayManager.CreateTestDataRaw(applicantData);//.CreateDataRaw(applicantData);
 
             var initResponse = await _ekPayGatewayManager.InitiateTestPaymentAsync(postData);
 
@@ -298,6 +298,8 @@ namespace SoowGoodWeb.Services
 
             return pResponse;
         }
+
+
 
         private static EkPayDto GetFullInitPaymentResponse(EkPayInitResponse initResponse)
         {
