@@ -101,7 +101,7 @@ namespace SoowGoodWeb.Services
 
             await InitPaymentHistory(input, initResponse);
 
-            return GetInitPaymentResponse(initResponse, input.TransactionId);
+            return GetInitTestPaymentResponse(initResponse, input.TransactionId);
         }
 
         //[HttpGet]
@@ -299,7 +299,16 @@ namespace SoowGoodWeb.Services
             return pResponse;
         }
 
+        private static EkPayInitDto GetInitTestPaymentResponse(EkPayTokenResponse initResponse, string trnsId)
+        {
+            var pResponse = new EkPayInitDto();
+            //pResponse =
+            pResponse.status = initResponse.responseCode != null ? initResponse.responseCode : initResponse.msg_code;
+            pResponse.message = initResponse.responseMessage != null ? initResponse.responseMessage : initResponse.msg_det;
+            pResponse.GatewayPageURL = initResponse.responseCode == null && initResponse.responseMessage == null ? "https://sandbox.ekpay.gov.bd/ekpaypg/v1?sToken=" + initResponse.secure_token + "&trnsID=" + trnsId : "";
 
+            return pResponse;
+        }
 
         private static EkPayDto GetFullInitPaymentResponse(EkPayInitResponse initResponse)
         {
