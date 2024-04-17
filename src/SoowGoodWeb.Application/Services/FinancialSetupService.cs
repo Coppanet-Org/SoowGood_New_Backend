@@ -3,6 +3,7 @@ using SoowGoodWeb.Enums;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -98,20 +99,29 @@ namespace SoowGoodWeb.Services
             return resList;
         }
 
-        public async Task<List<FinancialSetupDto>> GetListByProviderIdandTypeAsync(FacilityEntityType? providerType, long? providerId)
+        public async Task<List<FinancialSetupDto>> GetListByProviderIdandTypeAsync(FacilityEntityType? providerType, long? providerId, string? userRole)
         {
             List<FinancialSetupDto>? result = null;
             var facilityEntityName = "";
             var allFinancialSetups = await _financialSetupRepository.WithDetailsAsync(p => p.PlatformFacility);
-            var allFinancialSetupDetails = allFinancialSetups.Where(p => p.FacilityEntityID == providerId && p.FacilityEntityType == providerType && p.IsActive == true).ToList();
+            var allFinancialSetupDetails = allFinancialSetups.Where(p => p.IsActive == true).ToList();
+            if (userRole == "patient")
+            {
+                allFinancialSetupDetails = allFinancialSetups.Where(p => p.FacilityEntityID == providerId && p.FacilityEntityType == providerType && (p.PlatformFacilityId == 1 || p.PlatformFacilityId == 2 || p.PlatformFacilityId == 3)).ToList();
+            }
+            else if (userRole == "agent")
+            {
+                allFinancialSetupDetails = allFinancialSetups.Where(p => p.FacilityEntityID == providerId && p.FacilityEntityType == providerType && (p.PlatformFacilityId == 4 || p.PlatformFacilityId == 5 || p.PlatformFacilityId == 6)).ToList();
+            }
             if (!allFinancialSetupDetails.Any())
             {
-                allFinancialSetupDetails = allFinancialSetups.Where(p => p.FacilityEntityID == null && p.FacilityEntityType == providerType && p.IsActive == true).ToList();
-            }
-            else
-            {
+                allFinancialSetupDetails = allFinancialSetups.Where(p => p.FacilityEntityID == null && p.FacilityEntityType == providerType).ToList();
 
             }
+            //if (!allFinancialSetupDetails.Any())
+            //{
+            //    return null;
+            //}
             result = new List<FinancialSetupDto>();
             foreach (var item in allFinancialSetupDetails)
             {
@@ -156,11 +166,41 @@ namespace SoowGoodWeb.Services
 
         public async Task<FinancialSetupDto> UpdateAsync(FinancialSetupInputDto input)
         {
-            var updateItem = ObjectMapper.Map<FinancialSetupInputDto, FinancialSetup>(input);
+            //var updateItem = ObjectMapper.Map<FinancialSetupInputDto, FinancialSetup>(input);
 
-            var item = await _financialSetupRepository.UpdateAsync(updateItem);
+            //var item = await _financialSetupRepository.UpdateAsync(updateItem);
 
-            return ObjectMapper.Map<FinancialSetup, FinancialSetupDto>(item);
+            //return ObjectMapper.Map<FinancialSetup, FinancialSetupDto>(item);
+
+
+            var result = new FinancialSetupDto();
+            try
+            {
+                var itemFinSetup = await _financialSetupRepository.GetAsync(d => d.Id == input.Id);
+                if (itemFinSetup != null)
+                {
+                    itemFinSetup.PlatformFacilityId = input.PlatformFacilityId;
+                    itemFinSetup.FacilityEntityType = input.FacilityEntityType;
+                    itemFinSetup.DiagonsticServiceType = input.DiagonsticServiceType;
+                    itemFinSetup.FacilityEntityID = input.FacilityEntityID;
+                    itemFinSetup.AmountIn = input.AmountIn;
+                    itemFinSetup.Amount = input.Amount;
+                    itemFinSetup.ExternalAmountIn = input.ExternalAmountIn;
+                    itemFinSetup.ExternalAmount = input.ExternalAmount;
+                    itemFinSetup.ProviderAmount = input.ProviderAmount;
+                    itemFinSetup.IsActive = input.IsActive;
+                    itemFinSetup.Vat = input.Vat;
+
+
+                    var item = await _financialSetupRepository.UpdateAsync(itemFinSetup);
+                    await _unitOfWorkManager.Current.SaveChangesAsync();
+                    result = ObjectMapper.Map<FinancialSetup, FinancialSetupDto>(item);
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            return result;//ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
         }
 
         public async Task DeleteAsync(long id)

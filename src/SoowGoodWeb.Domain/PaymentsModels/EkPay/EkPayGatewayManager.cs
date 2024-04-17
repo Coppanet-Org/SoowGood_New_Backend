@@ -213,6 +213,23 @@ namespace SoowGoodWeb.EkPayData
             return true;
         }
 
+        public async Task<EkPayTokenResponse> InitiatePaymentAsync(data_raw postData)
+        {
+            var initResponse = new EkPayTokenResponse();
+            try
+            {
+                string response = await SendPaymentRequestAsync(_configuration.LiveSubmitUrl, postData);
+                initResponse = new JavaScriptSerializer().Deserialize<EkPayTokenResponse>(response);
+                return initResponse;
+            }
+            catch (Exception e)
+            {
+                var jsonResponse = JsonConvert.SerializeObject(initResponse);
+                var jsonPostData = JsonConvert.SerializeObject(postData);
+                throw new Exception($"InitResponse: {jsonResponse} {Environment.NewLine}- PostData: {jsonPostData} {Environment.NewLine}- ErrorMsg: {e.Message}");
+            }
+        }
+
         public async Task<EkPayTokenResponse> InitiateTestPaymentAsync(data_raw postData)
         {
             var initResponse = new EkPayTokenResponse();
@@ -388,12 +405,12 @@ namespace SoowGoodWeb.EkPayData
         public data_raw CreateDataRaw(EkPayDataRawDto postData)
         {
             var merChantInfo = new mer_info();
-            merChantInfo.mer_reg_id = _configuration.SandboxStoreId;
-            merChantInfo.mer_pas_key = _configuration.SandboxStorePassword;
+            merChantInfo.mer_reg_id = _configuration.LiveStoreId;
+            merChantInfo.mer_pas_key = _configuration.LiveStorePassword;
             var feedUriInfo = new feed_uri();
-            feedUriInfo.c_uri = _configuration.DevCancelClientUrl;//.DevCancelCallbackUrl;
-            feedUriInfo.f_uri = _configuration.DevFailClientUrl;
-            feedUriInfo.s_uri = _configuration.DevSuccessClientUrl; //DevSuccessCallbackUrl
+            feedUriInfo.c_uri = _configuration.ProdCancelClientUrl;//.DevCancelCallbackUrl;
+            feedUriInfo.f_uri = _configuration.ProdFailClientUrl;
+            feedUriInfo.s_uri = _configuration.ProdSuccessClientUrl; //DevSuccessCallbackUrl
             var customerInfo = new cust_info();
             customerInfo.cust_email = postData.cust_email;
             customerInfo.cust_id = "";//postData.cust_id;
@@ -408,9 +425,47 @@ namespace SoowGoodWeb.EkPayData
             trnsInfo.trnx_id = postData.trnx_id;
             var ipnInfo = new ipn_info();
             ipnInfo.ipn_channel = "3";
-            ipnInfo.ipn_email = "shaikat.b@coppanet.com";
-            ipnInfo.ipn_uri = _configuration.DevIpnLintener;//"https://www.dev.ekpay.gov.bd/test/ipn";
+            ipnInfo.ipn_email = "sanjida.a@coppanet.com";
+            ipnInfo.ipn_uri = _configuration.ProdIpnLintener;//"https://www.dev.ekpay.gov.bd/test/ipn";
             
+            var ekPayDataRaw = new data_raw();
+            ekPayDataRaw.mer_info = merChantInfo;
+            ekPayDataRaw.req_timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss 'GMT''+''6'");//"2024-11-08 18:14:00 GMT + 6";
+            ekPayDataRaw.feed_uri = feedUriInfo;
+            ekPayDataRaw.cust_info = customerInfo;
+            ekPayDataRaw.trns_info = trnsInfo;
+            ekPayDataRaw.ipn_info = ipnInfo;
+            ekPayDataRaw.mac_addr = "103.125.253.240"; //"103.92.84.64";//"103.125.253.240";
+
+            return ekPayDataRaw;
+        }
+
+        public data_raw CreateTestDataRaw(EkPayDataRawDto postData)
+        {
+            var merChantInfo = new mer_info();
+            merChantInfo.mer_reg_id = _configuration.SandboxStoreId;
+            merChantInfo.mer_pas_key = _configuration.SandboxStorePassword;
+            var feedUriInfo = new feed_uri();
+            feedUriInfo.c_uri = _configuration.DevCancelClientUrl;
+            feedUriInfo.f_uri = _configuration.DevFailClientUrl;
+            feedUriInfo.s_uri = _configuration.DevSuccessClientUrl;
+            var customerInfo = new cust_info();
+            customerInfo.cust_email = postData.cust_email;
+            customerInfo.cust_id = "";
+            customerInfo.cust_mail_addr = "Dhaka";
+            customerInfo.cust_mobo_no = postData.cust_mobo_no;
+            customerInfo.cust_name = postData.cust_name;
+            var trnsInfo = new trns_info();
+            trnsInfo.ord_det = postData.ord_det;
+            trnsInfo.ord_id = postData.ord_id;
+            trnsInfo.trnx_amt = postData.trnx_amt;
+            trnsInfo.trnx_currency = postData.trnx_currency;
+            trnsInfo.trnx_id = postData.trnx_id;
+            var ipnInfo = new ipn_info();
+            ipnInfo.ipn_channel = "1";
+            ipnInfo.ipn_email = "sanjida.a@coppanet.com";
+            ipnInfo.ipn_uri = _configuration.ProdIpnLintener;//"https://www.dev.ekpay.gov.bd/test/ipn";
+
             var ekPayDataRaw = new data_raw();
             ekPayDataRaw.mer_info = merChantInfo;
             ekPayDataRaw.req_timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss 'GMT''+''6'");//"2024-11-08 18:14:00 GMT + 6";
