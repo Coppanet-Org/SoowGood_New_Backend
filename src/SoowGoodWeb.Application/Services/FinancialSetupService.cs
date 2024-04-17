@@ -115,7 +115,7 @@ namespace SoowGoodWeb.Services
             }
             if (!allFinancialSetupDetails.Any())
             {
-                allFinancialSetupDetails = allFinancialSetupDetails.Where(p => p.FacilityEntityID == null && p.FacilityEntityType == providerType).ToList();
+                allFinancialSetupDetails = allFinancialSetups.Where(p => p.FacilityEntityID == null && p.FacilityEntityType == providerType && p.IsActive == true).ToList();
 
             }
             //if (!allFinancialSetupDetails.Any())

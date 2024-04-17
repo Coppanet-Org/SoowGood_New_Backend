@@ -180,7 +180,7 @@ namespace SoowGoodWeb.Services
                 var attachedItems = await _documentsAttachment.WithDetailsAsync();
 
                 var financialSetups = await _financialSetup.WithDetailsAsync();
-                var fees = financialSetups.OrderBy(a => a.ProviderAmount).Where(p => p.ProviderAmount > 0 && p.IsActive == true).ToList();
+                var fees = financialSetups.OrderBy(a => a.ProviderAmount).Where(p => p.ProviderAmount >= 0 && p.IsActive == true).ToList();
                 var sfees = financialSetups.OrderBy(a => a.ProviderAmount).Where(p => (p.ProviderAmount == 0 || p.ProviderAmount == null) && p.IsActive == true).ToList();
                 decimal? vatAmnt = fees.Where(a => a.Vat > 0)?.FirstOrDefault()?.Vat;
                 decimal? vatCharge = vatAmnt / 100;
@@ -287,16 +287,7 @@ namespace SoowGoodWeb.Services
                             }
 
                             instantfeeAsPatient = realTimePtnAmountWithCharges;
-                            //if (instantfeeAsPatient == null)
-                            //{
-                            //    instantfeeAsPatient = 0;
-                            //}
                             instantfeeAsAgent = realTimeAgntAmountWithCharges + realTimePlAgntAmountWithCharges + realtimePlAgntProviderAmnt;
-
-                            //if(instantfeeAsAgent==null)
-                            //{
-                            //    instantfeeAsAgent = 0;
-                            //}
 
                             decimal? realTimeIndPtnAmountWithCharges = 0;
                             decimal? realTimeIndAgntAmountWithCharges = 0;
@@ -352,15 +343,7 @@ namespace SoowGoodWeb.Services
                             }
 
                             individualInstantfeeAsPatient = realTimeIndPtnAmountWithCharges;
-                            //if (individualInstantfeeAsPatient == null)
-                            //{
-                            //    individualInstantfeeAsPatient = 0;
-                            //}
                             individualInstantfeeAsAgent = realTimeIndAgntAmountWithCharges + realTimeIndPlAgntAmountWithCharges + realtimeIndAgentProviderAmnt;
-                            //if (individualInstantfeeAsAgent == null)
-                            //{
-                            //    individualInstantfeeAsAgent = 0;
-                            //}
                         }
                         //else
                         //{
