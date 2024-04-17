@@ -98,20 +98,29 @@ namespace SoowGoodWeb.Services
             return resList;
         }
 
-        public async Task<List<FinancialSetupDto>> GetListByProviderIdandTypeAsync(FacilityEntityType? providerType, long? providerId)
+        public async Task<List<FinancialSetupDto>> GetListByProviderIdandTypeAsync(FacilityEntityType? providerType, long? providerId, string? userRole)
         {
             List<FinancialSetupDto>? result = null;
             var facilityEntityName = "";
             var allFinancialSetups = await _financialSetupRepository.WithDetailsAsync(p => p.PlatformFacility);
-            var allFinancialSetupDetails = allFinancialSetups.Where(p => p.FacilityEntityID == providerId && p.FacilityEntityType == providerType && p.IsActive == true).ToList();
+            var allFinancialSetupDetails = allFinancialSetups.Where(p => p.IsActive == true).ToList();
+            if (userRole == "patient")
+            {
+                allFinancialSetupDetails = allFinancialSetups.Where(p => p.FacilityEntityID == providerId && p.FacilityEntityType == providerType && (p.PlatformFacilityId == 1 || p.PlatformFacilityId == 2 || p.PlatformFacilityId == 3)).ToList();
+            }
+            else if (userRole == "agent")
+            {
+                allFinancialSetupDetails = allFinancialSetups.Where(p => p.FacilityEntityID == providerId && p.FacilityEntityType == providerType && (p.PlatformFacilityId == 4 || p.PlatformFacilityId == 5 || p.PlatformFacilityId == 6)).ToList();
+            }
             if (!allFinancialSetupDetails.Any())
             {
-                allFinancialSetupDetails = allFinancialSetups.Where(p => p.FacilityEntityID == null && p.FacilityEntityType == providerType && p.IsActive == true).ToList();
-            }
-            else
-            {
+                allFinancialSetupDetails = allFinancialSetups.Where(p => p.FacilityEntityID == null && p.FacilityEntityType == providerType).ToList();
 
             }
+            //if (!allFinancialSetupDetails.Any())
+            //{
+            //    return null;
+            //}
             result = new List<FinancialSetupDto>();
             foreach (var item in allFinancialSetupDetails)
             {

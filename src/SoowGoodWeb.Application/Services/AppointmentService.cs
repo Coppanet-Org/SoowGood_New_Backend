@@ -889,7 +889,7 @@ namespace SoowGoodWeb.Services
             }
             else
             {
-                itemAppointments = allAppoinment.Where(d => d.AppointmentStatus > 0).ToList();
+                itemAppointments = allAppoinment.Where(a => a.AppointmentStatus > 0).ToList();//allAppoinment.Where(d => (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed || d.AppointmentStatus == AppointmentStatus.Pending || d.AppointmentStatus == AppointmentStatus.Cancelled || d.AppointmentStatus == AppointmentStatus.InProgress || d.AppointmentStatus == AppointmentStatus.Failed)).ToList();
             }
             if (!itemAppointments.Any())
             {
