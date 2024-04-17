@@ -287,7 +287,16 @@ namespace SoowGoodWeb.Services
                             }
 
                             instantfeeAsPatient = realTimePtnAmountWithCharges;
+                            //if (instantfeeAsPatient == null)
+                            //{
+                            //    instantfeeAsPatient = 0;
+                            //}
                             instantfeeAsAgent = realTimeAgntAmountWithCharges + realTimePlAgntAmountWithCharges + realtimePlAgntProviderAmnt;
+
+                            //if(instantfeeAsAgent==null)
+                            //{
+                            //    instantfeeAsAgent = 0;
+                            //}
 
                             decimal? realTimeIndPtnAmountWithCharges = 0;
                             decimal? realTimeIndAgntAmountWithCharges = 0;
@@ -343,7 +352,15 @@ namespace SoowGoodWeb.Services
                             }
 
                             individualInstantfeeAsPatient = realTimeIndPtnAmountWithCharges;
+                            //if (individualInstantfeeAsPatient == null)
+                            //{
+                            //    individualInstantfeeAsPatient = 0;
+                            //}
                             individualInstantfeeAsAgent = realTimeIndAgntAmountWithCharges + realTimeIndPlAgntAmountWithCharges + realtimeIndAgentProviderAmnt;
+                            //if (individualInstantfeeAsAgent == null)
+                            //{
+                            //    individualInstantfeeAsAgent = 0;
+                            //}
                         }
                         //else
                         //{
@@ -453,7 +470,7 @@ namespace SoowGoodWeb.Services
                             DoctorCode = item.DoctorCode,
                             ProfilePic = profilePics?.Path,
                             DisplayInstantFeeAsPatient = individualInstantfeeAsPatient > 0 ? Math.Round((decimal)individualInstantfeeAsPatient, 2) : Math.Round((decimal)instantfeeAsPatient, 2),
-                            DisplayInstantFeeAsAgent = individualInstantfeeAsAgent > 0 ? Math.Round((decimal)individualInstantfeeAsAgent, 2) : Math.Round((decimal)instantfeeAsAgent, 2),
+                            DisplayInstantFeeAsAgent = individualInstantfeeAsAgent > 0  ? Math.Round((decimal)individualInstantfeeAsAgent, 2) : Math.Round((decimal)instantfeeAsAgent, 2),
                             DisplayScheduledChamberFee = scheduledChamberfee > 0 ? Math.Round((decimal)scheduledChamberfee, 2) : 0,
                             DisplayScheduledOnlineFee = scheduledOnlinefee > 0 ? Math.Round((decimal)scheduledOnlinefee, 2) : 0
                         });

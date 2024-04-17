@@ -107,15 +107,15 @@ namespace SoowGoodWeb.Services
             var allFinancialSetupDetails = allFinancialSetups.Where(p => p.IsActive == true).ToList();
             if (userRole == "patient")
             {
-                allFinancialSetupDetails = allFinancialSetups.Where(p => p.FacilityEntityID == providerId && p.FacilityEntityType == providerType && (p.PlatformFacilityId == 1 || p.PlatformFacilityId == 2 || p.PlatformFacilityId == 3)).ToList();
+                allFinancialSetupDetails = allFinancialSetupDetails.Where(p => p.FacilityEntityID == providerId && p.FacilityEntityType == providerType && (p.PlatformFacilityId == 1 || p.PlatformFacilityId == 2 || p.PlatformFacilityId == 3)).ToList();
             }
             else if (userRole == "agent")
             {
-                allFinancialSetupDetails = allFinancialSetups.Where(p => p.FacilityEntityID == providerId && p.FacilityEntityType == providerType && (p.PlatformFacilityId == 4 || p.PlatformFacilityId == 5 || p.PlatformFacilityId == 6)).ToList();
+                allFinancialSetupDetails = allFinancialSetupDetails.Where(p => p.FacilityEntityID == providerId && p.FacilityEntityType == providerType && (p.PlatformFacilityId == 4 || p.PlatformFacilityId == 5 || p.PlatformFacilityId == 6)).ToList();
             }
             if (!allFinancialSetupDetails.Any())
             {
-                allFinancialSetupDetails = allFinancialSetups.Where(p => p.FacilityEntityID == null && p.FacilityEntityType == providerType).ToList();
+                allFinancialSetupDetails = allFinancialSetupDetails.Where(p => p.FacilityEntityID == null && p.FacilityEntityType == providerType).ToList();
 
             }
             //if (!allFinancialSetupDetails.Any())
