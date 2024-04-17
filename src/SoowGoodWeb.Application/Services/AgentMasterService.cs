@@ -1,4 +1,5 @@
 ﻿using SoowGoodWeb.DtoModels;
+using SoowGoodWeb.Enums;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
@@ -92,6 +93,50 @@ namespace SoowGoodWeb.Services
             return result;
             //return ObjectMapper.Map<List<AgentSupervisor>, List<AgentSupervisorDto>>(agentSupervisors);
         }
+
+        public async Task<List<AgentMasterDto>> GetAgentMasterListFilterByAdminAsync(DataFilterModel? masterFilterModel, FilterModel filterModel)
+        {
+            List<AgentMasterDto> result = null;
+            try
+            {
+                var profileWithDetails = await _agentMasterRepository.GetListAsync();
+                var profiles = profileWithDetails.Where(p => !string.IsNullOrEmpty(p.ContactPerson)).ToList();
+                //var schedules = await _patientProfileRepository.WithDetailsAsync();
+                //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
+                if (!profileWithDetails.Any())
+                {
+                    return result;
+                }
+                result = new List<AgentMasterDto>();
+                if (masterFilterModel != null && !string.IsNullOrEmpty(masterFilterModel.name))
+                {
+                    //profiles = profiles.Where(p => p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())).ToList();
+                    profiles = profiles.Where(p => p.ContactPerson.ToLower().Contains(masterFilterModel.name.ToLower().Trim())).ToList();
+                }
+
+                return ObjectMapper.Map<List<AgentMaster>, List<AgentMasterDto>>(profiles).ToList();
+                //foreach (var item in profiles)
+                //{
+
+                //    result.Add(new AgentMasterDto()
+                //    {
+                //        Id = item.Id,
+
+                //    });
+                //}
+
+
+                //result = result.Skip(filterModel.Offset)
+                //                   .Take(filterModel.Limit).ToList();
+            }
+            catch
+            {
+                return null;
+            }
+
+            return result;
+        }
+
         //public async Task<AgentProfileDto> CreateAsync(AgentProfileInputDto input)
         //{
         //    var newEntity = ObjectMapper.Map<AgentProfileInputDto, AgentProfile>(input);
