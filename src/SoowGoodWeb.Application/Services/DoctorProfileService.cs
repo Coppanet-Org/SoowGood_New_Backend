@@ -240,9 +240,9 @@ namespace SoowGoodWeb.Services
 
                             decimal? realTimePlAgntAmountWithCharges = 0; ///
 
-                            var realtimePatientchargeIn = fees.Where(a => a.PlatformFacilityId == 3 && a.FacilityEntityID == null && a.ProviderAmount != null)?.FirstOrDefault()?.AmountIn;
-                            decimal? realtimePatientcharge = fees.Where(a => a.PlatformFacilityId == 3 && a.FacilityEntityID == null && a.ProviderAmount != null)?.FirstOrDefault()?.Amount;
-                            decimal? realtimePatientProviderAmnt = fees.Where(p => p.PlatformFacilityId == 3 && p.FacilityEntityID == null && p.ProviderAmount != null)?.FirstOrDefault()?.ProviderAmount;
+                            var realtimePatientchargeIn = fees.Where(a => a.PlatformFacilityId == 3 && a.FacilityEntityID == null && a.ProviderAmount >= 0)?.FirstOrDefault()?.AmountIn;
+                            decimal? realtimePatientcharge = fees.Where(a => a.PlatformFacilityId == 3 && a.FacilityEntityID == null && a.ProviderAmount >= 0)?.FirstOrDefault()?.Amount;
+                            decimal? realtimePatientProviderAmnt = fees.Where(p => p.PlatformFacilityId == 3 && p.FacilityEntityID == null && p.ProviderAmount >= 0)?.FirstOrDefault()?.ProviderAmount;
                             if (realtimePatientchargeIn == "Percentage")
                             {
                                 decimal? realTimePtnAmountTotalCharges = ((realtimePatientcharge / 100) * realtimePatientProviderAmnt);
@@ -255,9 +255,9 @@ namespace SoowGoodWeb.Services
                                 realTimePtnAmountWithCharges = realTimePtnAmountWithChargesWithVat + realtimePatientProviderAmnt;
                             }
 
-                            var realtimePlAgntchargeIn = fees.Where(a => a.PlatformFacilityId == 6 && a.FacilityEntityID == null && a.ProviderAmount != null)?.FirstOrDefault()?.AmountIn;
-                            decimal? realtimePlAgntcharge = fees.Where(a => a.PlatformFacilityId == 6 && a.FacilityEntityID == null && a.ProviderAmount != null)?.FirstOrDefault()?.Amount;
-                            decimal? realtimePlAgntProviderAmnt = fees.Where(p => p.PlatformFacilityId == 6 && p.FacilityEntityID == null && p.ProviderAmount != null)?.FirstOrDefault()?.ProviderAmount;
+                            var realtimePlAgntchargeIn = fees.Where(a => a.PlatformFacilityId == 6 && a.FacilityEntityID == null && a.ProviderAmount >= 0)?.FirstOrDefault()?.AmountIn;
+                            decimal? realtimePlAgntcharge = fees.Where(a => a.PlatformFacilityId == 6 && a.FacilityEntityID == null && a.ProviderAmount >= 0)?.FirstOrDefault()?.Amount;
+                            decimal? realtimePlAgntProviderAmnt = fees.Where(p => p.PlatformFacilityId == 6 && p.FacilityEntityID == null && p.ProviderAmount >= 0)?.FirstOrDefault()?.ProviderAmount;
                             if (realtimePlAgntchargeIn == "Percentage")
                             {
                                 decimal? realTimePlAgntAmountTotalCharges = ((realtimePlAgntcharge / 100) * realtimePlAgntProviderAmnt);
@@ -270,9 +270,9 @@ namespace SoowGoodWeb.Services
                                 realTimePlAgntAmountWithCharges = realTimePlAgntAmountWithChargesWithVat;
                             }
 
-                            var realtimeAgentchargeIn = fees.Where(a => a.PlatformFacilityId == 6 && a.FacilityEntityID == null && a.ProviderAmount != null)?.FirstOrDefault()?.ExternalAmountIn;
-                            decimal? realtimeAgentcharge = fees.Where(a => a.PlatformFacilityId == 6 && a.FacilityEntityID == null && a.ProviderAmount != null)?.FirstOrDefault()?.ExternalAmount;
-                            decimal? realtimeAgentProviderAmnt = fees.Where(p => p.PlatformFacilityId == 6 && p.FacilityEntityID == null && p.ProviderAmount != null)?.FirstOrDefault()?.ProviderAmount;
+                            var realtimeAgentchargeIn = fees.Where(a => a.PlatformFacilityId == 6 && a.FacilityEntityID == null && a.ProviderAmount >= 0)?.FirstOrDefault()?.ExternalAmountIn;
+                            decimal? realtimeAgentcharge = fees.Where(a => a.PlatformFacilityId == 6 && a.FacilityEntityID == null && a.ProviderAmount >= 0)?.FirstOrDefault()?.ExternalAmount;
+                            decimal? realtimeAgentProviderAmnt = fees.Where(p => p.PlatformFacilityId == 6 && p.FacilityEntityID == null && p.ProviderAmount >= 0)?.FirstOrDefault()?.ProviderAmount;
 
                             if (realtimeAgentchargeIn == "Percentage")
                             {
@@ -293,9 +293,9 @@ namespace SoowGoodWeb.Services
                             decimal? realTimeIndAgntAmountWithCharges = 0;
                             decimal? realTimeIndPlAgntAmountWithCharges = 0;
 
-                            var realtimeIndPatientchargeIn = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 3 && a.ProviderAmount != null)?.FirstOrDefault()?.AmountIn;
-                            decimal? realtimeIndPatientcharge = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 3 && a.ProviderAmount != null)?.FirstOrDefault()?.Amount;
-                            decimal? realtimeIndPatientProviderAmnt = fees.Where(p => p.FacilityEntityID == item.Id && p.PlatformFacilityId == 3 && p.ProviderAmount != null)?.FirstOrDefault()?.ProviderAmount;
+                            var realtimeIndPatientchargeIn = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 3 && a.ProviderAmount >= 0)?.FirstOrDefault()?.AmountIn;
+                            decimal? realtimeIndPatientcharge = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 3 && a.ProviderAmount >= 0)?.FirstOrDefault()?.Amount;
+                            decimal? realtimeIndPatientProviderAmnt = fees.Where(p => p.FacilityEntityID == item.Id && p.PlatformFacilityId == 3 && p.ProviderAmount >= 0)?.FirstOrDefault()?.ProviderAmount;
 
                             if (realtimeIndPatientchargeIn == "Percentage")
                             {
@@ -310,9 +310,9 @@ namespace SoowGoodWeb.Services
 
                             }
 
-                            var realtimeIndPlAgntchargeIn = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount != null)?.FirstOrDefault()?.AmountIn;
-                            decimal? realtimeIndPlAgntcharge = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount != null)?.FirstOrDefault()?.Amount;
-                            decimal? realtimeIndPlAgntProviderAmnt = fees.Where(p => p.FacilityEntityID == item.Id && p.PlatformFacilityId == 6 && p.ProviderAmount != null)?.FirstOrDefault()?.ProviderAmount;
+                            var realtimeIndPlAgntchargeIn = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount >= 0)?.FirstOrDefault()?.AmountIn;
+                            decimal? realtimeIndPlAgntcharge = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount >= 0)?.FirstOrDefault()?.Amount;
+                            decimal? realtimeIndPlAgntProviderAmnt = fees.Where(p => p.FacilityEntityID == item.Id && p.PlatformFacilityId == 6 && p.ProviderAmount >= 0)?.FirstOrDefault()?.ProviderAmount;
 
                             if (realtimeIndPlAgntchargeIn == "Percentage")
                             {
@@ -326,9 +326,9 @@ namespace SoowGoodWeb.Services
                                 realTimeIndPlAgntAmountWithCharges = realTimeIndPlAgntAmountWithChargesWithVat;
                             }
 
-                            var realtimeIndAgentchargeIn = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount != null)?.FirstOrDefault()?.ExternalAmountIn;
-                            decimal? realtimeIndAgentcharge = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount != null)?.FirstOrDefault()?.ExternalAmount;
-                            decimal? realtimeIndAgentProviderAmnt = fees.Where(p => p.FacilityEntityID == item.Id && p.PlatformFacilityId == 6 && p.ProviderAmount != null)?.FirstOrDefault()?.ProviderAmount;
+                            var realtimeIndAgentchargeIn = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount >= 0)?.FirstOrDefault()?.ExternalAmountIn;
+                            decimal? realtimeIndAgentcharge = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount >= 0)?.FirstOrDefault()?.ExternalAmount;
+                            decimal? realtimeIndAgentProviderAmnt = fees.Where(p => p.FacilityEntityID == item.Id && p.PlatformFacilityId == 6 && p.ProviderAmount >= 0)?.FirstOrDefault()?.ProviderAmount;
 
                             if (realtimeIndAgentchargeIn == "Percentage")
                             {
@@ -500,7 +500,7 @@ namespace SoowGoodWeb.Services
             var attachedItems = await _documentsAttachment.WithDetailsAsync();
 
             var financialSetups = await _financialSetup.WithDetailsAsync();
-            var fees = financialSetups.OrderBy(p => p.ProviderAmount).Where(a => a.ProviderAmount != null).ToList();
+            var fees = financialSetups.OrderBy(p => p.ProviderAmount).Where(a => a.ProviderAmount >= 0).ToList();
 
             var doctorFees = await _doctorFeesSetup.WithDetailsAsync(d => d.DoctorSchedule.DoctorProfile);
 
@@ -608,9 +608,9 @@ namespace SoowGoodWeb.Services
 
                     decimal? realTimePlAgntAmountWithCharges = 0; ///
 
-                    var realtimePatientchargeIn = fees.Where(a => a.PlatformFacilityId == 3 && a.FacilityEntityID == null && a.ProviderAmount != null)?.FirstOrDefault()?.AmountIn;
-                    decimal? realtimePatientcharge = fees.Where(a => a.PlatformFacilityId == 3 && a.FacilityEntityID == null && a.ProviderAmount != null)?.FirstOrDefault()?.Amount;
-                    decimal? realtimePatientProviderAmnt = fees.Where(p => p.PlatformFacilityId == 3 && p.FacilityEntityID == null && p.ProviderAmount != null)?.FirstOrDefault()?.ProviderAmount;
+                    var realtimePatientchargeIn = fees.Where(a => a.PlatformFacilityId == 3 && a.FacilityEntityID == null && a.ProviderAmount >= 0)?.FirstOrDefault()?.AmountIn;
+                    decimal? realtimePatientcharge = fees.Where(a => a.PlatformFacilityId == 3 && a.FacilityEntityID == null && a.ProviderAmount >= 0)?.FirstOrDefault()?.Amount;
+                    decimal? realtimePatientProviderAmnt = fees.Where(p => p.PlatformFacilityId == 3 && p.FacilityEntityID == null && p.ProviderAmount >= 0)?.FirstOrDefault()?.ProviderAmount;
                     if (realtimePatientchargeIn == "Percentage")
                     {
                         decimal? realTimePtnAmountTotalCharges = ((realtimePatientcharge / 100) * realtimePatientProviderAmnt);
@@ -623,9 +623,9 @@ namespace SoowGoodWeb.Services
                         realTimePtnAmountWithCharges = realTimePtnAmountWithChargesWithVat + realtimePatientProviderAmnt;
                     }
 
-                    var realtimePlAgntchargeIn = fees.Where(a => a.PlatformFacilityId == 6 && a.FacilityEntityID == null && a.ProviderAmount != null)?.FirstOrDefault()?.AmountIn;
-                    decimal? realtimePlAgntcharge = fees.Where(a => a.PlatformFacilityId == 6 && a.FacilityEntityID == null && a.ProviderAmount != null)?.FirstOrDefault()?.Amount;
-                    decimal? realtimePlAgntProviderAmnt = fees.Where(p => p.PlatformFacilityId == 6 && p.FacilityEntityID == null && p.ProviderAmount != null)?.FirstOrDefault()?.ProviderAmount;
+                    var realtimePlAgntchargeIn = fees.Where(a => a.PlatformFacilityId == 6 && a.FacilityEntityID == null && a.ProviderAmount >= 0)?.FirstOrDefault()?.AmountIn;
+                    decimal? realtimePlAgntcharge = fees.Where(a => a.PlatformFacilityId == 6 && a.FacilityEntityID == null && a.ProviderAmount >= 0)?.FirstOrDefault()?.Amount;
+                    decimal? realtimePlAgntProviderAmnt = fees.Where(p => p.PlatformFacilityId == 6 && p.FacilityEntityID == null && p.ProviderAmount >= 0)?.FirstOrDefault()?.ProviderAmount;
                     if (realtimePlAgntchargeIn == "Percentage")
                     {
                         decimal? realTimePlAgntAmountTotalCharges = ((realtimePlAgntcharge / 100) * realtimePlAgntProviderAmnt);
@@ -638,9 +638,9 @@ namespace SoowGoodWeb.Services
                         realTimePlAgntAmountWithCharges = realTimePlAgntAmountWithChargesWithVat;
                     }
 
-                    var realtimeAgentchargeIn = fees.Where(a => a.PlatformFacilityId == 6 && a.FacilityEntityID == null && a.ProviderAmount != null)?.FirstOrDefault()?.ExternalAmountIn;
-                    decimal? realtimeAgentcharge = fees.Where(a => a.PlatformFacilityId == 6 && a.FacilityEntityID == null && a.ProviderAmount != null)?.FirstOrDefault()?.ExternalAmount;
-                    decimal? realtimeAgentProviderAmnt = fees.Where(p => p.PlatformFacilityId == 6 && p.FacilityEntityID == null && p.ProviderAmount != null)?.FirstOrDefault()?.ProviderAmount;
+                    var realtimeAgentchargeIn = fees.Where(a => a.PlatformFacilityId == 6 && a.FacilityEntityID == null && a.ProviderAmount >= 0)?.FirstOrDefault()?.ExternalAmountIn;
+                    decimal? realtimeAgentcharge = fees.Where(a => a.PlatformFacilityId == 6 && a.FacilityEntityID == null && a.ProviderAmount >= 0)?.FirstOrDefault()?.ExternalAmount;
+                    decimal? realtimeAgentProviderAmnt = fees.Where(p => p.PlatformFacilityId == 6 && p.FacilityEntityID == null && p.ProviderAmount >= 0)?.FirstOrDefault()?.ProviderAmount;
 
                     if (realtimeAgentchargeIn == "Percentage")
                     {
@@ -661,9 +661,9 @@ namespace SoowGoodWeb.Services
                     decimal? realTimeIndAgntAmountWithCharges = 0;
                     decimal? realTimeIndPlAgntAmountWithCharges = 0;
 
-                    var realtimeIndPatientchargeIn = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 3 && a.ProviderAmount != null)?.FirstOrDefault()?.AmountIn;
-                    decimal? realtimeIndPatientcharge = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 3 && a.ProviderAmount != null)?.FirstOrDefault()?.Amount;
-                    decimal? realtimeIndPatientProviderAmnt = fees.Where(p => p.FacilityEntityID == item.Id && p.PlatformFacilityId == 3 && p.ProviderAmount != null)?.FirstOrDefault()?.ProviderAmount;
+                    var realtimeIndPatientchargeIn = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 3 && a.ProviderAmount >= 0)?.FirstOrDefault()?.AmountIn;
+                    decimal? realtimeIndPatientcharge = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 3 && a.ProviderAmount >= 0)?.FirstOrDefault()?.Amount;
+                    decimal? realtimeIndPatientProviderAmnt = fees.Where(p => p.FacilityEntityID == item.Id && p.PlatformFacilityId == 3 && p.ProviderAmount >= 0)?.FirstOrDefault()?.ProviderAmount;
 
                     if (realtimeIndPatientchargeIn == "Percentage")
                     {
@@ -678,9 +678,9 @@ namespace SoowGoodWeb.Services
 
                     }
 
-                    var realtimeIndPlAgntchargeIn = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount != null)?.FirstOrDefault()?.AmountIn;
-                    decimal? realtimeIndPlAgntcharge = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount != null)?.FirstOrDefault()?.Amount;
-                    decimal? realtimeIndPlAgntProviderAmnt = fees.Where(p => p.FacilityEntityID == item.Id && p.PlatformFacilityId == 6 && p.ProviderAmount != null)?.FirstOrDefault()?.ProviderAmount;
+                    var realtimeIndPlAgntchargeIn = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount >= 0)?.FirstOrDefault()?.AmountIn;
+                    decimal? realtimeIndPlAgntcharge = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount >= 0)?.FirstOrDefault()?.Amount;
+                    decimal? realtimeIndPlAgntProviderAmnt = fees.Where(p => p.FacilityEntityID == item.Id && p.PlatformFacilityId == 6 && p.ProviderAmount >= 0)?.FirstOrDefault()?.ProviderAmount;
 
                     if (realtimeIndPlAgntchargeIn == "Percentage")
                     {
@@ -694,9 +694,9 @@ namespace SoowGoodWeb.Services
                         realTimeIndPlAgntAmountWithCharges = realTimeIndPlAgntAmountWithChargesWithVat;
                     }
 
-                    var realtimeIndAgentchargeIn = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount != null)?.FirstOrDefault()?.ExternalAmountIn;
-                    decimal? realtimeIndAgentcharge = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount != null)?.FirstOrDefault()?.ExternalAmount;
-                    decimal? realtimeIndAgentProviderAmnt = fees.Where(p => p.FacilityEntityID == item.Id && p.PlatformFacilityId == 6 && p.ProviderAmount != null)?.FirstOrDefault()?.ProviderAmount;
+                    var realtimeIndAgentchargeIn = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount >= 0)?.FirstOrDefault()?.ExternalAmountIn;
+                    decimal? realtimeIndAgentcharge = fees.Where(a => a.FacilityEntityID == item.Id && a.PlatformFacilityId == 6 && a.ProviderAmount >= 0)?.FirstOrDefault()?.ExternalAmount;
+                    decimal? realtimeIndAgentProviderAmnt = fees.Where(p => p.FacilityEntityID == item.Id && p.PlatformFacilityId == 6 && p.ProviderAmount >= 0)?.FirstOrDefault()?.ProviderAmount;
 
                     if (realtimeIndAgentchargeIn == "Percentage")
                     {
