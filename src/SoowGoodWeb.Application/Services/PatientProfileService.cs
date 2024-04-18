@@ -362,9 +362,11 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<List<PatientProfile>, List<PatientProfileDto>>(profiles);
         }
 
-        public async Task<List<PatientProfileDto>> GetPatientListFilterByAdminAsync(DataFilterModel? patientFilterModel, FilterModel filterModel)
+        public async Task<List<PatientProfileDto>> GetPatientListFilterByAdminAsync(long? userId, string? role, DataFilterModel? patientFilterModel, FilterModel filterModel)
         {
             List<PatientProfileDto> result = null;
+            List<PatientProfile>? patients = null;
+            List<PatientProfile>? itemPatients = null;
             try
             {
                 var profileWithDetails = await _patientProfileRepository.GetListAsync();
@@ -372,6 +374,19 @@ namespace SoowGoodWeb.Services
                 var profiles = profileWithDetails.Where(p=>!string.IsNullOrEmpty(p.PatientName)).ToList();
                 //var schedules = await _patientProfileRepository.WithDetailsAsync();
                 //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
+                if (!string.IsNullOrEmpty(role) && role != "sgadmin")
+                {
+                    patients = profiles.Where(c => c.CreatorRole == "agent").ToList();
+
+                    var agentsByMasterSupervisors = agentDetails.Where(a => role == "masteragent" ? a.AgentMasterId == userId : a.AgentSupervisorId == userId).ToList();
+
+                    itemPatients = (from app in patients join agents in agentsByMasterSupervisors on app.CreatorEntityId equals agents.Id select app).ToList();
+                   
+                }
+                //else
+                //{
+                //    itemPatients = profiles.Where(a => a.AppointmentStatus > 0).ToList();//allAppoinment.Where(d => (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed || d.AppointmentStatus == AppointmentStatus.Pending || d.AppointmentStatus == AppointmentStatus.Cancelled || d.AppointmentStatus == AppointmentStatus.InProgress || d.AppointmentStatus == AppointmentStatus.Failed)).ToList();
+                //}
                 if (!profileWithDetails.Any())
                 {
                     return result;
