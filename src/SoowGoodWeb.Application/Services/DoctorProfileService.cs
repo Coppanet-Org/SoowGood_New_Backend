@@ -22,6 +22,8 @@ using Volo.Abp.Domain.Repositories;
 using Volo.Abp.ObjectMapping;
 using Volo.Abp.Uow;
 using static Volo.Abp.UI.Navigation.DefaultMenuNames.Application;
+using SoowGoodWeb.Utilities;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SoowGoodWeb.Services
 {
@@ -126,7 +128,7 @@ namespace SoowGoodWeb.Services
             result.DoctorSpecialization = doctorSpecializations;
             result.FullName = profile.FullName;
             result.DoctorTitle = profile.DoctorTitle;
-            result.DoctorTitleName = profile.DoctorTitle > 0 ? ((DoctorTitle)profile.DoctorTitle).ToString() : "n/a";
+            result.DoctorTitleName = profile.DoctorTitle > 0 ? Utilities.Utility.GetDisplayName(profile.DoctorTitle).ToString() : "n/a";
             result.MaritalStatus = profile.MaritalStatus;
             result.MaritalStatusName = profile.MaritalStatus > 0 ? ((MaritalStatus)profile.MaritalStatus).ToString() : "n/a";
             result.City = profile.City;
@@ -391,7 +393,7 @@ namespace SoowGoodWeb.Services
                             AreaOfExperties = expStr,
                             FullName = item.FullName,
                             DoctorTitle = item.DoctorTitle,
-                            DoctorTitleName = item.DoctorTitle > 0 ? ((DoctorTitle)item.DoctorTitle).ToString() : "n/a",
+                            DoctorTitleName = item.DoctorTitle > 0 ? Utilities.Utility.GetDisplayName(item.DoctorTitle).ToString() : "n/a",
                             MaritalStatus = item.MaritalStatus,
                             MaritalStatusName = item.MaritalStatus > 0 ? ((MaritalStatus)item.MaritalStatus).ToString() : "n/a",
                             City = item.City,
@@ -587,7 +589,7 @@ namespace SoowGoodWeb.Services
                             AreaOfExperties = expStr,
                             FullName = item.FullName,
                             DoctorTitle = item.DoctorTitle,
-                            DoctorTitleName = item.DoctorTitle > 0 ? ((DoctorTitle)item.DoctorTitle).ToString() : "n/a",
+                            DoctorTitleName = item.DoctorTitle > 0 ? Utilities.Utility.GetDisplayName(item.DoctorTitle).ToString() : "n/a",
                             MaritalStatus = item.MaritalStatus,
                             MaritalStatusName = item.MaritalStatus > 0 ? ((MaritalStatus)item.MaritalStatus).ToString() : "n/a",
                             City = item.City,
@@ -884,7 +886,7 @@ namespace SoowGoodWeb.Services
                             AreaOfExperties = expStr,
                             FullName = item.FullName,
                             DoctorTitle = item.DoctorTitle,
-                            DoctorTitleName = item.DoctorTitle > 0 ? ((DoctorTitle)item.DoctorTitle).ToString() : "n/a",
+                            DoctorTitleName = item.DoctorTitle > 0 ? Utilities.Utility.GetDisplayName(item.DoctorTitle).ToString() : "n/a",
                             MaritalStatus = item.MaritalStatus,
                             MaritalStatusName = item.MaritalStatus > 0 ? ((MaritalStatus)item.MaritalStatus).ToString() : "n/a",
                             City = item.City,
