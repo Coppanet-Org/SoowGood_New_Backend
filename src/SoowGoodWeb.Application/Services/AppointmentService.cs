@@ -168,41 +168,6 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
 
-        public async Task<List<AppointmentDto>> GetAppointmentListWithSearchFilterAsync(long doctorId, string? name, ConsultancyType? consultancy, string? fromDate, string? toDate, AppointmentStatus? aptStatus, int? skipValue, int? currentLimit)
-        {
-            CultureInfo provider = CultureInfo.InvariantCulture;
-            var item = await _appointmentRepository.WithDetailsAsync(s => s.DoctorSchedule);
-            var appointments = item.Where(d => d.DoctorProfileId == doctorId).ToList();// && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
-
-            if (!string.IsNullOrEmpty(name))
-            {
-                appointments = appointments.Where(p => p.PatientName != null && p.PatientName.Contains(name)).ToList();
-            }
-            if (consultancy > 0)
-            {
-                appointments = appointments.Where(p => p.ConsultancyType == consultancy).ToList();
-            }
-            if (aptStatus > 0)
-            {
-                appointments = appointments.Where(p => p.AppointmentStatus == aptStatus).ToList();
-            }
-            if (!string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate))
-            {
-                appointments = appointments.Where(p =>
-                p.AppointmentDate != null
-                && p.AppointmentDate.Value.Date >= DateTime.ParseExact(fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)
-                && p.AppointmentDate.Value.Date <= DateTime.ParseExact(toDate, "dd/MM/yyyy", provider, DateTimeStyles.None)).ToList();
-            }
-            if (!string.IsNullOrEmpty(fromDate) && string.IsNullOrEmpty(toDate))
-            {
-                appointments = appointments.Where(p =>
-                p.AppointmentDate != null
-                && p.AppointmentDate.Value.Date >= DateTime.ParseExact(fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)
-                && p.AppointmentDate.Value.Date <= DateTime.ParseExact(fromDate, "dd/MM/yyyy", provider, DateTimeStyles.None)).ToList();
-            }
-            return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
-        }
-
         public async Task<List<AppointmentDto>?> GetAppointmentListForDoctorWithSearchFilterAsync(long doctorId, DataFilterModel? dataFilter, FilterModel filterModel)
         {
             var provider = CultureInfo.InvariantCulture;
@@ -697,126 +662,11 @@ namespace SoowGoodWeb.Services
 
         }
 
-        public string testBuildTokenWithUserAccount(string _appId, string _appCertificate, string _channelName, string _account)
-        {
-            uint privilegeExpiredTs = _expireTimeInSeconds + (uint)Utils.getTimestamp();
-            string token = RtcTokenBuilder.buildTokenWithUserAccount(_appId, _appCertificate, _channelName, _account, RtcTokenBuilder.Role.RolePublisher, privilegeExpiredTs);
-            return token;
-            //Output.WriteLine(">> token");
-            //Output.WriteLine(token);
-        }
-
-        public string testBuildTokenWithUID(RtcTokenBuilerDto input)
-        {
-            uint privilegeExpiredTs = _expireTimeInSeconds + (uint)Utils.getTimestamp();
-            string token = RtcTokenBuilder.buildTokenWithUID(input.Appid, input.AppCertificate, input.ChanelName, input.Uid, RtcTokenBuilder.Role.RolePublisher, privilegeExpiredTs);
-            return token;
-            //Output.WriteLine(">> token");
-            //Output.WriteLine(token);
-        }
-
-        //public string testAcToken(RtcTokenBuilerDto input)
-        //{
-        //    uint privilegeExpiredTs = _expireTimeInSeconds + (uint)Utils.getTimestamp();
-        //    AccessToken accessToken = new AccessToken(input.Appid, input.AppCertificate, input.ChanelName, input.Uid.ToString(), privilegeExpiredTs, 1);
-        //    accessToken.addPrivilege(Privileges.kJoinChannel, privilegeExpiredTs);
-        //    accessToken.addPrivilege(Privileges.kPublishAudioStream, privilegeExpiredTs);
-        //    accessToken.addPrivilege(Privileges.kPublishVideoStream, privilegeExpiredTs);
-        //    accessToken.addPrivilege(Privileges.kPublishDataStream, privilegeExpiredTs);
-
-        //    string token = accessToken.build();
-        //    return token;
-        //    //Output.WriteLine(">> token");
-        //    //Output.WriteLine(token);
-        //}
-
-        public async Task<ResponseDto> UpdateCallConsultationAppointmentAsync(string appCode)
-        {
-            var response = new ResponseDto();
-            try
-            {
-                var itemAppointment = await _appointmentRepository.GetAsync(a => a.AppointmentCode == appCode);//.FindAsync(input.Id);
-                itemAppointment.AppointmentStatus = AppointmentStatus.Completed;
-                itemAppointment.IsCousltationComplete = true;
-
-
-
-                var item = await _appointmentRepository.UpdateAsync(itemAppointment);
-                //await _unitOfWorkManager.Current.SaveChangesAsync();
-                var result = ObjectMapper.Map<Appointment, AppointmentDto>(item);
-                if (result != null)
-                {
-                    response.Id = result.Id;
-                    response.Value = "";
-                    response.Success = true;
-                    response.Message = "Consultation complete";
-                }
-                return response;//ObjectMapper.Map<Appointment, AppointmentDto>(item);
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-            return response;
-        }
-
-        public async Task UpdateAppointmentPaymentStatusAsync(string appCode, string trnId)
-        {
-            try
-            {
-                var appointment = await _appointmentRepository.GetAsync(a => a.AppointmentCode == appCode);
-                if (appointment != null && appointment.AppointmentStatus != AppointmentStatus.Confirmed) //&& app.AppointmentStatus != AppointmentStatus.Confirmed)
-                {
-                    appointment.AppointmentStatus = AppointmentStatus.Confirmed;
-                    appointment.PaymentTransactionId = trnId;
-                    appointment.AppointmentPaymentStatus = AppointmentPaymentStatus.Paid;
-                    //app.FeePaid = string.IsNullOrWhiteSpace(paid_amount) ? 0 : double.Parse(paid_amount);
-
-                    await _appointmentRepository.UpdateAsync(appointment);
-
-                    //await SendNotification(application_code, applicant.Applicant.Mobile);
-                }
-            }
-            catch (Exception ex) { }
-
-        }
-
         public async Task<int> GetAppCountByRealTimeConsultancyAsync(DateTime? aptDate)
         {
             var appointments = await _appointmentRepository.GetListAsync(a => a.AppointmentDate == aptDate && a.ConsultancyType == ConsultancyType.Instant);
             var appCount = appointments.Count();
             return appCount;
-        }
-
-        public async Task<ResponseDto> CancellAppointmentAsync(long appId, long cancelByid, string cancelByRole)
-        {
-            var response = new ResponseDto();
-            try
-            {
-                var itemAppointment = await _appointmentRepository.GetAsync(a => a.Id == appId);//.FindAsync(input.Id);
-                itemAppointment.AppointmentStatus = AppointmentStatus.Cancelled;
-                itemAppointment.CancelledByEntityId = cancelByid;
-                itemAppointment.CancelledByRole = cancelByRole;
-
-
-
-                var item = await _appointmentRepository.UpdateAsync(itemAppointment);
-                //await _unitOfWorkManager.Current.SaveChangesAsync();
-                var result = ObjectMapper.Map<Appointment, AppointmentDto>(item);
-                if (result != null)
-                {
-                    response.Id = result.Id;
-                    response.Value = "";
-                    response.Success = true;
-                    response.Message = "Consultation complete";
-                }
-                return response;//ObjectMapper.Map<Appointment, AppointmentDto>(item);
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-            return response;
         }
 
         public async Task<List<AppointmentDto>> GetSearchedPatientListByDoctorIdAsync(long doctorId, string name)
@@ -1028,5 +878,118 @@ namespace SoowGoodWeb.Services
 
             return result;
         }
+
+        public async Task<ResponseDto> CancellAppointmentAsync(long appId, long cancelByid, string cancelByRole)
+        {
+            var response = new ResponseDto();
+            try
+            {
+                var itemAppointment = await _appointmentRepository.GetAsync(a => a.Id == appId);//.FindAsync(input.Id);
+                itemAppointment.AppointmentStatus = AppointmentStatus.Cancelled;
+                itemAppointment.CancelledByEntityId = cancelByid;
+                itemAppointment.CancelledByRole = cancelByRole;
+
+
+
+                var item = await _appointmentRepository.UpdateAsync(itemAppointment);
+                //await _unitOfWorkManager.Current.SaveChangesAsync();
+                var result = ObjectMapper.Map<Appointment, AppointmentDto>(item);
+                if (result != null)
+                {
+                    response.Id = result.Id;
+                    response.Value = "";
+                    response.Success = true;
+                    response.Message = "Consultation complete";
+                }
+                return response;//ObjectMapper.Map<Appointment, AppointmentDto>(item);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            return response;
+        }
+        public async Task<ResponseDto> UpdateCallConsultationAppointmentAsync(string appCode)
+        {
+            var response = new ResponseDto();
+            try
+            {
+                var itemAppointment = await _appointmentRepository.GetAsync(a => a.AppointmentCode == appCode);//.FindAsync(input.Id);
+                itemAppointment.AppointmentStatus = AppointmentStatus.Completed;
+                itemAppointment.IsCousltationComplete = true;
+
+
+
+                var item = await _appointmentRepository.UpdateAsync(itemAppointment);
+                //await _unitOfWorkManager.Current.SaveChangesAsync();
+                var result = ObjectMapper.Map<Appointment, AppointmentDto>(item);
+                if (result != null)
+                {
+                    response.Id = result.Id;
+                    response.Value = "";
+                    response.Success = true;
+                    response.Message = "Consultation complete";
+                }
+                return response;//ObjectMapper.Map<Appointment, AppointmentDto>(item);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            return response;
+        }
+
+        public async Task UpdateAppointmentPaymentStatusAsync(string appCode, string trnId)
+        {
+            try
+            {
+                var appointment = await _appointmentRepository.GetAsync(a => a.AppointmentCode == appCode);
+                if (appointment != null && appointment.AppointmentStatus != AppointmentStatus.Confirmed) //&& app.AppointmentStatus != AppointmentStatus.Confirmed)
+                {
+                    appointment.AppointmentStatus = AppointmentStatus.Confirmed;
+                    appointment.PaymentTransactionId = trnId;
+                    appointment.AppointmentPaymentStatus = AppointmentPaymentStatus.Paid;
+                    //app.FeePaid = string.IsNullOrWhiteSpace(paid_amount) ? 0 : double.Parse(paid_amount);
+
+                    await _appointmentRepository.UpdateAsync(appointment);
+
+                    //await SendNotification(application_code, applicant.Applicant.Mobile);
+                }
+            }
+            catch (Exception ex) { }
+
+        }
+
+        public string testBuildTokenWithUserAccount(string _appId, string _appCertificate, string _channelName, string _account)
+        {
+            uint privilegeExpiredTs = _expireTimeInSeconds + (uint)Utils.getTimestamp();
+            string token = RtcTokenBuilder.buildTokenWithUserAccount(_appId, _appCertificate, _channelName, _account, RtcTokenBuilder.Role.RolePublisher, privilegeExpiredTs);
+            return token;
+            //Output.WriteLine(">> token");
+            //Output.WriteLine(token);
+        }
+
+        public string testBuildTokenWithUID(RtcTokenBuilerDto input)
+        {
+            uint privilegeExpiredTs = _expireTimeInSeconds + (uint)Utils.getTimestamp();
+            string token = RtcTokenBuilder.buildTokenWithUID(input.Appid, input.AppCertificate, input.ChanelName, input.Uid, RtcTokenBuilder.Role.RolePublisher, privilegeExpiredTs);
+            return token;
+            //Output.WriteLine(">> token");
+            //Output.WriteLine(token);
+        }
+        //public string testAcToken(RtcTokenBuilerDto input)
+        //{
+        //    uint privilegeExpiredTs = _expireTimeInSeconds + (uint)Utils.getTimestamp();
+        //    AccessToken accessToken = new AccessToken(input.Appid, input.AppCertificate, input.ChanelName, input.Uid.ToString(), privilegeExpiredTs, 1);
+        //    accessToken.addPrivilege(Privileges.kJoinChannel, privilegeExpiredTs);
+        //    accessToken.addPrivilege(Privileges.kPublishAudioStream, privilegeExpiredTs);
+        //    accessToken.addPrivilege(Privileges.kPublishVideoStream, privilegeExpiredTs);
+        //    accessToken.addPrivilege(Privileges.kPublishDataStream, privilegeExpiredTs);
+
+        //    string token = accessToken.build();
+        //    return token;
+        //    //Output.WriteLine(">> token");
+        //    //Output.WriteLine(token);
+        //}
     }
 }
