@@ -1,4 +1,5 @@
 ﻿using agora.rtc;
+using AutoMapper;
 using SoowGoodWeb.DtoModels;
 using SoowGoodWeb.Enums;
 using SoowGoodWeb.InputDto;
@@ -52,7 +53,7 @@ namespace SoowGoodWeb.Services
         }
         public async Task<PrescriptionMasterDto> CreateAsync(PrescriptionMasterInputDto input)
         {
-            var result = new PrescriptionMasterDto(); 
+            var result = new PrescriptionMasterDto();
             try
             {
                 long lastcount = await GetPrescriptionCountAsync();
@@ -66,12 +67,12 @@ namespace SoowGoodWeb.Services
                 var prescriptionMaster = await _prescriptionMasterRepository.InsertAsync(newEntity);
 
                 await _unitOfWorkManager.Current.SaveChangesAsync();
-                
+
 
                 result = ObjectMapper.Map<PrescriptionMaster, PrescriptionMasterDto>(prescriptionMaster);
-                if(result != null)
+                if (result != null)
                 {
-                   await _appointmentService.UpdateCallConsultationAppointmentAsync(input.AppointmentCode);
+                    await _appointmentService.UpdateCallConsultationAppointmentAsync(input.AppointmentCode);
                 }
 
             }
@@ -93,6 +94,7 @@ namespace SoowGoodWeb.Services
         public async Task<PrescriptionMasterDto> GetPrescriptionAsync(int id)
         {
             var detailsPrescription = await _prescriptionMasterRepository.WithDetailsAsync(a => a.Appointment
+                                                                                              , s => s.Appointment.DoctorSchedule
                                                                                               , doc => doc.Appointment.DoctorSchedule.DoctorProfile
                                                                                               , d => d.PrescriptionDrugDetails
                                                                                               , cd => cd.PrescriptionPatientDiseaseHistory
@@ -114,12 +116,13 @@ namespace SoowGoodWeb.Services
 
 
             var prescription = detailsPrescription.Where(p => p.Id == id).FirstOrDefault();
-            //var doctorDetails = await _doctorDetails.WithDetailsAsync(d => d.Id == prescription.DoctorProfileId);
-            var patientDetails = await _patientDetails.GetAsync(p => p.Id == prescription.PatientProfileId);
+            
 
             var result = new PrescriptionMasterDto();
             if (prescription != null)
             {
+                var doctorDetails = await _doctorDetails.GetAsync(d => d.Id == prescription.DoctorProfileId);
+                var patientDetails = await _patientDetails.GetAsync(p => p.Id == prescription.PatientProfileId);
                 result.Id = prescription.Id;
                 result.RefferenceCode = prescription.RefferenceCode;
                 result.AppointmentId = prescription.AppointmentId;
@@ -127,7 +130,7 @@ namespace SoowGoodWeb.Services
                 result.AppointmentType = prescription.Appointment?.AppointmentType;
                 result.AppointmentCode = prescription.AppointmentCode;
                 result.DoctorProfileId = prescription.Appointment?.DoctorProfileId;
-                result.DoctorName = prescription.Appointment?.DoctorName;
+                result.DoctorName = Utilities.Utility.GetDisplayName(doctorDetails.DoctorTitle).ToString() + " " + prescription.Appointment?.DoctorName;
                 result.DoctorCode = prescription.Appointment?.DoctorCode;
                 result.PatientProfileId = prescription.PatientProfileId;
                 result.PatientName = patientDetails?.PatientName;
@@ -249,7 +252,7 @@ namespace SoowGoodWeb.Services
                         AppointmentSerial = item.Appointment?.AppointmentSerial,
                         AppointmentCode = item.AppointmentCode,
                         DoctorProfileId = item.Appointment?.DoctorProfileId,
-                        DoctorName = item.Appointment?.DoctorName,
+                        DoctorName = Utilities.Utility.GetDisplayName(doctorInfo.DoctorTitle).ToString() + " " + item.Appointment?.DoctorName,
                         DoctorCode = item.Appointment?.DoctorCode,
                         DoctorBmdcRegNo = doctorInfo?.BMDCRegNo,
                         SpecialityId = doctorInfo?.SpecialityId,
@@ -317,7 +320,9 @@ namespace SoowGoodWeb.Services
 
         public async Task<PrescriptionMasterDto> GetPrescriptionByAppointmentIdAsync(int appointmentId)
         {
-            var detailsPrescription = await _prescriptionMasterRepository.WithDetailsAsync(a => a.Appointment
+            try 
+            {
+                var detailsPrescription = await _prescriptionMasterRepository.WithDetailsAsync(a => a.Appointment
                                                                                               , doc => doc.Appointment.DoctorSchedule.DoctorProfile
                                                                                               , sp => sp.Appointment.DoctorSchedule.DoctorProfile.Speciality
                                                                                               , d => d.PrescriptionDrugDetails
@@ -326,70 +331,73 @@ namespace SoowGoodWeb.Services
                                                                                               , o => o.PrescriptionFindingsObservations
                                                                                               , mc => mc.PrescriptionMedicalCheckups);
 
-            var prescription = detailsPrescription.Where(p => p.AppointmentId == appointmentId).FirstOrDefault();
-            if (prescription == null)
-            {
-                return null;
+                var prescription = detailsPrescription.Where(p => p.AppointmentId == appointmentId).FirstOrDefault();
+                if (prescription == null)
+                {
+                    return null;
+                }
+                var diseaseHistory = await _prescriptionPatientDiseaseHistory.GetListAsync(h => h.PrescriptionMasterId == prescription.Id);
+                var patientDiseaseHistories = ObjectMapper.Map<List<PrescriptionPatientDiseaseHistory>, List<PrescriptionPatientDiseaseHistoryDto>>(diseaseHistory);
+                var mainComplaints = await _prescriptionMainComplaint.GetListAsync(c => c.PrescriptionMasterId == prescription.Id);
+                var patientMainComplaints = ObjectMapper.Map<List<PrescriptionMainComplaint>, List<PrescriptionMainComplaintDto>>(mainComplaints);
+                var findingObservations = await _prescriptionFindingsObservations.GetListAsync(f => f.PrescriptionMasterId == prescription.Id);
+                var findings = ObjectMapper.Map<List<PrescriptionFindingsObservations>, List<PrescriptionFindingsObservationsDto>>(findingObservations);
+                var drugDetails = await _prescriptionDrugDetails.GetListAsync(m => m.PrescriptionMasterId == prescription.Id);
+                var medicnes = ObjectMapper.Map<List<PrescriptionDrugDetails>, List<PrescriptionDrugDetailsDto>>(drugDetails);
+                var diagnosisTests = await _prescriptionMedicalCheckups.GetListAsync(t => t.PrescriptionMasterId == prescription.Id);
+                var tests = ObjectMapper.Map<List<PrescriptionMedicalCheckups>, List<PrescriptionMedicalCheckupsDto>>(diagnosisTests);
+
+                //var doctorDetails = await _doctorDetails.WithDetailsAsync(s => s.Speciality);
+                
+                var result = new PrescriptionMasterDto();
+                if (prescription != null)
+                {
+                    var doctorInfo = await _doctorDetails.GetAsync(d => d.Id == prescription.DoctorProfileId);
+                    var patientDetails = await _patientDetails.GetAsync(d => d.Id == prescription.PatientProfileId);
+                    result.Id = prescription.Id;
+                    result.RefferenceCode = prescription.RefferenceCode;
+                    result.AppointmentId = prescription.AppointmentId;
+                    result.AppointmentSerial = prescription.Appointment?.AppointmentSerial;
+                    result.AppointmentCode = prescription.AppointmentCode;
+                    result.DoctorProfileId = prescription.Appointment?.DoctorProfileId;
+                    result.DoctorName = Utilities.Utility.GetDisplayName(doctorInfo.DoctorTitle).ToString() + " " + prescription.Appointment?.DoctorName;
+                    result.DoctorCode = prescription.Appointment?.DoctorCode;
+                    result.DoctorBmdcRegNo = doctorInfo?.BMDCRegNo;
+                    result.SpecialityId = doctorInfo?.SpecialityId;
+                    result.DoctorSpecilityName = doctorInfo?.Speciality?.SpecialityName;
+                    result.PatientProfileId = prescription.PatientProfileId;
+                    result.PatientName = prescription?.PatientName;
+                    result.PatientCode = patientDetails?.PatientCode;
+                    result.PatientAge = patientDetails?.Age;
+                    result.PatientBloodGroup = patientDetails?.BloodGroup;
+                    result.PatientAdditionalInfo = prescription?.PatientAdditionalInfo;
+                    result.ConsultancyType = prescription?.ConsultancyType;
+                    result.ConsultancyTypeName = prescription?.Appointment?.ConsultancyType > 0
+                            ? ((ConsultancyType)prescription.Appointment.ConsultancyType).ToString()
+                            : "N/A";
+                    result.AppointmentType = prescription?.AppointmentType;
+                    result.AppointmentTypeName = prescription?.Appointment?.AppointmentType > 0
+                            ? ((AppointmentType)prescription.Appointment.AppointmentType).ToString()
+                            : "N/A";
+                    result.AppointmentDate = prescription?.AppointmentDate;
+                    result.PrescriptionDate = prescription?.PrescriptionDate;
+                    result.PatientLifeStyle = prescription?.PatientLifeStyle;
+                    result.ReportShowDate = prescription?.ReportShowDate;
+                    result.FollowupDate = prescription?.FollowupDate;
+                    result.Advice = prescription?.Advice;
+                    result.PrescriptionPatientDiseaseHistory = patientDiseaseHistories;
+                    result.prescriptionMainComplaints = patientMainComplaints;
+                    result.PrescriptionFindingsObservations = findings;
+                    result.PrescriptionDrugDetails = medicnes;
+                    result.PrescriptionMedicalCheckups = tests;
+                }
+                return result;
             }
-            var diseaseHistory = await _prescriptionPatientDiseaseHistory.GetListAsync(h => h.PrescriptionMasterId == prescription.Id);
-            var patientDiseaseHistories = ObjectMapper.Map<List<PrescriptionPatientDiseaseHistory>, List<PrescriptionPatientDiseaseHistoryDto>>(diseaseHistory);
-            var mainComplaints = await _prescriptionMainComplaint.GetListAsync(c => c.PrescriptionMasterId == prescription.Id);
-            var patientMainComplaints = ObjectMapper.Map<List<PrescriptionMainComplaint>, List<PrescriptionMainComplaintDto>>(mainComplaints);
-            var findingObservations = await _prescriptionFindingsObservations.GetListAsync(f => f.PrescriptionMasterId == prescription.Id);
-            var findings = ObjectMapper.Map<List<PrescriptionFindingsObservations>, List<PrescriptionFindingsObservationsDto>>(findingObservations);
-            var drugDetails = await _prescriptionDrugDetails.GetListAsync(m => m.PrescriptionMasterId == prescription.Id);
-            var medicnes = ObjectMapper.Map<List<PrescriptionDrugDetails>, List<PrescriptionDrugDetailsDto>>(drugDetails);
-            var diagnosisTests = await _prescriptionMedicalCheckups.GetListAsync(t => t.PrescriptionMasterId == prescription.Id);
-            var tests = ObjectMapper.Map<List<PrescriptionMedicalCheckups>, List<PrescriptionMedicalCheckupsDto>>(diagnosisTests);
-
-            var doctorDetails = await _doctorDetails.WithDetailsAsync(s => s.Speciality);
-            var doctorInfo = doctorDetails.Where(d => d.Id == prescription.DoctorProfileId).FirstOrDefault();
-
-            var patientDetails = await _patientDetails.GetAsync(p => p.Id == prescription.PatientProfileId);
-
-
-
-            var result = new PrescriptionMasterDto();
-            if (prescription != null)
+            catch(Exception ex)
             {
-                result.Id = prescription.Id;
-                result.RefferenceCode = prescription.RefferenceCode;
-                result.AppointmentId = prescription.AppointmentId;
-                result.AppointmentSerial = prescription.Appointment?.AppointmentSerial;
-                result.AppointmentCode = prescription.AppointmentCode;
-                result.DoctorProfileId = prescription.Appointment?.DoctorProfileId;
-                result.DoctorName = prescription.Appointment?.DoctorName;
-                result.DoctorCode = prescription.Appointment?.DoctorCode;
-                result.DoctorBmdcRegNo = doctorInfo?.BMDCRegNo;
-                result.SpecialityId = doctorInfo?.SpecialityId;
-                result.DoctorSpecilityName = doctorInfo?.Speciality?.SpecialityName;
-                result.PatientProfileId = prescription.PatientProfileId;
-                result.PatientName = prescription?.PatientName;
-                result.PatientCode = patientDetails?.PatientCode;
-                result.PatientAge = prescription?.Age;
-                result.PatientBloodGroup = patientDetails?.BloodGroup;
-                result.PatientAdditionalInfo = prescription.PatientAdditionalInfo;
-                result.ConsultancyType = prescription.ConsultancyType;
-                result.ConsultancyTypeName = prescription.Appointment?.ConsultancyType > 0
-                        ? ((ConsultancyType)prescription.Appointment.ConsultancyType).ToString()
-                        : "N/A";
-                result.AppointmentType = prescription.AppointmentType;
-                result.AppointmentTypeName = prescription.Appointment?.AppointmentType > 0
-                        ? ((AppointmentType)prescription.Appointment.AppointmentType).ToString()
-                        : "N/A";
-                result.AppointmentDate = prescription.AppointmentDate;
-                result.PrescriptionDate = prescription.PrescriptionDate;
-                result.PatientLifeStyle = prescription.PatientLifeStyle;
-                result.ReportShowDate = prescription.ReportShowDate;
-                result.FollowupDate = prescription.FollowupDate;
-                result.Advice = prescription.Advice;
-                result.PrescriptionPatientDiseaseHistory = patientDiseaseHistories;
-                result.prescriptionMainComplaints = patientMainComplaints;
-                result.PrescriptionFindingsObservations = findings;
-                result.PrescriptionDrugDetails = medicnes;
-                result.PrescriptionMedicalCheckups = tests;
+              return  null;
             }
-            return result;
+            
         }
     }
 }
