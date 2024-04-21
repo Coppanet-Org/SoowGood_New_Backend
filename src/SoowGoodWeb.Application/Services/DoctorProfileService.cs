@@ -626,13 +626,13 @@ namespace SoowGoodWeb.Services
                 return null;
             }
 
-            return result;
+            return result.OrderBy(f=>f.DisplayInstantFeeAsPatient).ToList();
         }
         /// <summary>
         /// For Mobile App
         /// </summary>
         /// <returns></returns>
-        public async Task<List<DoctorProfileDto>> GetLiveOnlineDoctorListMobileAppAsync(FilterModel filterModel)
+        public async Task<List<DoctorProfileDto>> GetLiveOnlineDoctorListAsync(FilterModel filterModel)
         {
             List<DoctorProfileDto> result = null;
             try
@@ -816,7 +816,7 @@ namespace SoowGoodWeb.Services
                 return null;
             }
 
-            return result;
+            return result.OrderBy(f => f.DisplayInstantFeeAsPatient).ToList();
         }
         /// <summary>
         /// 
@@ -1113,6 +1113,8 @@ namespace SoowGoodWeb.Services
                             DisplayScheduledAgentOnlineFee = scheduledAgntOnlinefee > 0 ? Math.Round((decimal)scheduledAgntOnlinefee, 2) : 0
                         });
                     }
+                    result = result.Skip(filterModel.Offset)
+                                       .Take(filterModel.Limit).ToList();
                 }
                 catch (Exception ex)
                 {
