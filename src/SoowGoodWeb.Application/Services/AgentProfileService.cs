@@ -228,16 +228,17 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<AgentProfile, AgentProfileDto>(item);
         }
 
-        public async Task<List<AgentProfileDto>> GetAgentListFilterByAdminAsync(DataFilterModel? agentFilterModel, FilterModel filterModel)
+        public async Task<List<AgentProfileDto>> GetAgentListFilterByAdminAsync( DataFilterModel? agentFilterModel, FilterModel filterModel)
         {
             List<AgentProfileDto> result = null;
+           
             try
             {
                 var profileWithDetails = await _agentProfileRepository.WithDetailsAsync(m => m.AgentMaster, s => s.AgentSupervisor);
-
                 var profiles = profileWithDetails.Where(p => !string.IsNullOrEmpty(p.FullName)).ToList();
                 //var schedules = await _patientProfileRepository.WithDetailsAsync();
                 //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
+                
                 if (!profileWithDetails.Any())
                 {
                     return result;

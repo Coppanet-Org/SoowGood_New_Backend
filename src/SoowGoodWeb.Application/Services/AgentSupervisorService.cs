@@ -181,7 +181,6 @@ namespace SoowGoodWeb.Services
             try
             {
                 var profileWithDetails = await _agentSupervisorRepository.WithDetailsAsync(s => s.AgentMaster);
-              
                 var profiles = profileWithDetails.Where(p => !string.IsNullOrEmpty(p.SupervisorName)).ToList();
                 //var schedules = await _patientProfileRepository.WithDetailsAsync();
                 //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
