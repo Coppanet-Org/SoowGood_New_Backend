@@ -67,8 +67,8 @@ namespace SoowGoodWeb.Enums
         //None = 0,
         Chamber = 1,
         Online = 2,
-        PhysicalVisit = 3,
-        OnDemand = 4,
+        //PhysicalVisit = 3,
+        //OnDemand = 4,
         Instant = 5        //Online Real Time
     }
 

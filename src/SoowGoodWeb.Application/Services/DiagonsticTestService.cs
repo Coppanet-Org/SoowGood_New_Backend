@@ -121,55 +121,6 @@ namespace SoowGoodWeb.Services
             return result;
         }
 
-        public async Task<List<DiagonsticTestDto>> GetDiagonsticTestListFilterByAdminAsync(DataFilterModel? diagonsticTestFilterModel, FilterModel filterModel)
-        {
-            List<DiagonsticTestDto> result = null;
-            try
-            {
-                var profileWithDetails = await _diagonsticTestRepository.WithDetailsAsync(s => s.ServiceProvider, p => p.PathologyCategory, t => t.PathologyTest);
-
-                var profiles = profileWithDetails.Where(p => !string.IsNullOrEmpty(p.PathologyTest.PathologyTestName)).ToList();
-                //var schedules = await _patientProfileRepository.WithDetailsAsync();
-                //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
-                if (!profileWithDetails.Any())
-                {
-                    return result;
-                }
-                result = new List<DiagonsticTestDto>();
-                if (diagonsticTestFilterModel != null && !string.IsNullOrEmpty(diagonsticTestFilterModel.name))
-                {
-                    //profiles = profiles.Where(p => p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())).ToList();
-                    profiles = profiles.Where(p => p.PathologyTest.PathologyTestName.ToLower().Contains(diagonsticTestFilterModel.name.ToLower().Trim())).ToList();
-                }
-                foreach (var item in profiles)
-                {
-
-                    result.Add(new DiagonsticTestDto()
-                    {
-                        Id = item.Id,
-                        ServiceProviderId = item.ServiceProviderId,
-                        ServiceProviderName = item.ServiceProviderId > 0 ? item.ServiceProvider?.ProviderOrganizationName : null,
-                        PathologyCategoryId = item.PathologyCategoryId,
-                        PathologyCategoryName = item.PathologyCategoryId > 0 ? item.PathologyCategory?.PathologyCategoryName : null,
-                        PathologyTestId = item.PathologyTestId,
-                        PathologyTestName = item.PathologyTestId > 0 ? item.PathologyTest?.PathologyTestName : null,
-                        ProviderRate = item.ProviderRate,
-
-                    });
-                }
-
-
-                //result = result.Skip(filterModel.Offset)
-                //                   .Take(filterModel.Limit).ToList();
-            }
-            catch
-            {
-                return null;
-            }
-
-            return result;
-        }
-
         //public async Task<List<DiagonsticTestDto>> GetTestListByProviderIdAsync(long providerId)
         //{
         //    List<DiagonsticTestDto>? result = null;
