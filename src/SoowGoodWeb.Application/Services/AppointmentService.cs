@@ -21,24 +21,26 @@ namespace SoowGoodWeb.Services
     {
         private readonly IRepository<Appointment> _appointmentRepository;
         private readonly IRepository<DoctorChamber> _doctorChamberRepository;
+        private readonly IRepository<AgentProfile> _agentRepository;
         private readonly IRepository<DoctorScheduleDaySession> _doctorScheduleSessionRepository;
         private readonly IRepository<PatientProfile> _patientProfileRepository;
         private readonly IRepository<AgentProfile> _agentProfileRepository;
+        private readonly IRepository<PaymentHistory> _paymentHistoryRepository;
         private readonly IRepository<Notification> _notificationRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
-        private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
-
+        //private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
         private readonly IHubContext<BroadcastHub, IHubClient> _hubContext;
-        //private readonly IHubContext<BroadcastHub, IHubClient> _hubContext;
 
 
         private readonly uint _expireTimeInSeconds = 3600;
         public AppointmentService(IRepository<Appointment> appointmentRepository,
             IRepository<DoctorChamber> doctorChamberRepository,
+            IRepository<AgentProfile> agentRepository,
+            IRepository<PaymentHistory> paymentHistoryRepository,
             IRepository<DoctorScheduleDaySession> doctorScheduleSessionRepository,
             IRepository<PatientProfile> patientProfileRepository,
             IRepository<AgentProfile> agentProfileRepository,
-            SslCommerzGatewayManager sslCommerzGatewayManager,
+            //SslCommerzGatewayManager sslCommerzGatewayManager,
             IUnitOfWorkManager unitOfWorkManager,
             IHubContext<BroadcastHub, IHubClient> hubContext,
             IRepository<Notification> notificationRepository)
@@ -49,10 +51,11 @@ namespace SoowGoodWeb.Services
             _doctorScheduleSessionRepository = doctorScheduleSessionRepository;
             _patientProfileRepository = patientProfileRepository;
             _agentProfileRepository = agentProfileRepository;
-            _sslCommerzGatewayManager = sslCommerzGatewayManager;
-
+            //_sslCommerzGatewayManager = sslCommerzGatewayManager;
+            _agentRepository = agentRepository;
             _unitOfWorkManager = unitOfWorkManager;
             _hubContext = hubContext;
+            _paymentHistoryRepository = paymentHistoryRepository;
             _notificationRepository = notificationRepository;
         }
 
@@ -958,6 +961,124 @@ namespace SoowGoodWeb.Services
             }
             catch (Exception ex) { }
 
+        }
+
+        public async Task<string> UpdateAppointmentStatusAfterPaymentAsync(string appCode, int sts)
+        {
+
+            var notificatinInput = new NotificationInputDto();
+            var notificatin = new NotificationDto();
+            var result = "";
+            try
+            {
+                var allAppointment = await _appointmentRepository.WithDetailsAsync();
+                var appointment = allAppointment.Where(a => a.AppointmentCode == appCode).FirstOrDefault();
+                var allTransactions = await _paymentHistoryRepository.WithDetailsAsync();
+                var transactions = allTransactions.Where(p => p.application_code == appCode).FirstOrDefault();
+
+                if (appointment != null && appointment.AppointmentStatus != AppointmentStatus.Confirmed) //&& app.AppointmentStatus != AppointmentStatus.Confirmed)
+                {
+                    if (sts == 1)
+                    {
+                        appointment.AppointmentStatus = AppointmentStatus.Confirmed;
+                        appointment.PaymentTransactionId = transactions?.tran_id;
+                        appointment.AppointmentPaymentStatus = AppointmentPaymentStatus.Paid;
+
+                        //Notifiaction
+
+                        notificatinInput.Message = "Patient " + appointment.PatientName + "  has been scheduled for appointment " + appointment.AppointmentCode + " with doctor " + appointment.DoctorName
+                                                              + " by " + appointment.AppointmentCreatorRole + "";
+                        notificatinInput.TransactionType = "Add";
+                        notificatinInput.CreatorEntityId = appointment.AppointmentCreatorId;
+                        if (appointment.AppointmentCreatorRole == "agent")
+                        {
+                            var agent = await _agentRepository.GetAsync(a => a.Id == appointment.AppointmentCreatorId);
+                            notificatinInput.CreatorName = agent.FullName;
+                        }
+                        else
+                        {
+                            notificatinInput.CreatorName = appointment.PatientName;
+                        }
+                        notificatinInput.CreatorRole = appointment.AppointmentCreatorRole;
+                        notificatinInput.CreateForName = appointment.PatientName;
+                        notificatinInput.NotifyToEntityId = appointment.DoctorProfileId;
+                        notificatinInput.NotifyToName = appointment.DoctorName;
+                        notificatinInput.NotifyToRole = "Doctor";
+                        notificatinInput.NoticeFromEntity = "Appointment";
+                        notificatinInput.NoticeFromEntityId = appointment.Id;
+
+                        //
+                    }
+                    else if (sts == 2)
+                    {
+                        appointment.AppointmentStatus = AppointmentStatus.Cancelled;
+                        appointment.PaymentTransactionId = transactions?.tran_id;
+                        appointment.AppointmentPaymentStatus = AppointmentPaymentStatus.FailedOrCancelled;
+
+                        //Notifiaction
+                        notificatinInput.Message = "Patient " + appointment.PatientName + "  has been cancelled for appointment " + appointment.AppointmentCode + " with doctor " + appointment.DoctorName
+                                                              + " by " + appointment.AppointmentCreatorRole + " due to payment cancelled";
+                        notificatinInput.TransactionType = "Add";
+                        notificatinInput.CreatorEntityId = appointment.AppointmentCreatorId;
+                        if (appointment.AppointmentCreatorRole == "agent")
+                        {
+                            var agent = await _agentRepository.GetAsync(a => a.Id == appointment.AppointmentCreatorId);
+                            notificatinInput.CreatorName = agent.FullName;
+                        }
+                        else
+                        {
+                            notificatinInput.CreatorName = appointment.PatientName;
+                        }
+                        notificatinInput.CreatorRole = appointment.AppointmentCreatorRole;
+                        notificatinInput.CreateForName = appointment.PatientName;
+                        notificatinInput.NotifyToEntityId = 0;
+                        notificatinInput.NotifyToName = "SG Admin";
+                        notificatinInput.NotifyToRole = "Admin";
+                        notificatinInput.NoticeFromEntity = "Appointment";
+                        notificatinInput.NoticeFromEntityId = appointment.Id;
+                        // Notification
+                    }
+                    else if (sts == 3)
+                    {
+                        appointment.AppointmentStatus = AppointmentStatus.Failed;
+                        appointment.PaymentTransactionId = transactions?.tran_id;
+                        appointment.AppointmentPaymentStatus = AppointmentPaymentStatus.FailedOrCancelled;
+
+                        //Notifiaction
+                        notificatinInput.Message = "Patient " + appointment.PatientName + "  has been failed for appointment " + appointment.AppointmentCode + " with doctor " + appointment.DoctorName
+                                                              + " by " + appointment.AppointmentCreatorRole + " due to payment cancelled";
+                        notificatinInput.TransactionType = "Add";
+                        notificatinInput.CreatorEntityId = appointment.AppointmentCreatorId;
+                        if (appointment.AppointmentCreatorRole == "agent")
+                        {
+                            var agent = await _agentRepository.GetAsync(a => a.Id == appointment.AppointmentCreatorId);
+                            notificatinInput.CreatorName = agent.FullName;
+                        }
+                        else
+                        {
+                            notificatinInput.CreatorName = appointment.PatientName;
+                        }
+                        notificatinInput.CreatorRole = appointment.AppointmentCreatorRole;
+                        notificatinInput.CreateForName = appointment.PatientName;
+                        notificatinInput.NotifyToEntityId = 0;
+                        notificatinInput.NotifyToName = "SG Admin";
+                        notificatinInput.NotifyToRole = "Admin";
+                        notificatinInput.NoticeFromEntity = "Appointment";
+                        notificatinInput.NoticeFromEntityId = appointment.Id;
+                        // Notification
+                    }
+                    await _appointmentRepository.UpdateAsync(appointment);
+
+                    var newNotificaitonEntity = ObjectMapper.Map<NotificationInputDto, Notification>(notificatinInput);
+                    var notifictionInsert = await _notificationRepository.InsertAsync(newNotificaitonEntity);
+
+                    await _hubContext.Clients.All.BroadcastMessage();//notifictionInsert.Id
+
+                    result = "Appointmnet and Payment Operation Completed.";
+                }
+            }
+            catch (Exception ex) { }
+            return result;
         }
 
         public string testBuildTokenWithUserAccount(string _appId, string _appCertificate, string _channelName, string _account)
