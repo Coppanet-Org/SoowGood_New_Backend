@@ -1713,7 +1713,7 @@ namespace SoowGoodWeb.Services
         
     }
 }
-
+ 
 //public async Task<List<DoctorProfileDto>> GetCurrentlyOnlineDoctorListAsync1()
 //{
 //    List<DoctorProfileDto> result = null;
