@@ -1991,7 +1991,7 @@ namespace SoowGoodWeb.Services
             }
 
         }
-        public async Task<DoctorProfileDto> UpdateDocotrProfileAsync(DoctorProfileInputDto input)
+        public async Task<DoctorProfileDto> UpdateDoctorProfileAsync(DoctorProfileInputDto input)
         {
             var result = new DoctorProfileDto();
             try
@@ -2000,7 +2000,7 @@ namespace SoowGoodWeb.Services
                 if (itemDoctor != null)
                 {
                     itemDoctor.FullName = !string.IsNullOrEmpty(input.FullName) ? input.FullName : itemDoctor.FullName;
-                    itemDoctor.DoctorTitle = input.DoctorTitle > 0 ? input.DoctorTitle : itemDoctor.DoctorTitle;
+                    itemDoctor.DoctorTitle = input.DoctorTitle; //input.DoctorTitle > 0 ? input.DoctorTitle : itemDoctor.DoctorTitle;
                     itemDoctor.DateOfBirth = input.DateOfBirth != null ? input.DateOfBirth : itemDoctor.DateOfBirth;
                     itemDoctor.Gender = input.Gender != null ? input.Gender : itemDoctor.Gender;
                     itemDoctor.Address = !string.IsNullOrEmpty(input.Address) ? input.Address : itemDoctor.Address;

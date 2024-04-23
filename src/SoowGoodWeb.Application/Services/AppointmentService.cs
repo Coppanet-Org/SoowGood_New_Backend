@@ -27,6 +27,7 @@ namespace SoowGoodWeb.Services
         private readonly IRepository<AgentProfile> _agentProfileRepository;
         private readonly IRepository<PaymentHistory> _paymentHistoryRepository;
         private readonly IRepository<Notification> _notificationRepository;
+        private readonly IRepository<DoctorProfile> _doctorDetails;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         //private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
         private readonly IHubContext<BroadcastHub, IHubClient> _hubContext;
@@ -39,6 +40,7 @@ namespace SoowGoodWeb.Services
             IRepository<PaymentHistory> paymentHistoryRepository,
             IRepository<DoctorScheduleDaySession> doctorScheduleSessionRepository,
             IRepository<PatientProfile> patientProfileRepository,
+            IRepository<DoctorProfile> doctorDetails,
             IRepository<AgentProfile> agentProfileRepository,
             //SslCommerzGatewayManager sslCommerzGatewayManager,
             IUnitOfWorkManager unitOfWorkManager,
@@ -50,6 +52,7 @@ namespace SoowGoodWeb.Services
             _doctorChamberRepository = doctorChamberRepository;
             _doctorScheduleSessionRepository = doctorScheduleSessionRepository;
             _patientProfileRepository = patientProfileRepository;
+            _doctorDetails = doctorDetails;
             _agentProfileRepository = agentProfileRepository;
             //_sslCommerzGatewayManager = sslCommerzGatewayManager;
             _agentRepository = agentRepository;
@@ -173,6 +176,7 @@ namespace SoowGoodWeb.Services
 
         public async Task<List<AppointmentDto>?> GetAppointmentListForDoctorWithSearchFilterAsync(long doctorId, DataFilterModel? dataFilter, FilterModel filterModel)
         {
+            List<AppointmentDto> result = null;
             var provider = CultureInfo.InvariantCulture;
 
             try
@@ -210,12 +214,46 @@ namespace SoowGoodWeb.Services
                             && p?.AppointmentDate.Value.Date <= tdate1).ToList();
                 }
 
-                return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
+                result = new List<AppointmentDto>();
+
+                foreach (var itemApt in appointments)
+                {
+                    var patientDetails = await _patientProfileRepository.GetAsync(p => p.Id == itemApt.PatientProfileId);
+                    var drTitle = Utilities.Utility.GetDisplayName(itemApt.DoctorSchedule.DoctorProfile.DoctorTitle);
+                    result.Add(new AppointmentDto()
+                    {
+                        Id = itemApt.Id,
+                        AppointmentCode = itemApt.AppointmentCode,
+                        AppointmentSerial = itemApt.AppointmentSerial,
+                        DoctorCode = itemApt.DoctorCode,
+                        DoctorScheduleId = itemApt.DoctorScheduleId,
+                        DoctorScheduleName = itemApt.ConsultancyType > 0 ? itemApt.DoctorSchedule.ScheduleName : "N/A",
+                        DoctorProfileId = itemApt.DoctorProfileId,
+                        DoctorName = drTitle + " " + itemApt.DoctorName,
+                        PatientProfileId = itemApt.PatientProfileId,
+                        PatientCode = patientDetails.PatientCode,
+                        PatientName = patientDetails.PatientName,
+                        PatientLocation = patientDetails.City,
+                        ConsultancyType = itemApt.ConsultancyType,
+                        ConsultancyTypeName = itemApt.ConsultancyType > 0 ? ((ConsultancyType)itemApt.ConsultancyType).ToString() : "N/A",
+                        DoctorChamberId = itemApt.DoctorChamberId,
+                        DoctorChamberName = itemApt.DoctorChamberId > 0 ? itemApt?.DoctorSchedule?.DoctorChamber?.ChamberName : "N/A",
+                        DoctorScheduleDaySessionId = itemApt.DoctorScheduleDaySessionId,
+                        ScheduleDayofWeek = itemApt.ScheduleDayofWeek,
+                        AppointmentType = itemApt.AppointmentType,
+                        AppointmentTypeName = itemApt.AppointmentType > 0 ? ((AppointmentType)itemApt.AppointmentType).ToString() : "N/A",
+                        AppointmentDate = itemApt.AppointmentDate,
+                        AppointmentTime = itemApt.AppointmentTime,
+                        AppointmentStatus = itemApt.AppointmentStatus,
+                        AppointmentPaymentStatusName = itemApt.AppointmentStatus > 0 ? ((AppointmentStatus)itemApt.AppointmentStatus).ToString() : "N/A"
+                    });
+                }
             }
             catch (Exception ex)
             {
                 return null;
             }
+            return result;
 
         }
 
@@ -268,6 +306,7 @@ namespace SoowGoodWeb.Services
 
         public async Task<List<AppointmentDto>> GetAppointmentListForPatientWithSearchFilterAsync(long patientId, string role, DataFilterModel? dataFilter, FilterModel filterModel)
         {
+            List<AppointmentDto> result = null;
             CultureInfo provider = CultureInfo.InvariantCulture;
             try
             {
@@ -301,14 +340,55 @@ namespace SoowGoodWeb.Services
 
                 //appointments = appointments.Skip(filterModel.Offset)
                 //                   .Take(filterModel.Limit).ToList();
+                result = new List<AppointmentDto>();
+                try
+                {
+                    foreach (var itemApt in appointments)
+                    {
+                        var patientDetails = await _patientProfileRepository.GetAsync(p => p.Id == itemApt.PatientProfileId);
+                        var doctorInfo = await _doctorDetails.GetAsync(d => d.Id == itemApt.DoctorProfileId);
 
-                return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
+                        var drTitle = Utilities.Utility.GetDisplayName(doctorInfo.DoctorTitle);
+                        result.Add(new AppointmentDto()
+                        {
+                            Id = itemApt.Id,
+                            AppointmentCode = itemApt.AppointmentCode,
+                            AppointmentSerial = itemApt.AppointmentSerial,
+                            DoctorCode = itemApt.DoctorCode,
+                            DoctorScheduleId = itemApt.DoctorScheduleId,
+                            DoctorScheduleName = itemApt.DoctorScheduleId > 0 ? itemApt.DoctorSchedule.ScheduleName : "N/A",
+                            DoctorProfileId = itemApt.DoctorProfileId,
+                            DoctorName = drTitle + " " + itemApt.DoctorName,
+                            PatientProfileId = itemApt.PatientProfileId,
+                            PatientCode = patientDetails.PatientCode,
+                            PatientName = patientDetails.PatientName,
+                            PatientLocation = patientDetails.City,
+                            ConsultancyType = itemApt.ConsultancyType,
+                            ConsultancyTypeName = itemApt.ConsultancyType > 0 ? ((ConsultancyType)itemApt.ConsultancyType).ToString() : "N/A",
+                            DoctorChamberId = itemApt.DoctorChamberId,
+                            DoctorChamberName = itemApt.DoctorChamberId > 0 ? itemApt?.DoctorSchedule?.DoctorChamber?.ChamberName : "N/A",
+                            DoctorScheduleDaySessionId = itemApt.DoctorScheduleDaySessionId,
+                            ScheduleDayofWeek = itemApt.ScheduleDayofWeek,
+                            AppointmentType = itemApt.AppointmentType,
+                            AppointmentTypeName = itemApt.AppointmentType > 0 ? ((AppointmentType)itemApt.AppointmentType).ToString() : "N/A",
+                            AppointmentDate = itemApt.AppointmentDate,
+                            AppointmentTime = itemApt.AppointmentTime,
+                            AppointmentStatus = itemApt.AppointmentStatus,
+                            AppointmentPaymentStatusName = itemApt.AppointmentStatus > 0 ? ((AppointmentStatus)itemApt.AppointmentStatus).ToString() : "N/A"
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
+
+                //return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
             }
             catch (Exception ex)
             {
                 return null;
             }
-
+            return result;
         }
 
         public async Task<int> GetAppointmentCountForPatientWithSearchFilterAsync(long patientId, string role, DataFilterModel? dataFilter)
