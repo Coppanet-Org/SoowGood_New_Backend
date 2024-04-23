@@ -56,7 +56,7 @@ namespace SoowGoodWeb.Services
         public async Task<List<ServiceProviderDto>> GetListAsync()
         {
             List<ServiceProviderDto>? result = null;
-            
+
             var allServiceProviderDetails = await _serviceProviderRepository.WithDetailsAsync(p => p.PlatformFacility);
             if (!allServiceProviderDetails.Any())
             {
@@ -65,23 +65,23 @@ namespace SoowGoodWeb.Services
             result = new List<ServiceProviderDto>();
             foreach (var item in allServiceProviderDetails)
             {
-               
+
                 result.Add(new ServiceProviderDto()
                 {
 
-                   Id = item.Id,
-                   PlatformFacilityId = item.PlatformFacilityId,
-                   PlatformFacilityName=item.PlatformFacilityId>0 ? item.PlatformFacility.ServiceName:"",
-                   ProviderOrganizationName = item.ProviderOrganizationName,
-                   OrganizationCode = item.OrganizationCode,
-                   OrganizationAvailability = item.OrganizationAvailability,
-                   OrganizationPhoneNumber = item.OrganizationPhoneNumber,
-                   ContactPerson=item.ContactPerson,
-                   ContactPersonEmail=item.ContactPersonEmail,
-                   ContactPersonMobileNo=item.ContactPersonMobileNo,
-                   Branch=item.Branch,
-                   Address=item.Address,
-                   IsActive=item.IsActive,
+                    Id = item.Id,
+                    PlatformFacilityId = item.PlatformFacilityId,
+                    PlatformFacilityName = item.PlatformFacilityId > 0 ? item.PlatformFacility.ServiceName : "",
+                    ProviderOrganizationName = item.ProviderOrganizationName,
+                    OrganizationCode = item.OrganizationCode,
+                    OrganizationAvailability = item.OrganizationAvailability,
+                    OrganizationPhoneNumber = item.OrganizationPhoneNumber,
+                    ContactPerson = item.ContactPerson,
+                    ContactPersonEmail = item.ContactPersonEmail,
+                    ContactPersonMobileNo = item.ContactPersonMobileNo,
+                    Branch = item.Branch,
+                    Address = item.Address,
+                    IsActive = item.IsActive,
 
                 });
             }
@@ -103,8 +103,8 @@ namespace SoowGoodWeb.Services
 
         public async Task<List<ServiceProviderDto>> GetListByFacilityIdAsync(long facilityId)
         {
-            var serviceProviders = await _serviceProviderRepository.WithDetailsAsync(f=>f.PlatformFacility);
-            var serviceProviderList = serviceProviders.Where(p=>p.PlatformFacilityId == facilityId).ToList();
+            var serviceProviders = await _serviceProviderRepository.WithDetailsAsync(f => f.PlatformFacility);
+            var serviceProviderList = serviceProviders.Where(p => p.PlatformFacilityId == facilityId).ToList();
             return ObjectMapper.Map<List<ServiceProvider>, List<ServiceProviderDto>>(serviceProviderList).OrderByDescending(a => a.Id).ToList();
 
         }
@@ -128,5 +128,60 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<List<ServiceProvider>, List<ServiceProviderDto>>(serviceProviderList).OrderByDescending(a => a.Id).ToList();
 
         }
+
+        public async Task<List<ServiceProviderDto>> GetServiceProviderListFilterByAdminAsync(DataFilterModel? providerFilterModel, FilterModel filterModel)
+        {
+            List<ServiceProviderDto> result = null;
+            try
+            {
+                var profileWithDetails = await _serviceProviderRepository.WithDetailsAsync(p => p.PlatformFacility);
+
+                var profiles = profileWithDetails.Where(p => !string.IsNullOrEmpty(p.ContactPerson)).ToList();
+                //var schedules = await _patientProfileRepository.WithDetailsAsync();
+                //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
+                if (!profileWithDetails.Any())
+                {
+                    return result;
+                }
+                result = new List<ServiceProviderDto>();
+                if (providerFilterModel != null && !string.IsNullOrEmpty(providerFilterModel.name))
+                {
+                    //profiles = profiles.Where(p => p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())).ToList();
+                    profiles = profiles.Where(p => p.ContactPerson.ToLower().Contains(providerFilterModel.name.ToLower().Trim())).ToList();
+                }
+                foreach (var item in profiles)
+                {
+
+                    result.Add(new ServiceProviderDto()
+                    {
+                        Id = item.Id,
+                        PlatformFacilityId = item.PlatformFacilityId,
+                        PlatformFacilityName = item.PlatformFacilityId > 0 ? item.PlatformFacility.ServiceName : "",
+                        ProviderOrganizationName = item.ProviderOrganizationName,
+                        OrganizationCode = item.OrganizationCode,
+                        OrganizationAvailability = item.OrganizationAvailability,
+                        OrganizationPhoneNumber = item.OrganizationPhoneNumber,
+                        ContactPerson = item.ContactPerson,
+                        ContactPersonEmail = item.ContactPersonEmail,
+                        ContactPersonMobileNo = item.ContactPersonMobileNo,
+                        Branch = item.Branch,
+                        Address = item.Address,
+                        IsActive = item.IsActive,
+
+                    });
+                }
+
+
+                //result = result.Skip(filterModel.Offset)
+                //                   .Take(filterModel.Limit).ToList();
+            }
+            catch
+            {
+                return null;
+            }
+
+            return result;
+        }
+
     }
 }
