@@ -427,7 +427,7 @@ namespace SoowGoodWeb.Services
                 }
                 catch (Exception ex)
                 {
-                }
+                } 
             }
             catch (Exception ex)
             {
