@@ -362,9 +362,9 @@ namespace SoowGoodWeb.Services
                     result.DoctorProfileId = prescription.Appointment?.DoctorProfileId;
                     result.DoctorName = (doctorInfo != null ? Utilities.Utility.GetDisplayName(doctorInfo.DoctorTitle).ToString() : "" + " ") + prescription.Appointment?.DoctorName;
                     result.DoctorCode = prescription.Appointment?.DoctorCode;
-                    result.DoctorBmdcRegNo = doctorInfo?.BMDCRegNo;
-                    result.SpecialityId = doctorInfo?.SpecialityId;
-                    result.DoctorSpecilityName = doctorInfo?.Speciality?.SpecialityName;
+                    result.DoctorBmdcRegNo = doctorInfo != null ? doctorInfo?.BMDCRegNo : "";
+                    result.SpecialityId = doctorInfo != null ? doctorInfo?.SpecialityId : null;
+                    result.DoctorSpecilityName = doctorInfo?.SpecialityId > 0 ? doctorInfo?.Speciality?.SpecialityName:"";
                     result.PatientProfileId = prescription.PatientProfileId;
                     result.PatientName = prescription?.PatientName;
                     result.PatientCode = patientDetails?.PatientCode;
