@@ -121,7 +121,7 @@ namespace SoowGoodWeb.Services
             var result = new PrescriptionMasterDto();
             if (prescription != null)
             {
-                var doctorInfo = doctorDetails.Where(d => d.Id == prescription.DoctorProfileId && d.IsActive == true).FirstOrDefault();
+                var doctorInfo = doctorDetails.Where(d => d.Id == prescription.DoctorProfileId).FirstOrDefault();
                 var patientDetails = await _patientDetails.GetAsync(p => p.Id == prescription.PatientProfileId);
                 result.Id = prescription.Id;
                 result.RefferenceCode = prescription.RefferenceCode;
@@ -242,7 +242,7 @@ namespace SoowGoodWeb.Services
                     var patientDetails = await _patientDetails.GetAsync(p => p.Id == item.PatientProfileId);
 
                     var doctorDetails = await _doctorDetails.WithDetailsAsync(s => s.Speciality);
-                    var doctorInfo = doctorDetails.Where(d => d.Id == item.DoctorProfileId && d.IsActive == true).FirstOrDefault();
+                    var doctorInfo = doctorDetails.Where(d => d.Id == item.DoctorProfileId).FirstOrDefault();
 
                     result.Add(new PrescriptionMasterDto()
                     {
@@ -347,12 +347,21 @@ namespace SoowGoodWeb.Services
                 var diagnosisTests = await _prescriptionMedicalCheckups.GetListAsync(t => t.PrescriptionMasterId == prescription.Id);
                 var tests = ObjectMapper.Map<List<PrescriptionMedicalCheckups>, List<PrescriptionMedicalCheckupsDto>>(diagnosisTests);
 
-                //var doctorDetails = await _doctorDetails.WithDetailsAsync(s => s.Speciality);
                 var doctorDetails = await _doctorDetails.WithDetailsAsync(s => s.Speciality);
+                //var doctorDetails = await _doctorDetails.WithDetailsAsync(s => s.Speciality, p=>p.DoctorSpecialization);
                 var result = new PrescriptionMasterDto();
                 if (prescription != null)
                 {
-                    var doctorInfo = doctorDetails.Where(d => d.Id == prescription.DoctorProfileId && d.IsActive == true).FirstOrDefault();
+                    //var experts = "";
+                    
+                    var doctorInfo = doctorDetails.Where(d => d.Id == prescription.DoctorProfileId).FirstOrDefault();
+                    //if(doctorInfo.DoctorSpecialization.Count() > 0)
+                    //{
+                    //    foreach(var experties in doctorInfo.DoctorSpecialization)
+                    //    {
+                    //        experts = experts + experties.Specialization.SpecializationName.ToString();
+                    //    }
+                    //}
                     var patientDetails = await _patientDetails.GetAsync(d => d.Id == prescription.PatientProfileId);
                     result.Id = prescription.Id;
                     result.RefferenceCode = prescription.RefferenceCode;
