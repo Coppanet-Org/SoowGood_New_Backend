@@ -14,6 +14,7 @@ using AgoraIO.Media;
 using System.Globalization;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Microsoft.AspNetCore.SignalR;
+using System.Numerics;
 
 namespace SoowGoodWeb.Services
 {
@@ -219,7 +220,7 @@ namespace SoowGoodWeb.Services
                 foreach (var itemApt in appointments)
                 {
                     var doctorInfo = doctorDetails.Where(d => d.Id == itemApt.DoctorProfileId).FirstOrDefault();
-                    var patientDetails = await _patientProfileRepository.GetAsync(p => p.Id == itemApt.PatientProfileId);                    
+                    var patientDetails = await _patientProfileRepository.GetAsync(p => p.Id == itemApt.PatientProfileId);
                     var drTitle = Utilities.Utility.GetDisplayName(doctorInfo.DoctorTitle);
                     result.Add(new AppointmentDto()
                     {
@@ -246,7 +247,8 @@ namespace SoowGoodWeb.Services
                         AppointmentDate = itemApt.AppointmentDate,
                         AppointmentTime = itemApt.AppointmentTime,
                         AppointmentStatus = itemApt.AppointmentStatus,
-                        AppointmentPaymentStatusName = itemApt.AppointmentStatus > 0 ? ((AppointmentStatus)itemApt.AppointmentStatus).ToString() : "N/A"
+                        AppointmentPaymentStatusName = itemApt.AppointmentStatus > 0 ? ((AppointmentStatus)itemApt.AppointmentStatus).ToString() : "N/A",
+                        TotalAppointmentFee = itemApt.DoctorFee
                     });
                 }
             }
@@ -375,7 +377,8 @@ namespace SoowGoodWeb.Services
                             AppointmentDate = itemApt.AppointmentDate,
                             AppointmentTime = itemApt.AppointmentTime,
                             AppointmentStatus = itemApt.AppointmentStatus,
-                            AppointmentPaymentStatusName = itemApt.AppointmentStatus > 0 ? ((AppointmentStatus)itemApt.AppointmentStatus).ToString() : "N/A"
+                            AppointmentPaymentStatusName = itemApt.AppointmentStatus > 0 ? ((AppointmentStatus)itemApt.AppointmentStatus).ToString() : "N/A",
+                            TotalAppointmentFee = itemApt.TotalAppointmentFee
                         });
                     }
                 }
@@ -995,6 +998,8 @@ namespace SoowGoodWeb.Services
         }
         public async Task<ResponseDto> UpdateCallConsultationAppointmentAsync(string appCode)
         {
+            var notificatinInput = new NotificationInputDto();
+            var notificatin = new NotificationDto();
             var response = new ResponseDto();
             try
             {
@@ -1002,7 +1007,19 @@ namespace SoowGoodWeb.Services
                 itemAppointment.AppointmentStatus = AppointmentStatus.Completed;
                 itemAppointment.IsCousltationComplete = true;
 
+                //notificatinInput.MessageForCreator = null;
+                notificatinInput.Message = "Your prescription is ready to view for the appointment " + itemAppointment.AppointmentCode + ". Please open it from the report page or your appointment card";
 
+                notificatinInput.TransactionType = "Add";
+                notificatinInput.CreatorEntityId = itemAppointment.DoctorProfileId;
+                notificatinInput.CreatorName =  itemAppointment.DoctorName;
+                notificatinInput.CreatorRole = "Doctor";
+                notificatinInput.CreateForName = itemAppointment.DoctorName;
+                notificatinInput.NotifyToEntityId = itemAppointment.PatientProfileId;
+                notificatinInput.NotifyToName = itemAppointment.PatientName;
+                notificatinInput.NotifyToRole = "Patient";
+                notificatinInput.NoticeFromEntity = "Appointment";
+                notificatinInput.NoticeFromEntityId = itemAppointment.Id;
 
                 var item = await _appointmentRepository.UpdateAsync(itemAppointment);
                 //await _unitOfWorkManager.Current.SaveChangesAsync();
@@ -1012,8 +1029,14 @@ namespace SoowGoodWeb.Services
                     response.Id = result.Id;
                     response.Value = "";
                     response.Success = true;
-                    response.Message = "Consultation complete";
+                    response.Message = "Consultation completed.";
                 }
+
+                var newNotificaitonEntity = ObjectMapper.Map<NotificationInputDto, Notification>(notificatinInput);
+                var notifictionInsert = await _notificationRepository.InsertAsync(newNotificaitonEntity);
+
+                await _hubContext.Clients.All.BroadcastMessage();//notifictionInsert.Id
+
                 return response;//ObjectMapper.Map<Appointment, AppointmentDto>(item);
             }
             catch (Exception ex)
@@ -1047,7 +1070,8 @@ namespace SoowGoodWeb.Services
         public async Task<string> UpdateAppointmentStatusAfterPaymentAsync(string appCode, int sts)
         {
 
-            var notificatinInput = new NotificationInputDto();
+            var notificatinCreatorInput = new NotificationInputDto();
+            var notificatinReceiverInput = new NotificationInputDto();
             var notificatin = new NotificationDto();
             var result = "";
             try
@@ -1065,28 +1089,57 @@ namespace SoowGoodWeb.Services
                         appointment.PaymentTransactionId = transactions?.tran_id;
                         appointment.AppointmentPaymentStatus = AppointmentPaymentStatus.Paid;
 
-                        //Notifiaction
+                        notificatinCreatorInput.Message = "An appointment " + appointment.AppointmentCode + "  is confirmed  with patient " + appointment.PatientName
+                                                              + " at " + appointment.AppointmentTime + " on " + appointment.AppointmentDate.Value.Date + " Please be prepared 5 minutes before the appointment.";
 
-                        notificatinInput.Message = "Patient " + appointment.PatientName + "  has been scheduled for appointment " + appointment.AppointmentCode + " with doctor " + appointment.DoctorName
-                                                              + " by " + appointment.AppointmentCreatorRole + "";
-                        notificatinInput.TransactionType = "Add";
-                        notificatinInput.CreatorEntityId = appointment.AppointmentCreatorId;
+                        notificatinCreatorInput.TransactionType = "Add";
+                        notificatinCreatorInput.CreatorEntityId = appointment.AppointmentCreatorId;
                         if (appointment.AppointmentCreatorRole == "agent")
                         {
                             var agent = await _agentRepository.GetAsync(a => a.Id == appointment.AppointmentCreatorId);
-                            notificatinInput.CreatorName = agent.FullName;
+                            notificatinCreatorInput.CreatorName = agent.FullName;
                         }
                         else
                         {
-                            notificatinInput.CreatorName = appointment.PatientName;
+                            notificatinCreatorInput.CreatorName = appointment.PatientName;
                         }
-                        notificatinInput.CreatorRole = appointment.AppointmentCreatorRole;
-                        notificatinInput.CreateForName = appointment.PatientName;
-                        notificatinInput.NotifyToEntityId = appointment.DoctorProfileId;
-                        notificatinInput.NotifyToName = appointment.DoctorName;
-                        notificatinInput.NotifyToRole = "Doctor";
-                        notificatinInput.NoticeFromEntity = "Appointment";
-                        notificatinInput.NoticeFromEntityId = appointment.Id;
+                        notificatinCreatorInput.CreatorRole = appointment.AppointmentCreatorRole;
+                        notificatinCreatorInput.CreateForName = appointment.PatientName;
+                        notificatinCreatorInput.NotifyToEntityId = appointment.DoctorProfileId;
+                        notificatinCreatorInput.NotifyToName = appointment.DoctorName;
+                        notificatinCreatorInput.NotifyToRole = "Doctor";
+                        notificatinCreatorInput.NoticeFromEntity = "Appointment";
+                        notificatinCreatorInput.NoticeFromEntityId = appointment.Id;
+
+                        var newNotificaitonForceator = ObjectMapper.Map<NotificationInputDto, Notification>(notificatinCreatorInput);
+                        var notifictionForceatorInsert = await _notificationRepository.InsertAsync(newNotificaitonForceator);
+
+                        notificatinReceiverInput.Message = "Mr./Mrs./Ms " + appointment.PatientName + ", your appointment " + appointment.AppointmentCode + "  is confirmed  with doctor " + appointment.DoctorName
+                                                              + " at " + appointment.AppointmentTime + " on " + appointment.AppointmentDate.Value.Date + " Please be prepared 5 minutes before the appointment.";
+
+                        
+
+                        notificatinReceiverInput.TransactionType = "Add";
+                        notificatinReceiverInput.CreatorEntityId = appointment.AppointmentCreatorId;
+                        if (appointment.AppointmentCreatorRole == "agent")
+                        {
+                            var agent = await _agentRepository.GetAsync(a => a.Id == appointment.AppointmentCreatorId);
+                            notificatinReceiverInput.CreatorName = agent.FullName;
+                        }
+                        else
+                        {
+                            notificatinReceiverInput.CreatorName = appointment.PatientName;
+                        }
+                        notificatinReceiverInput.CreatorRole = appointment.AppointmentCreatorRole;
+                        notificatinReceiverInput.CreateForName = appointment.PatientName;
+                        notificatinReceiverInput.NotifyToEntityId = appointment.PatientProfileId;
+                        notificatinReceiverInput.NotifyToName = appointment.PatientName;
+                        notificatinReceiverInput.NotifyToRole = "Patient";
+                        notificatinReceiverInput.NoticeFromEntity = "Appointment";
+                        notificatinReceiverInput.NoticeFromEntityId = appointment.Id;
+
+                        var newNotificaitonForReceiverEntity = ObjectMapper.Map<NotificationInputDto, Notification>(notificatinReceiverInput);
+                        var notifictionForReceiverInsert = await _notificationRepository.InsertAsync(newNotificaitonForReceiverEntity);
 
                         //
                     }
@@ -1097,26 +1150,28 @@ namespace SoowGoodWeb.Services
                         appointment.AppointmentPaymentStatus = AppointmentPaymentStatus.FailedOrCancelled;
 
                         //Notifiaction
-                        notificatinInput.Message = "Patient " + appointment.PatientName + "  has been cancelled for appointment " + appointment.AppointmentCode + " with doctor " + appointment.DoctorName
-                                                              + " by " + appointment.AppointmentCreatorRole + " due to payment cancelled";
-                        notificatinInput.TransactionType = "Add";
-                        notificatinInput.CreatorEntityId = appointment.AppointmentCreatorId;
+                        notificatinCreatorInput.Message = "Your appointment is cancelled, due to a cancelled payment.";
+                        notificatinCreatorInput.TransactionType = "Add";
+                        notificatinCreatorInput.CreatorEntityId = appointment.AppointmentCreatorId;
                         if (appointment.AppointmentCreatorRole == "agent")
                         {
                             var agent = await _agentRepository.GetAsync(a => a.Id == appointment.AppointmentCreatorId);
-                            notificatinInput.CreatorName = agent.FullName;
+                            notificatinCreatorInput.CreatorName = agent.FullName;
                         }
                         else
                         {
-                            notificatinInput.CreatorName = appointment.PatientName;
+                            notificatinCreatorInput.CreatorName = appointment.PatientName;
                         }
-                        notificatinInput.CreatorRole = appointment.AppointmentCreatorRole;
-                        notificatinInput.CreateForName = appointment.PatientName;
-                        notificatinInput.NotifyToEntityId = 0;
-                        notificatinInput.NotifyToName = "SG Admin";
-                        notificatinInput.NotifyToRole = "Admin";
-                        notificatinInput.NoticeFromEntity = "Appointment";
-                        notificatinInput.NoticeFromEntityId = appointment.Id;
+                        notificatinCreatorInput.CreatorRole = appointment.AppointmentCreatorRole;
+                        notificatinCreatorInput.CreateForName = appointment.PatientName;
+                        notificatinCreatorInput.NotifyToEntityId = 0;
+                        notificatinCreatorInput.NotifyToName = "SG Admin";
+                        notificatinCreatorInput.NotifyToRole = "Admin";
+                        notificatinCreatorInput.NoticeFromEntity = "Appointment";
+                        notificatinCreatorInput.NoticeFromEntityId = appointment.Id;
+
+                        var newNotificaitonEntity = ObjectMapper.Map<NotificationInputDto, Notification>(notificatinCreatorInput);
+                        var notifictionInsert = await _notificationRepository.InsertAsync(newNotificaitonEntity);
                         // Notification
                     }
                     else if (sts == 3)
@@ -1126,32 +1181,32 @@ namespace SoowGoodWeb.Services
                         appointment.AppointmentPaymentStatus = AppointmentPaymentStatus.FailedOrCancelled;
 
                         //Notifiaction
-                        notificatinInput.Message = "Patient " + appointment.PatientName + "  has been failed for appointment " + appointment.AppointmentCode + " with doctor " + appointment.DoctorName
-                                                              + " by " + appointment.AppointmentCreatorRole + " due to payment cancelled";
-                        notificatinInput.TransactionType = "Add";
-                        notificatinInput.CreatorEntityId = appointment.AppointmentCreatorId;
+                        notificatinCreatorInput.Message = "Your appointment is cancelled, due to a faild payment.";
+                        notificatinCreatorInput.TransactionType = "Add";
+                        notificatinCreatorInput.CreatorEntityId = appointment.AppointmentCreatorId;
                         if (appointment.AppointmentCreatorRole == "agent")
                         {
                             var agent = await _agentRepository.GetAsync(a => a.Id == appointment.AppointmentCreatorId);
-                            notificatinInput.CreatorName = agent.FullName;
+                            notificatinCreatorInput.CreatorName = agent.FullName;
                         }
                         else
                         {
-                            notificatinInput.CreatorName = appointment.PatientName;
+                            notificatinCreatorInput.CreatorName = appointment.PatientName;
                         }
-                        notificatinInput.CreatorRole = appointment.AppointmentCreatorRole;
-                        notificatinInput.CreateForName = appointment.PatientName;
-                        notificatinInput.NotifyToEntityId = 0;
-                        notificatinInput.NotifyToName = "SG Admin";
-                        notificatinInput.NotifyToRole = "Admin";
-                        notificatinInput.NoticeFromEntity = "Appointment";
-                        notificatinInput.NoticeFromEntityId = appointment.Id;
+                        notificatinCreatorInput.CreatorRole = appointment.AppointmentCreatorRole;
+                        notificatinCreatorInput.CreateForName = appointment.PatientName;
+                        notificatinCreatorInput.NotifyToEntityId = 0;
+                        notificatinCreatorInput.NotifyToName = "SG Admin";
+                        notificatinCreatorInput.NotifyToRole = "Admin";
+                        notificatinCreatorInput.NoticeFromEntity = "Appointment";
+                        notificatinCreatorInput.NoticeFromEntityId = appointment.Id;
+                        var newNotificaitonEntity = ObjectMapper.Map<NotificationInputDto, Notification>(notificatinCreatorInput);
+                        var notifictionInsert = await _notificationRepository.InsertAsync(newNotificaitonEntity);
                         // Notification
                     }
                     await _appointmentRepository.UpdateAsync(appointment);
 
-                    var newNotificaitonEntity = ObjectMapper.Map<NotificationInputDto, Notification>(notificatinInput);
-                    var notifictionInsert = await _notificationRepository.InsertAsync(newNotificaitonEntity);
+                    
 
                     await _hubContext.Clients.All.BroadcastMessage();//notifictionInsert.Id
 
