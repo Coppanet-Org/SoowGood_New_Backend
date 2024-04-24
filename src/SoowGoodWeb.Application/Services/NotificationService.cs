@@ -14,7 +14,7 @@ using Volo.Abp.ObjectMapping;
 
 namespace SoowGoodWeb.Services
 {
-    public class NotificationService: SoowGoodWebAppService, INotificationService
+    public class NotificationService : SoowGoodWebAppService, INotificationService
     {
         //private readonly IIdentityUserRepository _identityUserRepository;
         //private readonly ILookupNormalizer _lookupNormalizer;
@@ -51,6 +51,42 @@ namespace SoowGoodWeb.Services
             var notifications = await _notificationRepository.GetListAsync();
             var notificationlist = notifications.OrderByDescending(x => x.Id).ToList();
             return ObjectMapper.Map<List<Notification>, List<NotificationDto>>(notificationlist);
+        }
+        public async Task<List<NotificationDto>> GetListByUserIdAsync(long userId, string? role)
+        {
+            var notifications = await _notificationRepository.GetListAsync();
+            
+            if (role == "doctor")
+            {
+                notifications = notifications.Where(c => c.NotifyToEntityId == userId).OrderByDescending(x => x.Id).ToList();
+            }
+            else if (role == "patient" ||  role =="agent")
+            {
+                notifications = notifications.Where(c => c.CreatorEntityId == userId).OrderByDescending(x => x.Id).ToList();
+            }
+            else
+            {
+                notifications = notifications.OrderByDescending(x => x.Id).ToList();
+            }
+            return ObjectMapper.Map<List<Notification>, List<NotificationDto>>(notifications);
+        }
+        public async Task<int> GetCountByUserId(long userId, string? role)
+        {
+            var notifications = await _notificationRepository.GetListAsync();
+
+            if (role == "doctor")
+            {
+                notifications = notifications.Where(c => c.NotifyToEntityId == userId).OrderByDescending(x => x.Id).ToList();
+            }
+            else if (role == "patient" || role == "agent")
+            {
+                notifications = notifications.Where(c => c.CreatorEntityId == userId).OrderByDescending(x => x.Id).ToList();
+            }
+            else
+            {
+                notifications = notifications.OrderByDescending(x => x.Id).ToList();
+            }
+            return notifications.Count;
         }
         public async Task<int> GetCount()
         {

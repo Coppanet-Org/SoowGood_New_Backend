@@ -215,11 +215,12 @@ namespace SoowGoodWeb.Services
                 }
 
                 result = new List<AppointmentDto>();
-
+                var doctorDetails = await _doctorDetails.WithDetailsAsync(s => s.Speciality);
                 foreach (var itemApt in appointments)
                 {
-                    var patientDetails = await _patientProfileRepository.GetAsync(p => p.Id == itemApt.PatientProfileId);
-                    var drTitle = Utilities.Utility.GetDisplayName(itemApt.DoctorSchedule.DoctorProfile.DoctorTitle);
+                    var doctorInfo = doctorDetails.Where(d => d.Id == itemApt.DoctorProfileId).FirstOrDefault();
+                    var patientDetails = await _patientProfileRepository.GetAsync(p => p.Id == itemApt.PatientProfileId);                    
+                    var drTitle = Utilities.Utility.GetDisplayName(doctorInfo.DoctorTitle);
                     result.Add(new AppointmentDto()
                     {
                         Id = itemApt.Id,
@@ -227,7 +228,7 @@ namespace SoowGoodWeb.Services
                         AppointmentSerial = itemApt.AppointmentSerial,
                         DoctorCode = itemApt.DoctorCode,
                         DoctorScheduleId = itemApt.DoctorScheduleId,
-                        DoctorScheduleName = itemApt.ConsultancyType > 0 ? itemApt.DoctorSchedule.ScheduleName : "N/A",
+                        DoctorScheduleName = itemApt.DoctorScheduleId > 0 ? itemApt.DoctorSchedule.ScheduleName : "N/A",
                         DoctorProfileId = itemApt.DoctorProfileId,
                         DoctorName = drTitle + " " + itemApt.DoctorName,
                         PatientProfileId = itemApt.PatientProfileId,
