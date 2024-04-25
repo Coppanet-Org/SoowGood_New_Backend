@@ -116,12 +116,12 @@ namespace SoowGoodWeb.Services
 
 
             var prescription = detailsPrescription.Where(p => p.Id == id).FirstOrDefault();
-            
+            var doctorDetails = await _doctorDetails.WithDetailsAsync(s => s.Speciality);
 
             var result = new PrescriptionMasterDto();
             if (prescription != null)
             {
-                var doctorDetails = await _doctorDetails.GetAsync(d => d.Id == prescription.DoctorProfileId);
+                var doctorInfo = doctorDetails.Where(d => d.Id == prescription.DoctorProfileId).FirstOrDefault();
                 var patientDetails = await _patientDetails.GetAsync(p => p.Id == prescription.PatientProfileId);
                 result.Id = prescription.Id;
                 result.RefferenceCode = prescription.RefferenceCode;
@@ -130,7 +130,7 @@ namespace SoowGoodWeb.Services
                 result.AppointmentType = prescription.Appointment?.AppointmentType;
                 result.AppointmentCode = prescription.AppointmentCode;
                 result.DoctorProfileId = prescription.Appointment?.DoctorProfileId;
-                result.DoctorName = Utilities.Utility.GetDisplayName(doctorDetails.DoctorTitle).ToString() + " " + prescription.Appointment?.DoctorName;
+                result.DoctorName = (doctorInfo != null ? Utilities.Utility.GetDisplayName(doctorInfo.DoctorTitle).ToString() : "" + " ") + prescription.Appointment?.DoctorName;
                 result.DoctorCode = prescription.Appointment?.DoctorCode;
                 result.PatientProfileId = prescription.PatientProfileId;
                 result.PatientName = patientDetails?.PatientName;
@@ -252,11 +252,11 @@ namespace SoowGoodWeb.Services
                         AppointmentSerial = item.Appointment?.AppointmentSerial,
                         AppointmentCode = item.AppointmentCode,
                         DoctorProfileId = item.Appointment?.DoctorProfileId,
-                        DoctorName = Utilities.Utility.GetDisplayName(doctorInfo.DoctorTitle).ToString() + " " + item.Appointment?.DoctorName,
+                        DoctorName = (doctorInfo != null ? Utilities.Utility.GetDisplayName(doctorInfo.DoctorTitle).ToString() : "" + " ") + item.Appointment?.DoctorName,
                         DoctorCode = item.Appointment?.DoctorCode,
                         DoctorBmdcRegNo = doctorInfo?.BMDCRegNo,
                         SpecialityId = doctorInfo?.SpecialityId,
-                        DoctorSpecilityName = doctorInfo?.Speciality?.SpecialityName,
+                        DoctorSpecilityName = doctorInfo?.SpecialityId > 0 ? doctorInfo?.Speciality?.SpecialityName : "",
                         PatientProfileId = item.PatientProfileId,
                         PatientName = patientDetails?.PatientName,
                         PatientCode = patientDetails?.PatientCode,
@@ -320,7 +320,7 @@ namespace SoowGoodWeb.Services
 
         public async Task<PrescriptionMasterDto> GetPrescriptionByAppointmentIdAsync(int appointmentId)
         {
-            try 
+            try
             {
                 var detailsPrescription = await _prescriptionMasterRepository.WithDetailsAsync(a => a.Appointment
                                                                                               , doc => doc.Appointment.DoctorSchedule.DoctorProfile
@@ -347,12 +347,21 @@ namespace SoowGoodWeb.Services
                 var diagnosisTests = await _prescriptionMedicalCheckups.GetListAsync(t => t.PrescriptionMasterId == prescription.Id);
                 var tests = ObjectMapper.Map<List<PrescriptionMedicalCheckups>, List<PrescriptionMedicalCheckupsDto>>(diagnosisTests);
 
-                //var doctorDetails = await _doctorDetails.WithDetailsAsync(s => s.Speciality);
-                
+                var doctorDetails = await _doctorDetails.WithDetailsAsync(s => s.Speciality);
+                //var doctorDetails = await _doctorDetails.WithDetailsAsync(s => s.Speciality, p=>p.DoctorSpecialization);
                 var result = new PrescriptionMasterDto();
                 if (prescription != null)
                 {
-                    var doctorInfo = await _doctorDetails.GetAsync(d => d.Id == prescription.DoctorProfileId);
+                    //var experts = "";
+                    
+                    var doctorInfo = doctorDetails.Where(d => d.Id == prescription.DoctorProfileId).FirstOrDefault();
+                    //if(doctorInfo.DoctorSpecialization.Count() > 0)
+                    //{
+                    //    foreach(var experties in doctorInfo.DoctorSpecialization)
+                    //    {
+                    //        experts = experts + experties.Specialization.SpecializationName.ToString();
+                    //    }
+                    //}
                     var patientDetails = await _patientDetails.GetAsync(d => d.Id == prescription.PatientProfileId);
                     result.Id = prescription.Id;
                     result.RefferenceCode = prescription.RefferenceCode;
@@ -360,11 +369,11 @@ namespace SoowGoodWeb.Services
                     result.AppointmentSerial = prescription.Appointment?.AppointmentSerial;
                     result.AppointmentCode = prescription.AppointmentCode;
                     result.DoctorProfileId = prescription.Appointment?.DoctorProfileId;
-                    result.DoctorName = Utilities.Utility.GetDisplayName(doctorInfo.DoctorTitle).ToString() + " " + prescription.Appointment?.DoctorName;
+                    result.DoctorName = (doctorInfo != null ? Utilities.Utility.GetDisplayName(doctorInfo.DoctorTitle).ToString() : "" + " ") + prescription.Appointment?.DoctorName;
                     result.DoctorCode = prescription.Appointment?.DoctorCode;
-                    result.DoctorBmdcRegNo = doctorInfo?.BMDCRegNo;
-                    result.SpecialityId = doctorInfo?.SpecialityId;
-                    result.DoctorSpecilityName = doctorInfo?.Speciality?.SpecialityName;
+                    result.DoctorBmdcRegNo = doctorInfo != null ? doctorInfo?.BMDCRegNo : "";
+                    result.SpecialityId = doctorInfo != null ? doctorInfo?.SpecialityId : null;
+                    result.DoctorSpecilityName = doctorInfo?.SpecialityId > 0 ? doctorInfo?.Speciality?.SpecialityName:"";
                     result.PatientProfileId = prescription.PatientProfileId;
                     result.PatientName = prescription?.PatientName;
                     result.PatientCode = patientDetails?.PatientCode;
@@ -393,11 +402,11 @@ namespace SoowGoodWeb.Services
                 }
                 return result;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-              return  null;
+                return null;
             }
-            
+
         }
     }
 }
