@@ -361,5 +361,74 @@ namespace SoowGoodWeb.Services
             }
             return ObjectMapper.Map<List<PatientProfile>, List<PatientProfileDto>>(profiles);
         }
+        public async Task<List<PatientProfileDto>> GetPatientListFilterByAdminAsync(long? userId, string? role, DataFilterModel? patientFilterModel, FilterModel filterModel)
+        {
+            List<PatientProfileDto> result = null;
+            List<PatientProfile>? patients = null;
+            List<PatientProfile>? itemPatients = null;
+            try
+            {
+                var profileWithDetails = await _patientProfileRepository.GetListAsync();
+                var agentDetails = await _agentProfileRepository.WithDetailsAsync(a => a.AgentMaster, s => s.AgentSupervisor);
+                var profiles = profileWithDetails.Where(p => !string.IsNullOrEmpty(p.PatientName)).ToList();
+                //var schedules = await _patientProfileRepository.WithDetailsAsync();
+                //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
+                if (!string.IsNullOrEmpty(role) && role != "sgadmin")
+                {
+                    patients = profiles.Where(c => c.CreatorRole == "agent").ToList();
+
+                    var agentsByMasterSupervisors = agentDetails.Where(a => role == "masteragent" ? a.AgentMasterId == userId : a.AgentSupervisorId == userId).ToList();
+
+                    itemPatients = (from app in patients join agents in agentsByMasterSupervisors on app.CreatorEntityId equals agents.Id select app).ToList();
+
+                }
+                //else
+                //{
+                //    itemPatients = profiles.Where(a => a.AppointmentStatus > 0).ToList();//allAppoinment.Where(d => (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed || d.AppointmentStatus == AppointmentStatus.Pending || d.AppointmentStatus == AppointmentStatus.Cancelled || d.AppointmentStatus == AppointmentStatus.InProgress || d.AppointmentStatus == AppointmentStatus.Failed)).ToList();
+                //}
+                if (!profileWithDetails.Any())
+                {
+                    return result;
+                }
+                result = new List<PatientProfileDto>();
+                if (patientFilterModel != null && !string.IsNullOrEmpty(patientFilterModel.name))
+                {
+                    //profiles = profiles.Where(p => p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())).ToList();
+                    profiles = profiles.Where(p => p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())).ToList();
+                }
+                foreach (var item in profiles)
+                {
+                    var agent = item.CreatorRole == "agent" ? agentDetails.Where(a => a.Id == item.CreatorEntityId).FirstOrDefault() : null;
+                    result.Add(new PatientProfileDto()
+                    {
+                        Id = item.Id,
+                        PatientName = item.PatientName,
+                        PatientEmail = item.PatientEmail,
+                        PatientMobileNo = item.PatientMobileNo,
+                        PatientCode = item.PatientCode,
+                        DateOfBirth = item.DateOfBirth,
+                        Gender = item.Gender,
+                        GenderName = item.Gender > 0 ? ((Gender)item.Gender).ToString() : "n/a",
+                        BloodGroup = item.BloodGroup,
+                        Address = item.Address,
+                        ProfileRole = "Patient",
+                        CreatorRole = item.CreatorRole,
+                        BoothName = item.CreatorRole == "agent" ? agent?.Address : "N/A",
+                        AgentMasterName = item.CreatorRole == "agent" ? agent?.AgentMaster?.AgentMasterOrgName : "N/A",
+                        AgentSupervisorName = item.CreatorRole == "agent" ? agent?.AgentSupervisor?.AgentSupervisorOrgName : "N/A",
+                    });
+                }
+
+
+                //result = result.Skip(filterModel.Offset)
+                //                   .Take(filterModel.Limit).ToList();
+            }
+            catch
+            {
+                return null;
+            }
+
+            return result;
+        }
     }
 }
