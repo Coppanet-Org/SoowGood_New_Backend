@@ -667,6 +667,8 @@ namespace SoowGoodWeb.Services
                 decimal? vatAmnt = fees.Where(a => a.Vat > 0)?.FirstOrDefault()?.Vat;
                 decimal? vatCharge = vatAmnt / 100;
 
+                //profiles = profiles.OrderByDescending
+
                 try
                 {
                     foreach (var item in profiles)
@@ -804,6 +806,7 @@ namespace SoowGoodWeb.Services
                             DisplayInstantFeeAsAgent = individualInstantfeeAsAgent > 0 ? Math.Round((decimal)individualInstantfeeAsAgent, 2) : Math.Round((decimal)instantfeeAsAgent, 2)
                         });
                     }
+                    result= result.OrderBy(f => f.DisplayInstantFeeAsPatient).ToList();
                     result = result.Skip(filterModel.Offset)
                    .Take(filterModel.Limit).ToList();
                 }
@@ -816,7 +819,7 @@ namespace SoowGoodWeb.Services
                 return null;
             }
 
-            return result.OrderBy(f => f.DisplayInstantFeeAsPatient).ToList();
+            return result;//.OrderBy(f => f.DisplayInstantFeeAsPatient).ToList();
         }
         /// <summary>
         /// 
@@ -1543,7 +1546,6 @@ namespace SoowGoodWeb.Services
             }
             return result.OrderByDescending(d => d.Id).ToList();
         }
-
         public async Task<List<DoctorProfileDto>> GetDoctorListFilterByAdminAsync(DataFilterModel? doctorFilterModel, FilterModel filterModel)
         {
             List<DoctorProfileDto> result = null;

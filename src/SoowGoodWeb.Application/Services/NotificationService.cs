@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
@@ -54,21 +55,29 @@ namespace SoowGoodWeb.Services
         }
         public async Task<List<NotificationDto>> GetListByUserIdAsync(long userId, string? role)
         {
-            var notifications = await _notificationRepository.GetListAsync();
-            
-            if (role == "doctor")
+            var findNotification = new List<Notification>();
+            try
             {
-                notifications = notifications.Where(c => c.NotifyToEntityId == userId).OrderByDescending(x => x.Id).ToList();
+                var notifications = await _notificationRepository.WithDetailsAsync();
+                
+                if (!string.IsNullOrEmpty(role))
+                {
+                    findNotification = notifications.Where(c => c.NotifyToEntityId == userId && c.NotifyToRole==role).OrderByDescending(x => x.Id).ToList();
+                }
+                //else if (role == "patient" || role == "agent")
+                //{
+                //    findNotification = notifications.Where(c => c.CreatorEntityId == userId).OrderByDescending(x => x.Id).ToList();
+                //}
+                else
+                {
+                    findNotification = notifications.OrderByDescending(x => x.Id).ToList();
+                }
             }
-            else if (role == "patient" ||  role =="agent")
+            catch (Exception wx)
             {
-                notifications = notifications.Where(c => c.CreatorEntityId == userId).OrderByDescending(x => x.Id).ToList();
+                return null;
             }
-            else
-            {
-                notifications = notifications.OrderByDescending(x => x.Id).ToList();
-            }
-            return ObjectMapper.Map<List<Notification>, List<NotificationDto>>(notifications);
+            return ObjectMapper.Map<List<Notification>, List<NotificationDto>>(findNotification);
         }
         public async Task<int> GetCountByUserId(long userId, string? role)
         {
@@ -76,11 +85,11 @@ namespace SoowGoodWeb.Services
 
             if (role == "doctor")
             {
-                notifications = notifications.Where(c => c.NotifyToEntityId == userId).OrderByDescending(x => x.Id).ToList();
+                notifications = notifications.Where(c => c.NotifyToEntityId == userId || c.CreatorEntityId == userId).OrderByDescending(x => x.Id).ToList();
             }
             else if (role == "patient" || role == "agent")
             {
-                notifications = notifications.Where(c => c.CreatorEntityId == userId).OrderByDescending(x => x.Id).ToList();
+                notifications = notifications.Where(c => c.CreatorEntityId == userId || c.CreatorEntityId == userId).OrderByDescending(x => x.Id).ToList();
             }
             else
             {
