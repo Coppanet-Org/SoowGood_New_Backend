@@ -508,12 +508,14 @@ namespace SoowGoodWeb.Services
                     result.Add(new AppointmentDto()
                     {
                         Id = item.Id,
+                        PatientProfileId = item.Id,
                         PatientName = item.PatientName,
                         AppointmentDate = Convert.ToDateTime(item.AppointmentDate).Date,
                         AppointmentTime = item.AppointmentTime,
                         AppointmentSerial = item.AppointmentSerial,
                         AppointmentType = item.AppointmentType,
                         AppointmentTypeName = item.AppointmentType > 0 ? ((AppointmentType)item.AppointmentType).ToString() : "n/a",
+                        DoctorProfileId = item.DoctorProfileId,
                         DoctorName = drTitle + " " + item.DoctorName,
                         DoctorScheduleId = item.DoctorScheduleId,
                         DoctorScheduleName = item.DoctorScheduleId > 0 ? item.DoctorSchedule?.ScheduleName : "n/a",
@@ -606,12 +608,14 @@ namespace SoowGoodWeb.Services
                     result.Add(new AppointmentDto()
                     {
                         Id = item.Id,
+                        PatientProfileId = item.PatientProfileId,
                         PatientName = item.PatientName,
                         AppointmentDate = Convert.ToDateTime(item.AppointmentDate).Date,
                         AppointmentTime = item.AppointmentTime,
                         AppointmentSerial = item.AppointmentSerial,
                         AppointmentType = item.AppointmentType,
                         AppointmentTypeName = item.AppointmentType > 0 ? ((AppointmentType)item.AppointmentType).ToString() : "n/a",
+                        DoctorProfileId = item.DoctorProfileId,
                         DoctorName = drTitle + " " + item.DoctorName,
                         DoctorScheduleId = item.DoctorScheduleId,
                         DoctorScheduleName = item.DoctorScheduleId > 0 ? item.DoctorSchedule?.ScheduleName : "n/a",
