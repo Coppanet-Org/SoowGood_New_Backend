@@ -688,7 +688,7 @@ namespace SoowGoodWeb.Services
 
         public async Task<int> GetAppCountByScheduleIdSessionIdAsync(long? scheduleId, long? sessionId)
         {
-            var appointments = await _appointmentRepository.GetListAsync(a => a.DoctorScheduleId == scheduleId && a.DoctorScheduleDaySessionId == sessionId);
+            var appointments = await _appointmentRepository.GetListAsync(a => a.DoctorScheduleId == scheduleId && a.DoctorScheduleDaySessionId == sessionId && a.CancelledByEntityId==null && a.CancelledByRole==null);
             var appCount = appointments.Count();
             return appCount;
         }
@@ -1072,6 +1072,7 @@ namespace SoowGoodWeb.Services
 
             var notificatinCreatorInput = new NotificationInputDto();
             var notificatinReceiverInput = new NotificationInputDto();
+            var notificatinAdminInput = new NotificationInputDto();
             var notificatin = new NotificationDto();
             var result = "";
             try
@@ -1141,6 +1142,28 @@ namespace SoowGoodWeb.Services
                         var newNotificaitonForReceiverEntity = ObjectMapper.Map<NotificationInputDto, Notification>(notificatinReceiverInput);
                         var notifictionForReceiverInsert = await _notificationRepository.InsertAsync(newNotificaitonForReceiverEntity);
 
+                        notificatinAdminInput.TransactionType = "Add";
+                        notificatinAdminInput.CreatorEntityId = appointment.AppointmentCreatorId;
+                        if (appointment.AppointmentCreatorRole == "agent")
+                        {
+                            var agent = await _agentRepository.GetAsync(a => a.Id == appointment.AppointmentCreatorId);
+                            notificatinAdminInput.CreatorName = agent.FullName;
+                        }
+                        else
+                        {
+                            notificatinAdminInput.CreatorName = appointment.PatientName;
+                        }
+                        notificatinAdminInput.CreatorRole = appointment.AppointmentCreatorRole;
+                        notificatinAdminInput.CreateForName = appointment.PatientName;
+                        notificatinAdminInput.NotifyToEntityId = 0;
+                        notificatinAdminInput.NotifyToName = "SG-Admin";
+                        notificatinAdminInput.NotifyToRole = "SGAdmin";
+                        notificatinAdminInput.NoticeFromEntity = "Appointment";
+                        notificatinAdminInput.NoticeFromEntityId = appointment.Id;
+
+                        var newNotificaitonForAdminEntity = ObjectMapper.Map<NotificationInputDto, Notification>(notificatinAdminInput);
+                        var notifictionForAdminInsert = await _notificationRepository.InsertAsync(newNotificaitonForAdminEntity);
+
                         //
                     }
                     else if (sts == 2)
@@ -1148,6 +1171,8 @@ namespace SoowGoodWeb.Services
                         appointment.AppointmentStatus = AppointmentStatus.Cancelled;
                         appointment.PaymentTransactionId = transactions?.tran_id;
                         appointment.AppointmentPaymentStatus = AppointmentPaymentStatus.FailedOrCancelled;
+                        appointment.CancelledByEntityId = appointment.AppointmentCreatorId;
+                        appointment.CancelledByRole = appointment.AppointmentCreatorRole;
 
                         //Notifiaction
                         notificatinCreatorInput.Message = "Your appointment is cancelled, due to a cancelled payment.";
@@ -1179,6 +1204,8 @@ namespace SoowGoodWeb.Services
                         appointment.AppointmentStatus = AppointmentStatus.Failed;
                         appointment.PaymentTransactionId = transactions?.tran_id;
                         appointment.AppointmentPaymentStatus = AppointmentPaymentStatus.FailedOrCancelled;
+                        appointment.CancelledByEntityId = appointment.AppointmentCreatorId;
+                        appointment.CancelledByRole = appointment.AppointmentCreatorRole;
 
                         //Notifiaction
                         notificatinCreatorInput.Message = "Your appointment is cancelled, due to a faild payment.";
