@@ -312,9 +312,8 @@ namespace SoowGoodWeb.Services
             return false;
         }
 
-        public async Task<OtpResultDto> SendOtp(string clientKey, string mobileNo)
-        {
-            var result = new OtpResultDto();
+        public async Task<bool> SendOtp(string clientKey, string mobileNo)
+        {            
             if (!string.IsNullOrEmpty(clientKey) && clientKey.Equals("SoowGood_App", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrEmpty(mobileNo))
             {
                 int otp = Utility.GetRandomNo(1000, 9999);
@@ -333,16 +332,15 @@ namespace SoowGoodWeb.Services
                 {
                     var res = await _smsService.SendSmsGreenWeb(otpInput);
                     var isUserExist = await CheckUserExists(mobileNo);
-                    result.OtpSent=true;
-                    result.IsUserExists = isUserExist;
+                    return true;
                 }
                 catch (Exception e)
                 {
-                    return result;
+                    return false;
                     throw new Exception(e.Message);
                 }
             }
-            return result;
+            return false;
         }
 
         public async Task<bool> CheckUserExists(string mobileNo)
@@ -377,6 +375,72 @@ namespace SoowGoodWeb.Services
             else if (exits == 1)
             {
                 return true;
+            }
+            return false;
+        }
+        public async Task<bool> SendWebOtp(string clientKey, string mobileNo)
+        {
+            int exits = 0;
+            var doctors = await _doctorProfileRepository.GetListAsync();//(d => d.MobileNo==mobileNo);
+            var doctor = doctors.FirstOrDefault(d => d.MobileNo == mobileNo);
+
+            if (doctor == null)
+            {
+                var patients = await _patientProfileRepository.GetListAsync();//.GetAsync(p => p.MobileNo==mobileNo);
+                var patient = patients.FirstOrDefault(p => p.MobileNo == mobileNo);
+                if (patient == null)
+                {
+                    var agents = await _agentProfileRepository.GetListAsync();//.GetAsync(a => a.MobileNo==mobileNo);
+                    var agent = agents.FirstOrDefault(a => a.MobileNo == mobileNo);
+                    if (agent == null)
+                    {
+                        exits = 0;
+                    }
+                    else
+                    {
+                        exits = 1;
+                    }
+                }
+                else
+                {
+                    exits = 1;
+                }
+            }
+            else
+            {
+                exits = 1;
+            }
+            if (exits == 0)
+            {
+                if (!string.IsNullOrEmpty(clientKey) && clientKey.Equals("SoowGood_App", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrEmpty(mobileNo))
+                {
+                    int otp = Utility.GetRandomNo(1000, 9999);
+                    Otp otpEntity = new Otp();
+                    otpEntity.OtpNo = otp;
+                    otpEntity.MobileNo = mobileNo;
+                    otpEntity.ExpireDateTime = DateTime.Now.AddMinutes(3);
+                    otpEntity.OtpStatus = OtpStatus.New;
+                    await _repository.InsertAsync(otpEntity);
+                    // stp start
+                    SmsRequestParamDto otpInput = new SmsRequestParamDto();
+                    otpInput.Sms = String.Format(otp + " is your OTP to authenticate your Phone No. Do not share this OTP with anyone.");
+                    otpInput.Msisdn = mobileNo;
+                    otpInput.CsmsId = GenerateTransactionId(16);
+                    try
+                    {
+                        var res = await _smsService.SendSmsGreenWeb(otpInput);
+                        return true;
+                    }
+                    catch (Exception e)
+                    {
+                        return false;
+                        throw new Exception(e.Message);
+                    }
+                }
+            }
+            else
+            {
+                return false;
             }
             return false;
         }
