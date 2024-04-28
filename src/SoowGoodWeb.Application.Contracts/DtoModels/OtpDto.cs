@@ -14,9 +14,9 @@ namespace SoowGoodWeb.DtoModels
         public int? MaxAttempt { get; set; }
     }
 
-    public class OtpResultDto : FullAuditedEntityDto<int>
-    {
-        public bool? Success { get; set; }
-        public string? Message { get; set; }
-    }
+    //public class OtpResultDto : FullAuditedEntityDto<int>
+    //{
+    //    public bool? Success { get; set; }
+    //    public string? Message { get; set; }
+    //}
 }

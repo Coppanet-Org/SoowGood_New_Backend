@@ -24,4 +24,9 @@ namespace SoowGoodWeb.DtoModels
     {
         public string? UserName { get; set; }
     }
+    public class OtpResultDto
+    {
+        public bool? OtpSent { get; set; }
+        public bool? IsUserExists { get; set; }
+    }
 }

@@ -31,12 +31,16 @@ namespace SoowGoodWeb.Utilities
         }
         public static string GetDisplayName(Enum enumValue)
         {
-            var temp = enumValue.GetType().GetMember(enumValue.ToString())
-                           .First();
-            if (temp.GetCustomAttribute<DisplayAttribute>() != null)
-                return temp.GetCustomAttribute<DisplayAttribute>().Name;
-            else
-                return temp.Name;
+            if (enumValue != null)
+            {
+                var temp = enumValue.GetType().GetMember(enumValue.ToString())
+                               .First();
+                if (temp.GetCustomAttribute<DisplayAttribute>() != null)
+                    return temp.GetCustomAttribute<DisplayAttribute>().Name;
+                else
+                    return temp.Name;
+            }
+            return "";
         }
 
         public static int getTimestamp()
