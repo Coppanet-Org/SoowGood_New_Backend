@@ -53,14 +53,14 @@ namespace SoowGoodWeb.Services
             var notificationlist = notifications.OrderByDescending(x => x.Id).ToList();
             return ObjectMapper.Map<List<Notification>, List<NotificationDto>>(notificationlist);
         }
-        public async Task<List<NotificationDto>> GetListByUserIdAsync(long userId, string? role)
+        public async Task<List<NotificationDto>> GetListByUserIdAsync(long? userId, string? role)
         {
             var findNotification = new List<Notification>();
             try
             {
                 var notifications = await _notificationRepository.WithDetailsAsync();
                 
-                if (!string.IsNullOrEmpty(role))
+                if (userId>0 && !string.IsNullOrEmpty(role))
                 {
                     findNotification = notifications.Where(c => c.NotifyToEntityId == userId && c.NotifyToRole==role).OrderByDescending(x => x.Id).ToList();
                 }
