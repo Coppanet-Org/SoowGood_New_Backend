@@ -52,37 +52,38 @@ namespace SoowGoodWeb.Services
 
         public async Task<bool> ApplyOtp(string clientKey, string mobileNo)
         {
-            int exits = 0;
-            var doctors = await _doctorProfileRepository.GetListAsync();//(d => d.MobileNo==mobileNo);
-            var doctor = doctors.FirstOrDefault(d => d.MobileNo == mobileNo);
+            var isUserExists = await CheckUserExists(mobileNo);
+            //int exits = 0;
+            //var doctors = await _doctorProfileRepository.GetListAsync();//(d => d.MobileNo==mobileNo);
+            //var doctor = doctors.FirstOrDefault(d => d.MobileNo == mobileNo);
 
-            if (doctor == null)
-            {
-                var patients = await _patientProfileRepository.GetListAsync();//.GetAsync(p => p.MobileNo==mobileNo);
-                var patient = patients.FirstOrDefault(p => p.MobileNo == mobileNo);
-                if (patient == null)
-                {
-                    var agents = await _agentProfileRepository.GetListAsync();//.GetAsync(a => a.MobileNo==mobileNo);
-                    var agent = agents.FirstOrDefault(a => a.MobileNo == mobileNo);
-                    if (agent == null)
-                    {
-                        exits = 0;
-                    }
-                    else
-                    {
-                        exits = 1;
-                    }
-                }
-                else
-                {
-                    exits = 1;
-                }
-            }
-            else
-            {
-                exits = 1;
-            }
-            if (exits == 0)
+            //if (doctor == null)
+            //{
+            //    var patients = await _patientProfileRepository.GetListAsync();//.GetAsync(p => p.MobileNo==mobileNo);
+            //    var patient = patients.FirstOrDefault(p => p.MobileNo == mobileNo);
+            //    if (patient == null)
+            //    {
+            //        var agents = await _agentProfileRepository.GetListAsync();//.GetAsync(a => a.MobileNo==mobileNo);
+            //        var agent = agents.FirstOrDefault(a => a.MobileNo == mobileNo);
+            //        if (agent == null)
+            //        {
+            //            exits = 0;
+            //        }
+            //        else
+            //        {
+            //            exits = 1;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        exits = 1;
+            //    }
+            //}
+            //else
+            //{
+            //    exits = 1;
+            //}
+            if (isUserExists == false)
             {
                 if (!string.IsNullOrEmpty(clientKey) && clientKey.Equals("SoowGood_App", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrEmpty(mobileNo))
                 {
@@ -312,7 +313,7 @@ namespace SoowGoodWeb.Services
             return false;
         }
 
-        public async Task<bool> SendOtp(string clientKey, string mobileNo)
+        public async Task<bool> SendOtpWeb(string clientKey, string mobileNo)
         {            
             if (!string.IsNullOrEmpty(clientKey) && clientKey.Equals("SoowGood_App", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrEmpty(mobileNo))
             {
@@ -343,21 +344,68 @@ namespace SoowGoodWeb.Services
             return false;
         }
 
+        public async Task<OtpResultDto> SendOtp(string clientKey, string mobileNo)
+        {
+            var result = new OtpResultDto();
+            if (!string.IsNullOrEmpty(clientKey) && clientKey.Equals("SoowGood_App", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrEmpty(mobileNo))
+            {
+                int otp = Utility.GetRandomNo(1000, 9999);
+                Otp otpEntity = new Otp();
+                otpEntity.OtpNo = otp;
+                otpEntity.MobileNo = mobileNo;
+                otpEntity.ExpireDateTime = DateTime.Now.AddMinutes(3);
+                otpEntity.OtpStatus = OtpStatus.New;
+                await _repository.InsertAsync(otpEntity);
+                // stp start
+                SmsRequestParamDto otpInput = new SmsRequestParamDto();
+                otpInput.Sms = String.Format(otp + " is your OTP to authenticate your Phone No. Do not share this OTP with anyone.");
+                otpInput.Msisdn = mobileNo;
+                otpInput.CsmsId = GenerateTransactionId(16);
+                try
+                {
+                    var isUserExist = await CheckUserExists(mobileNo);
+                    if (isUserExist == true)
+                    {
+                        var res = await _smsService.SendSmsGreenWeb(otpInput);
+                        result.OtpSent =true;
+                        result.IsUserExists = isUserExist;
+                    }
+                    else
+                    {
+                        result.OtpSent=false;
+                        result.IsUserExists = false;
+                    }                    
+                }
+                catch (Exception e)
+                {
+                    return result;
+                    throw new Exception(e.Message);
+                }
+            }
+            return result;
+        }
+
         public async Task<bool> CheckUserExists(string mobileNo)
         {
             int exits = 0;
             var doctors = await _doctorProfileRepository.GetListAsync();//(d => d.MobileNo==mobileNo);
-
-
             var doctor = doctors.FirstOrDefault(d => d.MobileNo == mobileNo);
-
             if (doctor == null)
             {
                 var patients = await _patientProfileRepository.GetListAsync();//.GetAsync(p => p.MobileNo==mobileNo);
                 var patient = patients.FirstOrDefault(p => p.MobileNo == mobileNo);
                 if (patient == null)
                 {
-                    exits = 0;
+                    var agents = await _agentProfileRepository.GetListAsync();//.GetAsync(a => a.MobileNo==mobileNo);
+                    var agent = agents.FirstOrDefault(a => a.MobileNo == mobileNo);
+                    if(agent == null)
+                    {
+                        exits = 0;
+                    }
+                    else
+                    {
+                        exits = 1;
+                    }
                 }
                 else
                 {
