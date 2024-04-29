@@ -1562,9 +1562,9 @@ namespace SoowGoodWeb.Services
                 var schedules = await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile);
                 var profiles = profileWithDetails.ToList();
 
-                profiles = (from doctors in profiles
-                            join schedule in schedules on doctors.Id equals schedule.DoctorProfileId
-                            select doctors).Distinct().ToList();
+                //profiles = (from doctors in profiles
+                //            join schedule in schedules on doctors.Id equals schedule.DoctorProfileId
+                //            select doctors).Distinct().ToList();
 
                 result = new List<DoctorProfileDto>();
                 var medicaldegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
