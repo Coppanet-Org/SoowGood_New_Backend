@@ -628,10 +628,12 @@ namespace SoowGoodWeb.Services
 
             return result.OrderBy(f => f.DisplayInstantFeeAsPatient).ToList();
         }
+
         /// <summary>
         /// For Mobile App
         /// </summary>
         /// <returns></returns>
+        /// 
         public async Task<List<DoctorProfileDto>> GetLiveOnlineDoctorListAsync(FilterModel filterModel)
         {
             List<DoctorProfileDto> result = null;
@@ -821,12 +823,14 @@ namespace SoowGoodWeb.Services
 
             return result;//.OrderBy(f => f.DisplayInstantFeeAsPatient).ToList();
         }
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="doctorFilterModel"></param>
         /// <param name="filterModel"></param>
         /// <returns></returns>
+        /// 
         public async Task<List<DoctorProfileDto>> GetDoctorListFilterAsync(DataFilterModel? doctorFilterModel, FilterModel filterModel)
         {
             List<DoctorProfileDto> result = null;
@@ -1130,12 +1134,14 @@ namespace SoowGoodWeb.Services
 
             return result;
         }
+        
         /// <summary>
         /// For Mobile App
         /// </summary>
         /// <param name="doctorFilterModel"></param>
         /// <param name="filterModel"></param>
         /// <returns></returns>
+        /// 
         public async Task<List<DoctorProfileDto>> GetDoctorListFilterMobileAppAsync(DataFilterModel? doctorFilterModel, FilterModel filterModel)
         {
             List<DoctorProfileDto> result = null;
