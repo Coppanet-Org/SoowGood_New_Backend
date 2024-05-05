@@ -73,7 +73,7 @@ namespace SoowGoodWeb.Services
                 string consultancyType;
                 long lastSerial;
                 var chamberName = "";
-                input.AppointmentDate = Convert.ToDateTime(input.AppointmentDate).AddDays(1);
+                input.AppointmentDate = Convert.ToDateTime(input.AppointmentDate.Value.Date).AddDays(1);
                 if (input.DoctorChamberId > 0)
 
                 {
@@ -949,7 +949,7 @@ namespace SoowGoodWeb.Services
             {
                 foreach (var session in sessions)
                 {
-                    var appointments = await _appointmentRepository.GetListAsync(a => a.AppointmentDate == date && a.DoctorScheduleDaySessionId == session.Id);
+                    var appointments = await _appointmentRepository.GetListAsync(a => a.AppointmentDate.Value.Date == date.Date && a.DoctorScheduleDaySessionId == session.Id);
                     result.Add(new SessionWeekDayTimeSlotPatientCountDto
                     {
                         ScheduleId = session.DoctorScheduleId,
