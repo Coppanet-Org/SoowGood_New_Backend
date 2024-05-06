@@ -508,13 +508,12 @@ namespace SoowGoodWeb.Services
                 // ignored
             }
 
-            result = result.OrderByDescending(a => a.AppointmentDate).ToList();
-            var list = result.OrderBy(item => item.AppointmentSerial)
-                .GroupBy(item => item.AppointmentDate)
-                .OrderBy(g => g.Key).Select(g => new { g }).ToList();
+            //result = result.OrderByDescending(a => a.AppointmentDate).ToList();
+            var list = result.OrderByDescending(item => item.AppointmentSerial)
+                .GroupBy(item => item.AppointmentDate).SelectMany(g => g).OrderByDescending(d => d.AppointmentDate).ToList();
 
 
-            return result;
+            return list;
         }
 
         public async Task<List<AppointmentDto>?> GetListAppointmentListByAgentMasterAsync(long agentMasterId)
@@ -930,13 +929,12 @@ namespace SoowGoodWeb.Services
             }
 
 
-            result = result.OrderByDescending(a => a.AppointmentDate).ToList();
+            //result = result.OrderByDescending(a => a.AppointmentDate).ToList();
             var list = result.OrderByDescending(item => item.AppointmentSerial)
-                .GroupBy(item => item.AppointmentDate)
-                .OrderBy(g => g.Key).Select(g => new { g }).ToList();
+                .GroupBy(item => item.AppointmentDate).SelectMany(g => g).OrderByDescending(d => d.AppointmentDate).ToList();
 
 
-            return result;
+            return list;
         }
 
         public async Task<List<SessionWeekDayTimeSlotPatientCountDto>> GetListOfSessionsWithWeekDayTimeSlotPatientCountAsync(long secheduleId, DateTime date)
