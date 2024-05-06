@@ -73,7 +73,7 @@ namespace SoowGoodWeb.Services
                 string consultancyType;
                 long lastSerial;
                 var chamberName = "";
-                input.AppointmentDate = Convert.ToDateTime(input.AppointmentDate.Value.Date).AddDays(1);
+                input.AppointmentDate = input.AppointmentDate!=null? Convert.ToDateTime(input.AppointmentDate.Value.Date).AddDays(1):null;
                 if (input.DoctorChamberId > 0)
 
                 {
@@ -256,7 +256,7 @@ namespace SoowGoodWeb.Services
             {
                 return null;
             }
-            return result;
+            return result.OrderByDescending(a=>a.Id).ToList();
 
         }
 
@@ -392,7 +392,7 @@ namespace SoowGoodWeb.Services
             {
                 return null;
             }
-            return result;
+            return result.OrderByDescending(a => a.Id).ToList(); ;
         }
 
         public async Task<int> GetAppointmentCountForPatientWithSearchFilterAsync(long patientId, string role, DataFilterModel? dataFilter)
@@ -930,7 +930,7 @@ namespace SoowGoodWeb.Services
 
 
             result = result.OrderByDescending(a => a.AppointmentDate).ToList();
-            var list = result.OrderBy(item => item.AppointmentSerial)
+            var list = result.OrderByDescending(item => item.AppointmentSerial)
                 .GroupBy(item => item.AppointmentDate)
                 .OrderBy(g => g.Key).Select(g => new { g }).ToList();
 
