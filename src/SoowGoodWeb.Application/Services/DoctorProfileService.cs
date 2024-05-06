@@ -628,10 +628,12 @@ namespace SoowGoodWeb.Services
 
             return result.OrderBy(f => f.DisplayInstantFeeAsPatient).ToList();
         }
+
         /// <summary>
         /// For Mobile App
         /// </summary>
         /// <returns></returns>
+        /// 
         public async Task<List<DoctorProfileDto>> GetLiveOnlineDoctorListAsync(FilterModel filterModel)
         {
             List<DoctorProfileDto> result = null;
@@ -821,12 +823,14 @@ namespace SoowGoodWeb.Services
 
             return result;//.OrderBy(f => f.DisplayInstantFeeAsPatient).ToList();
         }
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="doctorFilterModel"></param>
         /// <param name="filterModel"></param>
         /// <returns></returns>
+        /// 
         public async Task<List<DoctorProfileDto>> GetDoctorListFilterAsync(DataFilterModel? doctorFilterModel, FilterModel filterModel)
         {
             List<DoctorProfileDto> result = null;
@@ -1130,12 +1134,14 @@ namespace SoowGoodWeb.Services
 
             return result;
         }
+        
         /// <summary>
         /// For Mobile App
         /// </summary>
         /// <param name="doctorFilterModel"></param>
         /// <param name="filterModel"></param>
         /// <returns></returns>
+        /// 
         public async Task<List<DoctorProfileDto>> GetDoctorListFilterMobileAppAsync(DataFilterModel? doctorFilterModel, FilterModel filterModel)
         {
             List<DoctorProfileDto> result = null;
@@ -1562,9 +1568,9 @@ namespace SoowGoodWeb.Services
                 var schedules = await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile);
                 var profiles = profileWithDetails.ToList();
 
-                profiles = (from doctors in profiles
-                            join schedule in schedules on doctors.Id equals schedule.DoctorProfileId
-                            select doctors).Distinct().ToList();
+                //profiles = (from doctors in profiles
+                //            join schedule in schedules on doctors.Id equals schedule.DoctorProfileId
+                //            select doctors).Distinct().ToList();
 
                 result = new List<DoctorProfileDto>();
                 var medicaldegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
@@ -2001,20 +2007,20 @@ namespace SoowGoodWeb.Services
                 var itemDoctor = await _doctorProfileRepository.GetAsync(d => d.Id == input.Id);
                 if (itemDoctor != null)
                 {
-                    itemDoctor.FullName = !string.IsNullOrEmpty(input.FullName) ? input.FullName : itemDoctor.FullName;
-                    itemDoctor.DoctorTitle = input.DoctorTitle; //input.DoctorTitle > 0 ? input.DoctorTitle : itemDoctor.DoctorTitle;
-                    itemDoctor.DateOfBirth = input.DateOfBirth != null ? input.DateOfBirth : itemDoctor.DateOfBirth;
-                    itemDoctor.Gender = input.Gender != null ? input.Gender : itemDoctor.Gender;
-                    itemDoctor.Address = !string.IsNullOrEmpty(input.Address) ? input.Address : itemDoctor.Address;
-                    itemDoctor.City = !string.IsNullOrEmpty(input.City) ? input.City : itemDoctor.City;
-                    itemDoctor.Country = !string.IsNullOrEmpty(input.Country) ? input.Country : itemDoctor.Country;
-                    itemDoctor.ZipCode = !string.IsNullOrEmpty(input.ZipCode) ? input.ZipCode : itemDoctor.ZipCode;
-                    itemDoctor.Email = !string.IsNullOrEmpty(input.Email) ? input.Email : itemDoctor.Email;
-                    itemDoctor.IdentityNumber = !string.IsNullOrEmpty(input.IdentityNumber) ? input.IdentityNumber : itemDoctor.IdentityNumber;
-                    itemDoctor.BMDCRegNo = !string.IsNullOrEmpty(input.BMDCRegNo) ? input.BMDCRegNo : itemDoctor.BMDCRegNo;
+                    itemDoctor.FullName          = !string.IsNullOrEmpty(input.FullName) ? input.FullName : itemDoctor.FullName;
+                    itemDoctor.DoctorTitle       = input.DoctorTitle; //input.DoctorTitle > 0 ? input.DoctorTitle : itemDoctor.DoctorTitle;
+                    itemDoctor.DateOfBirth       = input.DateOfBirth != null ? input.DateOfBirth : itemDoctor.DateOfBirth;
+                    itemDoctor.Gender            = input.Gender != null ? input.Gender : itemDoctor.Gender;
+                    itemDoctor.Address           = !string.IsNullOrEmpty(input.Address) ? input.Address : itemDoctor.Address;
+                    itemDoctor.City              = !string.IsNullOrEmpty(input.City) ? input.City : itemDoctor.City;
+                    itemDoctor.Country           = !string.IsNullOrEmpty(input.Country) ? input.Country : itemDoctor.Country;
+                    itemDoctor.ZipCode           = !string.IsNullOrEmpty(input.ZipCode) ? input.ZipCode : itemDoctor.ZipCode;
+                    itemDoctor.Email             = !string.IsNullOrEmpty(input.Email) ? input.Email : itemDoctor.Email;
+                    itemDoctor.IdentityNumber    = !string.IsNullOrEmpty(input.IdentityNumber) ? input.IdentityNumber : itemDoctor.IdentityNumber;
+                    itemDoctor.BMDCRegNo         = !string.IsNullOrEmpty(input.BMDCRegNo) ? input.BMDCRegNo : itemDoctor.BMDCRegNo;
                     itemDoctor.BMDCRegExpiryDate = input.BMDCRegExpiryDate != null ? input.BMDCRegExpiryDate : itemDoctor.BMDCRegExpiryDate;
-                    itemDoctor.SpecialityId = input.SpecialityId > 0 ? input.SpecialityId : itemDoctor.SpecialityId;
-                    itemDoctor.IsActive = input.IsActive;
+                    itemDoctor.SpecialityId      = input.SpecialityId > 0 ? input.SpecialityId : itemDoctor.SpecialityId;
+                    itemDoctor.IsActive          = input.IsActive;
 
 
                     var item = await _doctorProfileRepository.UpdateAsync(itemDoctor);
