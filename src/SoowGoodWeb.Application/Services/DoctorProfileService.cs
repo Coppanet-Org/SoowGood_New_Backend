@@ -1777,32 +1777,40 @@ namespace SoowGoodWeb.Services
         public async Task<List<DoctorProfileDto>> GetListDoctorListByAdminAsync()
         {
             List<DoctorProfileDto>? result = null;
-            var allProfile = await _doctorProfileRepository.GetListAsync();
-            var medcalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
-            var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medcalSpecializations.ToList());
-            if (!allProfile.Any())
+            try 
             {
-                return result;
-            }
-
-            result = new List<DoctorProfileDto>();
-            foreach (var item in allProfile)
-            {
-                result.Add(new DoctorProfileDto()
+                
+                var allProfile = await _doctorProfileRepository.GetListAsync();
+                var medcalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
+                var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medcalSpecializations.ToList());
+                if (!allProfile.Any())
                 {
-                    Id = item.Id,
-                    FullName = item.FullName,
-                    Email = item.Email,
-                    MobileNo = item.MobileNo,
-                    DateOfBirth = item.DateOfBirth,
-                    Gender = item.Gender,
-                    GenderName = item.Gender > 0 ? ((Gender)item.Gender).ToString() : "n/a",
-                    DoctorSpecialization = doctorSpecializations.Where(sp => sp.DoctorProfileId == item.Id && sp.SpecialityId == item.SpecialityId).ToList(),
-                    Address = item.Address,
-                    ProfileRole = "Doctor",
-                    IsActive = item.IsActive,
+                    return result;
+                }
 
-                });
+                result = new List<DoctorProfileDto>();
+                foreach (var item in allProfile)
+                {
+                    result.Add(new DoctorProfileDto()
+                    {
+                        Id = item.Id,
+                        FullName = item.FullName,
+                        Email = item.Email,
+                        MobileNo = item.MobileNo,
+                        DateOfBirth = item.DateOfBirth,
+                        Gender = item.Gender,
+                        GenderName = item.Gender > 0 ? ((Gender)item.Gender).ToString() : "n/a",
+                        DoctorSpecialization = doctorSpecializations.Where(sp => sp.DoctorProfileId == item.Id && sp.SpecialityId == item.SpecialityId).ToList(),
+                        Address = item.Address,
+                        ProfileRole = "Doctor",
+                        IsActive = item.IsActive,
+
+                    });
+                }
+                
+            }
+            catch(Exception ex) 
+            {
             }
             return result.OrderByDescending(d => d.Id).ToList();
         }
