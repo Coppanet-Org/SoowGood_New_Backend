@@ -129,7 +129,7 @@ namespace SoowGoodWeb.Services
                 result.AppointmentSerial = prescription.Appointment?.AppointmentSerial;
                 result.AppointmentType = prescription.Appointment?.AppointmentType;
                 result.AppointmentCode = prescription.AppointmentCode;
-                result.DoctorProfileId = prescription.Appointment?.DoctorProfileId;
+                result.DoctorProfileId = prescription.DoctorProfileId;
                 result.DoctorName = (doctorInfo != null ? Utilities.Utility.GetDisplayName(doctorInfo.DoctorTitle).ToString() : "" + " ") + prescription.Appointment?.DoctorName;
                 result.DoctorCode = prescription.Appointment?.DoctorCode;
                 result.PatientProfileId = prescription.PatientProfileId;
@@ -251,7 +251,7 @@ namespace SoowGoodWeb.Services
                         AppointmentId = item.AppointmentId,
                         AppointmentSerial = item.Appointment?.AppointmentSerial,
                         AppointmentCode = item.AppointmentCode,
-                        DoctorProfileId = item.Appointment?.DoctorProfileId,
+                        DoctorProfileId = item.DoctorProfileId,
                         DoctorName = (doctorInfo != null ? Utilities.Utility.GetDisplayName(doctorInfo.DoctorTitle).ToString() : "" + " ") + item.Appointment?.DoctorName,
                         DoctorCode = item.Appointment?.DoctorCode,
                         DoctorBmdcRegNo = doctorInfo?.BMDCRegNo,
@@ -368,7 +368,7 @@ namespace SoowGoodWeb.Services
                     result.AppointmentId = prescription.AppointmentId;
                     result.AppointmentSerial = prescription.Appointment?.AppointmentSerial;
                     result.AppointmentCode = prescription.AppointmentCode;
-                    result.DoctorProfileId = prescription.Appointment?.DoctorProfileId;
+                    result.DoctorProfileId = prescription.DoctorProfileId;
                     result.DoctorName = (doctorInfo != null ? Utilities.Utility.GetDisplayName(doctorInfo.DoctorTitle).ToString() : "" + " ") + prescription.Appointment?.DoctorName;
                     result.DoctorCode = prescription.Appointment?.DoctorCode;
                     result.DoctorBmdcRegNo = doctorInfo != null ? doctorInfo?.BMDCRegNo : "";

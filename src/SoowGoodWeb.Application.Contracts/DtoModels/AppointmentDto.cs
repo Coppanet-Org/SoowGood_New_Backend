@@ -56,6 +56,7 @@ namespace SoowGoodWeb.DtoModels
         public bool? IsCousltationComplete { get; set; }
         public string? CreatorName { get; set; }
         public string? BoothName { get; set; }
+        public string? AgentName { get; set; }
         public string? AgentMasterName { get; set; }
         public string? AgentSupervisorName { get; set; }
     }
