@@ -7,27 +7,44 @@ using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Uow;
+using Volo.Abp.Validation;
 
 namespace SoowGoodWeb.Services
 {
     public class DoctorSpecializationService : SoowGoodWebAppService, IDoctorSpecializationService
     {
         private readonly IRepository<DoctorSpecialization> _doctorSpecializationRepository;
+        private readonly IRepository<Specialization> _specialization;
+        private readonly IRepository<Speciality> _speciality;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
-        public DoctorSpecializationService(IRepository<DoctorSpecialization> doctorSpecializationRepository, IUnitOfWorkManager unitOfWorkManager)
+        public DoctorSpecializationService(IRepository<DoctorSpecialization> doctorSpecializationRepository
+            , IUnitOfWorkManager unitOfWorkManager,
+IRepository<Specialization> specialization,
+IRepository<Speciality> speciality)
         {
             _doctorSpecializationRepository = doctorSpecializationRepository;
             _unitOfWorkManager = unitOfWorkManager;
+            _specialization = specialization;
+            _speciality = speciality;
+
         }
         public async Task<DoctorSpecializationDto> CreateAsync(DoctorSpecializationInputDto input)
         {
+
             var newEntity = ObjectMapper.Map<DoctorSpecializationInputDto, DoctorSpecialization>(input);
 
             var doctorSpecialization = await _doctorSpecializationRepository.InsertAsync(newEntity);
 
             await _unitOfWorkManager.Current.SaveChangesAsync();
+            var resp = ObjectMapper.Map<DoctorSpecialization, DoctorSpecializationDto>(doctorSpecialization);
+            var sprecialitis = await _speciality.WithDetailsAsync();
+            var specializations = await _specialization.WithDetailsAsync();
 
-            return ObjectMapper.Map<DoctorSpecialization, DoctorSpecializationDto>(doctorSpecialization);
+            var speciality = sprecialitis.Where(s=> s.Id == resp.SpecialityId).FirstOrDefault();
+            var specialization = specializations.Where(s=> s.Id == resp.SpecializationId).FirstOrDefault();
+            resp.SpecialityName = speciality?.SpecialityName;
+            resp.SpecializationName = specialization?.SpecializationName;
+            return resp;//ObjectMapper.Map<DoctorSpecialization, DoctorSpecializationDto>(doctorSpecialization);
         }
         public async Task<DoctorSpecializationDto> GetAsync(int id)
         {
@@ -53,7 +70,7 @@ namespace SoowGoodWeb.Services
         }
         public async Task<List<DoctorSpecializationDto>> GetDoctorSpecializationListByDoctorIdAsync(int doctorId)
         {
-            var docSpecialization = await _doctorSpecializationRepository.WithDetailsAsync(x => x.DoctorProfile, t=>t.Speciality, s=>s.Specialization);
+            var docSpecialization = await _doctorSpecializationRepository.WithDetailsAsync(x => x.DoctorProfile, t => t.Speciality, s => s.Specialization);
             var specialization = docSpecialization.Where(x => x.DoctorProfileId == doctorId);
             return ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(specialization.ToList());
         }
@@ -82,7 +99,7 @@ namespace SoowGoodWeb.Services
                         DoctorProfileId = item.DoctorProfileId,
                         SpecialityName = item.Speciality?.SpecialityName,
                         SpecializationName = item.Specialization?.SpecializationName,
-                        DocumentName=item.DocumentName,
+                        DocumentName = item.DocumentName,
                     });
                 }
             }
