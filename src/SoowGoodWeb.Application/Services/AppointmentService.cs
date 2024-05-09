@@ -73,7 +73,7 @@ namespace SoowGoodWeb.Services
                 string consultancyType;
                 long lastSerial;
                 var chamberName = "";
-                input.AppointmentDate = input.AppointmentDate!=null? Convert.ToDateTime(input.AppointmentDate.Value.Date).AddDays(1):null;
+                input.AppointmentDate = input.AppointmentDate != null ? Convert.ToDateTime(input.AppointmentDate.Value.Date).AddDays(1) : null;
                 if (input.DoctorChamberId > 0)
 
                 {
@@ -256,7 +256,7 @@ namespace SoowGoodWeb.Services
             {
                 return null;
             }
-            return result.OrderByDescending(a=>a.Id).ToList();
+            return result.OrderByDescending(a => a.Id).ToList();
 
         }
 
@@ -497,7 +497,7 @@ namespace SoowGoodWeb.Services
                         PaymentTransactionId = item.PaymentTransactionId,
                         AppointmentCreatorRole = item.AppointmentCreatorRole,
                         BoothName = item.AppointmentCreatorRole == "agent" ? agent?.Address : "N/A",
-                        AgentName=item.AppointmentCreatorRole =="agent"? agent?.FullName:"N/A",
+                        AgentName = item.AppointmentCreatorRole == "agent" ? agent?.FullName : "N/A",
                         AgentMasterName = item.AppointmentCreatorRole == "agent" ? agent?.AgentMaster?.AgentMasterOrgName : "N/A",
                         AgentSupervisorName = item.AppointmentCreatorRole == "agent" ? agent?.AgentSupervisor?.AgentSupervisorOrgName : "N/A",
                     });
@@ -508,12 +508,15 @@ namespace SoowGoodWeb.Services
                 // ignored
             }
 
-            //result = result.OrderByDescending(a => a.AppointmentDate).ToList();
-            var list = result.OrderByDescending(item => item.AppointmentSerial)
-                .GroupBy(item => item.AppointmentDate).SelectMany(g => g).OrderByDescending(d => d.AppointmentDate).ToList();
+            result = result.OrderByDescending(a => a.AppointmentDate).ToList();
+            //var finalList = result.OrderByDescending(item => item.AppointmentDate).ToList();
 
+            var finalResult = (from element in result
+                               group element by element.AppointmentDate
+                      into groups
+                               select groups.OrderByDescending(p => Convert.ToInt32(p.AppointmentSerial))).SelectMany(g => g).ToList();
 
-            return list;
+            return finalResult;
         }
 
         public async Task<List<AppointmentDto>?> GetListAppointmentListByAgentMasterAsync(long agentMasterId)
@@ -688,7 +691,7 @@ namespace SoowGoodWeb.Services
 
         public async Task<int> GetAppCountByScheduleIdSessionIdAsync(long? scheduleId, long? sessionId)
         {
-            var appointments = await _appointmentRepository.GetListAsync(a => a.DoctorScheduleId == scheduleId && a.DoctorScheduleDaySessionId == sessionId && a.CancelledByEntityId==null && a.CancelledByRole==null);
+            var appointments = await _appointmentRepository.GetListAsync(a => a.DoctorScheduleId == scheduleId && a.DoctorScheduleDaySessionId == sessionId && a.CancelledByEntityId == null && a.CancelledByRole == null);
             var appCount = appointments.Count();
             return appCount;
         }
@@ -929,12 +932,15 @@ namespace SoowGoodWeb.Services
             }
 
 
-            //result = result.OrderByDescending(a => a.AppointmentDate).ToList();
-            var list = result.OrderByDescending(item => item.AppointmentSerial)
-                .GroupBy(item => item.AppointmentDate).SelectMany(g => g).OrderByDescending(d => d.AppointmentDate).ToList();
+            result = result.OrderByDescending(a => a.AppointmentDate).ToList();
+            //var finalList = result.OrderByDescending(item => item.AppointmentDate).ToList();
 
+            var finalResult = (from element in result
+                               group element by element.AppointmentDate
+                      into groups
+                               select groups.OrderByDescending(p => Convert.ToInt32(p.AppointmentSerial))).SelectMany(g => g).ToList();
 
-            return list;
+            return finalResult;
         }
 
         public async Task<List<SessionWeekDayTimeSlotPatientCountDto>> GetListOfSessionsWithWeekDayTimeSlotPatientCountAsync(long secheduleId, DateTime date)
@@ -1011,7 +1017,7 @@ namespace SoowGoodWeb.Services
 
                 notificatinInput.TransactionType = "Add";
                 notificatinInput.CreatorEntityId = itemAppointment.DoctorProfileId;
-                notificatinInput.CreatorName =  itemAppointment.DoctorName;
+                notificatinInput.CreatorName = itemAppointment.DoctorName;
                 notificatinInput.CreatorRole = "Doctor";
                 notificatinInput.CreateForName = itemAppointment.DoctorName;
                 notificatinInput.NotifyToEntityId = itemAppointment.PatientProfileId;
@@ -1117,7 +1123,7 @@ namespace SoowGoodWeb.Services
                         notificatinReceiverInput.Message = "Mr./Mrs./Ms " + appointment.PatientName + ", your appointment " + appointment.AppointmentCode + "  is confirmed  with doctor " + appointment.DoctorName
                                                               + " at " + appointment.AppointmentTime + " on " + appointment.AppointmentDate.Value.Date + " Please be prepared 5 minutes before the appointment.";
 
-                        
+
 
                         notificatinReceiverInput.TransactionType = "Add";
                         notificatinReceiverInput.CreatorEntityId = appointment.AppointmentCreatorId;
@@ -1232,7 +1238,7 @@ namespace SoowGoodWeb.Services
                     }
                     await _appointmentRepository.UpdateAsync(appointment);
 
-                    
+
 
                     await _hubContext.Clients.All.BroadcastMessage();//notifictionInsert.Id
 
