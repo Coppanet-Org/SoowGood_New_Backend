@@ -197,7 +197,8 @@ namespace SoowGoodWeb.Services
                 if (masterFilterModel != null && !string.IsNullOrEmpty(masterFilterModel.name))
                 {
                     //profiles = profiles.Where(p => p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())).ToList();
-                    profiles = profiles.Where(p => p.ContactPerson.ToLower().Contains(masterFilterModel.name.ToLower().Trim())).ToList();
+                    //profiles = profiles.Where(p => p.ContactPerson.ToLower().Contains(masterFilterModel.name.ToLower().Trim())).ToList();
+                    profiles = profiles.Where(p => (p.ContactPerson != null && p.ContactPerson.ToLower().Contains(masterFilterModel.name.ToLower().Trim())) || (p.ContactPersongMobileNo != null && p.ContactPersongMobileNo.ToLower().Contains(masterFilterModel.name.ToLower().Trim()))).ToList();
                 }
 
                 return ObjectMapper.Map<List<AgentMaster>, List<AgentMasterDto>>(profiles).ToList();

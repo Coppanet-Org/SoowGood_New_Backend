@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp.Account;
-using Volo.Abp.Data;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.ObjectMapping;
 using Volo.Abp.Uow;
@@ -392,15 +391,12 @@ namespace SoowGoodWeb.Services
                     return result;
                 }
                 result = new List<PatientProfileDto>();
-                if ( !string.IsNullOrEmpty(patientFilterModel?.name))
+                if (patientFilterModel != null && !string.IsNullOrEmpty(patientFilterModel.name))
                 {
-                    result = result.Where(p => ((!string.IsNullOrEmpty(p.PatientName)) && (!string.IsNullOrEmpty(p.PatientMobileNo))) && (p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim()) || p.PatientMobileNo.ToLower().Contains(patientFilterModel.name.Trim()))).ToList();
+                    //profiles = profiles.Where(p => p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())).ToList();
+                    profiles = profiles.Where(p => (p.PatientName != null && p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())) || (p.PatientMobileNo != null && p.PatientMobileNo.ToLower().Contains(patientFilterModel.name.ToLower().Trim()))).ToList();
+
                 }
-                //if (patientFilterModel != null && !string.IsNullOrEmpty(patientFilterModel.name))
-                //{
-                //    //profiles = profiles.Where(p => p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())).ToList();
-                //    profiles = profiles.Where(p => p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())).ToList();
-                //}
                 foreach (var item in profiles)
                 {
                     var agent = item.CreatorRole == "agent" ? agentDetails.Where(a => a.Id == item.CreatorEntityId).FirstOrDefault() : null;
