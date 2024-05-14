@@ -1849,8 +1849,21 @@ namespace SoowGoodWeb.Services
                 //                   .Take(filterModel.Limit).ToList();
                 if (!string.IsNullOrEmpty(doctorFilterModel?.name))
                 {
-                    profiles = profiles.Where(p => p.FullName.ToLower().Contains(doctorFilterModel.name.ToLower().Trim())).ToList();
+                    profiles = profiles.Where(p => (p.FullName !=null && p.FullName.ToLower().Contains(doctorFilterModel.name.ToLower().Trim()))|| (p.MobileNo != null && p.MobileNo.ToLower().Contains(doctorFilterModel.name.ToLower().Trim()))).ToList();
                 }
+
+                if (doctorFilterModel?.isActive!=null)
+                {
+                    if (doctorFilterModel?.isActive == true)
+                    {
+                        profiles = profiles.Where(p => p.IsActive == true).ToList();
+                    }
+                    else
+                    {
+                        profiles=profiles.Where(p=>p.IsActive == false).ToList();
+                    }
+                }
+               
 
                 if (doctorFilterModel?.specializationId > 0)
                 {
