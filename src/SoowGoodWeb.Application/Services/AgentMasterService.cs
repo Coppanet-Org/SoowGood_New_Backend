@@ -201,6 +201,18 @@ namespace SoowGoodWeb.Services
                     profiles = profiles.Where(p => (p.ContactPerson != null && p.ContactPerson.ToLower().Contains(masterFilterModel.name.ToLower().Trim())) || (p.ContactPersongMobileNo != null && p.ContactPersongMobileNo.ToLower().Contains(masterFilterModel.name.ToLower().Trim()))).ToList();
                 }
 
+                if (masterFilterModel?.isActive != null)
+                {
+                    if (masterFilterModel?.isActive == true)
+                    {
+                        profiles = profiles.Where(p => p.IsActive == true).ToList();
+                    }
+                    else
+                    {
+                        profiles = profiles.Where(p => p.IsActive == false).ToList();
+                    }
+                }
+
                 return ObjectMapper.Map<List<AgentMaster>, List<AgentMasterDto>>(profiles).ToList();
                 //foreach (var item in profiles)
                 //{
