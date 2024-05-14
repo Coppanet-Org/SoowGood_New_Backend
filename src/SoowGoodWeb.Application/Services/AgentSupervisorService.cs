@@ -194,6 +194,17 @@ namespace SoowGoodWeb.Services
                     //profiles = profiles.Where(p => p.SupervisorName.ToLower().Contains(supervisorFilterModel.name.ToLower().Trim())).ToList();
                     profiles = profiles.Where(p => (p.SupervisorName != null && p.SupervisorName.ToLower().Contains(supervisorFilterModel.name.ToLower().Trim())) || (p.SupervisorMobileNo != null && p.SupervisorMobileNo.ToLower().Contains(supervisorFilterModel.name.ToLower().Trim()))).ToList();
                 }
+                if (supervisorFilterModel?.isActive != null)
+                {
+                    if (supervisorFilterModel?.isActive == true)
+                    {
+                        profiles = profiles.Where(p => p.IsActive == true).ToList();
+                    }
+                    else
+                    {
+                        profiles = profiles.Where(p => p.IsActive == false).ToList();
+                    }
+                }
                 foreach (var item in profiles)
                 {
 
