@@ -147,7 +147,19 @@ namespace SoowGoodWeb.Services
                 if (providerFilterModel != null && !string.IsNullOrEmpty(providerFilterModel.name))
                 {
                     //profiles = profiles.Where(p => p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())).ToList();
-                    profiles = profiles.Where(p => p.ContactPerson.ToLower().Contains(providerFilterModel.name.ToLower().Trim())).ToList();
+                    //profiles = profiles.Where(p => p.ContactPerson.ToLower().Contains(providerFilterModel.name.ToLower().Trim())).ToList();
+                    profiles = profiles.Where(p => (p.ContactPerson != null && p.ContactPerson.ToLower().Contains(providerFilterModel.name.ToLower().Trim())) || (p.ContactPersonMobileNo != null && p.ContactPersonMobileNo.ToLower().Contains(providerFilterModel.name.ToLower().Trim()))).ToList();
+                }
+                if (providerFilterModel?.isActive != null)
+                {
+                    if (providerFilterModel?.isActive == true)
+                    {
+                        profiles = profiles.Where(p => p.IsActive == true).ToList();
+                    }
+                    else
+                    {
+                        profiles = profiles.Where(p => p.IsActive == false).ToList();
+                    }
                 }
                 foreach (var item in profiles)
                 {
