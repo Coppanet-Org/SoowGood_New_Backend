@@ -37,6 +37,6 @@ namespace SoowGoodWeb.InputDto
         public int? profileStep { get; set; }
         public string? createFrom { get; set; }
 
-        public string Expertise { get; set; }
+        public string? Expertise { get; set; }
     }
 }

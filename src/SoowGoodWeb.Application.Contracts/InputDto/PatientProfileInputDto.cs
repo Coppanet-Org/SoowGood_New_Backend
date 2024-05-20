@@ -29,6 +29,6 @@ namespace SoowGoodWeb.InputDto
         public string? CreatorRole { get; set; }
         public long? CreatorEntityId { get; set; }
         public Guid? UserId { get; set; }
-        public bool IsFirstTime { get; set; }
+        public bool? IsFirstTime { get; set; }
     }
 }
