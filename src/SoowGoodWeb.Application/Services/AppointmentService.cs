@@ -901,6 +901,7 @@ namespace SoowGoodWeb.Services
                         PaymentTransactionId = item.PaymentTransactionId,
                         AppointmentCreatorRole = item.AppointmentCreatorRole,
                         BoothName = item.AppointmentCreatorRole == "agent" ? agent?.Address : "N/A",
+                        AgentName = item.AppointmentCreatorRole == "agent" ? agent?.FullName : "N/A",
                         AgentMasterName = item.AppointmentCreatorRole == "agent" ? agent?.AgentMaster?.AgentMasterOrgName : "N/A",
                         AgentSupervisorName = item.AppointmentCreatorRole == "agent" ? agent?.AgentSupervisor?.SupervisorName : "N/A",
                     });
