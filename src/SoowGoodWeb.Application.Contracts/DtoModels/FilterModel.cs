@@ -27,5 +27,6 @@ namespace SoowGoodWeb.DtoModels
         public string? fromDate { get; set; }
         public string? toDate { get; set; }
         public bool? isCurrentOnline { get; set; }
+        public bool? isActive { get; set; }
     }
 }

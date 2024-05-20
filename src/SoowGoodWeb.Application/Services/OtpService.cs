@@ -101,7 +101,7 @@ namespace SoowGoodWeb.Services
                     otpInput.CsmsId = GenerateTransactionId(16);
                     try
                     {
-                        var res = await _smsService.SendSmsGreenWeb(otpInput);
+                        //var res = await _smsService.SendSmsGreenWeb(otpInput);
                         return true;
                     }
                     catch (Exception e)
@@ -296,7 +296,7 @@ namespace SoowGoodWeb.Services
                     otpInput.CsmsId = GenerateTransactionId(16);
                     try
                     {
-                        var res = await _smsService.SendSmsGreenWeb(otpInput);
+                        //var res = await _smsService.SendSmsGreenWeb(otpInput);
                         return true;
                     }
                     catch (Exception e)
@@ -331,7 +331,7 @@ namespace SoowGoodWeb.Services
                 otpInput.CsmsId = GenerateTransactionId(16);
                 try
                 {
-                    var res = await _smsService.SendSmsGreenWeb(otpInput);                    
+                    //var res = await _smsService.SendSmsGreenWeb(otpInput);                    
                     return true;
                 }
                 catch (Exception e)
@@ -365,7 +365,7 @@ namespace SoowGoodWeb.Services
                     var isUserExist = await CheckUserExists(mobileNo);
                     if (isUserExist == true)
                     {
-                        var res = await _smsService.SendSmsGreenWeb(otpInput);
+                        //var res = await _smsService.SendSmsGreenWeb(otpInput);
                         result.OtpSent =true;
                         result.IsUserExists = isUserExist;
                     }
@@ -475,7 +475,7 @@ namespace SoowGoodWeb.Services
                     otpInput.CsmsId = GenerateTransactionId(16);
                     try
                     {
-                        var res = await _smsService.SendSmsGreenWeb(otpInput);
+                        //var res = await _smsService.SendSmsGreenWeb(otpInput);
                         return true;
                     }
                     catch (Exception e)

@@ -28,9 +28,11 @@ namespace SoowGoodWeb.Services
 
         public async Task<AgentMasterDto> CreateAsync(AgentMasterInputDto input)
         {
-            var totalAgentMaters = await _agentMasterRepository.GetListAsync();
-            var count = totalAgentMaters.Count();
+            var count = await _agentMasterRepository.GetCountAsync(); // Get count directly from the repository
+
+            // Generate AgentMasterCode
             input.AgentMasterCode = "SGAM00" + (count + 1);
+
             var newEntity = ObjectMapper.Map<AgentMasterInputDto, AgentMaster>(input);
 
             var agentMaster = await _agentMasterRepository.InsertAsync(newEntity);
@@ -61,8 +63,42 @@ namespace SoowGoodWeb.Services
 
         public async Task<List<AgentMasterDto>> GetListAsync()
         {
-            var agentMasters = await _agentMasterRepository.GetListAsync();
-            return ObjectMapper.Map<List<AgentMaster>, List<AgentMasterDto>>(agentMasters).OrderByDescending(d => d.Id).ToList();
+            List<AgentMasterDto>? result = null;
+            var allagentMasterwithDetails = await _agentMasterRepository.GetListAsync();
+            //var list = allsupervisorwithDetails.ToList();
+
+            if (!allagentMasterwithDetails.Any())
+            {
+                return result;
+            }
+            result = new List<AgentMasterDto>();
+            foreach (var item in allagentMasterwithDetails)
+            {
+                result.Add(new AgentMasterDto()
+                {
+                    Id = item.Id,
+                    AgentMasterCode = item.AgentMasterCode,
+                    AgentMasterDocExpireDate = item.AgentMasterDocExpireDate,
+                    AgentMasterDocNumber = item.AgentMasterDocNumber,
+                    AgentMasterOrgName = item.AgentMasterOrgName,
+                    Address = item.Address,
+                    ContactPerson = item.ContactPerson,
+                    ContactPersongMobileNo = item.ContactPersongMobileNo,
+                    ContactPersonIdentityNumber = item.ContactPersonIdentityNumber,
+                    ContactPersonOfficeId = item.ContactPersonOfficeId,
+                    EmergencyContact = item.EmergencyContact,
+                    City = item.City,
+                    ZipCode = item.ZipCode,
+                    Country = item.Country,
+                    PhoneNo = item.PhoneNo,
+                    Email = item.Email,
+                    IsActive = item.IsActive,
+                    UserId = item.UserId,
+                });
+            }
+            return result;
+            //var agentMasters = await _agentMasterRepository.GetListAsync();
+            //return ObjectMapper.Map<List<AgentMaster>, List<AgentMasterDto>>(agentMasters).OrderByDescending(d => d.Id).ToList();
         }
 
         public async Task<AgentMasterDto> UpdateAsync(AgentMasterInputDto input)
@@ -161,7 +197,20 @@ namespace SoowGoodWeb.Services
                 if (masterFilterModel != null && !string.IsNullOrEmpty(masterFilterModel.name))
                 {
                     //profiles = profiles.Where(p => p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())).ToList();
-                    profiles = profiles.Where(p => p.ContactPerson.ToLower().Contains(masterFilterModel.name.ToLower().Trim())).ToList();
+                    //profiles = profiles.Where(p => p.ContactPerson.ToLower().Contains(masterFilterModel.name.ToLower().Trim())).ToList();
+                    profiles = profiles.Where(p => (p.ContactPerson != null && p.ContactPerson.ToLower().Contains(masterFilterModel.name.ToLower().Trim())) || (p.ContactPersongMobileNo != null && p.ContactPersongMobileNo.ToLower().Contains(masterFilterModel.name.ToLower().Trim()))).ToList();
+                }
+
+                if (masterFilterModel?.isActive != null)
+                {
+                    if (masterFilterModel?.isActive == true)
+                    {
+                        profiles = profiles.Where(p => p.IsActive == true).ToList();
+                    }
+                    else
+                    {
+                        profiles = profiles.Where(p => p.IsActive == false).ToList();
+                    }
                 }
 
                 return ObjectMapper.Map<List<AgentMaster>, List<AgentMasterDto>>(profiles).ToList();
