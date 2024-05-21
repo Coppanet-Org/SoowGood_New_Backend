@@ -332,7 +332,6 @@ namespace SoowGoodWeb.Services
                 try
                 {
                     var res = await _smsService.SendSmsGreenWeb(otpInput);
-                    var isUserExist = await CheckUserExists(mobileNo);
                     return true;
                 }
                 catch (Exception e)

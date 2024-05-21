@@ -602,7 +602,7 @@ namespace SoowGoodWeb.Services
                 {
                     var patientDetails = await _patientProfileRepository.GetAsync(p => p.Id == item.PatientProfileId);
                     var doctorInfo = doctorDetails.Where(d => d.Id == item.DoctorProfileId).FirstOrDefault();
-                    var drTitle = Utilities.Utility.GetDisplayName(doctorInfo.DoctorTitle);
+                    //var drTitle = Utilities.Utility.GetDisplayName(doctorInfo.DoctorTitle);
                     //if(item.AppointmentCreatorRole=="agent")
 
                     result.Add(new AppointmentDto()
@@ -616,7 +616,7 @@ namespace SoowGoodWeb.Services
                         AppointmentType = item.AppointmentType,
                         AppointmentTypeName = item.AppointmentType > 0 ? ((AppointmentType)item.AppointmentType).ToString() : "n/a",
                         DoctorProfileId = item.DoctorProfileId,
-                        DoctorName = drTitle + " " + item.DoctorName,
+                        DoctorName =  item.DoctorName,
                         DoctorScheduleId = item.DoctorScheduleId,
                         DoctorScheduleName = item.DoctorScheduleId > 0 ? item.DoctorSchedule?.ScheduleName : "n/a",
                         AppointmentCode = item.AppointmentCode,
