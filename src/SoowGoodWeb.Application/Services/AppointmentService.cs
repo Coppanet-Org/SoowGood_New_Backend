@@ -73,7 +73,7 @@ namespace SoowGoodWeb.Services
                 string consultancyType;
                 long lastSerial;
                 var chamberName = "";
-                input.AppointmentDate = Convert.ToDateTime(input.AppointmentDate).AddDays(1);
+                input.AppointmentDate = input.AppointmentDate != null ? Convert.ToDateTime(input.AppointmentDate.Value.Date).AddDays(1) : null;
                 if (input.DoctorChamberId > 0)
 
                 {
@@ -256,7 +256,7 @@ namespace SoowGoodWeb.Services
             {
                 return null;
             }
-            return result;
+            return result.OrderByDescending(a => a.Id).ToList();
 
         }
 
@@ -392,7 +392,7 @@ namespace SoowGoodWeb.Services
             {
                 return null;
             }
-            return result;
+            return result.OrderByDescending(a => a.Id).ToList(); ;
         }
 
         public async Task<int> GetAppointmentCountForPatientWithSearchFilterAsync(long patientId, string role, DataFilterModel? dataFilter)
@@ -497,6 +497,7 @@ namespace SoowGoodWeb.Services
                         PaymentTransactionId = item.PaymentTransactionId,
                         AppointmentCreatorRole = item.AppointmentCreatorRole,
                         BoothName = item.AppointmentCreatorRole == "agent" ? agent?.Address : "N/A",
+                        AgentName = item.AppointmentCreatorRole == "agent" ? agent?.FullName : "N/A",
                         AgentMasterName = item.AppointmentCreatorRole == "agent" ? agent?.AgentMaster?.AgentMasterOrgName : "N/A",
                         AgentSupervisorName = item.AppointmentCreatorRole == "agent" ? agent?.AgentSupervisor?.AgentSupervisorOrgName : "N/A",
                     });
@@ -508,12 +509,14 @@ namespace SoowGoodWeb.Services
             }
 
             result = result.OrderByDescending(a => a.AppointmentDate).ToList();
-            var list = result.OrderBy(item => item.AppointmentSerial)
-                .GroupBy(item => item.AppointmentDate)
-                .OrderBy(g => g.Key).Select(g => new { g }).ToList();
+            //var finalList = result.OrderByDescending(item => item.AppointmentDate).ToList();
 
+            var finalResult = (from element in result
+                               group element by element.AppointmentDate
+                      into groups
+                               select groups.OrderByDescending(p => Convert.ToInt32(p.AppointmentSerial))).SelectMany(g => g).ToList();
 
-            return result;
+            return finalResult;
         }
 
         public async Task<List<AppointmentDto>?> GetListAppointmentListByAgentMasterAsync(long agentMasterId)
@@ -688,7 +691,7 @@ namespace SoowGoodWeb.Services
 
         public async Task<int> GetAppCountByScheduleIdSessionIdAsync(long? scheduleId, long? sessionId)
         {
-            var appointments = await _appointmentRepository.GetListAsync(a => a.DoctorScheduleId == scheduleId && a.DoctorScheduleDaySessionId == sessionId && a.CancelledByEntityId==null && a.CancelledByRole==null);
+            var appointments = await _appointmentRepository.GetListAsync(a => a.DoctorScheduleId == scheduleId && a.DoctorScheduleDaySessionId == sessionId && a.CancelledByEntityId == null && a.CancelledByRole == null);
             var appCount = appointments.Count();
             return appCount;
         }
@@ -899,7 +902,7 @@ namespace SoowGoodWeb.Services
                         AppointmentCreatorRole = item.AppointmentCreatorRole,
                         BoothName = item.AppointmentCreatorRole == "agent" ? agent?.Address : "N/A",
                         AgentMasterName = item.AppointmentCreatorRole == "agent" ? agent?.AgentMaster?.AgentMasterOrgName : "N/A",
-                        AgentSupervisorName = item.AppointmentCreatorRole == "agent" ? agent?.AgentSupervisor?.AgentSupervisorOrgName : "N/A",
+                        AgentSupervisorName = item.AppointmentCreatorRole == "agent" ? agent?.AgentSupervisor?.SupervisorName : "N/A",
                     });
                 }
             }
@@ -930,12 +933,14 @@ namespace SoowGoodWeb.Services
 
 
             result = result.OrderByDescending(a => a.AppointmentDate).ToList();
-            var list = result.OrderBy(item => item.AppointmentSerial)
-                .GroupBy(item => item.AppointmentDate)
-                .OrderBy(g => g.Key).Select(g => new { g }).ToList();
+            //var finalList = result.OrderByDescending(item => item.AppointmentDate).ToList();
 
+            var finalResult = (from element in result
+                               group element by element.AppointmentDate
+                      into groups
+                               select groups.OrderByDescending(p => Convert.ToInt32(p.AppointmentSerial))).SelectMany(g => g).ToList();
 
-            return result;
+            return finalResult;
         }
 
         public async Task<List<SessionWeekDayTimeSlotPatientCountDto>> GetListOfSessionsWithWeekDayTimeSlotPatientCountAsync(long secheduleId, DateTime date)
@@ -949,7 +954,7 @@ namespace SoowGoodWeb.Services
             {
                 foreach (var session in sessions)
                 {
-                    var appointments = await _appointmentRepository.GetListAsync(a => a.AppointmentDate == date && a.DoctorScheduleDaySessionId == session.Id);
+                    var appointments = await _appointmentRepository.GetListAsync(a => a.AppointmentDate.Value.Date == date.Date && a.DoctorScheduleDaySessionId == session.Id);
                     result.Add(new SessionWeekDayTimeSlotPatientCountDto
                     {
                         ScheduleId = session.DoctorScheduleId,
@@ -1012,7 +1017,7 @@ namespace SoowGoodWeb.Services
 
                 notificatinInput.TransactionType = "Add";
                 notificatinInput.CreatorEntityId = itemAppointment.DoctorProfileId;
-                notificatinInput.CreatorName =  itemAppointment.DoctorName;
+                notificatinInput.CreatorName = itemAppointment.DoctorName;
                 notificatinInput.CreatorRole = "Doctor";
                 notificatinInput.CreateForName = itemAppointment.DoctorName;
                 notificatinInput.NotifyToEntityId = itemAppointment.PatientProfileId;
@@ -1118,7 +1123,7 @@ namespace SoowGoodWeb.Services
                         notificatinReceiverInput.Message = "Mr./Mrs./Ms " + appointment.PatientName + ", your appointment " + appointment.AppointmentCode + "  is confirmed  with doctor " + appointment.DoctorName
                                                               + " at " + appointment.AppointmentTime + " on " + appointment.AppointmentDate.Value.Date + " Please be prepared 5 minutes before the appointment.";
 
-                        
+
 
                         notificatinReceiverInput.TransactionType = "Add";
                         notificatinReceiverInput.CreatorEntityId = appointment.AppointmentCreatorId;
@@ -1233,7 +1238,7 @@ namespace SoowGoodWeb.Services
                     }
                     await _appointmentRepository.UpdateAsync(appointment);
 
-                    
+
 
                     await _hubContext.Clients.All.BroadcastMessage();//notifictionInsert.Id
 

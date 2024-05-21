@@ -508,7 +508,7 @@ namespace SoowGoodWeb.Services
                     result.Add(new AppointmentDto()
                     {
                         Id = item.Id,
-                        PatientProfileId = item.Id,
+                        PatientProfileId = item.PatientProfileId,
                         PatientName = item.PatientName,
                         AppointmentDate = Convert.ToDateTime(item.AppointmentDate).Date,
                         AppointmentTime = item.AppointmentTime,
