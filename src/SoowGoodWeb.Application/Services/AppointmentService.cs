@@ -901,6 +901,7 @@ namespace SoowGoodWeb.Services
                         PaymentTransactionId = item.PaymentTransactionId,
                         AppointmentCreatorRole = item.AppointmentCreatorRole,
                         BoothName = item.AppointmentCreatorRole == "agent" ? agent?.Address : "N/A",
+                        AgentName = item.AppointmentCreatorRole == "agent" ? agent?.FullName : "N/A",
                         AgentMasterName = item.AppointmentCreatorRole == "agent" ? agent?.AgentMaster?.AgentMasterOrgName : "N/A",
                         AgentSupervisorName = item.AppointmentCreatorRole == "agent" ? agent?.AgentSupervisor?.SupervisorName : "N/A",
                     });
@@ -915,7 +916,8 @@ namespace SoowGoodWeb.Services
 
             if (!string.IsNullOrEmpty(dataFilter?.name))
             {
-                result = result.Where(p => ((!string.IsNullOrEmpty(p.PatientName)) && (!string.IsNullOrEmpty(p.DoctorName))) && (p.PatientName.ToLower().Contains(dataFilter.name.ToLower().Trim()) || p.DoctorName.ToLower().Contains(dataFilter.name.ToLower().Trim()))).ToList();
+                result = result.Where(p => ((!string.IsNullOrEmpty(p.PatientName)) && (!string.IsNullOrEmpty(p.DoctorName)) && (!string.IsNullOrEmpty(p.BoothName))) && (p.PatientName.ToLower().Contains(dataFilter.name.ToLower().Trim()) || p.DoctorName.ToLower().Contains(dataFilter.name.ToLower().Trim()) ||
+                                              p.BoothName.ToLower().Contains(dataFilter.name.ToLower().Trim()))).ToList();
             }
             if (dataFilter?.consultancyType > 0)
             {
