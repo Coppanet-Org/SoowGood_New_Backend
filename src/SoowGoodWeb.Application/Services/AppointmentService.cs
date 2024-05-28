@@ -62,7 +62,27 @@ namespace SoowGoodWeb.Services
             _paymentHistoryRepository = paymentHistoryRepository;
             _notificationRepository = notificationRepository;
         }
-
+        /// <summary>
+        /// Appointment Create from this function
+        /// 
+        /// </summary>
+        /// <param name="input">
+        /// Patient id
+        /// doctor id
+        /// doctor schedule id if(chamber or scheduled online)
+        /// chamber id  if(chamber or scheduled online)
+        /// fee setup id if(chamber or scheduled online)
+        /// schedule session id if(chamber or scheduled online)
+        /// consulatane type
+        /// appointment date
+        /// appointment time
+        /// appoinement type
+        /// doctor fee
+        /// agent fee if appointment create from agent
+        /// platform fee
+        /// vat fee
+        /// </param>
+        /// <returns></returns>
         public async Task<AppointmentDto> CreateAsync(AppointmentInputDto input)
         {
             var response = new AppointmentDto();
@@ -174,7 +194,15 @@ namespace SoowGoodWeb.Services
             var appointments = item.Where(d => d.DoctorProfileId == doctorId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
-
+        /// <summary>
+        /// 
+        /// this function used for getting appointment list for specific doct
+        /// this list can be filter by the data filter parameter
+        /// </summary>
+        /// <param name="doctorId"></param>
+        /// <param name="dataFilter"></param>
+        /// <param name="filterModel"></param>
+        /// <returns></returns>
         public async Task<List<AppointmentDto>?> GetAppointmentListForDoctorWithSearchFilterAsync(long doctorId, DataFilterModel? dataFilter, FilterModel filterModel)
         {
             List<AppointmentDto> result = null;
@@ -306,7 +334,15 @@ namespace SoowGoodWeb.Services
             var appointments = item.Where(d => d.AppointmentCreatorId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed) && d.AppointmentCreatorRole == role).ToList();
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
-
+        /// <summary>
+        /// /// this function used for getting appointment list for specific patient or agent
+        /// this list can be filter by the data filter parameter
+        /// </summary>
+        /// <param name="patientId"></param>
+        /// <param name="role"></param>
+        /// <param name="dataFilter"></param>
+        /// <param name="filterModel"></param>
+        /// <returns></returns>
         public async Task<List<AppointmentDto>> GetAppointmentListForPatientWithSearchFilterAsync(long patientId, string role, DataFilterModel? dataFilter, FilterModel filterModel)
         {
             List<AppointmentDto> result = null;
@@ -435,7 +471,10 @@ namespace SoowGoodWeb.Services
             }
 
         }
-
+        /// <summary>
+        /// /// this function used for getting appointment list for admin
+        /// </summary>
+        /// <returns></returns>
         public async Task<List<AppointmentDto>?> GetListAppointmentListByAdminAsync()
         {
             List<AppointmentDto>? result = null;
@@ -518,7 +557,11 @@ namespace SoowGoodWeb.Services
 
             return finalResult;
         }
-
+        /// <summary>
+        /// /// this function used for getting appointment list for specific agent master
+        /// </summary>
+        /// <param name="agentMasterId"></param>
+        /// <returns></returns>
         public async Task<List<AppointmentDto>?> GetListAppointmentListByAgentMasterAsync(long agentMasterId)
         {
             List<AppointmentDto>? result = null;
@@ -603,7 +646,11 @@ namespace SoowGoodWeb.Services
 
             return result;
         }
-
+        /// <summary>
+        /// /// this function used for getting appointment list for specific agent supervisor
+        /// </summary>
+        /// <param name="supervisorId"></param>
+        /// <returns></returns>
         public async Task<List<AppointmentDto>?> GetListAppointmentListByAgentSupervisorAsync(long supervisorId)
         {
             List<AppointmentDto>? result = null;
@@ -718,7 +765,11 @@ namespace SoowGoodWeb.Services
 
             return resultNp;//noOfPatients == appCounts? 0: (int)resultNp;
         }
-
+        /// <summary>
+        /// this function used for get patient list for a specific doctor
+        /// </summary>
+        /// <param name="doctorId"></param>
+        /// <returns></returns>
         public async Task<List<AppointmentDto>> GetPatientListByDoctorIdAsync(long doctorId)
         {
             var restultPatientList = new List<AppointmentDto>();
@@ -797,7 +848,13 @@ namespace SoowGoodWeb.Services
             }
 
         }
-
+        /// <summary>
+        /// this function used for getting appointment list for admin with filtering
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="role"></param>
+        /// <param name="dataFilter"></param>
+        /// <returns></returns>
         public async Task<List<AppointmentDto>?> GetListAppointmentListByAdminWithFilterAsync(long? userId, string? role, DataFilterModel? dataFilter)
         {
             List<AppointmentDto>? result = null;
@@ -972,7 +1029,14 @@ namespace SoowGoodWeb.Services
 
             return result;
         }
-
+        /// <summary>
+        /// 
+        /// Appoinement cancell function called for doctor side or patient side
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="cancelByid"></param>
+        /// <param name="cancelByRole"></param>
+        /// <returns></returns>
         public async Task<ResponseDto> CancellAppointmentAsync(long appId, long cancelByid, string cancelByRole)
         {
             var response = new ResponseDto();
@@ -1073,7 +1137,12 @@ namespace SoowGoodWeb.Services
             catch (Exception ex) { }
 
         }
-
+        /// <summary>
+        /// Appointment status and payment status update after payment operation done
+        /// </summary>
+        /// <param name="appCode"></param>
+        /// <param name="sts"></param>
+        /// <returns></returns>
         public async Task<string> UpdateAppointmentStatusAfterPaymentAsync(string appCode, int sts)
         {
 

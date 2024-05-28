@@ -50,6 +50,12 @@ namespace SoowGoodWeb.Services
 
 
         //[HttpPost]
+        /// <summary>
+        /// SSL Commerze Payment Initialization
+        /// https://github.com/sslcommerz/SSLCommerz-ASP.NET
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public async Task<SslCommerzInitDto> InitiatePaymentAsync(SslCommerzInputDto input)
         {
             //return new SslCommerzInitDto();

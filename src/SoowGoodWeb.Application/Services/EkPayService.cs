@@ -41,6 +41,12 @@ namespace SoowGoodWeb.Services
 
 
         //[HttpPost]
+        /// <summary>
+        /// Payment Initalization as per EkPay documentation
+        /// https://docs.google.com/document/d/1hmOd_Fr6hZIL92n5J3LppNohUzAJgyAiiqL3SekqymA/edit
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public async Task<EkPayInitDto> InitiatePaymentAsync(EkPayInputDto input)
         {
             //return new EkPayInitDto();
@@ -87,6 +93,12 @@ namespace SoowGoodWeb.Services
         //}
 
         //[HttpPost]
+        /// <summary>
+        /// Sandbox integration EkPay payment initialization
+        /// https://docs.google.com/document/d/1hmOd_Fr6hZIL92n5J3LppNohUzAJgyAiiqL3SekqymA/edit
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public async Task<EkPayInitDto> InitiateTestPaymentAsync(EkPayInputDto input)
         {
             //var nuDto = new EkPayInitDto();
