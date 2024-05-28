@@ -150,46 +150,9 @@ namespace SoowGoodWeb.Services
                         Success = newUser.Success,
                         Message = newUser.Message
                     };
-                    return result;
+                    //return result;
                 }
                 return result;
-                //var user = await _userManager.FindByNameAsync(userDto.UserName);
-                //LoginResponseDto loginInfo = new LoginResponseDto();
-                //loginInfo.RoleName = new List<string>();
-                //if (user != null)
-                //{
-                //    var userole = await _userManager.GetRolesAsync(user); //_roleManager.GetRolesAsync(user);
-
-                //    var res = await _signInManager.PasswordSignInAsync(user.UserName, userDto.password, userDto.RememberMe, lockoutOnFailure: false);
-                //    if (res.Succeeded)
-                //    {
-                //        loginInfo.UserId = user.Id;
-                //        loginInfo.UserName = user.UserName;
-                //        foreach (string r in userole)
-                //        {
-                //            loginInfo.RoleName.Add(r);
-                //        }
-                //        loginInfo.Success = true;
-                //        loginInfo.Message = "User Exists! Login Successful!";
-                //        return loginInfo;
-                //    }
-                //    else
-                //    {
-                //        loginInfo.UserId = null;
-                //        loginInfo.UserName = "";
-                //        loginInfo.Success = false;
-                //        loginInfo.Message = "User Name Or Password is not correct !";
-                //        return loginInfo;
-                //    }
-                //}
-                //else
-                //{
-                //    loginInfo.UserId = null;
-                //    loginInfo.UserName = "";
-                //    loginInfo.Success = false;
-                //    loginInfo.Message = "User not exists! Please sign up as new user";
-                //    return loginInfo;
-                //}
             }
 
         }
