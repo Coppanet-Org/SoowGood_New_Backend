@@ -49,7 +49,13 @@ namespace SoowGoodWeb.Services
 
         //[HttpGet]
         //[AllowAnonymous]
-
+        /// <summary>
+        /// SmsGateway called from this function
+        /// </summary>
+        /// <param name="clientKey"></param>
+        /// <param name="mobileNo"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public async Task<bool> ApplyOtp(string clientKey, string mobileNo)
         {
             var isUserExists = await CheckUserExists(mobileNo);
