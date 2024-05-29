@@ -15,6 +15,8 @@ using System.Globalization;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Microsoft.AspNetCore.SignalR;
 using System.Numerics;
+using SoowGoodWeb.Utilities;
+using static System.Net.WebRequestMethods;
 
 namespace SoowGoodWeb.Services
 {
@@ -32,6 +34,7 @@ namespace SoowGoodWeb.Services
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         //private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
         private readonly IHubContext<BroadcastHub, IHubClient> _hubContext;
+        private readonly ISmsService _smsService;
 
 
         private readonly uint _expireTimeInSeconds = 3600;
@@ -46,7 +49,8 @@ namespace SoowGoodWeb.Services
             //SslCommerzGatewayManager sslCommerzGatewayManager,
             IUnitOfWorkManager unitOfWorkManager,
             IHubContext<BroadcastHub, IHubClient> hubContext,
-            IRepository<Notification> notificationRepository)
+            IRepository<Notification> notificationRepository,
+            ISmsService smsService)
         {
             _appointmentRepository = appointmentRepository;
             //_doctorScheduleRepository = doctorScheduleRepository;
@@ -61,6 +65,7 @@ namespace SoowGoodWeb.Services
             _hubContext = hubContext;
             _paymentHistoryRepository = paymentHistoryRepository;
             _notificationRepository = notificationRepository;
+            _smsService = smsService;
         }
 
         public async Task<AppointmentDto> CreateAsync(AppointmentInputDto input)
@@ -1089,6 +1094,11 @@ namespace SoowGoodWeb.Services
                 var allTransactions = await _paymentHistoryRepository.WithDetailsAsync();
                 var transactions = allTransactions.Where(p => p.application_code == appCode).FirstOrDefault();
 
+                var doctor = await _doctorDetails.GetAsync(d => d.Id == appointment.DoctorProfileId);
+                //var patient = await _doctorDetails.GetAsync(p => p.Id == appointment.AppointmentCreatorId);
+
+
+
                 if (appointment != null && appointment.AppointmentStatus != AppointmentStatus.Confirmed) //&& app.AppointmentStatus != AppointmentStatus.Confirmed)
                 {
                     if (sts == 1)
@@ -1099,6 +1109,8 @@ namespace SoowGoodWeb.Services
 
                         notificatinCreatorInput.Message = "An appointment " + appointment.AppointmentCode + "  is confirmed  with patient " + appointment.PatientName
                                                               + " at " + appointment.AppointmentTime + " on " + appointment.AppointmentDate.Value.Date + " Please be prepared 5 minutes before the appointment.";
+
+                        var sms = "Dr. "+ appointment.DoctorName + ", You have a new instant appointment scheduled at " + Convert.ToDateTime(appointment.AppointmentTime).ToString("hh:mm") + " on " + Convert.ToDateTime(appointment.AppointmentDate).ToString("dd/MM/yyyy") + ". Please be prepared 5 minutes before the appointment.";
 
                         notificatinCreatorInput.TransactionType = "Add";
                         notificatinCreatorInput.CreatorEntityId = appointment.AppointmentCreatorId;
@@ -1122,13 +1134,20 @@ namespace SoowGoodWeb.Services
                         var newNotificaitonForceator = ObjectMapper.Map<NotificationInputDto, Notification>(notificatinCreatorInput);
                         var notifictionForceatorInsert = await _notificationRepository.InsertAsync(newNotificaitonForceator);
 
+
+                        SmsRequestParamDto smsInputDoctor = new SmsRequestParamDto();
+                        smsInputDoctor.Sms = sms;
+                        smsInputDoctor.Msisdn = doctor.MobileNo;
+                        smsInputDoctor.CsmsId = Utility.RandomString(16);
+                        var resDoctor = await _smsService.SendSmsGreenWeb(smsInputDoctor);
+
                         notificatinReceiverInput.Message = "Mr./Mrs./Ms " + appointment.PatientName + ", your appointment " + appointment.AppointmentCode + "  is confirmed  with doctor " + appointment.DoctorName
                                                               + " at " + appointment.AppointmentTime + " on " + appointment.AppointmentDate.Value.Date + " Please be prepared 5 minutes before the appointment.";
 
 
-
                         notificatinReceiverInput.TransactionType = "Add";
                         notificatinReceiverInput.CreatorEntityId = appointment.AppointmentCreatorId;
+
                         if (appointment.AppointmentCreatorRole == "agent")
                         {
                             var agent = await _agentRepository.GetAsync(a => a.Id == appointment.AppointmentCreatorId);
@@ -1138,6 +1157,8 @@ namespace SoowGoodWeb.Services
                         {
                             notificatinReceiverInput.CreatorName = appointment.PatientName;
                         }
+
+
                         notificatinReceiverInput.CreatorRole = appointment.AppointmentCreatorRole;
                         notificatinReceiverInput.CreateForName = appointment.PatientName;
                         notificatinReceiverInput.NotifyToEntityId = appointment.PatientProfileId;
@@ -1160,6 +1181,7 @@ namespace SoowGoodWeb.Services
                         {
                             notificatinAdminInput.CreatorName = appointment.PatientName;
                         }
+
                         notificatinAdminInput.CreatorRole = appointment.AppointmentCreatorRole;
                         notificatinAdminInput.CreateForName = appointment.PatientName;
                         notificatinAdminInput.NotifyToEntityId = 0;
