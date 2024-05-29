@@ -55,6 +55,27 @@ namespace SoowGoodWeb.Services
             _financialSetup = financialSetup;
             _doctorFeesSetup = doctorFeesSetup;
         }
+        /// <summary>
+        /// Creating Doctor Profiles with basic info
+        /// </summary>
+        /// <param name="input">
+        //FullName 
+         //DoctorTitle 
+         //DateOfBirth 
+         //Gender 
+         //MaritalStatus 
+         //Address 
+         //City 
+         //ZipCode 
+         //Country 
+         //MobileNo 
+         //Email 
+         //IdentityNumber 
+         //BMDCRegNo 
+         //BMDCRegExpiryDate 
+        /// </param>
+        /// <returns></returns>
+
         public async Task<DoctorProfileDto> CreateAsync(DoctorProfileInputDto input)
         {
             CultureInfo provider = CultureInfo.InvariantCulture;
@@ -884,7 +905,9 @@ namespace SoowGoodWeb.Services
         }
 
         /// <summary>
-        /// For Mobile App
+        /// This function used for getting currently online doctor list
+        /// if doctor click the online togle from the doctors dashboard
+        /// the portal will show the live online doctor list
         /// </summary>
         /// <returns></returns>
         /// 
@@ -1079,7 +1102,10 @@ namespace SoowGoodWeb.Services
         }
 
         /// <summary>
-        /// 
+        /// This function used for generate doctor card list with details data of doctors
+        /// this function generate the list with filter parameters (specialization, consultancy type, name)
+        /// this fuction maintained the pagination for the doctor list
+        /// the doctor list connected to the individual doctor fee management for patient or agent
         /// </summary>
         /// <param name="doctorFilterModel"></param>
         /// <param name="filterModel"></param>
@@ -1390,7 +1416,10 @@ namespace SoowGoodWeb.Services
         }
 
         /// <summary>
-        /// For Mobile App
+        /// **** this function used for mobile app
+        /// This function used for getting currently online doctor list
+        /// if doctor click the online togle from the doctors dashboard
+        /// the portal will show the live online doctor list
         /// </summary>
         /// <param name="doctorFilterModel"></param>
         /// <param name="filterModel"></param>
@@ -1849,10 +1878,10 @@ namespace SoowGoodWeb.Services
                 //                   .Take(filterModel.Limit).ToList();
                 if (!string.IsNullOrEmpty(doctorFilterModel?.name))
                 {
-                    profiles = profiles.Where(p => (p.FullName !=null && p.FullName.ToLower().Contains(doctorFilterModel.name.ToLower().Trim()))|| (p.MobileNo != null && p.MobileNo.ToLower().Contains(doctorFilterModel.name.ToLower().Trim()))).ToList();
+                    profiles = profiles.Where(p => (p.FullName != null && p.FullName.ToLower().Contains(doctorFilterModel.name.ToLower().Trim())) || (p.MobileNo != null && p.MobileNo.ToLower().Contains(doctorFilterModel.name.ToLower().Trim()))).ToList();
                 }
 
-                if (doctorFilterModel?.isActive!=null)
+                if (doctorFilterModel?.isActive != null)
                 {
                     if (doctorFilterModel?.isActive == true)
                     {
@@ -1860,10 +1889,10 @@ namespace SoowGoodWeb.Services
                     }
                     else
                     {
-                        profiles=profiles.Where(p=>p.IsActive == false).ToList();
+                        profiles = profiles.Where(p => p.IsActive == false).ToList();
                     }
                 }
-               
+
 
                 if (doctorFilterModel?.specializationId > 0)
                 {
@@ -2149,6 +2178,13 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
 
         }
+        /// <summary>
+        /// this function will work 
+        /// if doctor click the online togle from the doctors dashboard
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <param name="onlineStatus"></param>
+        /// <returns></returns>
         public async Task<DoctorProfileDto> UpdateDoctorsOnlineStatus(long Id, bool onlineStatus)
         {
             var user = await _doctorProfileRepository.GetAsync(x => x.Id == Id);
@@ -2165,6 +2201,14 @@ namespace SoowGoodWeb.Services
                 return null;
             }
         }
+
+        /// <summary>
+        /// this fuction used for doctor profile update with the steps forwording
+        /// degrees will added with this fuctions
+        /// specializaitons wil added with this fuctins
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public async Task<DoctorProfileDto> UpdateAsync(DoctorProfileInputDto input)
         {
             var result = new DoctorProfileDto();
@@ -2266,6 +2310,12 @@ namespace SoowGoodWeb.Services
             }
 
         }
+        /// <summary>
+        /// Doctor profile edit fuctions
+        /// Doctor profile updated from admin/doctor profiles settings etc
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public async Task<DoctorProfileDto> UpdateDoctorProfileAsync(DoctorProfileInputDto input)
         {
             var result = new DoctorProfileDto();

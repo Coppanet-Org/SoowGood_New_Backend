@@ -15,6 +15,8 @@ using System.Globalization;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Microsoft.AspNetCore.SignalR;
 using System.Numerics;
+using SoowGoodWeb.Utilities;
+using static System.Net.WebRequestMethods;
 
 namespace SoowGoodWeb.Services
 {
@@ -32,6 +34,7 @@ namespace SoowGoodWeb.Services
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         //private readonly SslCommerzGatewayManager _sslCommerzGatewayManager;
         private readonly IHubContext<BroadcastHub, IHubClient> _hubContext;
+        private readonly ISmsService _smsService;
 
 
         private readonly uint _expireTimeInSeconds = 3600;
@@ -46,7 +49,8 @@ namespace SoowGoodWeb.Services
             //SslCommerzGatewayManager sslCommerzGatewayManager,
             IUnitOfWorkManager unitOfWorkManager,
             IHubContext<BroadcastHub, IHubClient> hubContext,
-            IRepository<Notification> notificationRepository)
+            IRepository<Notification> notificationRepository,
+            ISmsService smsService)
         {
             _appointmentRepository = appointmentRepository;
             //_doctorScheduleRepository = doctorScheduleRepository;
@@ -61,8 +65,29 @@ namespace SoowGoodWeb.Services
             _hubContext = hubContext;
             _paymentHistoryRepository = paymentHistoryRepository;
             _notificationRepository = notificationRepository;
+            _smsService = smsService;
         }
-
+        /// <summary>
+        /// Appointment Create from this function
+        /// 
+        /// </summary>
+        /// <param name="input">
+        /// Patient id
+        /// doctor id
+        /// doctor schedule id if(chamber or scheduled online)
+        /// chamber id  if(chamber or scheduled online)
+        /// fee setup id if(chamber or scheduled online)
+        /// schedule session id if(chamber or scheduled online)
+        /// consulatane type
+        /// appointment date
+        /// appointment time
+        /// appoinement type
+        /// doctor fee
+        /// agent fee if appointment create from agent
+        /// platform fee
+        /// vat fee
+        /// </param>
+        /// <returns></returns>
         public async Task<AppointmentDto> CreateAsync(AppointmentInputDto input)
         {
             var response = new AppointmentDto();
@@ -174,7 +199,15 @@ namespace SoowGoodWeb.Services
             var appointments = item.Where(d => d.DoctorProfileId == doctorId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed)).ToList();
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
-
+        /// <summary>
+        /// 
+        /// this function used for getting appointment list for specific doct
+        /// this list can be filter by the data filter parameter
+        /// </summary>
+        /// <param name="doctorId"></param>
+        /// <param name="dataFilter"></param>
+        /// <param name="filterModel"></param>
+        /// <returns></returns>
         public async Task<List<AppointmentDto>?> GetAppointmentListForDoctorWithSearchFilterAsync(long doctorId, DataFilterModel? dataFilter, FilterModel filterModel)
         {
             List<AppointmentDto> result = null;
@@ -306,7 +339,15 @@ namespace SoowGoodWeb.Services
             var appointments = item.Where(d => d.AppointmentCreatorId == patientId && (d.AppointmentStatus == AppointmentStatus.Confirmed || d.AppointmentStatus == AppointmentStatus.Completed) && d.AppointmentCreatorRole == role).ToList();
             return ObjectMapper.Map<List<Appointment>, List<AppointmentDto>>(appointments);
         }
-
+        /// <summary>
+        /// /// this function used for getting appointment list for specific patient or agent
+        /// this list can be filter by the data filter parameter
+        /// </summary>
+        /// <param name="patientId"></param>
+        /// <param name="role"></param>
+        /// <param name="dataFilter"></param>
+        /// <param name="filterModel"></param>
+        /// <returns></returns>
         public async Task<List<AppointmentDto>> GetAppointmentListForPatientWithSearchFilterAsync(long patientId, string role, DataFilterModel? dataFilter, FilterModel filterModel)
         {
             List<AppointmentDto> result = null;
@@ -435,7 +476,10 @@ namespace SoowGoodWeb.Services
             }
 
         }
-
+        /// <summary>
+        /// /// this function used for getting appointment list for admin
+        /// </summary>
+        /// <returns></returns>
         public async Task<List<AppointmentDto>?> GetListAppointmentListByAdminAsync()
         {
             List<AppointmentDto>? result = null;
@@ -518,7 +562,11 @@ namespace SoowGoodWeb.Services
 
             return finalResult;
         }
-
+        /// <summary>
+        /// /// this function used for getting appointment list for specific agent master
+        /// </summary>
+        /// <param name="agentMasterId"></param>
+        /// <returns></returns>
         public async Task<List<AppointmentDto>?> GetListAppointmentListByAgentMasterAsync(long agentMasterId)
         {
             List<AppointmentDto>? result = null;
@@ -603,7 +651,11 @@ namespace SoowGoodWeb.Services
 
             return result;
         }
-
+        /// <summary>
+        /// /// this function used for getting appointment list for specific agent supervisor
+        /// </summary>
+        /// <param name="supervisorId"></param>
+        /// <returns></returns>
         public async Task<List<AppointmentDto>?> GetListAppointmentListByAgentSupervisorAsync(long supervisorId)
         {
             List<AppointmentDto>? result = null;
@@ -718,7 +770,11 @@ namespace SoowGoodWeb.Services
 
             return resultNp;//noOfPatients == appCounts? 0: (int)resultNp;
         }
-
+        /// <summary>
+        /// this function used for get patient list for a specific doctor
+        /// </summary>
+        /// <param name="doctorId"></param>
+        /// <returns></returns>
         public async Task<List<AppointmentDto>> GetPatientListByDoctorIdAsync(long doctorId)
         {
             var restultPatientList = new List<AppointmentDto>();
@@ -797,7 +853,13 @@ namespace SoowGoodWeb.Services
             }
 
         }
-
+        /// <summary>
+        /// this function used for getting appointment list for admin with filtering
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="role"></param>
+        /// <param name="dataFilter"></param>
+        /// <returns></returns>
         public async Task<List<AppointmentDto>?> GetListAppointmentListByAdminWithFilterAsync(long? userId, string? role, DataFilterModel? dataFilter)
         {
             List<AppointmentDto>? result = null;
@@ -972,7 +1034,14 @@ namespace SoowGoodWeb.Services
 
             return result;
         }
-
+        /// <summary>
+        /// 
+        /// Appoinement cancell function called for doctor side or patient side
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="cancelByid"></param>
+        /// <param name="cancelByRole"></param>
+        /// <returns></returns>
         public async Task<ResponseDto> CancellAppointmentAsync(long appId, long cancelByid, string cancelByRole)
         {
             var response = new ResponseDto();
@@ -1073,7 +1142,12 @@ namespace SoowGoodWeb.Services
             catch (Exception ex) { }
 
         }
-
+        /// <summary>
+        /// Appointment status and payment status update after payment operation done
+        /// </summary>
+        /// <param name="appCode"></param>
+        /// <param name="sts"></param>
+        /// <returns></returns>
         public async Task<string> UpdateAppointmentStatusAfterPaymentAsync(string appCode, int sts)
         {
 
@@ -1089,6 +1163,11 @@ namespace SoowGoodWeb.Services
                 var allTransactions = await _paymentHistoryRepository.WithDetailsAsync();
                 var transactions = allTransactions.Where(p => p.application_code == appCode).FirstOrDefault();
 
+                var doctor = await _doctorDetails.GetAsync(d => d.Id == appointment.DoctorProfileId);
+                //var patient = await _doctorDetails.GetAsync(p => p.Id == appointment.AppointmentCreatorId);
+
+
+
                 if (appointment != null && appointment.AppointmentStatus != AppointmentStatus.Confirmed) //&& app.AppointmentStatus != AppointmentStatus.Confirmed)
                 {
                     if (sts == 1)
@@ -1099,6 +1178,8 @@ namespace SoowGoodWeb.Services
 
                         notificatinCreatorInput.Message = "An appointment " + appointment.AppointmentCode + "  is confirmed  with patient " + appointment.PatientName
                                                               + " at " + appointment.AppointmentTime + " on " + appointment.AppointmentDate.Value.Date + " Please be prepared 5 minutes before the appointment.";
+
+                        var sms = "Dr. "+ appointment.DoctorName + ", You have a new instant appointment scheduled at " + Convert.ToDateTime(appointment.AppointmentTime).ToString("hh:mm") + " on " + Convert.ToDateTime(appointment.AppointmentDate).ToString("dd/MM/yyyy") + ". Please be prepared 5 minutes before the appointment.";
 
                         notificatinCreatorInput.TransactionType = "Add";
                         notificatinCreatorInput.CreatorEntityId = appointment.AppointmentCreatorId;
@@ -1122,13 +1203,20 @@ namespace SoowGoodWeb.Services
                         var newNotificaitonForceator = ObjectMapper.Map<NotificationInputDto, Notification>(notificatinCreatorInput);
                         var notifictionForceatorInsert = await _notificationRepository.InsertAsync(newNotificaitonForceator);
 
+
+                        SmsRequestParamDto smsInputDoctor = new SmsRequestParamDto();
+                        smsInputDoctor.Sms = sms;
+                        smsInputDoctor.Msisdn = doctor.MobileNo;
+                        smsInputDoctor.CsmsId = Utility.RandomString(16);
+                        var resDoctor = await _smsService.SendSmsGreenWeb(smsInputDoctor);
+
                         notificatinReceiverInput.Message = "Mr./Mrs./Ms " + appointment.PatientName + ", your appointment " + appointment.AppointmentCode + "  is confirmed  with doctor " + appointment.DoctorName
                                                               + " at " + appointment.AppointmentTime + " on " + appointment.AppointmentDate.Value.Date + " Please be prepared 5 minutes before the appointment.";
 
 
-
                         notificatinReceiverInput.TransactionType = "Add";
                         notificatinReceiverInput.CreatorEntityId = appointment.AppointmentCreatorId;
+
                         if (appointment.AppointmentCreatorRole == "agent")
                         {
                             var agent = await _agentRepository.GetAsync(a => a.Id == appointment.AppointmentCreatorId);
@@ -1138,6 +1226,8 @@ namespace SoowGoodWeb.Services
                         {
                             notificatinReceiverInput.CreatorName = appointment.PatientName;
                         }
+
+
                         notificatinReceiverInput.CreatorRole = appointment.AppointmentCreatorRole;
                         notificatinReceiverInput.CreateForName = appointment.PatientName;
                         notificatinReceiverInput.NotifyToEntityId = appointment.PatientProfileId;
@@ -1160,6 +1250,7 @@ namespace SoowGoodWeb.Services
                         {
                             notificatinAdminInput.CreatorName = appointment.PatientName;
                         }
+
                         notificatinAdminInput.CreatorRole = appointment.AppointmentCreatorRole;
                         notificatinAdminInput.CreateForName = appointment.PatientName;
                         notificatinAdminInput.NotifyToEntityId = 0;
