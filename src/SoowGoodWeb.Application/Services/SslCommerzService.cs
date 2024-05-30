@@ -50,12 +50,18 @@ namespace SoowGoodWeb.Services
 
 
         //[HttpPost]
+        /// <summary>
+        /// SSL Commerze Payment Initialization
+        /// https://github.com/sslcommerz/SSLCommerz-ASP.NET
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public async Task<SslCommerzInitDto> InitiatePaymentAsync(SslCommerzInputDto input)
         {
             //return new SslCommerzInitDto();
-            input.TransactionId = GenerateTransactionId(16);
+            input.TransactionId = GenerateTransactionId(16); /// create random transaction id
 
-            var applicantData = await GetApplicantDetails(input);
+            var applicantData = await GetApplicantDetails(input); /// getting basic data of appointment for payment input
 
             var postData = _sslCommerzGatewayManager.CreatePostData(applicantData);
 

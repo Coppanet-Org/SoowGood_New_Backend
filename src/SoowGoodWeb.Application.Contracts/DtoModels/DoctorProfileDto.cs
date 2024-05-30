@@ -51,5 +51,6 @@ namespace SoowGoodWeb.DtoModels
         public decimal? DisplayScheduledAgentChamberFee { get; set; }
         public decimal? DisplayScheduledAgentOnlineFee { get; set; }
         public decimal? DisplayIndividualInstantOnlineFee { get; set; }
+        public string? Expertise { get; set; }
     }
 }

@@ -35,5 +35,6 @@ namespace SoowGoodWeb.DtoModels
         public string? BoothName { get; set; }
         public string? AgentMasterName { get; set; }
         public string? AgentSupervisorName { get; set; }
+        public bool? IsFirstTime { get; set; }
     }
 }

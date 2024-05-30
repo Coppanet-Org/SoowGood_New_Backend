@@ -49,7 +49,13 @@ namespace SoowGoodWeb.Services
 
         //[HttpGet]
         //[AllowAnonymous]
-
+        /// <summary>
+        /// SmsGateway called from this function
+        /// </summary>
+        /// <param name="clientKey"></param>
+        /// <param name="mobileNo"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public async Task<bool> ApplyOtp(string clientKey, string mobileNo)
         {
             var isUserExists = await CheckUserExists(mobileNo);
@@ -101,7 +107,7 @@ namespace SoowGoodWeb.Services
                     otpInput.CsmsId = GenerateTransactionId(16);
                     try
                     {
-                        var res = await _smsService.SendSmsGreenWeb(otpInput);
+                        //var res = await _smsService.SendSmsGreenWeb(otpInput);
                         return true;
                     }
                     catch (Exception e)
@@ -296,7 +302,7 @@ namespace SoowGoodWeb.Services
                     otpInput.CsmsId = GenerateTransactionId(16);
                     try
                     {
-                        var res = await _smsService.SendSmsGreenWeb(otpInput);
+                        //var res = await _smsService.SendSmsGreenWeb(otpInput);
                         return true;
                     }
                     catch (Exception e)
@@ -331,7 +337,7 @@ namespace SoowGoodWeb.Services
                 otpInput.CsmsId = GenerateTransactionId(16);
                 try
                 {
-                    var res = await _smsService.SendSmsGreenWeb(otpInput);                    
+                    //var res = await _smsService.SendSmsGreenWeb(otpInput);                    
                     return true;
                 }
                 catch (Exception e)
@@ -365,7 +371,7 @@ namespace SoowGoodWeb.Services
                     var isUserExist = await CheckUserExists(mobileNo);
                     if (isUserExist == true)
                     {
-                        var res = await _smsService.SendSmsGreenWeb(otpInput);
+                        //var res = await _smsService.SendSmsGreenWeb(otpInput);
                         result.OtpSent =true;
                         result.IsUserExists = isUserExist;
                     }
@@ -475,7 +481,7 @@ namespace SoowGoodWeb.Services
                     otpInput.CsmsId = GenerateTransactionId(16);
                     try
                     {
-                        var res = await _smsService.SendSmsGreenWeb(otpInput);
+                        //var res = await _smsService.SendSmsGreenWeb(otpInput);
                         return true;
                     }
                     catch (Exception e)

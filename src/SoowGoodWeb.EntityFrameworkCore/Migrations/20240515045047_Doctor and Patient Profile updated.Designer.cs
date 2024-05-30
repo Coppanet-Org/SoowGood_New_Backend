@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240515045047_Doctor and Patient Profile updated")]
+    partial class DoctorandPatientProfileupdated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1228,6 +1231,7 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Expertise")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FirstName")
@@ -2081,7 +2085,7 @@ namespace SoowGoodWeb.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
 
-                    b.Property<bool?>("IsFirstTime")
+                    b.Property<bool>("IsFirstTime")
                         .HasColumnType("bit");
 
                     b.Property<bool?>("IsSelf")

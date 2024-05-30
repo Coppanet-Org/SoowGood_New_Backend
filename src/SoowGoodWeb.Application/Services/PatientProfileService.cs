@@ -391,11 +391,13 @@ namespace SoowGoodWeb.Services
                     return result;
                 }
                 result = new List<PatientProfileDto>();
-                if (patientFilterModel != null && !string.IsNullOrEmpty(patientFilterModel.name))
-                {
-                    //profiles = profiles.Where(p => p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())).ToList();
-                    profiles = profiles.Where(p => p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())).ToList();
-                }
+                //if (patientFilterModel != null && !string.IsNullOrEmpty(patientFilterModel.name))
+                //{
+                //    //profiles = profiles.Where(p => p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())).ToList();
+                //    profiles = profiles.Where(p => (p.PatientName != null && p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())) ||
+                //                                   (p.PatientMobileNo != null && p.PatientMobileNo.ToLower().Contains(patientFilterModel.name.ToLower().Trim()))).ToList();
+
+                //}
                 foreach (var item in profiles)
                 {
                     var agent = item.CreatorRole == "agent" ? agentDetails.Where(a => a.Id == item.CreatorEntityId).FirstOrDefault() : null;
@@ -419,7 +421,13 @@ namespace SoowGoodWeb.Services
                     });
                 }
 
-
+                if (patientFilterModel != null && !string.IsNullOrEmpty(patientFilterModel.name))
+                {
+                    result=result.Where(p=> (p.PatientName != null && p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())) ||
+                                                   (p.PatientMobileNo != null && p.PatientMobileNo.ToLower().Contains(patientFilterModel.name.ToLower().Trim())) 
+                                                   || (p.BoothName!=null && p.BoothName.ToLower().Contains(patientFilterModel.name.ToLower()))
+                                                   || (p.CreatorRole != null && p.CreatorRole.ToLower().Contains(patientFilterModel.name.ToLower()))).ToList();
+                }
                 //result = result.Skip(filterModel.Offset)
                 //                   .Take(filterModel.Limit).ToList();
             }

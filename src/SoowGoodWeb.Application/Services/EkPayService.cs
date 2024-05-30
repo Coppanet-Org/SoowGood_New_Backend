@@ -41,12 +41,18 @@ namespace SoowGoodWeb.Services
 
 
         //[HttpPost]
+        /// <summary>
+        /// Payment Initalization as per EkPay documentation
+        /// https://docs.google.com/document/d/1hmOd_Fr6hZIL92n5J3LppNohUzAJgyAiiqL3SekqymA/edit
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public async Task<EkPayInitDto> InitiatePaymentAsync(EkPayInputDto input)
         {
             //return new EkPayInitDto();
-            input.TransactionId = GenerateTransactionId(16);
+            input.TransactionId = GenerateTransactionId(16);  /// create random transaction id
 
-            var applicantData = await GetApplicantDetails(input);
+            var applicantData = await GetApplicantDetails(input); /// getting basic data of appointment for payment input
 
             var postData = _ekPayGatewayManager.CreateDataRaw(applicantData);//.CreateDataRaw(applicantData);
 
@@ -87,6 +93,12 @@ namespace SoowGoodWeb.Services
         //}
 
         //[HttpPost]
+        /// <summary>
+        /// Sandbox integration EkPay payment initialization
+        /// https://docs.google.com/document/d/1hmOd_Fr6hZIL92n5J3LppNohUzAJgyAiiqL3SekqymA/edit
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public async Task<EkPayInitDto> InitiateTestPaymentAsync(EkPayInputDto input)
         {
             //var nuDto = new EkPayInitDto();

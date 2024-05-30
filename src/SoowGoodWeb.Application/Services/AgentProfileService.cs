@@ -245,7 +245,19 @@ namespace SoowGoodWeb.Services
                 if (agentFilterModel != null && !string.IsNullOrEmpty(agentFilterModel.name))
                 {
                     //profiles = profiles.Where(p => p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())).ToList();
-                    profiles = profiles.Where(p => p.FullName.ToLower().Contains(agentFilterModel.name.ToLower().Trim())).ToList();
+                    //profiles = profiles.Where(p => p.FullName.ToLower().Contains(agentFilterModel.name.ToLower().Trim())).ToList();
+                    profiles = profiles.Where(p => (p.FullName != null && p.FullName.ToLower().Contains(agentFilterModel.name.ToLower().Trim())) || (p.MobileNo != null && p.MobileNo.ToLower().Contains(agentFilterModel.name.ToLower().Trim()))).ToList();
+                }
+                if (agentFilterModel?.isActive != null)
+                {
+                    if (agentFilterModel?.isActive == true)
+                    {
+                        profiles = profiles.Where(p => p.IsActive == true).ToList();
+                    }
+                    else
+                    {
+                        profiles = profiles.Where(p => p.IsActive == false).ToList();
+                    }
                 }
                 foreach (var item in profiles)
                 {
