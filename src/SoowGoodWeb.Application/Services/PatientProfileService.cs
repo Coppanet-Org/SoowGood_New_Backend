@@ -425,7 +425,8 @@ namespace SoowGoodWeb.Services
                 {
                     result=result.Where(p=> (p.PatientName != null && p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())) ||
                                                    (p.PatientMobileNo != null && p.PatientMobileNo.ToLower().Contains(patientFilterModel.name.ToLower().Trim())) 
-                                                   || (p.BoothName!=null && p.BoothName.ToLower().Contains(patientFilterModel.name.ToLower()))).ToList();
+                                                   || (p.BoothName!=null && p.BoothName.ToLower().Contains(patientFilterModel.name.ToLower()))
+                                                   || (p.CreatorRole != null && p.CreatorRole.ToLower().Contains(patientFilterModel.name.ToLower()))).ToList();
                 }
                 //result = result.Skip(filterModel.Offset)
                 //                   .Take(filterModel.Limit).ToList();
