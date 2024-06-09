@@ -11,6 +11,7 @@ namespace SoowGoodWeb.Models
     public class PatientProfile : FullAuditedEntity<long>
     {        
         public string? FullName { get; set; }
+
         public bool? IsSelf { get; set; }
         public string? PatientName { get; set; }
         public string? PatientCode { get; set; }
