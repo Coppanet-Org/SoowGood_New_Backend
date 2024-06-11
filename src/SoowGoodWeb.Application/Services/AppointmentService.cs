@@ -1210,6 +1210,20 @@ namespace SoowGoodWeb.Services
                         smsInputDoctor.CsmsId = Utility.RandomString(16);
                         var resDoctor = await _smsService.SendSmsGreenWeb(smsInputDoctor);
 
+                        // Send notification to business owner
+                        SmsRequestParamDto smsInputBusinessOwner = new SmsRequestParamDto();
+                        smsInputBusinessOwner.Sms = "Your custom SMS message for the business owner";
+                        smsInputBusinessOwner.Msisdn = "01879-251067"; // Use the provided business owner phone number
+                        smsInputBusinessOwner.CsmsId = Utility.RandomString(16);
+                        var resBusinessOwner = await _smsService.SendSmsGreenWeb(smsInputBusinessOwner);
+
+                        // Send notification to admin
+                        SmsRequestParamDto smsInputAdmin = new SmsRequestParamDto();
+                        smsInputAdmin.Sms = "Your custom SMS message for the admin";
+                        smsInputAdmin.Msisdn = "01319-078477"; // Use the provided admin phone number
+                        smsInputAdmin.CsmsId = Utility.RandomString(16);
+                        var resAdmin = await _smsService.SendSmsGreenWeb(smsInputAdmin);
+
                         notificatinReceiverInput.Message = "Mr./Mrs./Ms " + appointment.PatientName + ", your appointment " + appointment.AppointmentCode + "  is confirmed  with doctor " + appointment.DoctorName
                                                               + " at " + appointment.AppointmentTime + " on " + appointment.AppointmentDate.Value.Date + " Please be prepared 5 minutes before the appointment.";
 
