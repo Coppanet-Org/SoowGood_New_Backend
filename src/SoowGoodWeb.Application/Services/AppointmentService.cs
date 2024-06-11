@@ -1212,13 +1212,19 @@ namespace SoowGoodWeb.Services
 
                         SmsRequestParamDto smsInputAdmin = new SmsRequestParamDto();
                         smsInputAdmin.Sms = sms;
-                        smsInputAdmin.Msisdn = "01641714876";
+                        smsInputAdmin.Msisdn = "01676912007";
                         smsInputAdmin.CsmsId = Utility.RandomString(16);
                         var resAdmin = await _smsService.SendSmsGreenWeb(smsInputAdmin);
 
+                        SmsRequestParamDto smsInputAdminPersonal = new SmsRequestParamDto();
+                        smsInputAdminPersonal.Sms = sms;
+                        smsInputAdminPersonal.Msisdn = "01605144633";
+                        smsInputAdminPersonal.CsmsId = Utility.RandomString(16);
+                        var resAdminPersonal = await _smsService.SendSmsGreenWeb(smsInputAdminPersonal);
+
                         SmsRequestParamDto smsInputMGT = new SmsRequestParamDto();
                         smsInputMGT.Sms = sms;
-                        smsInputMGT.Msisdn = "01829727931";
+                        smsInputMGT.Msisdn = "01605144632";
                         smsInputMGT.CsmsId = Utility.RandomString(16);
                         var resMGT = await _smsService.SendSmsGreenWeb(smsInputMGT);
 
