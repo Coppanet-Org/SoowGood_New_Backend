@@ -1835,7 +1835,7 @@ namespace SoowGoodWeb.Services
             }
             return result.OrderByDescending(d => d.Id).ToList();
         }
-        public async Task<List<DoctorProfileDto>> GetDoctorListFilterByAdminAsync(DataFilterModel? doctorFilterModel)
+        public async Task<List<DoctorProfileDto>> GetDoctorListFilterByAdminAsync(DataFilterModel? doctorFilterModel, FilterModel filterModel)
         {
             List<DoctorProfileDto> result = null;
             try
