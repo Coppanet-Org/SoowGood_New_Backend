@@ -2178,6 +2178,23 @@ namespace SoowGoodWeb.Services
             return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
 
         }
+
+        public async Task<DoctorProfileDto> UpdateExpertise(int Id, string expertise)
+        {
+            var user = await _doctorProfileRepository.GetAsync(x => x.Id == Id);
+            if (user != null)
+            {
+                if (string.IsNullOrEmpty(user.Expertise))
+                {
+                    user.Expertise = expertise;
+                }
+            }
+            var item = await _doctorProfileRepository.UpdateAsync(user);
+            await _unitOfWorkManager.Current.SaveChangesAsync();
+            return ObjectMapper.Map<DoctorProfile, DoctorProfileDto>(item);
+
+        }
+
         /// <summary>
         /// this function will work 
         /// if doctor click the online togle from the doctors dashboard
