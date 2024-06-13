@@ -116,9 +116,9 @@ namespace SoowGoodWeb.Services
                 result.Add(new PatientProfileDto()
                 {
                     Id = item.Id,
-                    PatientName = item.PatientName,
-                    PatientEmail = item.PatientEmail,
-                    PatientMobileNo = item.PatientMobileNo,
+                    FullName = item.FullName,
+                    Email = item.Email,
+                    MobileNo = item.MobileNo,
                     PatientCode = item.PatientCode,
                     DateOfBirth = item.DateOfBirth,
                     Gender = item.Gender,
@@ -370,7 +370,7 @@ namespace SoowGoodWeb.Services
             {
                 var profileWithDetails = await _patientProfileRepository.GetListAsync();
                 var agentDetails = await _agentProfileRepository.WithDetailsAsync(a => a.AgentMaster, s => s.AgentSupervisor);
-                var profiles = profileWithDetails.Where(p => !string.IsNullOrEmpty(p.PatientName)).ToList();
+                var profiles = profileWithDetails.Where(p => !string.IsNullOrEmpty(p.FullName)).ToList();
                 //var schedules = await _patientProfileRepository.WithDetailsAsync();
                 //var scheduleCons = schedules.Where(s=>(s.ConsultancyType == consultType)
                 if (!string.IsNullOrEmpty(role) && role != "sgadmin")
@@ -404,9 +404,9 @@ namespace SoowGoodWeb.Services
                     result.Add(new PatientProfileDto()
                     {
                         Id = item.Id,
-                        PatientName = item.PatientName,
-                        PatientEmail = item.PatientEmail,
-                        PatientMobileNo = item.PatientMobileNo,
+                        FullName = item.FullName,
+                        Email = item.Email,
+                        MobileNo = item.MobileNo,
                         PatientCode = item.PatientCode,
                         DateOfBirth = item.DateOfBirth,
                         Gender = item.Gender,
@@ -423,8 +423,8 @@ namespace SoowGoodWeb.Services
 
                 if (patientFilterModel != null && !string.IsNullOrEmpty(patientFilterModel.name))
                 {
-                    result=result.Where(p=> (p.PatientName != null && p.PatientName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())) ||
-                                                   (p.PatientMobileNo != null && p.PatientMobileNo.ToLower().Contains(patientFilterModel.name.ToLower().Trim())) 
+                    result=result.Where(p=> (p.FullName != null && p.FullName.ToLower().Contains(patientFilterModel.name.ToLower().Trim())) ||
+                                                   (p.MobileNo != null && p.MobileNo.ToLower().Contains(patientFilterModel.name.ToLower().Trim())) 
                                                    || (p.BoothName!=null && p.BoothName.ToLower().Contains(patientFilterModel.name.ToLower()))
                                                    || (p.CreatorRole != null && p.CreatorRole.ToLower().Contains(patientFilterModel.name.ToLower()))).ToList();
                 }
