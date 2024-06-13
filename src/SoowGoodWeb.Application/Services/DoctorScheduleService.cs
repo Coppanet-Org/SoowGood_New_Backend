@@ -343,7 +343,7 @@ namespace SoowGoodWeb.Services
         {
             List<DoctorScheduleDto>? result = null;
             var allSchedule =
-                await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile, s => s.DoctorScheduleDaySession, c => c.DoctorChamber, f => f.DoctorFeesSetup, a => a.Appointments);
+                await _doctorScheduleRepository.WithDetailsAsync(d => d.DoctorProfile, s => s.DoctorScheduleDaySession, c => c.DoctorChamber, f => f.DoctorFeesSetup);
             var item = allSchedule.Where(s => s.DoctorProfileId == doctorId).ToList();
             if (!item.Any())
             {
