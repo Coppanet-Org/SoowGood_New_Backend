@@ -544,6 +544,7 @@ namespace SoowGoodWeb.Services
                         AgentName = item.AppointmentCreatorRole == "agent" ? agent?.FullName : "N/A",
                         AgentMasterName = item.AppointmentCreatorRole == "agent" ? agent?.AgentMaster?.AgentMasterOrgName : "N/A",
                         AgentSupervisorName = item.AppointmentCreatorRole == "agent" ? agent?.AgentSupervisor?.AgentSupervisorOrgName : "N/A",
+                        TotalAppointmentFee = item.TotalAppointmentFee,
                     });
                 }
             }
@@ -966,6 +967,7 @@ namespace SoowGoodWeb.Services
                         AgentName = item.AppointmentCreatorRole == "agent" ? agent?.FullName : "N/A",
                         AgentMasterName = item.AppointmentCreatorRole == "agent" ? agent?.AgentMaster?.AgentMasterOrgName : "N/A",
                         AgentSupervisorName = item.AppointmentCreatorRole == "agent" ? agent?.AgentSupervisor?.SupervisorName : "N/A",
+                        TotalAppointmentFee = item.TotalAppointmentFee,
                     });
                 }
             }
