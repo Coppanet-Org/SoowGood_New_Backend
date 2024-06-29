@@ -544,6 +544,7 @@ namespace SoowGoodWeb.Services
                         AgentName = item.AppointmentCreatorRole == "agent" ? agent?.FullName : "N/A",
                         AgentMasterName = item.AppointmentCreatorRole == "agent" ? agent?.AgentMaster?.AgentMasterOrgName : "N/A",
                         AgentSupervisorName = item.AppointmentCreatorRole == "agent" ? agent?.AgentSupervisor?.AgentSupervisorOrgName : "N/A",
+                        TotalAppointmentFee = item.TotalAppointmentFee,
                     });
                 }
             }
@@ -966,6 +967,7 @@ namespace SoowGoodWeb.Services
                         AgentName = item.AppointmentCreatorRole == "agent" ? agent?.FullName : "N/A",
                         AgentMasterName = item.AppointmentCreatorRole == "agent" ? agent?.AgentMaster?.AgentMasterOrgName : "N/A",
                         AgentSupervisorName = item.AppointmentCreatorRole == "agent" ? agent?.AgentSupervisor?.SupervisorName : "N/A",
+                        TotalAppointmentFee = item.TotalAppointmentFee,
                     });
                 }
             }
@@ -978,7 +980,8 @@ namespace SoowGoodWeb.Services
 
             if (!string.IsNullOrEmpty(dataFilter?.name))
             {
-                result = result.Where(p => ((!string.IsNullOrEmpty(p.PatientName)) && (!string.IsNullOrEmpty(p.DoctorName)) && (!string.IsNullOrEmpty(p.BoothName))) && (p.PatientName.ToLower().Contains(dataFilter.name.ToLower().Trim()) || p.DoctorName.ToLower().Contains(dataFilter.name.ToLower().Trim()) ||
+                result = result.Where(p => ((!string.IsNullOrEmpty(p.PatientName)) && (!string.IsNullOrEmpty(p.DoctorName)) && (!string.IsNullOrEmpty(p.AppointmentCreatorRole)) && (!string.IsNullOrEmpty(p.BoothName))) && (p.PatientName.ToLower().Contains(dataFilter.name.ToLower().Trim()) || p.DoctorName.ToLower().Contains(dataFilter.name.ToLower().Trim()) ||
+                                              p.AppointmentCreatorRole.ToLower().Contains(dataFilter.name.ToLower().Trim()) ||
                                               p.BoothName.ToLower().Contains(dataFilter.name.ToLower().Trim()))).ToList();
             }
             if (dataFilter?.consultancyType > 0)

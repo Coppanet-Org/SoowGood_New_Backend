@@ -40,8 +40,8 @@ IRepository<Speciality> speciality)
             var sprecialitis = await _speciality.WithDetailsAsync();
             var specializations = await _specialization.WithDetailsAsync();
 
-            var speciality = sprecialitis.Where(s=> s.Id == resp.SpecialityId).FirstOrDefault();
-            var specialization = specializations.Where(s=> s.Id == resp.SpecializationId).FirstOrDefault();
+            var speciality = sprecialitis.Where(s => s.Id == resp.SpecialityId).FirstOrDefault();
+            var specialization = specializations.Where(s => s.Id == resp.SpecializationId).FirstOrDefault();
             resp.SpecialityName = speciality?.SpecialityName;
             resp.SpecializationName = specialization?.SpecializationName;
             return resp;//ObjectMapper.Map<DoctorSpecialization, DoctorSpecializationDto>(doctorSpecialization);
