@@ -980,7 +980,8 @@ namespace SoowGoodWeb.Services
 
             if (!string.IsNullOrEmpty(dataFilter?.name))
             {
-                result = result.Where(p => ((!string.IsNullOrEmpty(p.PatientName)) && (!string.IsNullOrEmpty(p.DoctorName)) && (!string.IsNullOrEmpty(p.BoothName))) && (p.PatientName.ToLower().Contains(dataFilter.name.ToLower().Trim()) || p.DoctorName.ToLower().Contains(dataFilter.name.ToLower().Trim()) ||
+                result = result.Where(p => ((!string.IsNullOrEmpty(p.PatientName)) && (!string.IsNullOrEmpty(p.DoctorName)) && (!string.IsNullOrEmpty(p.AppointmentCreatorRole)) && (!string.IsNullOrEmpty(p.BoothName))) && (p.PatientName.ToLower().Contains(dataFilter.name.ToLower().Trim()) || p.DoctorName.ToLower().Contains(dataFilter.name.ToLower().Trim()) ||
+                                              p.AppointmentCreatorRole.ToLower().Contains(dataFilter.name.ToLower().Trim()) ||
                                               p.BoothName.ToLower().Contains(dataFilter.name.ToLower().Trim()))).ToList();
             }
             if (dataFilter?.consultancyType > 0)
@@ -1217,6 +1218,12 @@ namespace SoowGoodWeb.Services
                         smsInputAdmin.Msisdn = "01676912007";
                         smsInputAdmin.CsmsId = Utility.RandomString(16);
                         var resAdmin = await _smsService.SendSmsGreenWeb(smsInputAdmin);
+
+                        SmsRequestParamDto smsInputAdmin2 = new SmsRequestParamDto();
+                        smsInputAdmin2.Sms = sms;
+                        smsInputAdmin2.Msisdn = "01610495158";
+                        smsInputAdmin2.CsmsId = Utility.RandomString(16);
+                        var resAdmin2 = await _smsService.SendSmsGreenWeb(smsInputAdmin2);
 
                         SmsRequestParamDto smsInputAdminPersonal = new SmsRequestParamDto();
                         smsInputAdminPersonal.Sms = sms;
