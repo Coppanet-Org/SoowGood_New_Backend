@@ -26,5 +26,6 @@ namespace SoowGoodWeb.DtoModels
         public bool? IsActive { get; set; }
         public Guid? UserId { get; set; }
         public string? DisplayName { get;set; }
+        public List<MasterDoctorDto>? SelectedDoctor { get; set; }
     }
 }
