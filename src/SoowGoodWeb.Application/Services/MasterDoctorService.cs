@@ -32,8 +32,8 @@ namespace SoowGoodWeb.Services
 
             await _unitOfWorkManager.Current.SaveChangesAsync();
             result = ObjectMapper.Map<MasterDoctor, MasterDoctorDto>(masterDoctor);
-            result.DoctorName = doctor.FullName;
-            return result;//ObjectMapper.Map<MasterDoctor, MasterDoctorDto>(result);
+            result.DoctorName = doctor?.FullName;
+            return result;//ObjectMapper.Map<DoctorDegree, DoctorDegreeDto>(result);
         }
 
         public async Task<MasterDoctorDto> GetAsync(int id)
