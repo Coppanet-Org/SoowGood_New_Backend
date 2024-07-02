@@ -221,5 +221,9 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<Notification, NotificationDto>();
         CreateMap<NotificationDto, Notification>();
         CreateMap<NotificationInputDto, Notification>();
+
+        CreateMap<MasterDoctor, MasterDoctorDto>();
+        CreateMap<MasterDoctorDto, MasterDoctor>();
+        CreateMap<MasterDoctorInputDto, MasterDoctor>();
     }
 }
