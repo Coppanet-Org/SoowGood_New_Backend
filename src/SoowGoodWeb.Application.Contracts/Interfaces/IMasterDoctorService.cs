@@ -11,7 +11,7 @@ namespace SoowGoodWeb.Interfaces
     public interface IMasterDoctorService : IApplicationService
     {
         Task<List<MasterDoctorDto>> GetListAsync();
-        Task<List<MasterDoctorDto>> GetMasterDoctorListByDoctorIdAsync(int doctorId);
+        Task<List<MasterDoctorDto>> GetMasterDoctorListByAgentMasterIdAsync(int doctorId);
         Task<MasterDoctorDto> GetAsync(int id);
         Task<MasterDoctorDto> CreateAsync(MasterDoctorInputDto input);
         Task<MasterDoctorDto> UpdateAsync(MasterDoctorInputDto input);

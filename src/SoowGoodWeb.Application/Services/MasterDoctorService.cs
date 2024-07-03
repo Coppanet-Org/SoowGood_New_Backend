@@ -44,14 +44,57 @@ namespace SoowGoodWeb.Services
         }
         public async Task<List<MasterDoctorDto>> GetListAsync()
         {
-            var doctors = await _masterDoctorRepository.GetListAsync();
-            return ObjectMapper.Map<List<MasterDoctor>, List<MasterDoctorDto>>(doctors);
+            //var doctors = await _masterDoctorRepository.GetListAsync();
+            //return ObjectMapper.Map<List<MasterDoctor>, List<MasterDoctorDto>>(doctors);
+
+            List<MasterDoctorDto>? result = null;
+
+            var allMasterDoctorDetails = await _masterDoctorRepository.WithDetailsAsync(d => d.DoctorProfile);
+            if (!allMasterDoctorDetails.Any())
+            {
+                return result;
+            }
+            result = new List<MasterDoctorDto>();
+            foreach (var item in allMasterDoctorDetails)
+            {
+
+                result.Add(new MasterDoctorDto()
+                {
+                    Id = item.Id,
+                    AgentMasterId = item.AgentMasterId,
+                    DoctorProfileId = item.DoctorProfileId,
+                    DoctorName=item.DoctorProfileId>0?item.DoctorProfile.FullName:"",
+                });
+            }
+            var resList = result.OrderByDescending(d => d.Id).ToList();
+            return resList;
         }
-        public async Task<List<MasterDoctorDto>> GetMasterDoctorListByDoctorIdAsync(int doctorId)
+        public async Task<List<MasterDoctorDto>> GetMasterDoctorListByAgentMasterIdAsync(int masterId)
         {
-            var doctors = await _masterDoctorRepository.WithDetailsAsync(d => d.DoctorProfile);
-            var doctDegrees = doctors.Where(dd => dd.DoctorProfileId == doctorId).ToList();
-            return ObjectMapper.Map<List<MasterDoctor>, List<MasterDoctorDto>>(doctDegrees);
+            //var doctors = await _masterDoctorRepository.WithDetailsAsync(d => d.DoctorProfile);
+            //var doctDegrees = doctors.Where(dd => dd.DoctorProfileId == doctorId).ToList();
+            //return ObjectMapper.Map<List<MasterDoctor>, List<MasterDoctorDto>>(doctDegrees);
+
+            List<MasterDoctorDto> list = null;
+            var items = await _masterDoctorRepository.WithDetailsAsync(d => d.DoctorProfile,m=>m.AgentMaster);
+            items = items.Where(i => i.AgentMasterId == masterId);
+            if (items.Any())
+            {
+                list = new List<MasterDoctorDto>();
+                foreach (var item in items)
+                {
+                    list.Add(new MasterDoctorDto()
+                    {
+                        Id = item.Id,
+                        AgentMasterId = item.AgentMasterId,
+                        DoctorProfileId = item.DoctorProfileId,
+                        DoctorName=item.DoctorProfile?.FullName,
+                        
+                    });
+                }
+            }
+
+            return list;
         }
         public async Task<List<MasterDoctorDto>> GetListByDoctorIdAsync(int doctorId)
         {
