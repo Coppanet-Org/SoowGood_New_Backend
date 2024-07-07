@@ -23,6 +23,7 @@ namespace SoowGoodWeb.DtoModels
         public string? PatientName { get; set; }
         public string? PatientCode { get; set; }
         public string? PatientMobileNo { get; set; }
+        public string? MobileNo { get; set; }
         public string? PatientEmail { get; set; }
         public string? PatientLocation { get; set; }
         public ConsultancyType? ConsultancyType { get; set; }

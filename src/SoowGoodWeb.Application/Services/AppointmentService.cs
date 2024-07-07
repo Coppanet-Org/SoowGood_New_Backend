@@ -525,6 +525,7 @@ namespace SoowGoodWeb.Services
                         DoctorCode = item.DoctorCode,
                         PatientCode = item.PatientCode,
                         PatientMobileNo = patientDetails.PatientMobileNo,
+                        MobileNo = patientDetails.MobileNo,
                         PatientEmail = patientDetails.PatientEmail,
                         AppointmentStatusName = item.AppointmentStatus > 0 ? ((AppointmentStatus)item.AppointmentStatus).ToString() : "n/a",
                         AppointmentPaymentStatus = item.AppointmentPaymentStatus,
