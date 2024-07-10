@@ -47,6 +47,8 @@ namespace SoowGoodWeb.DtoModels
         public AppointmentStatus? AppointmentStatus { get; set; }
         public string? AppointmentStatusName { get; set; }
         public AppointmentPaymentStatus? AppointmentPaymentStatus { get; set; }
+        public ChamberPaymentType? ChamberPaymentType { get; set; }
+        public string? ChamberPaymentTypeName { get; set; }
         public string? AppointmentPaymentStatusName { get; set; }
         public long? CancelledByEntityId { get; set; }
         public string? CancelledByRole { get; set; }

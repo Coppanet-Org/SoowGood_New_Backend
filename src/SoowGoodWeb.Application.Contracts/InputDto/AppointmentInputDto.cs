@@ -40,6 +40,7 @@ namespace SoowGoodWeb.DtoModels
         public decimal? TotalAppointmentFee { get; set; }
         public AppointmentStatus? AppointmentStatus { get; set; }
         public AppointmentPaymentStatus? AppointmentPaymentStatus { get; set; }
+        public ChamberPaymentType? ChamberPaymentType { get; set; }
         public long? CancelledByEntityId { get; set; }
         public string? CancelledByRole { get; set; }
         public string? PaymentTransactionId { get; set; }
