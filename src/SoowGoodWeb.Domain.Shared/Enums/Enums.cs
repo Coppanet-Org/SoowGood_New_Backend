@@ -93,8 +93,8 @@ namespace SoowGoodWeb.Enums
 
     public enum ChamberPaymentType
     {
-        Online = 1,
-        physical = 2,
+        payNow = 1,
+        payAtChamber = 2,
     }
     public enum AppointmentPaymentStatus
     {
