@@ -10,6 +10,7 @@ namespace SoowGoodWeb.InputDto
     public class FinancialSetupInputDto : FullAuditedEntityDto<long>
     {
         public long? PlatformFacilityId { get; set; }
+        public long? AgentMasterId { get; set; }
         public FacilityEntityType? FacilityEntityType { get; set; }
         public DiagonsticServiceType? DiagonsticServiceType { get; set; }
         public long? FacilityEntityID { get; set; }

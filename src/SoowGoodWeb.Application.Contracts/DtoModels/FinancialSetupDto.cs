@@ -12,6 +12,7 @@ namespace SoowGoodWeb.DtoModels
         public FacilityEntityType? FacilityEntityType { get; set; }
         public string? FacilityEntityTypeName { get; set; }
         public DiagonsticServiceType? DiagonsticServiceType { get; set; }
+        public long? AgentMasterId { get; set; }
         public string? DiagonsticServiceTypeName { get; set; }
         public long? FacilityEntityID { get; set; }
         public string? FacilityEntityName { get; set; }
