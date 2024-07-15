@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240630082005_Agent Master Id added in doctor Profile and Banner Model added")]
+    partial class AgentMasterIdaddedindoctorProfileandBannerModeladded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -441,9 +444,6 @@ namespace SoowGoodWeb.Migrations
 
                     b.Property<string>("CancelledByRole")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("ChamberPaymentType")
-                        .HasColumnType("int");
 
                     b.Property<int?>("ConsultancyType")
                         .HasColumnType("int");
@@ -1245,6 +1245,9 @@ namespace SoowGoodWeb.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long?>("AgentMasterId")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime?>("BMDCRegExpiryDate")
                         .HasColumnType("datetime2");
 
@@ -1351,6 +1354,8 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AgentMasterId");
 
                     b.HasIndex("SpecialityId");
 
@@ -1763,9 +1768,6 @@ namespace SoowGoodWeb.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long?>("AgentMasterId")
-                        .HasColumnType("bigint");
-
                     b.Property<decimal?>("Amount")
                         .HasColumnType("decimal(18, 2)");
 
@@ -1831,64 +1833,9 @@ namespace SoowGoodWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AgentMasterId");
-
                     b.HasIndex("PlatformFacilityId");
 
                     b.ToTable("SgFinancialSetups");
-                });
-
-            modelBuilder.Entity("SoowGoodWeb.Models.MasterDoctor", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long?>("AgentMasterId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<long?>("DoctorProfileId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("LastModifierId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AgentMasterId");
-
-                    b.HasIndex("DoctorProfileId");
-
-                    b.ToTable("SgMasterDoctors");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.Notification", b =>
@@ -4886,9 +4833,15 @@ namespace SoowGoodWeb.Migrations
 
             modelBuilder.Entity("SoowGoodWeb.Models.DoctorProfile", b =>
                 {
+                    b.HasOne("SoowGoodWeb.Models.AgentMaster", "AgentMaster")
+                        .WithMany()
+                        .HasForeignKey("AgentMasterId");
+
                     b.HasOne("SoowGoodWeb.Models.Speciality", "Speciality")
                         .WithMany()
                         .HasForeignKey("SpecialityId");
+
+                    b.Navigation("AgentMaster");
 
                     b.Navigation("Speciality");
                 });
@@ -4949,32 +4902,11 @@ namespace SoowGoodWeb.Migrations
 
             modelBuilder.Entity("SoowGoodWeb.Models.FinancialSetup", b =>
                 {
-                    b.HasOne("SoowGoodWeb.Models.AgentMaster", "AgentMaster")
-                        .WithMany()
-                        .HasForeignKey("AgentMasterId");
-
                     b.HasOne("SoowGoodWeb.Models.PlatformFacility", "PlatformFacility")
                         .WithMany()
                         .HasForeignKey("PlatformFacilityId");
 
-                    b.Navigation("AgentMaster");
-
                     b.Navigation("PlatformFacility");
-                });
-
-            modelBuilder.Entity("SoowGoodWeb.Models.MasterDoctor", b =>
-                {
-                    b.HasOne("SoowGoodWeb.Models.AgentMaster", "AgentMaster")
-                        .WithMany("SelectedDoctor")
-                        .HasForeignKey("AgentMasterId");
-
-                    b.HasOne("SoowGoodWeb.Models.DoctorProfile", "DoctorProfile")
-                        .WithMany()
-                        .HasForeignKey("DoctorProfileId");
-
-                    b.Navigation("AgentMaster");
-
-                    b.Navigation("DoctorProfile");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.PathologyTest", b =>
@@ -5198,11 +5130,6 @@ namespace SoowGoodWeb.Migrations
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("SoowGoodWeb.Models.AgentMaster", b =>
-                {
-                    b.Navigation("SelectedDoctor");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.DiagonsticPathologyServiceManagement", b =>

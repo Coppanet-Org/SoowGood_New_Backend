@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240710064123_ChamberPaymentType_Added_InThe_AppointmentTable")]
+    partial class ChamberPaymentType_Added_InThe_AppointmentTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1763,9 +1766,6 @@ namespace SoowGoodWeb.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long?>("AgentMasterId")
-                        .HasColumnType("bigint");
-
                     b.Property<decimal?>("Amount")
                         .HasColumnType("decimal(18, 2)");
 
@@ -1830,8 +1830,6 @@ namespace SoowGoodWeb.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AgentMasterId");
 
                     b.HasIndex("PlatformFacilityId");
 
@@ -4949,15 +4947,9 @@ namespace SoowGoodWeb.Migrations
 
             modelBuilder.Entity("SoowGoodWeb.Models.FinancialSetup", b =>
                 {
-                    b.HasOne("SoowGoodWeb.Models.AgentMaster", "AgentMaster")
-                        .WithMany()
-                        .HasForeignKey("AgentMasterId");
-
                     b.HasOne("SoowGoodWeb.Models.PlatformFacility", "PlatformFacility")
                         .WithMany()
                         .HasForeignKey("PlatformFacilityId");
-
-                    b.Navigation("AgentMaster");
 
                     b.Navigation("PlatformFacility");
                 });
