@@ -354,6 +354,7 @@ namespace SoowGoodWeb.Services
                     result.createFrom = profiles.createFrom;
                     result.DoctorCode = profiles.DoctorCode;
                     result.ProfilePic = profilePics?.Path;
+                    result.Expertise= profiles.Expertise;
                     result.DisplayInstantFeeAsPatient = individualInstantfeeAsPatient > 0 ? Math.Round((decimal)individualInstantfeeAsPatient, 2) : Math.Round((decimal)instantfeeAsPatient, 2);
                     result.DisplayInstantFeeAsAgent = individualInstantfeeAsAgent > 0 ? Math.Round((decimal)individualInstantfeeAsAgent, 2) : Math.Round((decimal)instantfeeAsAgent, 2);
                     result.DisplayScheduledPatientChamberFee = scheduledPtnChamberfee > 0 ? Math.Round((decimal)scheduledPtnChamberfee, 2) : 0;
