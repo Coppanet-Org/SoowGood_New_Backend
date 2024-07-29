@@ -14,11 +14,15 @@ namespace SoowGoodWeb.DtoModels
         //public AgentMaster? AgentMaster { get; set; }
 
         public string? DoctorName { get; set; }
-        //public DoctorTitle? DoctorTitle { get; set; }
-        //public string? DoctorTitleName { get; set; }
+        public DoctorTitle? DoctorTitle { get; set; }
+        public string? DoctorTitleName { get; set; }
+        public bool? IsActive { get; set; }
+        public bool? IsOnline { get; set; }
 
-        //public List<DoctorDegreeDto>? DoctorDegrees { get; set; }
-        //public List<DoctorSpecializationDto>? DoctorSpecialization { get; set; }
+        public List<DoctorDegreeDto>? DoctorDegrees { get; set; }
+        public string? Qualifications { get; set; }
+        public List<DoctorSpecializationDto>? DoctorSpecialization { get; set; }
+        public string? AreaOfExperties { get; set; }
 
     }
 }
