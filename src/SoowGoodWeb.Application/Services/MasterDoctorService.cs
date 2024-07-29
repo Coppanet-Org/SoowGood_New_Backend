@@ -1,7 +1,10 @@
-﻿using SoowGoodWeb.DtoModels;
+﻿using Microsoft.Extensions.Logging;
+using SoowGoodWeb.DtoModels;
+using SoowGoodWeb.Enums;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,12 +18,21 @@ namespace SoowGoodWeb.Services
     {
         private readonly IRepository<MasterDoctor> _masterDoctorRepository;
         private readonly IRepository<DoctorProfile> _doctorProfileRepository;
+        private readonly IRepository<AgentMaster> _agentMasterRepository;
+        private readonly IRepository<DoctorSpecialization> _doctorSpecializationRepository;
+        private readonly IRepository<DoctorDegree> _doctorDegreeRepository;
+        private readonly ILogger<MasterDoctorService> _logger;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
-        public MasterDoctorService(IRepository<MasterDoctor>masterDoctorRepository, IRepository<DoctorProfile> doctorProfileRepository, IUnitOfWorkManager unitOfWorkManager)
+        public MasterDoctorService(IRepository<MasterDoctor>masterDoctorRepository, IRepository<DoctorProfile> doctorProfileRepository, IUnitOfWorkManager unitOfWorkManager, IRepository<AgentMaster> agentMasterRepository, IRepository<DoctorSpecialization> doctorSpecializationRepository,IRepository<DoctorDegree> doctorDegreeRepository,
+             ILogger<MasterDoctorService> logger)
         {
-            _masterDoctorRepository =masterDoctorRepository;
+            _masterDoctorRepository = masterDoctorRepository;
             _doctorProfileRepository = doctorProfileRepository;
             _unitOfWorkManager = unitOfWorkManager;
+            _agentMasterRepository = agentMasterRepository;
+            _doctorSpecializationRepository = doctorSpecializationRepository;
+            _doctorDegreeRepository = doctorDegreeRepository;
+            _logger = logger;
         }
         public async Task<MasterDoctorDto> CreateAsync(MasterDoctorInputDto input)
         {
@@ -71,29 +83,82 @@ namespace SoowGoodWeb.Services
         }
         public async Task<List<MasterDoctorDto>> GetMasterDoctorListByAgentMasterIdAsync(int masterId)
         {
-            //var doctors = await _masterDoctorRepository.WithDetailsAsync(d => d.DoctorProfile);
+           
             //var doctDegrees = doctors.Where(dd => dd.DoctorProfileId == doctorId).ToList();
             //return ObjectMapper.Map<List<MasterDoctor>, List<MasterDoctorDto>>(doctDegrees);
 
             List<MasterDoctorDto> list = null;
-            var items = await _masterDoctorRepository.WithDetailsAsync(d => d.DoctorProfile,m=>m.AgentMaster);
-            items = items.Where(i => i.AgentMasterId == masterId);
-            if (items.Any())
+            try
             {
-                list = new List<MasterDoctorDto>();
-                foreach (var item in items)
-                {
-                    list.Add(new MasterDoctorDto()
-                    {
-                        Id = item.Id,
-                        AgentMasterId = item.AgentMasterId,
-                        DoctorProfileId = item.DoctorProfileId,
-                        DoctorName=item.DoctorProfile?.FullName,
-                        
-                    });
-                }
-            }
+                var items = await _masterDoctorRepository.WithDetailsAsync(d => d.DoctorProfile, m => m.AgentMaster);
+                items = items.Where(i => i.AgentMasterId == masterId);
 
+                if (!items.Any())
+                {
+                    return list;
+                }
+
+                var medicalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
+                var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medicalSpecializations.ToList());
+
+                var medicalDegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
+                var doctorDegrees = ObjectMapper.Map<List<DoctorDegree>, List<DoctorDegreeDto>>(medicalDegrees.ToList());
+
+
+                if (items.Any())
+                {
+                    list = new List<MasterDoctorDto>();
+                    foreach (var item in items)
+                    {
+                        var degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.DoctorProfileId).ToList();
+                        string degStr = string.Empty;
+                        foreach (var d in degrees)
+                        {
+                            degStr = degStr + d.DegreeName + ",";
+                        }
+
+                        if (!string.IsNullOrEmpty(degStr))
+                        {
+                            degStr = degStr.Remove(degStr.Length - 1);
+                        }
+
+                        var specializations = doctorSpecializations.Where(sp => sp.DoctorProfileId == item.DoctorProfileId).ToList();
+                        string expStr = string.Empty;
+                        foreach (var e in specializations)
+                        {
+                            expStr = expStr + e.SpecializationName + ",";
+                        }
+
+                        if (!string.IsNullOrEmpty(expStr))
+                        {
+                            expStr = expStr.Remove(expStr.Length - 1);
+                        }
+
+                        list.Add(new MasterDoctorDto()
+                        {
+                            Id = item.Id,
+                            AgentMasterId = item.AgentMasterId,
+                            DoctorProfileId = item.DoctorProfileId,
+                            DoctorName = item.DoctorProfileId > 0 ? item.DoctorProfile.FullName : "",
+                            DoctorTitle = item.DoctorProfile?.DoctorTitle,
+                            DoctorTitleName = item.DoctorProfile?.DoctorTitle > 0 ? Utilities.Utility.GetDisplayName(item.DoctorProfile?.DoctorTitle).ToString() : "n/a",
+                            DoctorSpecialization = specializations,
+                            AreaOfExperties = expStr,
+                            DoctorDegrees = degrees,
+                            Qualifications = degStr,
+                            IsActive = item.DoctorProfile?.IsActive,
+                            IsOnline = item.DoctorProfile?.IsOnline,
+                        });
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting master doctor list for AgentMasterId: {MasterId}", masterId);
+                // Optionally, you can rethrow the exception or handle it accordingly
+                throw;
+            }
             return list;
         }
         public async Task<List<MasterDoctorDto>> GetListByDoctorIdAsync(int doctorId)

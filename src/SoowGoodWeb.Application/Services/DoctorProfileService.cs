@@ -2185,10 +2185,8 @@ namespace SoowGoodWeb.Services
             var user = await _doctorProfileRepository.GetAsync(x => x.Id == Id);
             if (user != null)
             {
-                
-                
+               
                     user.Expertise = expertise;
-                
             }
             var item = await _doctorProfileRepository.UpdateAsync(user);
             await _unitOfWorkManager.Current.SaveChangesAsync();
