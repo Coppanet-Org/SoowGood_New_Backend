@@ -21,10 +21,12 @@ namespace SoowGoodWeb.Services
         private readonly IRepository<AgentMaster> _agentMasterRepository;
         private readonly IRepository<DoctorSpecialization> _doctorSpecializationRepository;
         private readonly IRepository<DoctorDegree> _doctorDegreeRepository;
+        private readonly IRepository<DocumentsAttachment> _documentsAttachment;
         private readonly ILogger<MasterDoctorService> _logger;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         public MasterDoctorService(IRepository<MasterDoctor>masterDoctorRepository, IRepository<DoctorProfile> doctorProfileRepository, IUnitOfWorkManager unitOfWorkManager, IRepository<AgentMaster> agentMasterRepository, IRepository<DoctorSpecialization> doctorSpecializationRepository,IRepository<DoctorDegree> doctorDegreeRepository,
-             ILogger<MasterDoctorService> logger)
+             ILogger<MasterDoctorService> logger,
+             IRepository<DocumentsAttachment> documentsAttachment)
         {
             _masterDoctorRepository = masterDoctorRepository;
             _doctorProfileRepository = doctorProfileRepository;
@@ -32,6 +34,7 @@ namespace SoowGoodWeb.Services
             _agentMasterRepository = agentMasterRepository;
             _doctorSpecializationRepository = doctorSpecializationRepository;
             _doctorDegreeRepository = doctorDegreeRepository;
+            _documentsAttachment = documentsAttachment;
             _logger = logger;
         }
         public async Task<MasterDoctorDto> CreateAsync(MasterDoctorInputDto input)
@@ -104,12 +107,17 @@ namespace SoowGoodWeb.Services
                 var medicalDegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
                 var doctorDegrees = ObjectMapper.Map<List<DoctorDegree>, List<DoctorDegreeDto>>(medicalDegrees.ToList());
 
+                var attachedItems = await _documentsAttachment.WithDetailsAsync();
 
                 if (items.Any())
                 {
                     list = new List<MasterDoctorDto>();
                     foreach (var item in items)
                     {
+                        var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
+                                                                       && x.EntityId == item.Id
+                                                                       && x.AttachmentType == AttachmentType.ProfilePicture
+                                                                       && x.IsDeleted == false).FirstOrDefault();
                         var degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.DoctorProfileId).ToList();
                         string degStr = string.Empty;
                         foreach (var d in degrees)
@@ -149,6 +157,7 @@ namespace SoowGoodWeb.Services
                             Qualifications = degStr,
                             IsActive = item.DoctorProfile?.IsActive,
                             IsOnline = item.DoctorProfile?.IsOnline,
+                            ProfilePic = profilePics?.Path,
                         });
                     }
                 }

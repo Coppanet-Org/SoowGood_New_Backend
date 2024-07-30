@@ -24,5 +24,7 @@ namespace SoowGoodWeb.DtoModels
         public List<DoctorSpecializationDto>? DoctorSpecialization { get; set; }
         public string? AreaOfExperties { get; set; }
 
+        public string? ProfilePic { get; set; }
+
     }
 }
