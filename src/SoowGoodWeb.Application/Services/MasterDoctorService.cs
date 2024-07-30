@@ -115,7 +115,7 @@ namespace SoowGoodWeb.Services
                     foreach (var item in items)
                     {
                         var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
-                                                                       && x.EntityId == item.Id
+                                                                       && x.EntityId == item.DoctorProfileId
                                                                        && x.AttachmentType == AttachmentType.ProfilePicture
                                                                        && x.IsDeleted == false).FirstOrDefault();
                         var degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.DoctorProfileId).ToList();
