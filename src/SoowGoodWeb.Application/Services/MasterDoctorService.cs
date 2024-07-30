@@ -127,6 +127,7 @@ namespace SoowGoodWeb.Services
                         foreach (var e in specializations)
                         {
                             expStr = expStr + e.SpecializationName + ",";
+
                         }
 
                         if (!string.IsNullOrEmpty(expStr))
