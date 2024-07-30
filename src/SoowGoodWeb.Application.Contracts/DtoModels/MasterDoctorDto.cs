@@ -17,7 +17,7 @@ namespace SoowGoodWeb.DtoModels
         public DoctorTitle? DoctorTitle { get; set; }
         public string? DoctorTitleName { get; set; }
         public bool? IsActive { get; set; }
-        public bool? IsOnline { get; set; }
+        public bool?  IsOnline { get; set; }
 
         public List<DoctorDegreeDto>? DoctorDegrees { get; set; }
         public string? Qualifications { get; set; }
