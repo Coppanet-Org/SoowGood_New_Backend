@@ -22,10 +22,12 @@ namespace SoowGoodWeb.Services
         private readonly IRepository<DoctorSpecialization> _doctorSpecializationRepository;
         private readonly IRepository<DoctorDegree> _doctorDegreeRepository;
         private readonly IRepository<DocumentsAttachment> _documentsAttachment;
+        private readonly IRepository<FinancialSetup> _financialSetup;
         private readonly ILogger<MasterDoctorService> _logger;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         public MasterDoctorService(IRepository<MasterDoctor>masterDoctorRepository, IRepository<DoctorProfile> doctorProfileRepository, IUnitOfWorkManager unitOfWorkManager, IRepository<AgentMaster> agentMasterRepository, IRepository<DoctorSpecialization> doctorSpecializationRepository,IRepository<DoctorDegree> doctorDegreeRepository,
              ILogger<MasterDoctorService> logger,
+             IRepository<FinancialSetup> financialSetup,
              IRepository<DocumentsAttachment> documentsAttachment)
         {
             _masterDoctorRepository = masterDoctorRepository;
@@ -35,6 +37,7 @@ namespace SoowGoodWeb.Services
             _doctorSpecializationRepository = doctorSpecializationRepository;
             _doctorDegreeRepository = doctorDegreeRepository;
             _documentsAttachment = documentsAttachment;
+            _financialSetup= financialSetup;
             _logger = logger;
         }
         public async Task<MasterDoctorDto> CreateAsync(MasterDoctorInputDto input)
@@ -95,6 +98,7 @@ namespace SoowGoodWeb.Services
             {
                 var items = await _masterDoctorRepository.WithDetailsAsync(d => d.DoctorProfile, m => m.AgentMaster);
                 items = items.Where(i => i.AgentMasterId == masterId);
+                //items = items.Where(p => p.DoctorProfile.IsOnline == true && p.DoctorProfile.IsActive == true).ToList();
 
                 if (!items.Any())
                 {
@@ -109,11 +113,18 @@ namespace SoowGoodWeb.Services
 
                 var attachedItems = await _documentsAttachment.WithDetailsAsync();
 
+                var financialSetups = await _financialSetup.WithDetailsAsync();
+                var fees = financialSetups.Where(p => (p.PlatformFacilityId == 20 || p.PlatformFacilityId == 21) && p.ProviderAmount >= 0 && p.IsActive == true).ToList();
+                decimal? vatAmnt = fees.Where(a => a.Vat > 0)?.FirstOrDefault()?.Vat;
+                decimal? vatCharge = vatAmnt.HasValue ? vatAmnt / 100 : 0;
+
                 if (items.Any())
                 {
                     list = new List<MasterDoctorDto>();
                     foreach (var item in items)
                     {
+                        decimal? masterDoctorIndFeeAmountWithCharges = 0;
+                        decimal? allMasterDoctorFeeAmountWithCharges = 0;
                         var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
                                                                        && x.EntityId == item.DoctorProfileId
                                                                        && x.AttachmentType == AttachmentType.ProfilePicture
@@ -143,6 +154,41 @@ namespace SoowGoodWeb.Services
                             expStr = expStr.Remove(expStr.Length - 1);
                         }
 
+                        var isCommonDoctorFee = fees.Where(i => i.PlatformFacilityId == 20 && i.FacilityEntityID ==null).FirstOrDefault();
+                        var isIndDoctorFee = fees.Where(i => i.PlatformFacilityId == 21 && i.FacilityEntityID == item.DoctorProfileId).FirstOrDefault();
+                        if (isIndDoctorFee != null)
+                        {
+                            var masterDoctorIndFeeIn = isIndDoctorFee.AmountIn;
+                            var masterDoctorExternalFeeIn=isIndDoctorFee.ExternalAmountIn;
+                            decimal? masterDoctorIndFee = isIndDoctorFee.Amount;
+                            decimal? masterDoctorExternalFee = isIndDoctorFee.ExternalAmount;
+                            decimal? masterDoctorIndProviderAmnt = isIndDoctorFee.ProviderAmount;
+
+                            decimal? masterDoctorIndAmountTotalCharges = masterDoctorIndFeeIn == "Percentage" ? ((masterDoctorIndFee / 100) * masterDoctorIndProviderAmnt) : masterDoctorIndFee;
+                            decimal? masterDocterExternalAmount= masterDoctorExternalFeeIn == "Percentage" ? ((masterDoctorIndFee / 100)* masterDoctorExternalFee):masterDoctorExternalFee;
+                            decimal ? masterDoctorIndAmountWithChargesWithVat = (masterDoctorIndAmountTotalCharges * vatCharge) + masterDoctorIndAmountTotalCharges;
+                            masterDoctorIndFeeAmountWithCharges = masterDoctorIndAmountWithChargesWithVat + masterDoctorIndProviderAmnt+ masterDocterExternalAmount;
+                            //individualInstantfeeAsPatient = realTimeIndPtnAmountWithCharges;
+                        }
+                        else  
+                        {
+                            if (isCommonDoctorFee != null)
+                            {
+                                var masterDoctorCommonFeeIn = isCommonDoctorFee.AmountIn;
+                                var masterDoctorExternalFeeIn = isCommonDoctorFee.ExternalAmountIn;
+                                decimal? masterDoctorCommonFee = isCommonDoctorFee.Amount;
+                                decimal? masterDoctorExternalFee = isCommonDoctorFee.ExternalAmount;
+                                decimal? masterDoctorCommonProviderAmnt = isCommonDoctorFee.ProviderAmount;
+
+                                decimal? masterDoctorCommonAmountTotalCharges = masterDoctorCommonFeeIn == "Percentage" ? ((masterDoctorCommonFee / 100) * masterDoctorCommonProviderAmnt) : masterDoctorCommonFee;
+                                decimal? masterDocterExternalAmount = masterDoctorExternalFeeIn == "Percentage" ? ((masterDoctorCommonFee / 100) * masterDoctorExternalFee) : masterDoctorExternalFee;
+                                decimal? masterDoctorCommonAmountWithChargesWithVat = (masterDoctorCommonAmountTotalCharges * vatCharge) + masterDoctorCommonAmountTotalCharges;
+                                allMasterDoctorFeeAmountWithCharges = masterDoctorCommonAmountWithChargesWithVat + masterDoctorCommonProviderAmnt + masterDocterExternalAmount;
+                            }
+                            
+
+                        }
+
                         list.Add(new MasterDoctorDto()
                         {
                             Id = item.Id,
@@ -158,7 +204,8 @@ namespace SoowGoodWeb.Services
                             IsActive = item.DoctorProfile?.IsActive,
                             IsOnline = item.DoctorProfile?.IsOnline,
                             ProfilePic = profilePics?.Path,
-                        });
+                            DisplayDoctorFee = masterDoctorIndFeeAmountWithCharges > 0 ? Math.Round((decimal)masterDoctorIndFeeAmountWithCharges, 2) : Math.Round((decimal)allMasterDoctorFeeAmountWithCharges, 2)
+                        }) ;
                     }
                 }
 
