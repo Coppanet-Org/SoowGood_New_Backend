@@ -195,6 +195,7 @@ namespace SoowGoodWeb.Services
                             AgentMasterId = item.AgentMasterId,
                             DoctorProfileId = item.DoctorProfileId,
                             DoctorName = item.DoctorProfileId > 0 ? item.DoctorProfile.FullName : "",
+                            DoctorCode=item.DoctorProfileId>0?item.DoctorProfile.DoctorCode:"",
                             DoctorTitle = item.DoctorProfile?.DoctorTitle,
                             DoctorTitleName = item.DoctorProfile?.DoctorTitle > 0 ? Utilities.Utility.GetDisplayName(item.DoctorProfile?.DoctorTitle).ToString() : "n/a",
                             DoctorSpecialization = specializations,
@@ -203,12 +204,14 @@ namespace SoowGoodWeb.Services
                             Qualifications = degStr,
                             IsActive = item.DoctorProfile?.IsActive,
                             IsOnline = item.DoctorProfile?.IsOnline,
+                            
                             ProfilePic = profilePics?.Path,
-                            DisplayDoctorFee = (masterDoctorIndFeeAmountWithCharges > 0)
+                            DisplayInstantFeeAsAgent = (masterDoctorIndFeeAmountWithCharges > 0)
                     ? Math.Round((decimal)masterDoctorIndFeeAmountWithCharges, 2)
                     : (allMasterDoctorFeeAmountWithCharges > 0
                         ? Math.Round((decimal)allMasterDoctorFeeAmountWithCharges, 2)
                         : 0)
+
 
                     }) ;
                     }

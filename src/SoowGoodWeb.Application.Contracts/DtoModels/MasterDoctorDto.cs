@@ -26,7 +26,11 @@ namespace SoowGoodWeb.DtoModels
 
         public string? ProfilePic { get; set; }
 
-        public decimal? DisplayDoctorFee { get; set; }
+        public decimal? DisplayInstantFeeAsAgent { get; set; }
+
+        public decimal? DoctorFee { get; set; }
+
+        public string? DoctorCode { get; set; }
 
     }
 }
