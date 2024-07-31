@@ -204,8 +204,13 @@ namespace SoowGoodWeb.Services
                             IsActive = item.DoctorProfile?.IsActive,
                             IsOnline = item.DoctorProfile?.IsOnline,
                             ProfilePic = profilePics?.Path,
-                            DisplayDoctorFee = masterDoctorIndFeeAmountWithCharges > 0 ? Math.Round((decimal)masterDoctorIndFeeAmountWithCharges, 2) : Math.Round((decimal)allMasterDoctorFeeAmountWithCharges, 2)
-                        }) ;
+                            DisplayDoctorFee = (masterDoctorIndFeeAmountWithCharges > 0)
+                    ? Math.Round((decimal)masterDoctorIndFeeAmountWithCharges, 2)
+                    : (allMasterDoctorFeeAmountWithCharges > 0
+                        ? Math.Round((decimal)allMasterDoctorFeeAmountWithCharges, 2)
+                        : 0)
+
+                    }) ;
                     }
                 }
 
