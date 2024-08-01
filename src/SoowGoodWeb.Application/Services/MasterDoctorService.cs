@@ -1,7 +1,10 @@
-﻿using SoowGoodWeb.DtoModels;
+﻿using Microsoft.Extensions.Logging;
+using SoowGoodWeb.DtoModels;
+using SoowGoodWeb.Enums;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,12 +18,27 @@ namespace SoowGoodWeb.Services
     {
         private readonly IRepository<MasterDoctor> _masterDoctorRepository;
         private readonly IRepository<DoctorProfile> _doctorProfileRepository;
+        private readonly IRepository<AgentMaster> _agentMasterRepository;
+        private readonly IRepository<DoctorSpecialization> _doctorSpecializationRepository;
+        private readonly IRepository<DoctorDegree> _doctorDegreeRepository;
+        private readonly IRepository<DocumentsAttachment> _documentsAttachment;
+        private readonly IRepository<FinancialSetup> _financialSetup;
+        private readonly ILogger<MasterDoctorService> _logger;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
-        public MasterDoctorService(IRepository<MasterDoctor>masterDoctorRepository, IRepository<DoctorProfile> doctorProfileRepository, IUnitOfWorkManager unitOfWorkManager)
+        public MasterDoctorService(IRepository<MasterDoctor>masterDoctorRepository, IRepository<DoctorProfile> doctorProfileRepository, IUnitOfWorkManager unitOfWorkManager, IRepository<AgentMaster> agentMasterRepository, IRepository<DoctorSpecialization> doctorSpecializationRepository,IRepository<DoctorDegree> doctorDegreeRepository,
+             ILogger<MasterDoctorService> logger,
+             IRepository<FinancialSetup> financialSetup,
+             IRepository<DocumentsAttachment> documentsAttachment)
         {
-            _masterDoctorRepository =masterDoctorRepository;
+            _masterDoctorRepository = masterDoctorRepository;
             _doctorProfileRepository = doctorProfileRepository;
             _unitOfWorkManager = unitOfWorkManager;
+            _agentMasterRepository = agentMasterRepository;
+            _doctorSpecializationRepository = doctorSpecializationRepository;
+            _doctorDegreeRepository = doctorDegreeRepository;
+            _documentsAttachment = documentsAttachment;
+            _financialSetup= financialSetup;
+            _logger = logger;
         }
         public async Task<MasterDoctorDto> CreateAsync(MasterDoctorInputDto input)
         {
@@ -71,29 +89,141 @@ namespace SoowGoodWeb.Services
         }
         public async Task<List<MasterDoctorDto>> GetMasterDoctorListByAgentMasterIdAsync(int masterId)
         {
-            //var doctors = await _masterDoctorRepository.WithDetailsAsync(d => d.DoctorProfile);
+           
             //var doctDegrees = doctors.Where(dd => dd.DoctorProfileId == doctorId).ToList();
             //return ObjectMapper.Map<List<MasterDoctor>, List<MasterDoctorDto>>(doctDegrees);
 
             List<MasterDoctorDto> list = null;
-            var items = await _masterDoctorRepository.WithDetailsAsync(d => d.DoctorProfile,m=>m.AgentMaster);
-            items = items.Where(i => i.AgentMasterId == masterId);
-            if (items.Any())
+            try
             {
-                list = new List<MasterDoctorDto>();
-                foreach (var item in items)
-                {
-                    list.Add(new MasterDoctorDto()
-                    {
-                        Id = item.Id,
-                        AgentMasterId = item.AgentMasterId,
-                        DoctorProfileId = item.DoctorProfileId,
-                        DoctorName=item.DoctorProfile?.FullName,
-                        
-                    });
-                }
-            }
+                var items = await _masterDoctorRepository.WithDetailsAsync(d => d.DoctorProfile, m => m.AgentMaster);
+                items = items.Where(i => i.AgentMasterId == masterId);
+                //items = items.Where(p => p.DoctorProfile.IsOnline == true && p.DoctorProfile.IsActive == true).ToList();
 
+                if (!items.Any())
+                {
+                    return list;
+                }
+
+                var medicalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
+                var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medicalSpecializations.ToList());
+
+                var medicalDegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
+                var doctorDegrees = ObjectMapper.Map<List<DoctorDegree>, List<DoctorDegreeDto>>(medicalDegrees.ToList());
+
+                var attachedItems = await _documentsAttachment.WithDetailsAsync();
+
+                var financialSetups = await _financialSetup.WithDetailsAsync();
+                var fees = financialSetups.Where(p => (p.PlatformFacilityId == 20 || p.PlatformFacilityId == 21) && p.ProviderAmount >= 0 && p.IsActive == true).ToList();
+                decimal? vatAmnt = fees.Where(a => a.Vat > 0)?.FirstOrDefault()?.Vat;
+                decimal? vatCharge = vatAmnt.HasValue ? vatAmnt / 100 : 0;
+
+                if (items.Any())
+                {
+                    list = new List<MasterDoctorDto>();
+                    foreach (var item in items)
+                    {
+                        decimal? masterDoctorIndFeeAmountWithCharges = 0;
+                        decimal? allMasterDoctorFeeAmountWithCharges = 0;
+                        var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
+                                                                       && x.EntityId == item.DoctorProfileId
+                                                                       && x.AttachmentType == AttachmentType.ProfilePicture
+                                                                       && x.IsDeleted == false).FirstOrDefault();
+                        var degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.DoctorProfileId).ToList();
+                        string degStr = string.Empty;
+                        foreach (var d in degrees)
+                        {
+                            degStr = degStr + d.DegreeName + ",";
+                        }
+
+                        if (!string.IsNullOrEmpty(degStr))
+                        {
+                            degStr = degStr.Remove(degStr.Length - 1);
+                        }
+
+                        var specializations = doctorSpecializations.Where(sp => sp.DoctorProfileId == item.DoctorProfileId).ToList();
+                        string expStr = string.Empty;
+                        foreach (var e in specializations)
+                        {
+                            expStr = expStr + e.SpecializationName + ",";
+
+                        }
+
+                        if (!string.IsNullOrEmpty(expStr))
+                        {
+                            expStr = expStr.Remove(expStr.Length - 1);
+                        }
+
+                        var isCommonDoctorFee = fees.Where(i => i.PlatformFacilityId == 20 && i.FacilityEntityID ==null).FirstOrDefault();
+                        var isIndDoctorFee = fees.Where(i => i.PlatformFacilityId == 21 && i.FacilityEntityID == item.DoctorProfileId).FirstOrDefault();
+                        if (isIndDoctorFee != null)
+                        {
+                            var masterDoctorIndFeeIn = isIndDoctorFee.AmountIn;
+                            var masterDoctorExternalFeeIn=isIndDoctorFee.ExternalAmountIn;
+                            decimal? masterDoctorIndFee = isIndDoctorFee.Amount;
+                            decimal? masterDoctorExternalFee = isIndDoctorFee.ExternalAmount;
+                            decimal? masterDoctorIndProviderAmnt = isIndDoctorFee.ProviderAmount;
+
+                            decimal? masterDoctorIndAmountTotalCharges = masterDoctorIndFeeIn == "Percentage" ? ((masterDoctorIndFee / 100) * masterDoctorIndProviderAmnt) : masterDoctorIndFee;
+                            decimal? masterDocterExternalAmount= masterDoctorExternalFeeIn == "Percentage" ? ((masterDoctorIndFee / 100)* masterDoctorExternalFee):masterDoctorExternalFee;
+                            decimal ? masterDoctorIndAmountWithChargesWithVat = (masterDoctorIndAmountTotalCharges * vatCharge) + masterDoctorIndAmountTotalCharges;
+                            masterDoctorIndFeeAmountWithCharges = masterDoctorIndAmountWithChargesWithVat + masterDoctorIndProviderAmnt+ masterDocterExternalAmount;
+                            //individualInstantfeeAsPatient = realTimeIndPtnAmountWithCharges;
+                        }
+                        else  
+                        {
+                            if (isCommonDoctorFee != null)
+                            {
+                                var masterDoctorCommonFeeIn = isCommonDoctorFee.AmountIn;
+                                var masterDoctorExternalFeeIn = isCommonDoctorFee.ExternalAmountIn;
+                                decimal? masterDoctorCommonFee = isCommonDoctorFee.Amount;
+                                decimal? masterDoctorExternalFee = isCommonDoctorFee.ExternalAmount;
+                                decimal? masterDoctorCommonProviderAmnt = isCommonDoctorFee.ProviderAmount;
+
+                                decimal? masterDoctorCommonAmountTotalCharges = masterDoctorCommonFeeIn == "Percentage" ? ((masterDoctorCommonFee / 100) * masterDoctorCommonProviderAmnt) : masterDoctorCommonFee;
+                                decimal? masterDocterExternalAmount = masterDoctorExternalFeeIn == "Percentage" ? ((masterDoctorCommonFee / 100) * masterDoctorExternalFee) : masterDoctorExternalFee;
+                                decimal? masterDoctorCommonAmountWithChargesWithVat = (masterDoctorCommonAmountTotalCharges * vatCharge) + masterDoctorCommonAmountTotalCharges;
+                                allMasterDoctorFeeAmountWithCharges = masterDoctorCommonAmountWithChargesWithVat + masterDoctorCommonProviderAmnt + masterDocterExternalAmount;
+                            }
+                            
+
+                        }
+
+                        list.Add(new MasterDoctorDto()
+                        {
+                            Id = item.Id,
+                            AgentMasterId = item.AgentMasterId,
+                            DoctorProfileId = item.DoctorProfileId,
+                            DoctorName = item.DoctorProfileId > 0 ? item.DoctorProfile.FullName : "",
+                            DoctorCode=item.DoctorProfileId>0?item.DoctorProfile.DoctorCode:"",
+                            DoctorTitle = item.DoctorProfile?.DoctorTitle,
+                            DoctorTitleName = item.DoctorProfile?.DoctorTitle > 0 ? Utilities.Utility.GetDisplayName(item.DoctorProfile?.DoctorTitle).ToString() : "n/a",
+                            DoctorSpecialization = specializations,
+                            AreaOfExperties = expStr,
+                            DoctorDegrees = degrees,
+                            Qualifications = degStr,
+                            IsActive = item.DoctorProfile?.IsActive,
+                            IsOnline = item.DoctorProfile?.IsOnline,
+                            
+                            ProfilePic = profilePics?.Path,
+                            DisplayInstantFeeAsAgent = (masterDoctorIndFeeAmountWithCharges > 0)
+                    ? Math.Round((decimal)masterDoctorIndFeeAmountWithCharges, 2)
+                    : (allMasterDoctorFeeAmountWithCharges > 0
+                        ? Math.Round((decimal)allMasterDoctorFeeAmountWithCharges, 2)
+                        : 0)
+
+
+                    }) ;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting master doctor list for AgentMasterId: {MasterId}", masterId);
+                // Optionally, you can rethrow the exception or handle it accordingly
+                throw;
+            }
             return list;
         }
         public async Task<List<MasterDoctorDto>> GetListByDoctorIdAsync(int doctorId)
