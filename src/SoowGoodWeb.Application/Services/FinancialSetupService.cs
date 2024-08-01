@@ -94,7 +94,8 @@ namespace SoowGoodWeb.Services
                         ExternalAmountIn = item.ExternalAmountIn != null ? item.ExternalAmountIn : "N/A",
                         IsActive = item.IsActive,
                         ProviderAmount = item.ProviderAmount > 0 ? item.ProviderAmount : 0,
-                        Vat = item.Vat
+                        Vat = item.Vat,
+                        AgentMasterId = item.AgentMasterId,
                     });
                 }
                 result = result.OrderByDescending(d => d.Id).ToList();
@@ -164,7 +165,8 @@ namespace SoowGoodWeb.Services
                     ExternalAmountIn = item.ExternalAmountIn != null ? item.ExternalAmountIn : "N/A",
                     IsActive = item.IsActive,
                     ProviderAmount = item.ProviderAmount > 0 ? item.ProviderAmount : 0,
-                    Vat = item.Vat
+                    Vat = item.Vat,
+                    AgentMasterId = item.AgentMasterId,
                 });
             }
             var resList = result.OrderByDescending(d => d.Id).ToList();
@@ -197,6 +199,7 @@ namespace SoowGoodWeb.Services
                     itemFinSetup.ProviderAmount = input.ProviderAmount;
                     itemFinSetup.IsActive = input.IsActive;
                     itemFinSetup.Vat = input.Vat;
+                    itemFinSetup.AgentMasterId = input.AgentMasterId;
 
 
                     var item = await _financialSetupRepository.UpdateAsync(itemFinSetup);

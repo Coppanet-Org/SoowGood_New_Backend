@@ -354,6 +354,7 @@ namespace SoowGoodWeb.Services
                     result.createFrom = profiles.createFrom;
                     result.DoctorCode = profiles.DoctorCode;
                     result.ProfilePic = profilePics?.Path;
+                    result.Expertise= profiles.Expertise;
                     result.DisplayInstantFeeAsPatient = individualInstantfeeAsPatient > 0 ? Math.Round((decimal)individualInstantfeeAsPatient, 2) : Math.Round((decimal)instantfeeAsPatient, 2);
                     result.DisplayInstantFeeAsAgent = individualInstantfeeAsAgent > 0 ? Math.Round((decimal)individualInstantfeeAsAgent, 2) : Math.Round((decimal)instantfeeAsAgent, 2);
                     result.DisplayScheduledPatientChamberFee = scheduledPtnChamberfee > 0 ? Math.Round((decimal)scheduledPtnChamberfee, 2) : 0;
@@ -2192,10 +2193,8 @@ namespace SoowGoodWeb.Services
             var user = await _doctorProfileRepository.GetAsync(x => x.Id == Id);
             if (user != null)
             {
-                if (string.IsNullOrEmpty(user.Expertise))
-                {
+               
                     user.Expertise = expertise;
-                }
             }
             var item = await _doctorProfileRepository.UpdateAsync(user);
             await _unitOfWorkManager.Current.SaveChangesAsync();
@@ -2363,6 +2362,7 @@ namespace SoowGoodWeb.Services
                     itemDoctor.BMDCRegExpiryDate = itemDoctor.BMDCRegExpiryDate;
                     itemDoctor.SpecialityId = input.SpecialityId > 0 ? input.SpecialityId : itemDoctor.SpecialityId;
                     itemDoctor.IsActive = input.IsActive;
+                    itemDoctor.Expertise = input.Expertise;
 
 
                     var item = await _doctorProfileRepository.UpdateAsync(itemDoctor);

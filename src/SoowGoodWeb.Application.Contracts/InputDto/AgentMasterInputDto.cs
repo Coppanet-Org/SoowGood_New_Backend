@@ -25,5 +25,6 @@ namespace SoowGoodWeb.InputDto
         public DateTime? AgentMasterDocExpireDate { get; set; }
         public bool? IsActive { get; set; }
         public Guid? UserId { get; set; }
+        public List<MasterDoctorInputDto>? SelectedDoctor { get; set; }
     }
 }

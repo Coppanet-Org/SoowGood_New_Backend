@@ -100,10 +100,10 @@ namespace SoowGoodWeb.Services
                 var chamberName = "";
                 input.AppointmentDate = input.AppointmentDate != null ? Convert.ToDateTime(input.AppointmentDate.Value.Date).AddDays(1) : null;
                 if (input.DoctorChamberId > 0)
-
                 {
                     var appChamber = await _doctorChamberRepository.FirstOrDefaultAsync(c => c.Id == input.DoctorChamberId);
                     chamberName = appChamber.ChamberName;
+                     
                 }
 
                 var list = new List<string>();
@@ -158,6 +158,7 @@ namespace SoowGoodWeb.Services
 
                 response.AppointmentTypeName = response.AppointmentType.ToString();
                 response.ConsultancyTypeName = response.ConsultancyType.ToString();
+                response.ChamberPaymentTypeName = response.ChamberPaymentType.ToString();
                 response.DoctorChamberName = !string.IsNullOrEmpty(chamberName) ? chamberName.ToString() : "SoowGood Online";
 
             }
@@ -525,6 +526,7 @@ namespace SoowGoodWeb.Services
                         DoctorCode = item.DoctorCode,
                         PatientCode = item.PatientCode,
                         PatientMobileNo = patientDetails.PatientMobileNo,
+                        MobileNo = patientDetails.MobileNo,
                         PatientEmail = patientDetails.PatientEmail,
                         AppointmentStatusName = item.AppointmentStatus > 0 ? ((AppointmentStatus)item.AppointmentStatus).ToString() : "n/a",
                         AppointmentPaymentStatus = item.AppointmentPaymentStatus,

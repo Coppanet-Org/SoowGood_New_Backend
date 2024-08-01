@@ -23,6 +23,7 @@ namespace SoowGoodWeb.DtoModels
         public string? PatientName { get; set; }
         public string? PatientCode { get; set; }
         public string? PatientMobileNo { get; set; }
+        public string? MobileNo { get; set; }
         public string? PatientEmail { get; set; }
         public string? PatientLocation { get; set; }
         public ConsultancyType? ConsultancyType { get; set; }
@@ -46,6 +47,8 @@ namespace SoowGoodWeb.DtoModels
         public AppointmentStatus? AppointmentStatus { get; set; }
         public string? AppointmentStatusName { get; set; }
         public AppointmentPaymentStatus? AppointmentPaymentStatus { get; set; }
+        public ChamberPaymentType? ChamberPaymentType { get; set; }
+        public string? ChamberPaymentTypeName { get; set; }
         public string? AppointmentPaymentStatusName { get; set; }
         public long? CancelledByEntityId { get; set; }
         public string? CancelledByRole { get; set; }

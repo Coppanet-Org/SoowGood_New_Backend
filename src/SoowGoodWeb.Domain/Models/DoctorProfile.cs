@@ -10,6 +10,7 @@ namespace SoowGoodWeb.Models
 {
     public class DoctorProfile : FullAuditedEntity<long>
     {
+       
         public string? DoctorCode { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
