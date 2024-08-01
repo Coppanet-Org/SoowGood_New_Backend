@@ -27,6 +27,7 @@ namespace SoowGoodWeb.Models
         public DateTime? AgentMasterDocExpireDate { get; set; }
         public bool? IsActive { get; set; }
         public Guid? UserId { get; set; }
+        public List<MasterDoctor>? SelectedDoctor { get; set; }
 
     }
 }

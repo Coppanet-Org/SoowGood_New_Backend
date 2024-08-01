@@ -90,6 +90,12 @@ namespace SoowGoodWeb.Enums
         Cancelled = 5,
         Failed = 6
     }
+
+    public enum ChamberPaymentType
+    {
+        payNow = 1,
+        payAtChamber = 2,
+    }
     public enum AppointmentPaymentStatus
     {
         Paid = 1,
