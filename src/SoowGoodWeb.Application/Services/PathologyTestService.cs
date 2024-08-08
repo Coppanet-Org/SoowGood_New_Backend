@@ -1,7 +1,9 @@
-﻿using SoowGoodWeb.DtoModels;
+﻿using Microsoft.Extensions.Logging;
+using SoowGoodWeb.DtoModels;
 using SoowGoodWeb.InputDto;
 using SoowGoodWeb.Interfaces;
 using SoowGoodWeb.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,12 +18,15 @@ namespace SoowGoodWeb.Services
         private readonly IRepository<PathologyTest> _pathologyTestRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly IRepository<DoctorProfile> _doctorProfileRepository;
+        private readonly ILogger<PathologyTestService> _logger;
 
-        public PathologyTestService(IRepository<PathologyTest> pathologyTestRepository, IUnitOfWorkManager unitOfWorkManager)
+        public PathologyTestService(IRepository<PathologyTest> pathologyTestRepository, IUnitOfWorkManager unitOfWorkManager, ILogger<PathologyTestService> logger)
         {
             _pathologyTestRepository = pathologyTestRepository;
 
             _unitOfWorkManager = unitOfWorkManager;
+
+            _logger = logger;
         }
         public async Task<PathologyTestDto> CreateAsync(PathologyTestInputDto input)
         {
@@ -89,5 +94,45 @@ namespace SoowGoodWeb.Services
 
             //return result;
         }
+
+        public async Task<List<PathologyTestDto>> GetTestListByCategoryIdAsync(int categoryId)
+        {
+            var result=new List<PathologyTestDto>();
+            try
+            {
+                var itemDetails = await _pathologyTestRepository.WithDetailsAsync(p => p.PathologyCategory);
+                var allitems = itemDetails.Where(i => i.PathologyCategoryId == categoryId).ToList();
+
+                if (!allitems.Any())
+                {
+                    return result;
+                }
+                if (allitems.Any())
+                {
+                   
+                    foreach (var item in allitems)
+                    {
+                        result.Add(new PathologyTestDto()
+                        {
+                            Id = item.Id,
+                            PathologyCategoryId = item.PathologyCategoryId,
+                            PathologyCategoryName = item.PathologyCategoryId > 0 ? item.PathologyCategory.PathologyCategoryName : "",
+                            PathologyTestDescription = item.PathologyTestDescription,
+                            PathologyTestName = item.PathologyTestName,
+
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred: {Message}", ex.Message);
+                // Optionally, you can rethrow the exception or handle it accordingly
+                throw;
+            }
+            return result;
+        }
+
+
     }
 }
