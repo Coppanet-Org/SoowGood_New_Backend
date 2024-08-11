@@ -225,5 +225,9 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<MasterDoctor, MasterDoctorDto>();
         CreateMap<MasterDoctorDto, MasterDoctor>();
         CreateMap<MasterDoctorInputDto, MasterDoctor>();
+
+        CreateMap<PlatformPackage, PlatformPackageDto>();
+        CreateMap<PlatformPackageDto, PlatformPackage>();
+        CreateMap<PlatformPackageInputDto, PlatformPackage>();
     }
 }
