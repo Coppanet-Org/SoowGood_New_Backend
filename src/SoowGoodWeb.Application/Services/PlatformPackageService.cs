@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.ObjectMapping;
 using Volo.Abp.Uow;
@@ -42,35 +43,75 @@ namespace SoowGoodWeb.Services
         public async Task<PlatformPackageDto> CreateAsync(PlatformPackageInputDto input)
         {
             var result = new PlatformPackageDto();
-            if (input.PackageProviderId != null)
+
+            // If PackageProviderId is not null, try to retrieve the doctor profile
+            if (input.PackageProviderId.HasValue)
             {
-                var doctor = await _doctorProfileRepository.GetAsync(d => d.Id == input.PackageProviderId);
+                var doctor = await _doctorProfileRepository.GetAsync(d => d.Id == input.PackageProviderId.Value);
 
-
-                var newEntity = ObjectMapper.Map<PlatformPackageInputDto, PlatformPackage>(input);
-
-                var platformPackage = await _platformPackageRepository.InsertAsync(newEntity);
-
-                await _unitOfWorkManager.Current.SaveChangesAsync();
-                result = ObjectMapper.Map<PlatformPackage, PlatformPackageDto>(platformPackage);
-                result.DoctorName = doctor?.FullName;
+                // If doctor is found, set the DoctorName
+                if (doctor != null)
+                {
+                    result.DoctorName = doctor.FullName;
+                }
+                else
+                {
+                    throw new EntityNotFoundException($"DoctorProfile with id = {input.PackageProviderId.Value} does not exist.");
+                }
             }
+
+            // Map input DTO to entity and insert
+            var newEntity = ObjectMapper.Map<PlatformPackageInputDto, PlatformPackage>(input);
+            var platformPackage = await _platformPackageRepository.InsertAsync(newEntity);
+
+            // Save changes
+            await _unitOfWorkManager.Current.SaveChangesAsync();
+
+            // Map the inserted entity back to DTO
+            result = ObjectMapper.Map<PlatformPackage, PlatformPackageDto>(platformPackage);
+
             return result;
         }
 
-        public Task DeleteAsync(long id)
+
+       
+
+        public async Task<PlatformPackageDto> GetAsync(int id)
         {
-            throw new NotImplementedException();
+            var item = await _platformPackageRepository.GetAsync(x => x.Id == id);
+
+            return ObjectMapper.Map<PlatformPackage, PlatformPackageDto>(item);
         }
 
-        public Task<PlatformPackageDto> GetAsync(int id)
+        public async Task<List<PlatformPackageDto>> GetListAsync()
         {
-            throw new NotImplementedException();
-        }
+            List<PlatformPackageDto>? result = null;
 
-        public Task<List<PlatformPackageDto>> GetListAsync()
-        {
-            throw new NotImplementedException();
+            var allPlatformPackageDetails = await _platformPackageRepository.WithDetailsAsync(s=>s.PackageProvider);
+            if (!allPlatformPackageDetails.Any())
+            {
+                return result;
+            }
+            result = new List<PlatformPackageDto>();
+            foreach (var item in allPlatformPackageDetails)
+            {
+
+                result.Add(new PlatformPackageDto()
+                {
+                    Id = item.Id,
+                    PackageName = item.PackageName,
+                    PackageTitle = item.PackageTitle,
+                    PackageDescription = item.PackageDescription,
+                    PackageFacilities = item.PackageFacilities,
+                    PackageProviderId = item.PackageProviderId,
+                    Price = item.Price,
+                    Reason = item.Reason,
+                    DoctorName = item.PackageProviderId > 0 ? item.PackageProvider.FullName : "",
+
+                });
+            }
+            var resList = result.OrderByDescending(d => d.Id).ToList();
+            return resList;
         }
 
         public Task<List<PlatformPackageDto>> GetPlatformPackageListByAgentMasterIdAsync(int doctorId)
@@ -78,7 +119,16 @@ namespace SoowGoodWeb.Services
             throw new NotImplementedException();
         }
 
-        public Task<PlatformPackageDto> UpdateAsync(PlatformPackageInputDto input)
+        public async Task<PlatformPackageDto> UpdateAsync(PlatformPackageInputDto input)
+        {
+            var updateItem = ObjectMapper.Map<PlatformPackageInputDto, PlatformPackage>(input);
+
+            var item = await _platformPackageRepository.UpdateAsync(updateItem);
+
+            return ObjectMapper.Map<PlatformPackage, PlatformPackageDto>(item);
+        }
+
+        public Task DeleteAsync(long id)
         {
             throw new NotImplementedException();
         }
