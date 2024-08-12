@@ -100,6 +100,10 @@ public class SoowGoodWebDbContext :
     public DbSet<Banner> SgBanners { get; set; }
     public DbSet<MasterDoctor> SgMasterDoctors { get; set; }
     public DbSet<PlatformPackage> SgPlatformPackages { get; set; }
+    public DbSet<PlatformPackageFacility> SgPlatformPackageFacilities { get; set; }
+
+
+   
 
     #endregion
 

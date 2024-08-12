@@ -93,8 +93,43 @@ namespace SoowGoodWeb.Services
                 return result;
             }
             result = new List<PlatformPackageDto>();
+            var attachedItems = await _documentsAttachment.WithDetailsAsync();
+            var medicalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
+            var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medicalSpecializations.ToList());
+
+            var medicalDegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
+            var doctorDegrees = ObjectMapper.Map<List<DoctorDegree>, List<DoctorDegreeDto>>(medicalDegrees.ToList());
             foreach (var item in allPlatformPackageDetails)
             {
+                var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
+                                                                      && x.EntityId == item.PackageProviderId
+                                                                      && x.AttachmentType == AttachmentType.ProfilePicture
+                                                                      && x.IsDeleted == false).FirstOrDefault();
+                var degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.PackageProviderId).ToList();
+                string degStr = string.Empty;
+                foreach (var d in degrees)
+                {
+                    degStr = degStr + d.DegreeName + ",";
+                }
+
+                if (!string.IsNullOrEmpty(degStr))
+                {
+                    degStr = degStr.Remove(degStr.Length - 1);
+                }
+
+                var specializations = doctorSpecializations.Where(sp => sp.DoctorProfileId == item.PackageProviderId).ToList();
+                string expStr = string.Empty;
+                foreach (var e in specializations)
+                {
+                    expStr = expStr + e.SpecializationName + ",";
+
+                }
+
+                if (!string.IsNullOrEmpty(expStr))
+                {
+                    expStr = expStr.Remove(expStr.Length - 1);
+                }
+
 
                 result.Add(new PlatformPackageDto()
                 {
@@ -107,6 +142,14 @@ namespace SoowGoodWeb.Services
                     Price = item.Price,
                     Reason = item.Reason,
                     DoctorName = item.PackageProviderId > 0 ? item.PackageProvider.FullName : "",
+                    DoctorTitle = item.PackageProvider?.DoctorTitle,
+                    DoctorTitleName = item.PackageProvider?.DoctorTitle > 0 ? Utilities.Utility.GetDisplayName(item.PackageProvider?.DoctorTitle).ToString() : "n/a",
+                    DoctorCode = item.PackageProviderId > 0 ? item.PackageProvider.DoctorCode : "",
+                    DoctorSpecialization = specializations,
+                    AreaOfExperties = expStr,
+                    DoctorDegrees = degrees,
+                    Qualifications = degStr,
+                    ProfilePic = profilePics?.Path,
 
                 });
             }
