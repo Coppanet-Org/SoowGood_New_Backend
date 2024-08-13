@@ -74,14 +74,135 @@ namespace SoowGoodWeb.Services
         }
 
 
-       
+
+
+        //public async Task<PlatformPackageDto> GetAsync(int id)
+        //{
+        //    List<PlatformPackageDto>? result = null;
+        //    var allPlatformPackageDetails = await _platformPackageRepository.WithDetailsAsync(s => s.PackageProvider);
+        //    var item = allPlatformPackageDetails.Where(x => x.Id == id);
+        //    var attachedItems = await _documentsAttachment.WithDetailsAsync();
+        //    var medicalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
+        //    var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medicalSpecializations.ToList());
+
+        //    var medicalDegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
+        //    var doctorDegrees = ObjectMapper.Map<List<DoctorDegree>, List<DoctorDegreeDto>>(medicalDegrees.ToList());
+        //    if (!item.Any())
+        //    {
+        //        return result;
+        //    }
+        //    result = new List<PlatformPackageDto>();
+        //    if (item.Any())
+        //    {
+
+        //        foreach (var itm in item)
+        //        {
+        //            var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
+        //                                                             && x.EntityId == itm.PackageProviderId
+        //                                                             && x.AttachmentType == AttachmentType.ProfilePicture
+        //                                                             && x.IsDeleted == false).FirstOrDefault();
+        //            var degrees = doctorDegrees.Where(d => d.DoctorProfileId == itm.PackageProviderId).ToList();
+        //            string degStr = string.Empty;
+        //            foreach (var d in degrees)
+        //            {
+        //                degStr = degStr + d.DegreeName + ",";
+        //            }
+
+        //            if (!string.IsNullOrEmpty(degStr))
+        //            {
+        //                degStr = degStr.Remove(degStr.Length - 1);
+        //            }
+
+        //            var specializations = doctorSpecializations.Where(sp => sp.DoctorProfileId == itm.PackageProviderId).ToList();
+        //            string expStr = string.Empty;
+        //            foreach (var e in specializations)
+        //            {
+        //                expStr = expStr + e.SpecializationName + ",";
+
+        //            }
+
+        //            if (!string.IsNullOrEmpty(expStr))
+        //            {
+        //                expStr = expStr.Remove(expStr.Length - 1);
+        //            }
+        //            result.Add(new PlatformPackageDto()
+        //            {
+        //                Id = itm.Id,
+        //                PackageName = itm.PackageName,
+        //                PackageTitle = itm.PackageTitle,
+        //                PackageDescription = itm.PackageDescription,
+
+        //                PackageProviderId = itm.PackageProviderId,
+        //                Price = itm.Price,
+        //                Reason = itm.Reason,
+        //                DoctorName = itm.PackageProviderId > 0 ? itm.PackageProvider.FullName : "",
+        //                DoctorTitle = itm.PackageProvider?.DoctorTitle,
+        //                DoctorTitleName = itm.PackageProvider?.DoctorTitle > 0 ? Utilities.Utility.GetDisplayName(itm.PackageProvider?.DoctorTitle).ToString() : "n/a",
+        //                DoctorCode = itm.PackageProviderId > 0 ? itm.PackageProvider.DoctorCode : "",
+        //                DoctorSpecialization = specializations,
+        //                AreaOfExperties = expStr,
+        //                DoctorDegrees = degrees,
+        //                Qualifications = degStr,
+        //                ProfilePic = profilePics?.Path,
+        //            });
+        //        }
+        //    }
+
+        //    var resList = result.OrderByDescending(d => d.Id).ToList();
+        //    return resList;
+        //}
 
         public async Task<PlatformPackageDto> GetAsync(int id)
         {
-            var item = await _platformPackageRepository.GetAsync(x => x.Id == id);
+            var allPlatformPackageDetails = await _platformPackageRepository.WithDetailsAsync(s => s.PackageProvider);
+            var item = allPlatformPackageDetails.FirstOrDefault(x => x.Id == id);
 
-            return ObjectMapper.Map<PlatformPackage, PlatformPackageDto>(item);
+            if (item == null)
+            {
+                return null; // or throw an exception, or return a default value based on your business logic
+            }
+
+            var attachedItems = await _documentsAttachment.WithDetailsAsync();
+            var medicalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
+            var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medicalSpecializations.ToList());
+
+            var medicalDegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
+            var doctorDegrees = ObjectMapper.Map<List<DoctorDegree>, List<DoctorDegreeDto>>(medicalDegrees.ToList());
+
+            var profilePics = attachedItems.FirstOrDefault(x => x.EntityType == EntityType.Doctor
+                                                              && x.EntityId == item.PackageProviderId
+                                                              && x.AttachmentType == AttachmentType.ProfilePicture
+                                                              && x.IsDeleted == false);
+
+            var degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.PackageProviderId).ToList();
+            string degStr = string.Join(",", degrees.Select(d => d.DegreeName));
+
+            var specializations = doctorSpecializations.Where(sp => sp.DoctorProfileId == item.PackageProviderId).ToList();
+            string expStr = string.Join(",", specializations.Select(e => e.SpecializationName));
+
+            var result = new PlatformPackageDto()
+            {
+                Id = item.Id,
+                PackageName = item.PackageName,
+                PackageTitle = item.PackageTitle,
+                PackageDescription = item.PackageDescription,
+                PackageProviderId = item.PackageProviderId,
+                Price = item.Price,
+                Reason = item.Reason,
+                DoctorName = item.PackageProviderId > 0 ? item.PackageProvider.FullName : "",
+                DoctorTitle = item.PackageProvider?.DoctorTitle,
+                DoctorTitleName = item.PackageProvider?.DoctorTitle > 0 ? Utilities.Utility.GetDisplayName(item.PackageProvider?.DoctorTitle).ToString() : "n/a",
+                DoctorCode = item.PackageProviderId > 0 ? item.PackageProvider.DoctorCode : "",
+                DoctorSpecialization = specializations,
+                AreaOfExperties = expStr,
+                DoctorDegrees = degrees,
+                Qualifications = degStr,
+                ProfilePic = profilePics?.Path,
+            };
+
+            return result;
         }
+
 
         public async Task<List<PlatformPackageDto>> GetListAsync()
         {
@@ -93,42 +214,10 @@ namespace SoowGoodWeb.Services
                 return result;
             }
             result = new List<PlatformPackageDto>();
-            var attachedItems = await _documentsAttachment.WithDetailsAsync();
-            var medicalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
-            var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medicalSpecializations.ToList());
-
-            var medicalDegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
-            var doctorDegrees = ObjectMapper.Map<List<DoctorDegree>, List<DoctorDegreeDto>>(medicalDegrees.ToList());
+           
             foreach (var item in allPlatformPackageDetails)
             {
-                var profilePics = attachedItems.Where(x => x.EntityType == EntityType.Doctor
-                                                                      && x.EntityId == item.PackageProviderId
-                                                                      && x.AttachmentType == AttachmentType.ProfilePicture
-                                                                      && x.IsDeleted == false).FirstOrDefault();
-                var degrees = doctorDegrees.Where(d => d.DoctorProfileId == item.PackageProviderId).ToList();
-                string degStr = string.Empty;
-                foreach (var d in degrees)
-                {
-                    degStr = degStr + d.DegreeName + ",";
-                }
-
-                if (!string.IsNullOrEmpty(degStr))
-                {
-                    degStr = degStr.Remove(degStr.Length - 1);
-                }
-
-                var specializations = doctorSpecializations.Where(sp => sp.DoctorProfileId == item.PackageProviderId).ToList();
-                string expStr = string.Empty;
-                foreach (var e in specializations)
-                {
-                    expStr = expStr + e.SpecializationName + ",";
-
-                }
-
-                if (!string.IsNullOrEmpty(expStr))
-                {
-                    expStr = expStr.Remove(expStr.Length - 1);
-                }
+               
 
 
                 result.Add(new PlatformPackageDto()
@@ -145,11 +234,7 @@ namespace SoowGoodWeb.Services
                     DoctorTitle = item.PackageProvider?.DoctorTitle,
                     DoctorTitleName = item.PackageProvider?.DoctorTitle > 0 ? Utilities.Utility.GetDisplayName(item.PackageProvider?.DoctorTitle).ToString() : "n/a",
                     DoctorCode = item.PackageProviderId > 0 ? item.PackageProvider.DoctorCode : "",
-                    DoctorSpecialization = specializations,
-                    AreaOfExperties = expStr,
-                    DoctorDegrees = degrees,
-                    Qualifications = degStr,
-                    ProfilePic = profilePics?.Path,
+                   
 
                 });
             }
