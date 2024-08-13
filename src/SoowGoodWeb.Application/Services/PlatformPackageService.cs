@@ -7,6 +7,7 @@ using SoowGoodWeb.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Repositories;
@@ -19,21 +20,21 @@ namespace SoowGoodWeb.Services
     {
         private readonly IRepository<PlatformPackage> _platformPackageRepository;
         private readonly IRepository<DoctorProfile> _doctorProfileRepository;
-       
+        private readonly IRepository<PlatformPackageFacility> _platformPackageFacilityRepository;
         private readonly IRepository<DoctorSpecialization> _doctorSpecializationRepository;
         private readonly IRepository<DoctorDegree> _doctorDegreeRepository;
         private readonly IRepository<DocumentsAttachment> _documentsAttachment;
        
         private readonly ILogger<PlatformPackageService> _logger;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
-        public PlatformPackageService(IRepository<PlatformPackage> platformPackageRepository, IRepository<DoctorProfile> doctorProfileRepository, IUnitOfWorkManager unitOfWorkManager, IRepository<DoctorSpecialization> doctorSpecializationRepository, IRepository<DoctorDegree> doctorDegreeRepository,
+        public PlatformPackageService(IRepository<PlatformPackage> platformPackageRepository, IRepository<PlatformPackageFacility> platformPackageFacilityRepository, IRepository<DoctorProfile> doctorProfileRepository, IUnitOfWorkManager unitOfWorkManager, IRepository<DoctorSpecialization> doctorSpecializationRepository, IRepository<DoctorDegree> doctorDegreeRepository,
              ILogger<PlatformPackageService> logger,
              IRepository<DocumentsAttachment> documentsAttachment)
         {
             _platformPackageRepository = platformPackageRepository;
             _doctorProfileRepository = doctorProfileRepository;
             _unitOfWorkManager = unitOfWorkManager;
-           
+           _platformPackageFacilityRepository = platformPackageFacilityRepository;
             _doctorSpecializationRepository = doctorSpecializationRepository;
             _doctorDegreeRepository = doctorDegreeRepository;
             _documentsAttachment = documentsAttachment;
@@ -163,11 +164,16 @@ namespace SoowGoodWeb.Services
             }
 
             var attachedItems = await _documentsAttachment.WithDetailsAsync();
+
             var medicalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
             var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medicalSpecializations.ToList());
 
             var medicalDegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
             var doctorDegrees = ObjectMapper.Map<List<DoctorDegree>, List<DoctorDegreeDto>>(medicalDegrees.ToList());
+
+            var packageFacilities = await _platformPackageFacilityRepository.WithDetailsAsync();
+            var facilityById = packageFacilities.Where(f => f.PlatformPackageId == id).ToList();
+            var facilityDtos = ObjectMapper.Map<List<PlatformPackageFacility>, List<PlatformPackageFacilityDto>>(facilityById);
 
             var profilePics = attachedItems.FirstOrDefault(x => x.EntityType == EntityType.Doctor
                                                               && x.EntityId == item.PackageProviderId
@@ -197,7 +203,9 @@ namespace SoowGoodWeb.Services
                 AreaOfExperties = expStr,
                 DoctorDegrees = degrees,
                 Qualifications = degStr,
+                PackageFacilities = facilityDtos,
                 ProfilePic = profilePics?.Path,
+
             };
 
             return result;
@@ -217,16 +225,13 @@ namespace SoowGoodWeb.Services
            
             foreach (var item in allPlatformPackageDetails)
             {
-               
-
-
+              
                 result.Add(new PlatformPackageDto()
                 {
                     Id = item.Id,
                     PackageName = item.PackageName,
                     PackageTitle = item.PackageTitle,
                     PackageDescription = item.PackageDescription,
-                   
                     PackageProviderId = item.PackageProviderId,
                     Price = item.Price,
                     Reason = item.Reason,
@@ -234,8 +239,6 @@ namespace SoowGoodWeb.Services
                     DoctorTitle = item.PackageProvider?.DoctorTitle,
                     DoctorTitleName = item.PackageProvider?.DoctorTitle > 0 ? Utilities.Utility.GetDisplayName(item.PackageProvider?.DoctorTitle).ToString() : "n/a",
                     DoctorCode = item.PackageProviderId > 0 ? item.PackageProvider.DoctorCode : "",
-                   
-
                 });
             }
             var resList = result.OrderByDescending(d => d.Id).ToList();
