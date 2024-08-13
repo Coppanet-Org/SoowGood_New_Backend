@@ -7,6 +7,7 @@ namespace SoowGoodWeb.InputDto
     {
         public string? PackageTitle { get; set; }
         public string? PackageName { get; set; }
+        public string? PackageCode { get; set; }
         public string? PackageDescription { get; set; }
         public List<PlatformPackageFacilityInputDto>? PackageFacilities { get; set; }
         public string? Reason { get; set; }

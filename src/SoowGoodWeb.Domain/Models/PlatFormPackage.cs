@@ -14,6 +14,7 @@ namespace SoowGoodWeb.Models
        
         public string? PackageTitle { get; set; }
         public string? PackageName { get; set; }
+        public string? PackageCode { get; set; }
         public string? PackageDescription { get; set;}
         public List<PlatformPackageFacility>? PackageFacilities { get; set; }
         public string? Reason { get; set; }
