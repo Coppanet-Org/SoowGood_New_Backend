@@ -137,7 +137,7 @@ namespace SoowGoodWeb.Services
                     PackageName = item.PackageName,
                     PackageTitle = item.PackageTitle,
                     PackageDescription = item.PackageDescription,
-                    PackageFacilities = item.PackageFacilities,
+                   
                     PackageProviderId = item.PackageProviderId,
                     Price = item.Price,
                     Reason = item.Reason,

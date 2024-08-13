@@ -101,9 +101,13 @@ namespace SoowGoodWeb.Services
             return list;
         }
 
-        public Task<PlatformPackageFacilityDto> UpdateAsync(PlatformPackageFacilityInputDto input)
+        public async Task<PlatformPackageFacilityDto> UpdateAsync(PlatformPackageFacilityInputDto input)
         {
-            throw new NotImplementedException();
+            var updateItem = ObjectMapper.Map<PlatformPackageFacilityInputDto, PlatformPackageFacility>(input);
+
+            var item = await _platformPackageFacilityRepository.UpdateAsync(updateItem);
+
+            return ObjectMapper.Map<PlatformPackageFacility, PlatformPackageFacilityDto>(item);
         }
     }
 }

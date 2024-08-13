@@ -9,7 +9,7 @@ namespace SoowGoodWeb.DtoModels
         public string? PackageTitle { get; set; }
         public string? PackageName { get; set; }
         public string? PackageDescription { get; set; }
-        public string? PackageFacilities { get; set; }
+        public List<PlatformPackageFacilityDto>? PackageFacilities { get; set; }
         public string? Reason { get; set; }
         public decimal? Price { get; set; }
         public long? PackageProviderId { get; set; }
