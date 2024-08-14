@@ -75,6 +75,53 @@ namespace SoowGoodWeb.Services
         }
 
 
+        public async Task<PlatformPackageDto> BookPackageAsync(PlatformPackageInputDto input)
+        {
+            var result = new PlatformPackageDto();
+
+            try
+            {
+                // Step 1: Retrieve the package details
+                var package = await _platformPackageRepository.FirstOrDefaultAsync(p => p.Id == input.Id);
+                if (package == null)
+                {
+                    throw new EntityNotFoundException($"PlatformPackage with id = {input.Id} does not exist.");
+                }
+
+                // Step 2: Get the current date and calculate the serial number for the new booking
+                var bookingDate = DateTime.Now;
+                var bookingCountToday = await _platformPackageRepository.CountAsync(p => p.Id == input.Id && p.CreationTime.Date == bookingDate.Date);
+                var serialNumber = bookingCountToday + 1;
+
+                // Step 3: Generate a unique PackageCode for the booking
+                var datePart = bookingDate.ToString("yyMMdd");
+                var serialPart = serialNumber.ToString("D4"); // Pad the serial number with leading zeros
+                var packageCode = $"{package.PackageCode}-{datePart}-{serialPart}";
+
+                // Step 4: Map input DTO to a new PlatformPackage entity and set the PackageCode
+                var newPackage = ObjectMapper.Map<PlatformPackageInputDto, PlatformPackage>(input);
+                newPackage.PackageCode = packageCode;
+
+                // Step 5: Insert the new package into the database
+                var createdPackage = await _platformPackageRepository.InsertAsync(newPackage);
+
+                // Step 6: Save changes
+                await _unitOfWorkManager.Current.SaveChangesAsync();
+
+                // Step 7: Map the created package entity back to PlatformPackageDto
+                result = ObjectMapper.Map<PlatformPackage, PlatformPackageDto>(createdPackage);
+
+                // Step 8: Assign the newly generated PackageCode to the result
+                result.PackageCode = packageCode;
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions (logging, re-throwing, or other error handling)
+                throw new ApplicationException("An error occurred while booking the package.", ex);
+            }
+
+            return result;
+        }
 
 
         //public async Task<PlatformPackageDto> GetAsync(int id)
@@ -174,6 +221,7 @@ namespace SoowGoodWeb.Services
             var packageFacilities = await _platformPackageFacilityRepository.WithDetailsAsync();
             var facilityById = packageFacilities.Where(f => f.PlatformPackageId == id).ToList();
             var facilityDtos = ObjectMapper.Map<List<PlatformPackageFacility>, List<PlatformPackageFacilityDto>>(facilityById);
+            string faciStr = string.Join(",", facilityById.Select(d => d.FacilityName));
 
             var profilePics = attachedItems.FirstOrDefault(x => x.EntityType == EntityType.Doctor
                                                               && x.EntityId == item.PackageProviderId
@@ -203,6 +251,7 @@ namespace SoowGoodWeb.Services
                 AreaOfExperties = expStr,
                 DoctorDegrees = degrees,
                 Qualifications = degStr,
+                FacilityofPackage=faciStr,
                 PackageFacilities = facilityDtos,
                 ProfilePic = profilePics?.Path,
 

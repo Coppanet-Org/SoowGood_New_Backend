@@ -11,6 +11,7 @@ namespace SoowGoodWeb.DtoModels
         public string? PackageCode { get; set; }
         public string? PackageDescription { get; set; }
         public List<PlatformPackageFacilityDto>? PackageFacilities { get; set; }
+        public string? FacilityofPackage { get; set; }
         public string? Reason { get; set; }
         public decimal? Price { get; set; }
         public long? PackageProviderId { get; set; }
