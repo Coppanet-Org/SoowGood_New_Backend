@@ -234,6 +234,10 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<PlatformPackageFacilityDto, PlatformPackageFacility>();
         CreateMap<PlatformPackageFacilityInputDto, PlatformPackageFacility>();
 
-        
+        CreateMap<PlatformPackageManagement, PlatformPackageManagementDto>();
+        CreateMap<PlatformPackageManagementDto, PlatformPackageManagement>();
+        CreateMap<PlatformPackageManagementInputDto, PlatformPackageManagement>();
+
+
     }
 }
