@@ -227,7 +227,11 @@ namespace SoowGoodWeb.Services
            
             foreach (var item in allPlatformPackageDetails)
             {
-              
+                var packageFacilities = await _platformPackageFacilityRepository.WithDetailsAsync();
+                var facilityById = packageFacilities.Where(f => f.PlatformPackageId == item.Id).ToList();
+                var facilityDtos = ObjectMapper.Map<List<PlatformPackageFacility>, List<PlatformPackageFacilityDto>>(facilityById);
+                string faciStr = string.Join(",", facilityById.Select(d => d.FacilityName));
+
                 result.Add(new PlatformPackageDto()
                 {
                     Id = item.Id,
@@ -241,6 +245,7 @@ namespace SoowGoodWeb.Services
                     DoctorTitle = item.PackageProvider?.DoctorTitle,
                     DoctorTitleName = item.PackageProvider?.DoctorTitle > 0 ? Utilities.Utility.GetDisplayName(item.PackageProvider?.DoctorTitle).ToString() : "n/a",
                     DoctorCode = item.PackageProviderId > 0 ? item.PackageProvider.DoctorCode : "",
+                    FacilityofPackage = faciStr,
                 });
             }
             var resList = result.OrderByDescending(d => d.Id).ToList();

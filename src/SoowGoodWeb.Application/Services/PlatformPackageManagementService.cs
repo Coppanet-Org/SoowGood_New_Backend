@@ -59,9 +59,40 @@ namespace SoowGoodWeb.Services
             throw new NotImplementedException();
         }
 
-        public Task<List<PlatformPackageManagementDto>> GetListAsync()
+        public async Task<List<PlatformPackageManagementDto>> GetListAsync()
         {
-            throw new NotImplementedException();
+
+            List<PlatformPackageManagementDto>? result = null;
+
+            var allPlatformPackageManagementDetails = await _platformPackageManagementRepository.WithDetailsAsync(s => s.PlatformPackage, p =>p.PatientProfile);
+            if (!allPlatformPackageManagementDetails.Any())
+            {
+                return result;
+            }
+            result = new List<PlatformPackageManagementDto>();
+
+            foreach (var item in allPlatformPackageManagementDetails)
+            {
+
+                result.Add(new PlatformPackageManagementDto()
+                {
+                    Id = item.Id,
+                    AppointmentDate = item.AppointmentDate,
+                    AppointmentPaymentStatus = item.AppointmentPaymentStatus,
+                    PackageRequestCode = item.PackageRequestCode,
+                    PlatformPackageId = item.PlatformPackageId,
+                    DoctorName = item.PlatformPackageId > 0 ? item.PlatformPackage.PackageProvider.FullName : null,
+                    PatientProfileId = item.PatientProfileId,
+                    PatientCode=item.PatientProfileId>0?item.PatientProfile.PatientCode:null,
+                    PatientName=item.PatientProfileId>0? item.PatientProfile.PatientName:null,
+                    PatientMobileNo=item.PatientProfileId>0?item.PatientProfile.PatientMobileNo:null,
+                    PackageFee=item.PackageFee,
+                    RequestDate = item.RequestDate,
+                    AppointmentStatus = item.AppointmentStatus,
+                });
+            }
+            var resList = result.OrderByDescending(d => d.Id).ToList();
+            return resList;
         }
 
         public async Task<PlatformPackageManagementDto> UpdateAsync(PlatformPackageManagementInputDto input)
