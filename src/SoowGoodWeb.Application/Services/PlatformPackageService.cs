@@ -50,7 +50,7 @@ namespace SoowGoodWeb.Services
             {
                 var doctor = await _doctorProfileRepository.GetAsync(d => d.Id == input.PackageProviderId.Value);
 
-                // If doctor is found, set the DoctorName
+                
                 if (doctor != null)
                 {
                     result.DoctorName = doctor.FullName;
@@ -250,6 +250,18 @@ namespace SoowGoodWeb.Services
             }
             var resList = result.OrderByDescending(d => d.Id).ToList();
             return resList;
+        }
+
+        public async Task<List<string>> GetListBySlugAsync(string slug)
+        {
+            var serviceProviders = await _platformPackageRepository.WithDetailsAsync(f => f.PackageProvider);
+            var serviceProviderList = serviceProviders.Where(p => p.PlatformFacility.Slug == slug).ToList();
+            var distinctProviders = serviceProviderList.Select(s => s.ProviderOrganizationName).Distinct().ToList();
+
+            //var providers = (from sp in serviceProviderList join dp in distinctProviders on sp.ProviderOrganizationName equals dp select sp).ToList();
+
+            return distinctProviders; //ObjectMapper.Map<List<ServiceProvider>, List<ServiceProviderDto>>(providers).OrderByDescending(a => a.Id).ToList();
+
         }
 
         public Task<List<PlatformPackageDto>> GetPlatformPackageListByAgentMasterIdAsync(int doctorId)
