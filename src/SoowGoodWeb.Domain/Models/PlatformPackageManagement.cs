@@ -23,8 +23,7 @@ namespace SoowGoodWeb.Models
         [Column(TypeName = "decimal(18, 2)")]
         public AppointmentStatus? AppointmentStatus { get; set; }
         public AppointmentPaymentStatus? AppointmentPaymentStatus { get; set; }
-
-
+        public string? PaymentTransactionId { get; set; }
 
     }
 }

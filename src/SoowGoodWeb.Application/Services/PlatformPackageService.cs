@@ -43,9 +43,8 @@ namespace SoowGoodWeb.Services
         }
         public async Task<PlatformPackageDto> CreateAsync(PlatformPackageInputDto input)
         {
-            var result = new PlatformPackageDto();
+             var result = new PlatformPackageDto();
 
-            // If PackageProviderId is not null, try to retrieve the doctor profile
             if (input.PackageProviderId.HasValue)
             {
                 var doctor = await _doctorProfileRepository.GetAsync(d => d.Id == input.PackageProviderId.Value);
@@ -61,14 +60,10 @@ namespace SoowGoodWeb.Services
                 }
             }
 
-            // Map input DTO to entity and insert
+
             var newEntity = ObjectMapper.Map<PlatformPackageInputDto, PlatformPackage>(input);
             var platformPackage = await _platformPackageRepository.InsertAsync(newEntity);
-
-            // Save changes
             await _unitOfWorkManager.Current.SaveChangesAsync();
-
-            // Map the inserted entity back to DTO
             result = ObjectMapper.Map<PlatformPackage, PlatformPackageDto>(platformPackage);
 
             return result;
