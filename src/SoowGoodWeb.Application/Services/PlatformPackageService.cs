@@ -207,6 +207,7 @@ namespace SoowGoodWeb.Services
                 FacilityofPackage=faciStr,
                 PackageFacilities = facilityDtos,
                 ProfilePic = profilePics?.Path,
+                Slug=item.PackageName,
 
             };
 
@@ -246,23 +247,24 @@ namespace SoowGoodWeb.Services
                     DoctorTitleName = item.PackageProvider?.DoctorTitle > 0 ? Utilities.Utility.GetDisplayName(item.PackageProvider?.DoctorTitle).ToString() : "n/a",
                     DoctorCode = item.PackageProviderId > 0 ? item.PackageProvider.DoctorCode : "",
                     FacilityofPackage = faciStr,
+                    Slug=item.PackageName,
                 });
             }
             var resList = result.OrderByDescending(d => d.Id).ToList();
             return resList;
         }
 
-        public async Task<List<string>> GetListBySlugAsync(string slug)
-        {
-            var serviceProviders = await _platformPackageRepository.WithDetailsAsync(f => f.PackageProvider);
-            var serviceProviderList = serviceProviders.Where(p => p.PlatformFacility.Slug == slug).ToList();
-            var distinctProviders = serviceProviderList.Select(s => s.ProviderOrganizationName).Distinct().ToList();
+        //public async Task<List<string>> GetListBySlugAsync(string slug)
+        //{
+        //    var serviceProviders = await _platformPackageRepository.WithDetailsAsync(f => f.PackageProvider);
+        //    var serviceProviderList = serviceProviders.Where(p => p.PlatformFacility.Slug == slug).ToList();
+        //    var distinctProviders = serviceProviderList.Select(s => s.ProviderOrganizationName).Distinct().ToList();
 
-            //var providers = (from sp in serviceProviderList join dp in distinctProviders on sp.ProviderOrganizationName equals dp select sp).ToList();
+        //    //var providers = (from sp in serviceProviderList join dp in distinctProviders on sp.ProviderOrganizationName equals dp select sp).ToList();
 
-            return distinctProviders; //ObjectMapper.Map<List<ServiceProvider>, List<ServiceProviderDto>>(providers).OrderByDescending(a => a.Id).ToList();
+        //    return distinctProviders; //ObjectMapper.Map<List<ServiceProvider>, List<ServiceProviderDto>>(providers).OrderByDescending(a => a.Id).ToList();
 
-        }
+        //}
 
         public Task<List<PlatformPackageDto>> GetPlatformPackageListByAgentMasterIdAsync(int doctorId)
         {

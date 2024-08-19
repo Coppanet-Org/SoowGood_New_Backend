@@ -24,6 +24,7 @@ namespace SoowGoodWeb.DtoModels
         public string? AreaOfExperties { get; set; }
         public string? ProfilePic { get; set; }
         public string? DoctorCode { get; set; }
+        public string? Slug { get; set; }
 
     }
 }
