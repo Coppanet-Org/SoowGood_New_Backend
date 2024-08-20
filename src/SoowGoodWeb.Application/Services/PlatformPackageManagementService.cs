@@ -61,39 +61,47 @@ namespace SoowGoodWeb.Services
 
         public async Task<List<PlatformPackageManagementDto>> GetListAsync()
         {
-
-            List<PlatformPackageManagementDto>? result = null;
-
-            var allPlatformPackageManagementDetails = await _platformPackageManagementRepository.WithDetailsAsync(s => s.PlatformPackage, p =>p.PatientProfile);
-            if (!allPlatformPackageManagementDetails.Any())
+            try
             {
-                return result;
-            }
-            result = new List<PlatformPackageManagementDto>();
+                List<PlatformPackageManagementDto>? result = new List<PlatformPackageManagementDto>();
 
-            foreach (var item in allPlatformPackageManagementDetails)
-            {
+                var allPlatformPackageManagementDetails = await _platformPackageManagementRepository.WithDetailsAsync(s => s.PlatformPackage, p => p.PatientProfile);
 
-                result.Add(new PlatformPackageManagementDto()
+                if (allPlatformPackageManagementDetails == null || !allPlatformPackageManagementDetails.Any())
                 {
-                    Id = item.Id,
-                    AppointmentDate = item.AppointmentDate,
-                    AppointmentPaymentStatus = item.AppointmentPaymentStatus,
-                    PackageRequestCode = item.PackageRequestCode,
-                    PlatformPackageId = item.PlatformPackageId,
-                    DoctorName = item.PlatformPackageId > 0 ? item.PlatformPackage.PackageProvider.FullName : null,
-                    PatientProfileId = item.PatientProfileId,
-                    PatientCode=item.PatientProfileId>0?item.PatientProfile.PatientCode:null,
-                    PatientName=item.PatientProfileId>0? item.PatientProfile.PatientName:null,
-                    PatientMobileNo=item.PatientProfileId>0?item.PatientProfile.PatientMobileNo:null,
-                    PackageFee=item.PackageFee,
-                    RequestDate = item.RequestDate,
-                    AppointmentStatus = item.AppointmentStatus,
-                });
+                    return result;
+                }
+
+                foreach (var item in allPlatformPackageManagementDetails)
+                {
+                    result.Add(new PlatformPackageManagementDto()
+                    {
+                        Id = item.Id,
+                        AppointmentDate = item.AppointmentDate,
+                        AppointmentPaymentStatus = item.AppointmentPaymentStatus,
+                        PackageRequestCode = item.PackageRequestCode,
+                        PlatformPackageId = item.PlatformPackageId,
+                        DoctorName = item.PlatformPackage?.PackageProvider?.FullName,
+                        PatientProfileId = item.PatientProfileId,
+                        PatientCode = item.PatientProfile?.PatientCode,
+                        PatientName = item.PatientProfile?.PatientName,
+                        PatientMobileNo = item.PatientProfile?.PatientMobileNo,
+                        PackageFee = item.PackageFee,
+                        RequestDate = item.RequestDate,
+                        AppointmentStatus = item.AppointmentStatus,
+                    });
+                }
+
+                return result.OrderByDescending(d => d.Id).ToList();
             }
-            var resList = result.OrderByDescending(d => d.Id).ToList();
-            return resList;
+            catch (Exception ex)
+            {
+                // Log the exception
+                // For example: _logger.LogError(ex, "An error occurred while retrieving platform package management details.");
+                throw;
+            }
         }
+
 
         public async Task<PlatformPackageManagementDto> UpdateAsync(PlatformPackageManagementInputDto input)
         {

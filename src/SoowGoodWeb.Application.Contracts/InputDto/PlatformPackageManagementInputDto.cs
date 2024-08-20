@@ -17,7 +17,7 @@ namespace SoowGoodWeb.InputDto
         public DateTime? RequestDate { get; set; }
         public DateTime? AppointmentDate { get; set; }
         [Column(TypeName = "decimal(18, 2)")]
-        public decimal PackageFee { get; set; }
+        public decimal? PackageFee { get; set; }
         [Column(TypeName = "decimal(18, 2)")]
         public AppointmentStatus? AppointmentStatus { get; set; }
         public AppointmentPaymentStatus? AppointmentPaymentStatus { get; set; }
