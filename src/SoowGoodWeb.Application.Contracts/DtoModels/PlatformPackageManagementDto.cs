@@ -13,6 +13,7 @@ namespace SoowGoodWeb.DtoModels
         //public PlatformPackage? PlatformPackage { get; set; }
         public long? PlatformPackageId { get; set; }
         //public PatientProfile? PatientProfile { get; set; }
+        public string? PackageName { get; set; }
         public long? PatientProfileId { get; set; }
         public string? PatientName { get; set; }
         public string? PatientCode { get; set; }

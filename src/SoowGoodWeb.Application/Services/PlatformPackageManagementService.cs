@@ -81,6 +81,7 @@ namespace SoowGoodWeb.Services
                         AppointmentPaymentStatus = item.AppointmentPaymentStatus,
                         PackageRequestCode = item.PackageRequestCode,
                         PlatformPackageId = item.PlatformPackageId,
+                        PackageName=item.PlatformPackage?.PackageName,
                         DoctorName = item.PlatformPackage?.PackageProvider?.FullName,
                         PatientProfileId = item.PatientProfileId,
                         PatientCode = item.PatientProfile?.PatientCode,
