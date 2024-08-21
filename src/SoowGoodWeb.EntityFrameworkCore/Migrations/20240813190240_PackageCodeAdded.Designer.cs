@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240813190240_PackageCodeAdded")]
+    partial class PackageCodeAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2561,80 +2564,6 @@ namespace SoowGoodWeb.Migrations
                     b.HasIndex("PlatformPackageId");
 
                     b.ToTable("SgPlatformPackageFacilities");
-                });
-
-            modelBuilder.Entity("SoowGoodWeb.Models.PlatformPackageManagement", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime?>("AppointmentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("AppointmentPaymentStatus")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("AppointmentStatus")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<decimal?>("PackageFee")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.Property<string>("PackageRequestCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("PatientProfileId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("PaymentTransactionId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("PlatformPackageId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("RequestDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PatientProfileId");
-
-                    b.HasIndex("PlatformPackageId");
-
-                    b.ToTable("SgPlatformPackageManagements");
                 });
 
             modelBuilder.Entity("SoowGoodWeb.Models.PrescriptionDrugDetails", b =>
@@ -5191,21 +5120,6 @@ namespace SoowGoodWeb.Migrations
                     b.HasOne("SoowGoodWeb.Models.PlatformPackage", "PlatformPackage")
                         .WithMany("PackageFacilities")
                         .HasForeignKey("PlatformPackageId");
-
-                    b.Navigation("PlatformPackage");
-                });
-
-            modelBuilder.Entity("SoowGoodWeb.Models.PlatformPackageManagement", b =>
-                {
-                    b.HasOne("SoowGoodWeb.Models.PatientProfile", "PatientProfile")
-                        .WithMany()
-                        .HasForeignKey("PatientProfileId");
-
-                    b.HasOne("SoowGoodWeb.Models.PlatformPackage", "PlatformPackage")
-                        .WithMany()
-                        .HasForeignKey("PlatformPackageId");
-
-                    b.Navigation("PatientProfile");
 
                     b.Navigation("PlatformPackage");
                 });
