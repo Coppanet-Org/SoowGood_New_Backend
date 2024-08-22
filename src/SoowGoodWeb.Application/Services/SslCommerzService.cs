@@ -20,6 +20,7 @@ namespace SoowGoodWeb.Services
     public class SslCommerzService : SoowGoodWebAppService, ISslCommerzService
     {
         private readonly IRepository<Appointment> _appointmentRepository;
+        private readonly IRepository<PlatformPackageManagement> _platformPackageManagementRepository;
         private readonly IRepository<AgentProfile> _agentRepository;
         private readonly IRepository<PatientProfile> _patientRepository;
         private readonly IPaymentHistoryService _paymentHistoryService;
@@ -30,6 +31,7 @@ namespace SoowGoodWeb.Services
 
         //INotificationAppService notificationAppService,
         public SslCommerzService(IRepository<Appointment> appointmentRepository,
+            IRepository<PlatformPackageManagement> platformPackageManagementRepository,
             IRepository<PatientProfile> patientRepository,
             IRepository<AgentProfile> agentRepository,
             IRepository<PaymentHistory> paymentHistoryRepository,
@@ -39,6 +41,7 @@ namespace SoowGoodWeb.Services
             IHubContext<BroadcastHub, IHubClient> hubContext)
         {
             _appointmentRepository = appointmentRepository;
+            _platformPackageManagementRepository = platformPackageManagementRepository;
             _patientRepository = patientRepository;
             _agentRepository = agentRepository;
             _paymentHistoryService = paymentHistoryService;
@@ -62,6 +65,22 @@ namespace SoowGoodWeb.Services
             input.TransactionId = GenerateTransactionId(16); /// create random transaction id
 
             var applicantData = await GetApplicantDetails(input); /// getting basic data of appointment for payment input
+
+            var postData = _sslCommerzGatewayManager.CreatePostData(applicantData);
+
+            var initResponse = await _sslCommerzGatewayManager.InitiatePaymentAsync(postData);
+
+            await InitPaymentHistory(input, initResponse);
+
+            return GetInitPaymentResponse(initResponse);
+        }
+
+        public async Task<SslCommerzInitDto> InitiatePackagePaymentAsync(SslCommerzInputDto input)
+        {
+            //return new SslCommerzInitDto();
+            input.TransactionId = GenerateTransactionId(16); /// create random transaction id
+
+            var applicantData = await GetBookingDetails(input); /// getting basic data of appointment for payment input
 
             var postData = _sslCommerzGatewayManager.CreatePostData(applicantData);
 
@@ -151,6 +170,40 @@ namespace SoowGoodWeb.Services
             return response;
         }
 
+        private async Task<SslCommerzPostDataDto> GetBookingDetails(SslCommerzInputDto input)
+        {
+            var nDto = new SslCommerzPostDataDto();
+            return await Task.Run(async () =>
+            {
+                var packageManagements = await _platformPackageManagementRepository.WithDetailsAsync(s => s.PlatformPackage,p => p.PatientProfile);
+                var package = packageManagements.Where(a => a.PackageRequestCode == input.ApplicationCode).FirstOrDefault();
+                var sslCommerzPostDataDto = new SslCommerzPostDataDto();
+                if (package != null && package.AppointmentStatus == AppointmentStatus.Pending)
+                {
+                    var patient = await _patientRepository.GetAsync(p => p.Id == package.PatientProfileId);
+
+                    sslCommerzPostDataDto.tran_id = input.TransactionId;
+                    sslCommerzPostDataDto.total_amount = input.TotalAmount;
+                    sslCommerzPostDataDto.currency = "BDT";
+                    sslCommerzPostDataDto.cus_name = patient.PatientName;
+                    sslCommerzPostDataDto.cus_email = patient.PatientEmail;
+                    sslCommerzPostDataDto.cus_phone = patient.PatientMobileNo;
+
+                    //var applicantAddr = job.Applicant.ApplicantAddresses.FirstOrDefault();
+                    sslCommerzPostDataDto.cus_add1 = patient.Address;
+                    sslCommerzPostDataDto.cus_postcode = patient.ZipCode;
+                    sslCommerzPostDataDto.cus_city = patient.City;
+                    sslCommerzPostDataDto.cus_country = "Bangladesh";
+                    sslCommerzPostDataDto.shipping_method = "NO";
+                    sslCommerzPostDataDto.num_of_item = "1";
+                    sslCommerzPostDataDto.product_name = "Soowgood";
+                    sslCommerzPostDataDto.product_profile = "general";
+                    sslCommerzPostDataDto.product_category = "Soowgood - Appointment";
+                }
+
+                return sslCommerzPostDataDto;
+            });
+        }
         private async Task<SslCommerzPostDataDto> GetApplicantDetails(SslCommerzInputDto input)
         {
             var nDto = new SslCommerzPostDataDto();

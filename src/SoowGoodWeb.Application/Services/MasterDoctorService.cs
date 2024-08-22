@@ -206,11 +206,8 @@ namespace SoowGoodWeb.Services
                             IsOnline = item.DoctorProfile?.IsOnline,
                             
                             ProfilePic = profilePics?.Path,
-                            DisplayInstantFeeAsAgent = (masterDoctorIndFeeAmountWithCharges > 0)
-                    ? Math.Round((decimal)masterDoctorIndFeeAmountWithCharges, 2)
-                    : (allMasterDoctorFeeAmountWithCharges > 0
-                        ? Math.Round((decimal)allMasterDoctorFeeAmountWithCharges, 2)
-                        : 0)
+                            DisplayInstantFeeAsAgent = (masterDoctorIndFeeAmountWithCharges > 0)? Math.Round((decimal)masterDoctorIndFeeAmountWithCharges, 2) : (allMasterDoctorFeeAmountWithCharges > 0
+                                                       ? Math.Round((decimal)allMasterDoctorFeeAmountWithCharges, 2) : 0)
 
 
                     }) ;
