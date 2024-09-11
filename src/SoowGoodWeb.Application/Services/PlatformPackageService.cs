@@ -243,6 +243,7 @@ namespace SoowGoodWeb.Services
                     DoctorCode = item.PackageProviderId > 0 ? item.PackageProvider.DoctorCode : "",
                     FacilityofPackage = faciStr,
                     Slug=item.PackageName,
+                    PackageFacilities = facilityDtos.Where(sp => sp.PlatformPackageId == item.Id).ToList(),
                 });
             }
             var resList = result.OrderByDescending(d => d.Id).ToList();
