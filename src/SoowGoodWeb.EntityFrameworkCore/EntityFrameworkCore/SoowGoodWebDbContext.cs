@@ -102,6 +102,8 @@ public class SoowGoodWebDbContext :
     public DbSet<PlatformPackage> SgPlatformPackages { get; set; }
     public DbSet<PlatformPackageFacility> SgPlatformPackageFacilities { get; set; }
     public DbSet<PlatformPackageManagement> SgPlatformPackageManagements { get; set; }
+    public DbSet<Campaign> SgCampaigns { get; set; }
+    public DbSet<CampaignDoctor> SgCampaignDoctors { get; set; }
 
 
 
