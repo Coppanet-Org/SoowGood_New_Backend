@@ -87,7 +87,7 @@ namespace SoowGoodWeb.Services
             var resList = result.OrderByDescending(d => d.Id).ToList();
             return resList;
         }
-        public async Task<List<CampaignDoctorDto>> GetCampaignDoctorListByCampaignIdAsync(int masterId)
+        public async Task<List<CampaignDoctorDto>> GetCampaignDoctorListByCampaignIdAsync(int campaignId)
         {
            
             //var doctDegrees = doctors.Where(dd => dd.DoctorProfileId == doctorId).ToList();
@@ -97,7 +97,7 @@ namespace SoowGoodWeb.Services
             try
             {
                 var items = await _campaignDoctorRepository.WithDetailsAsync(d => d.DoctorProfile, m => m.Campaign);
-                items = items.Where(i => i.CampaignId == masterId);
+                items = items.Where(i => i.CampaignId == campaignId);
                 //items = items.Where(p => p.DoctorProfile.IsOnline == true && p.DoctorProfile.IsActive == true).ToList();
 
                 if (!items.Any())
@@ -217,7 +217,7 @@ namespace SoowGoodWeb.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while getting master doctor list for CampaignId: {MasterId}", masterId);
+                _logger.LogError(ex, "An error occurred while getting master doctor list for CampaignId: {CampaignId}", campaignId);
                 // Optionally, you can rethrow the exception or handle it accordingly
                 throw;
             }
