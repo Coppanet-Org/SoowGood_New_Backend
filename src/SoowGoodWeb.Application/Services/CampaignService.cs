@@ -77,7 +77,8 @@ namespace SoowGoodWeb.Services
                     Id = item.Id,
                     Title = item.Title,
                     SubTitle = item.SubTitle,
-                    SelectedDoctor = doctorDtos.Where(d => d.DoctorProfileId == item.Id).ToList()
+                    SelectedDoctor = doctorDtos.Where(d => d.DoctorProfileId == item.Id).ToList(),
+                    IsActive = item.IsActive,
 
                 });
                
