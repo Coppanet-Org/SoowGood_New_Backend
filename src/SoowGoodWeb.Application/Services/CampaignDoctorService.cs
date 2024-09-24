@@ -114,7 +114,7 @@ namespace SoowGoodWeb.Services
                 var attachedItems = await _documentsAttachment.WithDetailsAsync();
 
                 var financialSetups = await _financialSetup.WithDetailsAsync();
-                var fees = financialSetups.Where(p => (p.PlatformFacilityId == 22 || p.PlatformFacilityId == 23) && p.ProviderAmount >= 0 && p.IsActive == true).ToList();
+                var fees = financialSetups.Where(p => (p.PlatformFacilityId == 10019 || p.PlatformFacilityId == 10020) && p.ProviderAmount >= 0 && p.IsActive == true).ToList();
                 decimal? vatAmnt = fees.Where(a => a.Vat > 0)?.FirstOrDefault()?.Vat;
                 decimal? vatCharge = vatAmnt.HasValue ? vatAmnt / 100 : 0;
 
@@ -154,8 +154,8 @@ namespace SoowGoodWeb.Services
                             expStr = expStr.Remove(expStr.Length - 1);
                         }
 
-                        var isCommonDoctorFee = fees.Where(i => i.PlatformFacilityId == 22 && i.FacilityEntityID ==null).FirstOrDefault();
-                        var isIndDoctorFee = fees.Where(i => i.PlatformFacilityId == 23 && i.FacilityEntityID == item.DoctorProfileId).FirstOrDefault();
+                        var isCommonDoctorFee = fees.Where(i => i.PlatformFacilityId == 10019 && i.FacilityEntityID ==null).FirstOrDefault();
+                        var isIndDoctorFee = fees.Where(i => i.PlatformFacilityId == 10020 && i.FacilityEntityID == item.DoctorProfileId).FirstOrDefault();
                         if (isIndDoctorFee != null)
                         {
                             var campaignDoctorIndFeeIn = isIndDoctorFee.AmountIn;
@@ -193,6 +193,7 @@ namespace SoowGoodWeb.Services
                         {
                             Id = item.Id,
                             CampaignId = item.CampaignId,
+                            
                             DoctorProfileId = item.DoctorProfileId,
                             DoctorName = item.DoctorProfileId > 0 ? item.DoctorProfile.FullName : "",
                             DoctorCode=item.DoctorProfileId>0?item.DoctorProfile.DoctorCode:"",
