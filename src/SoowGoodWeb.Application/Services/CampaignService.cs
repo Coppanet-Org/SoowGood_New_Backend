@@ -68,16 +68,16 @@ namespace SoowGoodWeb.Services
             result = new List<CampaignDto>();
             foreach (var item in allcampaignwithDetails)
             {
-                var campaignDoctors = await _campaignDoctorRepository.WithDetailsAsync();
-                var DoctorById = campaignDoctors.Where(f => f.DoctorProfileId == item.Id).ToList();
-                var doctorDtos = ObjectMapper.Map<List<CampaignDoctor>, List<CampaignDoctorDto>>(DoctorById);
+                var campaignDoctors = await _campaignDoctorRepository.WithDetailsAsync(c=>c.Campaign);
+                //var DoctorById = campaignDoctors.Where(f => f.CampaignId == item.Id).ToList();
+                var doctorDtos = ObjectMapper.Map<List<CampaignDoctor>, List<CampaignDoctorDto>>(campaignDoctors.ToList());
 
                 result.Add(new CampaignDto()
                 {
                     Id = item.Id,
                     Title = item.Title,
                     SubTitle = item.SubTitle,
-                    SelectedDoctor = doctorDtos.Where(d => d.DoctorProfileId == item.Id).ToList(),
+                    SelectedDoctor = doctorDtos.Where(d => d.CampaignId == item.Id).ToList(),
                     IsActive = item.IsActive,
 
                 });
