@@ -207,7 +207,7 @@ namespace SoowGoodWeb.Services
                             IsOnline = item.DoctorProfile?.IsOnline,
                             
                             ProfilePic = profilePics?.Path,
-                            TotalFee = (campaignDoctorIndFeeAmountWithCharges > 0)? Math.Round((decimal)campaignDoctorIndFeeAmountWithCharges, 2) : (allCampaignDoctorFeeAmountWithCharges > 0
+                            DisplayInstantFeeAsPatient = (campaignDoctorIndFeeAmountWithCharges > 0)? Math.Round((decimal)campaignDoctorIndFeeAmountWithCharges, 2) : (allCampaignDoctorFeeAmountWithCharges > 0
                                                        ? Math.Round((decimal)allCampaignDoctorFeeAmountWithCharges, 2) : 0)
 
 
