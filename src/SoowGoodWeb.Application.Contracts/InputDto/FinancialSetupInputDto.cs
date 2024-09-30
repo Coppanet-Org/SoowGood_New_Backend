@@ -11,6 +11,7 @@ namespace SoowGoodWeb.InputDto
     {
         public long? PlatformFacilityId { get; set; }
         public long? AgentMasterId { get; set; }
+        public long? CampaignId { get; set; }
         public FacilityEntityType? FacilityEntityType { get; set; }
         public DiagonsticServiceType? DiagonsticServiceType { get; set; }
         public long? FacilityEntityID { get; set; }

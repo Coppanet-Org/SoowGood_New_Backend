@@ -96,6 +96,7 @@ namespace SoowGoodWeb.Services
                         ProviderAmount = item.ProviderAmount > 0 ? item.ProviderAmount : 0,
                         Vat = item.Vat,
                         AgentMasterId = item.AgentMasterId,
+                        CampaignId = item.CampaignId,
                     });
                 }
                 result = result.OrderByDescending(d => d.Id).ToList();

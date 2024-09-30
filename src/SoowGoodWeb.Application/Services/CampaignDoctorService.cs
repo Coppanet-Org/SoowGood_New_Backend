@@ -193,6 +193,7 @@ namespace SoowGoodWeb.Services
                         {
                             Id = item.Id,
                             CampaignId = item.CampaignId,
+                            
                             DoctorProfileId = item.DoctorProfileId,
                             DoctorName = item.DoctorProfileId > 0 ? item.DoctorProfile.FullName : "",
                             DoctorCode=item.DoctorProfileId>0?item.DoctorProfile.DoctorCode:"",
@@ -206,7 +207,7 @@ namespace SoowGoodWeb.Services
                             IsOnline = item.DoctorProfile?.IsOnline,
                             
                             ProfilePic = profilePics?.Path,
-                            DisplayInstantFeeAsAgent = (campaignDoctorIndFeeAmountWithCharges > 0)? Math.Round((decimal)campaignDoctorIndFeeAmountWithCharges, 2) : (allCampaignDoctorFeeAmountWithCharges > 0
+                            DisplayInstantFeeAsPatient = (campaignDoctorIndFeeAmountWithCharges > 0)? Math.Round((decimal)campaignDoctorIndFeeAmountWithCharges, 2) : (allCampaignDoctorFeeAmountWithCharges > 0
                                                        ? Math.Round((decimal)allCampaignDoctorFeeAmountWithCharges, 2) : 0)
 
 

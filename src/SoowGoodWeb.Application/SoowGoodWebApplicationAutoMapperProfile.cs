@@ -238,6 +238,14 @@ public class SoowGoodWebApplicationAutoMapperProfile : Profile
         CreateMap<PlatformPackageManagementDto, PlatformPackageManagement>();
         CreateMap<PlatformPackageManagementInputDto, PlatformPackageManagement>();
 
+        CreateMap<Campaign, CampaignDto>();
+        CreateMap<CampaignDto, Campaign>();
+        CreateMap<CampaignInputDto, Campaign>();
+
+        CreateMap<CampaignDoctor, CampaignDoctorDto>();
+        CreateMap<CampaignDoctorDto, CampaignDoctor>();
+        CreateMap<CampaignDoctorInputDto, CampaignDoctor>();
+
 
     }
 }

@@ -16,6 +16,8 @@ namespace SoowGoodWeb.Models
         public PlatformFacility? PlatformFacility { get; set; }
         public long? AgentMasterId { get; set; }
         public AgentMaster? AgentMaster { get; set; }
+        public long? CampaignId { get; set; }
+        public Campaign? Campaign { get; set; }
         public FacilityEntityType? FacilityEntityType { get; set; }
         public DiagonsticServiceType? DiagonsticServiceType { get; set; }
         public long? FacilityEntityID { get; set; }

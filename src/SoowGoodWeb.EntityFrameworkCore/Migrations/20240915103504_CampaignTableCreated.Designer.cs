@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoowGoodWeb.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SoowGoodWeb.Migrations
 {
     [DbContext(typeof(SoowGoodWebDbContext))]
-    partial class SoowGoodWebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240915103504_CampaignTableCreated")]
+    partial class CampaignTableCreated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1877,9 +1880,6 @@ namespace SoowGoodWeb.Migrations
                     b.Property<string>("AmountIn")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("CampaignId")
-                        .HasColumnType("bigint");
-
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2")
                         .HasColumnName("CreationTime");
@@ -1940,8 +1940,6 @@ namespace SoowGoodWeb.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AgentMasterId");
-
-                    b.HasIndex("CampaignId");
 
                     b.HasIndex("PlatformFacilityId");
 
@@ -5269,17 +5267,11 @@ namespace SoowGoodWeb.Migrations
                         .WithMany()
                         .HasForeignKey("AgentMasterId");
 
-                    b.HasOne("SoowGoodWeb.Models.Campaign", "Campaign")
-                        .WithMany()
-                        .HasForeignKey("CampaignId");
-
                     b.HasOne("SoowGoodWeb.Models.PlatformFacility", "PlatformFacility")
                         .WithMany()
                         .HasForeignKey("PlatformFacilityId");
 
                     b.Navigation("AgentMaster");
-
-                    b.Navigation("Campaign");
 
                     b.Navigation("PlatformFacility");
                 });
