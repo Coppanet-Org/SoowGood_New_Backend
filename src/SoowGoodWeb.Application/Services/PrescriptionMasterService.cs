@@ -25,6 +25,7 @@ namespace SoowGoodWeb.Services
         private readonly IRepository<PrescriptionPatientDiseaseHistory> _prescriptionPatientDiseaseHistory;
         private readonly IRepository<PrescriptionDrugDetails> _prescriptionDrugDetails;
         private readonly IRepository<DoctorProfile> _doctorDetails;
+        private readonly IRepository<DoctorDegree> _doctorDegreeRepository;
         private readonly IRepository<DoctorSpecialization> _doctorSpecializationRepository;
         private readonly IRepository<PatientProfile> _patientDetails;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
@@ -39,7 +40,8 @@ namespace SoowGoodWeb.Services
                                          IRepository<DoctorProfile> doctorDetails,
                                          IRepository<DoctorSpecialization> doctorSpecializationRepository,
                                          AppointmentService appointmentService,
-                                         IRepository<PatientProfile> patientDetails)
+                                         IRepository<PatientProfile> patientDetails,
+                                         IRepository<DoctorDegree> doctorDegreeRepository)
         {
             _prescriptionMasterRepository = prescriptionMasterRepository;
 
@@ -53,6 +55,7 @@ namespace SoowGoodWeb.Services
             _doctorDetails = doctorDetails;
             _doctorSpecializationRepository = doctorSpecializationRepository;
             _patientDetails = patientDetails;
+            _doctorDegreeRepository = doctorDegreeRepository;
         }
         public async Task<PrescriptionMasterDto> CreateAsync(PrescriptionMasterInputDto input)
         {
@@ -117,6 +120,8 @@ namespace SoowGoodWeb.Services
             var tests = ObjectMapper.Map<List<PrescriptionMedicalCheckups>, List<PrescriptionMedicalCheckupsDto>>(diagnosisTests);
             var medicalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
             var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medicalSpecializations.ToList());
+            var medicalDegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
+            var doctorDegrees = ObjectMapper.Map<List<DoctorDegree>, List<DoctorDegreeDto>>(medicalDegrees.ToList());
 
 
             var prescription = detailsPrescription.Where(p => p.Id == id).FirstOrDefault();
@@ -138,6 +143,19 @@ namespace SoowGoodWeb.Services
                 {
                     expStr = expStr.Remove(expStr.Length - 1);
                 }
+
+                var degrees = doctorDegrees.Where(d => d.DoctorProfileId == prescription.DoctorProfileId).ToList();
+                string degStr = string.Empty;
+                foreach (var d in degrees)
+                {
+                    degStr = degStr + d.DegreeName + ",";
+                }
+
+                if (!string.IsNullOrEmpty(degStr))
+                {
+                    degStr = degStr.Remove(degStr.Length - 1);
+                }
+
                 result.Id = prescription.Id;
                 result.RefferenceCode = prescription.RefferenceCode;
                 result.AppointmentId = prescription.AppointmentId;
@@ -172,7 +190,8 @@ namespace SoowGoodWeb.Services
                 result.PrescriptionFindingsObservations = findings;
                 result.PrescriptionDrugDetails = medicnes;
                 result.PrescriptionMedicalCheckups = tests;
-                
+                result.AreaOfExperties=expStr;
+                result.Qualifications=degStr;
 
                 ////result.PrescriptionPatientDiseaseHistory = new List<PrescriptionPatientDiseaseHistoryDto>(); //prescription.PrescriptionPatientDiseaseHistory
                 //if (prescription?.PrescriptionPatientDiseaseHistory?.Count > 0)
@@ -362,6 +381,10 @@ namespace SoowGoodWeb.Services
                 var medicnes = ObjectMapper.Map<List<PrescriptionDrugDetails>, List<PrescriptionDrugDetailsDto>>(drugDetails);
                 var diagnosisTests = await _prescriptionMedicalCheckups.GetListAsync(t => t.PrescriptionMasterId == prescription.Id);
                 var tests = ObjectMapper.Map<List<PrescriptionMedicalCheckups>, List<PrescriptionMedicalCheckupsDto>>(diagnosisTests);
+                var medicalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
+                var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medicalSpecializations.ToList());
+                var medicalDegrees = await _doctorDegreeRepository.WithDetailsAsync(d => d.Degree);
+                var doctorDegrees = ObjectMapper.Map<List<DoctorDegree>, List<DoctorDegreeDto>>(medicalDegrees.ToList());
 
                 var doctorDetails = await _doctorDetails.WithDetailsAsync(s => s.Speciality);
                 //var doctorDetails = await _doctorDetails.WithDetailsAsync(s => s.Speciality, p=>p.DoctorSpecialization);
@@ -379,6 +402,31 @@ namespace SoowGoodWeb.Services
                     //    }
                     //}
                     var patientDetails = await _patientDetails.GetAsync(d => d.Id == prescription.PatientProfileId);
+
+                    var specializations = doctorSpecializations.Where(sp => sp.DoctorProfileId == prescription.DoctorProfileId).ToList();
+                    string expStr = string.Empty;
+                    foreach (var e in specializations)
+                    {
+                        expStr = expStr + e.SpecializationName + ",";
+
+                    }
+                    if (!string.IsNullOrEmpty(expStr))
+                    {
+                        expStr = expStr.Remove(expStr.Length - 1);
+                    }
+
+                    var degrees = doctorDegrees.Where(d => d.DoctorProfileId == prescription.DoctorProfileId).ToList();
+                    string degStr = string.Empty;
+                    foreach (var d in degrees)
+                    {
+                        degStr = degStr + d.DegreeName + ",";
+                    }
+
+                    if (!string.IsNullOrEmpty(degStr))
+                    {
+                        degStr = degStr.Remove(degStr.Length - 1);
+                    }
+
                     result.Id = prescription.Id;
                     result.RefferenceCode = prescription.RefferenceCode;
                     result.AppointmentId = prescription.AppointmentId;
@@ -388,6 +436,7 @@ namespace SoowGoodWeb.Services
                     result.DoctorName = (doctorInfo != null ? Utilities.Utility.GetDisplayName(doctorInfo.DoctorTitle).ToString() : "" + " ") + prescription.Appointment?.DoctorName;
                     result.DoctorCode = prescription.Appointment?.DoctorCode;
                     result.DoctorBmdcRegNo = doctorInfo != null ? doctorInfo?.BMDCRegNo : "";
+                    
                     result.SpecialityId = doctorInfo != null ? doctorInfo?.SpecialityId : null;
                     result.DoctorSpecilityName = doctorInfo?.SpecialityId > 0 ? doctorInfo?.Speciality?.SpecialityName : "";
                     result.PatientProfileId = prescription.PatientProfileId;
@@ -415,6 +464,8 @@ namespace SoowGoodWeb.Services
                     result.PrescriptionFindingsObservations = findings;
                     result.PrescriptionDrugDetails = medicnes;
                     result.PrescriptionMedicalCheckups = tests;
+                    result.Qualifications=degStr;
+                    result.AreaOfExperties=expStr;
                 }
                 return result;
             }
