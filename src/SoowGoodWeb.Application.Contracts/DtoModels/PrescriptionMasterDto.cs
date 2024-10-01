@@ -18,6 +18,8 @@ namespace SoowGoodWeb.DtoModels
         public DoctorTitle? DoctorTitle { get; set; }
         public List<DoctorSpecializationDto>? DoctorSpecialization { get; set; }
         public string? AreaOfExperties { get; set; }
+        public List<DoctorDegreeDto>? DoctorDegrees { get; set; }
+        public string? Qualifications { get; set; }
         public string? DoctorCode { get; set; }
         public string? DoctorBmdcRegNo { get; set; }
         public long? SpecialityId { get; set; }
