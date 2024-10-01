@@ -25,6 +25,7 @@ namespace SoowGoodWeb.Services
         private readonly IRepository<PrescriptionPatientDiseaseHistory> _prescriptionPatientDiseaseHistory;
         private readonly IRepository<PrescriptionDrugDetails> _prescriptionDrugDetails;
         private readonly IRepository<DoctorProfile> _doctorDetails;
+        private readonly IRepository<DoctorSpecialization> _doctorSpecializationRepository;
         private readonly IRepository<PatientProfile> _patientDetails;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly AppointmentService _appointmentService;
@@ -36,6 +37,7 @@ namespace SoowGoodWeb.Services
                                          IRepository<PrescriptionPatientDiseaseHistory> prescriptionPatientDiseaseHistory,
                                          IRepository<PrescriptionDrugDetails> prescriptionDrugDetails,
                                          IRepository<DoctorProfile> doctorDetails,
+                                         IRepository<DoctorSpecialization> doctorSpecializationRepository,
                                          AppointmentService appointmentService,
                                          IRepository<PatientProfile> patientDetails)
         {
@@ -49,6 +51,7 @@ namespace SoowGoodWeb.Services
             _prescriptionDrugDetails = prescriptionDrugDetails;
             _appointmentService = appointmentService;
             _doctorDetails = doctorDetails;
+            _doctorSpecializationRepository = doctorSpecializationRepository;
             _patientDetails = patientDetails;
         }
         public async Task<PrescriptionMasterDto> CreateAsync(PrescriptionMasterInputDto input)
@@ -112,7 +115,8 @@ namespace SoowGoodWeb.Services
             var medicnes = ObjectMapper.Map<List<PrescriptionDrugDetails>, List<PrescriptionDrugDetailsDto>>(drugDetails);
             var diagnosisTests = await _prescriptionMedicalCheckups.GetListAsync(t => t.PrescriptionMasterId == id);
             var tests = ObjectMapper.Map<List<PrescriptionMedicalCheckups>, List<PrescriptionMedicalCheckupsDto>>(diagnosisTests);
-
+            var medicalSpecializations = await _doctorSpecializationRepository.WithDetailsAsync(s => s.Specialization, sp => sp.Speciality);
+            var doctorSpecializations = ObjectMapper.Map<List<DoctorSpecialization>, List<DoctorSpecializationDto>>(medicalSpecializations.ToList());
 
 
             var prescription = detailsPrescription.Where(p => p.Id == id).FirstOrDefault();
@@ -123,6 +127,17 @@ namespace SoowGoodWeb.Services
             {
                 var doctorInfo = doctorDetails.Where(d => d.Id == prescription.DoctorProfileId).FirstOrDefault();
                 var patientDetails = await _patientDetails.GetAsync(p => p.Id == prescription.PatientProfileId);
+                var specializations = doctorSpecializations.Where(sp => sp.DoctorProfileId == prescription.DoctorProfileId).ToList();
+                string expStr = string.Empty;
+                foreach (var e in specializations)
+                {
+                    expStr = expStr + e.SpecializationName + ",";
+
+                }
+                if (!string.IsNullOrEmpty(expStr))
+                {
+                    expStr = expStr.Remove(expStr.Length - 1);
+                }
                 result.Id = prescription.Id;
                 result.RefferenceCode = prescription.RefferenceCode;
                 result.AppointmentId = prescription.AppointmentId;
@@ -157,6 +172,7 @@ namespace SoowGoodWeb.Services
                 result.PrescriptionFindingsObservations = findings;
                 result.PrescriptionDrugDetails = medicnes;
                 result.PrescriptionMedicalCheckups = tests;
+                
 
                 ////result.PrescriptionPatientDiseaseHistory = new List<PrescriptionPatientDiseaseHistoryDto>(); //prescription.PrescriptionPatientDiseaseHistory
                 //if (prescription?.PrescriptionPatientDiseaseHistory?.Count > 0)

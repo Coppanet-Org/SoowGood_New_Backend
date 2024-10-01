@@ -15,6 +15,9 @@ namespace SoowGoodWeb.DtoModels
         public string? AppointmentCode { get; set; }
         public long? DoctorProfileId { get; set; }
         public string? DoctorName { get; set; }
+        public DoctorTitle? DoctorTitle { get; set; }
+        public List<DoctorSpecializationDto>? DoctorSpecialization { get; set; }
+        public string? AreaOfExperties { get; set; }
         public string? DoctorCode { get; set; }
         public string? DoctorBmdcRegNo { get; set; }
         public long? SpecialityId { get; set; }
