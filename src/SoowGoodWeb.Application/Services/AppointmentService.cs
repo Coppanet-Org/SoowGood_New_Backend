@@ -582,9 +582,12 @@ namespace SoowGoodWeb.Services
 
             var allAppointments = await appointmentsTask;
 
+            // Sort the appointments by AppointmentDate in descending order
+            var sortedAppointments = allAppointments.OrderByDescending(a => a.AppointmentDate).ThenBy(a => a.AppointmentSerial);
+
             // Paginate the appointments
-            var totalCount = allAppointments.Count(); // Total number of appointments for the entire query
-            var pagedAppointments = allAppointments.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList(); // Apply pagination
+            var totalCount = sortedAppointments.Count(); // Total number of appointments for the entire query
+            var pagedAppointments = sortedAppointments.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList(); // Apply pagination
 
             var agentDetails = await agentsTask;
             var doctorSessions = await doctorSessionsTask;
@@ -666,17 +669,11 @@ namespace SoowGoodWeb.Services
                 });
             }
 
-            // Sort the result by AppointmentDate first, then by AppointmentSerial within the date
-            var sortedResult = result
-                .OrderByDescending(a => a.AppointmentDate)
-                .ThenBy(a => a.AppointmentSerial)
-                .ToList();
-
             // Return the paged result with total count information
             return new PagedResultDto<AppointmentDto>
             {
                 TotalCount = totalCount,
-                Items = sortedResult
+                Items = result
             };
         }
 
